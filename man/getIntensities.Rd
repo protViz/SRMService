@@ -4,7 +4,7 @@
 \alias{getIntensities}
 \title{extracts Intensity columns}
 \usage{
-getIntensities(lightPiw, cont = "20160316")
+getIntensities(lightPiw)
 }
 \description{
 extracts Intensity columns

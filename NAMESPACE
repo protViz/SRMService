@@ -2,3 +2,4 @@
 
 export(getIntensities)
 export(piwotPiw)
+export(plotNicely)
