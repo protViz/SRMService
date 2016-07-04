@@ -4,7 +4,7 @@
 \alias{piwotPiw}
 \title{piwots light}
 \usage{
-piwotPiw(light)
+piwotPiw(data)
 }
 \description{
 piwots light

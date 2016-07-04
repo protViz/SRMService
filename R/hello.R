@@ -1,8 +1,12 @@
 #' piwots light
 #'
 #'@export
-piwotPiw <- function(light){
-  lightPiw <- reshape2::dcast(light,Peptide.Sequence+Precursor.Charge+Protein.Name+ Fragment.Ion + Product.Charge ~ Replicate.Name, value.var = "Area")
+piwotPiw <- function(data){
+  lightPiw <- reshape2::dcast(data,
+                              Peptide.Sequence + Precursor.Charge +
+                                Protein.Name + Fragment.Ion + Product.Charge + Isotope.Label
+                              ~ Replicate.Name,
+                              value.var = "Area")
   return(lightPiw)
 }
 
@@ -10,8 +14,8 @@ piwotPiw <- function(light){
 #'
 #' @export
 getIntensities <- function(lightPiw ){
-  lightInt <- lightPiw[,6:ncol(lightPiw)]
-  dum <- apply(lightPiw[ ,c(1,2,3,4,5)],1, paste,collapse="_")
+  lightInt <- lightPiw[,7:ncol(lightPiw)]
+  dum <- apply(lightPiw[ ,1:6],1, paste,collapse="_")
   rownames(lightInt) <- dum
   return(lightInt)
 }
