@@ -4,7 +4,7 @@
 \alias{plotNicely}
 \title{Make nice plots of transitions or peptides with correlations}
 \usage{
-plotNicely(dataX, main = "")
+plotNicely(dataX, main = "", log = "", ylab = "log(intensity)")
 }
 \arguments{
 \item{dataX}{data.frame}

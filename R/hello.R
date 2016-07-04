@@ -16,7 +16,9 @@ getIntensities <- function(lightPiw ){
   return(lightInt)
 }
 
-
+#' get required columns for analysis
+#'
+#'@export
 getRequiredColumns <- function(){
   cols <- c("Peptide.Sequence",
             "Protein.Name",
@@ -39,12 +41,12 @@ getRequiredColumns <- function(){
 #' @param main some name to plot
 #' @export
 #'
-plotNicely <- function(dataX, main=""){
+plotNicely <- function(dataX, main="", log="", ylab="log(intensity)"){
 
   mat <-matrix(c(1,1,1,0,2,3), byrow=T, ncol=3)
   layout(mat, widths=c(5,2,2), heights=c(2,1))
   dataXt <- t(dataX)
-  matplot(dataXt,type="l", main=main,lwd=1,lty=1, ylab="log(intensity)",las=2, xaxt = "n", log="y")
+  matplot(dataXt,type="l", main=main,lwd=1,lty=1, ylab="log(intensity)",las=2, xaxt = "n", log=log)
 
   axis(1, at = 1:nrow(dataXt), labels = rownames(dataXt), cex.axis = 0.7, las=2)
   legend("bottomleft", legend=rownames(dataX),col=1:5,lty=1 )
@@ -58,5 +60,9 @@ plotNicely <- function(dataX, main=""){
     imageColorscale(dd,col=getBlueWhiteRed(), zlim=c(-1,1))
   }
 }
+
+
+
+
 
 

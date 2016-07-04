@@ -1,0 +1,10 @@
+MSstatsMapping <- list("ProteinName" = "Protein.Name",
+  "PeptideSequence" = "Peptide.Sequence",
+  "PrecursorCharge" = "Precursor.Charge",
+  "FragmentIon" = "Fragment.Ion",
+  "ProductCharge" = "Product.Charge",
+  "IosotopeLabelType"="Isotope.Label",
+  "Intensity"="Area",
+  "Condition"="Condition",
+  "BioReplicate"="Sample.Name",
+  "Run" = "Replicate.Name")
