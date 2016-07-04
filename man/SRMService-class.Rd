@@ -18,13 +18,52 @@ The function performs a SQL query on the SQLite
 \describe{
 \item{\code{dbfile}}{database file location}
 }}
+\section{Methods}{
+
+\describe{
+\item{\code{getMatchingIntensities()}}{get matrix with intensities, where nr of NAs in row < maxNA}
+
+\item{\code{getNrNAs(light = FALSE)}}{show nr of NA's for heavy (defalt) or light transitions}
+
+\item{\code{getTransitionIntensities(light = FALSE)}}{get matrix with intensities, where nr of NAs in row < maxNA}
+
+\item{\code{plotCommonTransitions(light = FALSE)}}{Shows transitions which occure in heavy and light}
+
+\item{\code{plotQValues()}}{show q value distribution for peak groups}
+
+\item{\code{setMaxNAHeavy(max = 0)}}{set maximum of na's heavy row}
+
+\item{\code{setMaxNALight(max = 0)}}{set maximum of na's in light row}
+}}
 \examples{
+library(SRMService)
 tmp <- "D:/googledrive/DataAnalysis/p1930"
 allData <- read.csv( file=file.path(tmp,"data/longFormat.txt"),row.names = 1)
 data <-allData
-pool=1
+pool=2
 data <-allData[allData$pool==pool,]
-srms <- SRMService(data)
+srms <- SRMService(data,qvalue=0.25)
+srms$plotQValues()
+srms$plotTransition()
+srms$plotTransition(light=TRUE)
+srms$getNrNAs()
+srms$getNrNAs(light=TRUE)
+srms$maxNAHeavy
+srms$maxNALight
+hist(srms$piw$nrNA)
+
+srms$setMaxNAHeavy(30)
+srms$setMaxNALight(40)
+
+tmpH <- srms$getTransitionIntensities()
+dim(tmpH)
+stopifnot(max(apply(tmpH, 1, function(x){sum(is.na(x))}))<=30)
+tmpL <- srms$getTransitionIntensities(light=TRUE)
+dim(tmpL)
+max(apply(tmpL, 1, function(x){sum(is.na(x))}))
+x<-srms$getMatchingIntensities()
+dim(x$light)
+tmp<-srms$getLHLog2FoldChange()
 
 }
 
