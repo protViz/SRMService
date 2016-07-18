@@ -22,7 +22,10 @@
 #' data <-allData
 #' pool=2
 #' data <-allData[allData$pool==pool,]
+#' head(data)
 #' srms <- SRMService(data,qvalue=0.25)
+#'
+#'
 #' srms$plotQValues()
 #' srms$plotTransition()
 #' srms$plotTransition(light=TRUE)
@@ -30,21 +33,45 @@
 #' srms$getNrNAs(light=TRUE)
 #' srms$maxNAHeavy
 #' srms$maxNALight
-#' hist(srms$piw$nrNA)
 #'
 #' srms$setMaxNAHeavy(30)
 #' srms$setMaxNALight(40)
 #'
+#' colnames(srms$piw)
+#' head(srms$piw)
 #' tmpH <- srms$getTransitionIntensities()
 #' dim(tmpH)
 #' stopifnot(max(apply(tmpH, 1, function(x){sum(is.na(x))}))<=30)
 #' tmpL <- srms$getTransitionIntensities(light=TRUE)
 #' dim(tmpL)
-#' max(apply(tmpL, 1, function(x){sum(is.na(x))}))
+#' stopifnot(max(apply(tmpL, 1, function(x){sum(is.na(x))}))<=40)
 #' x<-srms$getMatchingIntensities()
-#' dim(x$light)
-#' tmp<-srms$getLHLog2FoldChange()
+#' rownames(x$light)[1:10]
 #'
+#'
+#' tmp<-srms$getLHLog2FoldChange()
+#' head(tmp)
+#'
+# d<-(srms$data)
+# dim(d)
+# head(d)
+# x<-piwotPiw(d)
+# d2<-reshape2::melt(x, id.vars= colnames(x)[1:6], variable.name = 'Area')
+# head(d2)
+# dim(d2)
+#
+#
+# dl <- d[d$Isotope.Label == 'light',]
+# dh <- d[d$Isotope.Label == 'heavy',]
+#
+# tmp <- merge(dl,dh,by=colnames(dl)[c(1:6)],suffixes = c(".light",".heavy"))
+# head(tmp)
+# dim(tmp)
+# xx1<-dplyr::anti_join(dl,dh,by=colnames(dl)[c(1:6)])
+#
+# xx2<-dplyr::full_join(dh,dl,by=colnames(dl)[c(1:6)])
+# head(xx2)
+
 SRMService <- setRefClass("SRMService",
                           fields = list( data = "data.frame",
                                          dataq = "data.frame",
@@ -67,18 +94,15 @@ SRMService <- setRefClass("SRMService",
                               .self$piw <- SRMService::piwotPiw(.self$dataq)
                               .self$int <- SRMService::getIntensities(.self$piw)
                               rownames(.self$piw) <-rownames(.self$int)
-                              .self$piw <- .self$piw[,1:6]
-
+                              .self$piw <- .self$piw#[,1:6]
                               nas <- apply(.self$int , 1 , function(x){sum(is.na(x))})
                               .self$piw$nrNA <- nas
-
                             },
                             initialize = function(data,
                                                   qvalue = 0.05
                             ){
                               stopifnot(getRequiredColumns() %in% colnames(data))
-                              .self$data <- data
-
+                              .self$data <- data[,getRequiredColumns()]
                               .self$maxNAHeavy <- length(unique(.self$data$Replicate.Name))
                               .self$maxNALight <- length(unique(.self$data$Replicate.Name))
                               setQ(qvalue)
@@ -86,7 +110,6 @@ SRMService <- setRefClass("SRMService",
                             summary = function(){
                               "summarize experiment"
                             },
-
                             plotQValues  = function(){
                               "show q value distribution for peak groups"
                               hist(.self$data$annotation_QValue)
@@ -94,8 +117,8 @@ SRMService <- setRefClass("SRMService",
                             },
                             getNrNAs = function(light = FALSE){
                               "show nr of NA's for heavy (defalt) or light transitions"
-                              isolable<-ifelse(light, "light", "heavy")
-                              nas <-subset(.self$piw,Isotope.Label==isolable)$nrNA
+                              isolable <- ifelse(light, "light", "heavy")
+                              nas <- subset(.self$piw,Isotope.Label==isolable)$nrNA
                               hist(nas, main=isolable)
                               abline(v=ifelse(light, .self$maxNALight, .self$maxNAHeavy), col=2)
                               invisible(nas)

@@ -42,7 +42,10 @@ allData <- read.csv( file=file.path(tmp,"data/longFormat.txt"),row.names = 1)
 data <-allData
 pool=2
 data <-allData[allData$pool==pool,]
+head(data)
 srms <- SRMService(data,qvalue=0.25)
+
+
 srms$plotQValues()
 srms$plotTransition()
 srms$plotTransition(light=TRUE)
@@ -50,20 +53,24 @@ srms$getNrNAs()
 srms$getNrNAs(light=TRUE)
 srms$maxNAHeavy
 srms$maxNALight
-hist(srms$piw$nrNA)
 
 srms$setMaxNAHeavy(30)
 srms$setMaxNALight(40)
 
+colnames(srms$piw)
+head(srms$piw)
 tmpH <- srms$getTransitionIntensities()
 dim(tmpH)
 stopifnot(max(apply(tmpH, 1, function(x){sum(is.na(x))}))<=30)
 tmpL <- srms$getTransitionIntensities(light=TRUE)
 dim(tmpL)
-max(apply(tmpL, 1, function(x){sum(is.na(x))}))
+stopifnot(max(apply(tmpL, 1, function(x){sum(is.na(x))}))<=40)
 x<-srms$getMatchingIntensities()
-dim(x$light)
+rownames(x$light)[1:10]
+
+
 tmp<-srms$getLHLog2FoldChange()
+head(tmp)
 
 }
 
