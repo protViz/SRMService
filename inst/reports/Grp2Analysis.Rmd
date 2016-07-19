@@ -1,0 +1,153 @@
+---
+title: "FGCZ Two-Group Analysis for: p2084 \n Statistics for a Quantitative Protein Matrix"
+author: "Functional Genomics Center Zuerich"
+date: "19 July 2016"
+output:
+  pdf_document:
+    fig_caption: yes
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(
+	echo = FALSE,
+	message = FALSE,
+	warning = FALSE
+)
+```
+
+```{r include=FALSE}
+fig <- local({
+    i <- 0
+    ref <- list()
+    list(
+        cap=function(refName, text) {
+            i <<- i + 1
+            ref[[refName]] <<- i
+            paste("Figure ", i, ": ", text, sep="")
+        },
+        ref=function(refName) {
+            ref[[refName]]
+        })
+})
+```
+
+# Input Matrix
+
+Experiment is called: OID2264
+
+## Numbers
+
+The protein matrix is read like this:
+
+All are QUANTIFIED, as filtering should be done before uploading the matrix file.
+Zero values will eventually be imputed depending on the argument.
+
+The total number of proteins in this experiment is: `r nrow(grp2$proteinIntensity)`
+
+
+```{r }
+library(knitr)
+
+tab <- data.frame(table(grp2$annotation$Condition))
+colnames(tab) <- c("Condition","# samples")
+knitr::kable(tab)
+
+
+```
+
+
+# The Groups
+
+Here the files in each group:
+
+```{r }
+tab<-grp2$annotation[,c("Condition","Raw.file")]
+rownames(tab) <- NULL
+knitr::kable(tab)
+
+```
+
+# Proteins Used for Quantitation
+
+
+```{r histmissing, fig.cap="nr of missing values per protein"}
+
+grp2$proteinIntensity[grp2$proteinIntensity == 0]<-NA
+missing <- apply(grp2$proteinIntensity,1,function(x){sum(is.na(x))})
+int <- apply(grp2$proteinIntensity,1,sum, na.rm=TRUE)
+
+plot(table(missing))
+grp2$proteinIntensity <- grp2$proteinIntensity[order(missing, -int,decreasing = T),]
+```
+
+
+The input matrix has the following structure.
+
+
+```{r overview, fig.with=9,fig.height=8,fig.cap="Heatmap for quantifyable proteins sorted by missigness and intensity (log2). Gray - missing values"}
+library(quantable)
+grp2$proteinIntensity[grp2$proteinIntensity == 0]<-NA
+z <- log2(grp2$proteinIntensity)
+imageWithLabels(t(z), col.labels = NULL, col=quantable::getBlueScale(21))
+```
+
+
+# Distribution of intensities
+
+Shown in Figure \@ref(distributionRaw) are the un-normalized values while in Figure  \@ref(normalized)
+are the z transformed values (subtracted median and divided by variance).
+
+```{r distributionRaw, fig.width=7, fig.height=7, fig.cap="Density plot for quantifyable proteins (log2 transformed)"}
+library(ggplot2)
+library(reshape2)
+longm <- melt(z)
+
+p <- qplot( variable , value , data=longm , geom="violin" , xlab="" , ylab="log10(I)")
+p + stat_summary(fun.y=median,geom='point') +theme(axis.text.x = element_text(angle = 90, hjust = 1))
+
+```
+
+
+
+```{r normalized,  fig.width=7,fig.height=7,dpi=300, fig.cap="Density plot for normalized values (log2)"}
+normalized <- quantable::robustscale(z)
+
+longm <- melt(normalized$data)
+p <- qplot( variable , value , data=longm , geom="violin" , xlab="" , ylab="log10(I)")
+p + stat_summary(fun.y=median,geom='point') + theme(axis.text.x = element_text(angle = 90, hjust = 1))
+
+```
+
+The scaling factors are visualized in Figure \@ref(scaling). It shows with what factor the individually samples
+are normalized. Large differences in the scaling factors are critical.
+
+```{r  scaling,dpi=300, fig.height=9, fig.cap="Applied scaling factors for normalization (calculated using median normalization)."}
+par(mfrow=c(2,1))
+par(mar=c(3,10,3,3))
+
+barplot(normalized$medians,horiz=T,las=2, main="median correction", cex.names = 0.6)
+barplot(normalized$mads,horiz=T, las=2 , main="standard deviation correction", cex.names = 0.6)
+
+```
+
+
+```{r correlation,dpi=300,fig.height=8,fig.width=8, fig.cap="Heatmap of correlations (spearman) between samples."}
+col <- c("red","blue")
+simpleheatmap(cor(normalized$data, use="pairwise.complete.obs", method="spearman")^2,palette = getGreensScale(21),ColSideColors = col[grp2$annotation$Condition], margins = c(10,3))
+
+```
+
+# Heatmaps and Clustering for Proteins
+
+In Figure \@ref(heatmapData) we show how samples are clustering depending on their protein expression profiles.
+Also proteins are clustered according their profiles within the different samples.
+
+
+```{r heatmapData, fig.width=8, fig.height=10, dpi=300 }
+nas <-apply(normalized$data,1, function(x){sum(is.na(x))})
+simpleheatmap(normalized$data[nas < 6,],ColSideColors = col[grp2$annotation$Condition], margins=c(10,3) )
+
+```
+
+
+# FGCZ - Two Group Analysis 

@@ -67,28 +67,28 @@
 
 
 #' MaxQtoMSstatsFormat
-#' @param evidence MQ evidence.txt read using read.csv(sep="\t")
+#' @param evidence MQ evidence.txt read using read.csv(sep=\"\\t\")
 #' @param annotation  data.frame with columns Raw.file, Condition, BioReplicate, Run, IsotopeLabelType
 #' @param proteinGroups provide MQ proteinGroups.txt
 #' @param useUniquePeptide : (likely same as proteotypic) remove peptides that are assigned for more than one proteins. We assume to use unique peptide for each protein.
 #' @param summaryforMultipleRows : max or sum - when there are multiple measurements for certain feature and certain fun, use highest or sum of all.
 #' @param fewMeasurements : if 1 or 2 measurements across runs per feature, 'remove' will remove those featuares. It can affected for unequal variance analysis.
+#' @import reshape2
 #' @export
 MQtoMSstatsFormat <- function(evidence,
-                                annotation,
-                                proteinGroups,
-                                useUniquePeptide=TRUE,
-                                summaryforMultipleRows=max,
-                                fewMeasurements="remove",
-                                removeMpeptides=TRUE){
+                              annotation,
+                              proteinGroups,
+                              useUniquePeptide=TRUE,
+                              summaryforMultipleRows=max,
+                              fewMeasurements="remove",
+                              removeMpeptides=TRUE){
 
 
   ### annotation.txt : Raw.file, Condition, BioReplicate, Run, (IsotopeLabelType)
   annot <- annotation
-
-
-  evidence <- .filterEvidence( evidence )
-
+  if(0){
+    evidence <- .filterEvidence( evidence )
+  }
   ################################################
   ### 1.1.2 matching proteinGroupID protein list
 
@@ -97,9 +97,11 @@ MQtoMSstatsFormat <- function(evidence,
   ### possible to have some combination in Protein.group.IDs in evidence, such as 64;1274;1155;1273 instead of 64, 1274.. separately. combination of some ids seems not to be used for intensity
   ### 2015/02/03
 
-
-  tempprotein <- .filterProteinGroups(proteinGroups)
-
+  if(0){
+    tempprotein <- .filterProteinGroups(proteinGroups)
+  } else{
+    tempprotein <- proteinGroups
+  }
   ### then take proteins which are included
   evidence <- evidence[which(evidence$Protein.group.IDs %in% unique(tempprotein$id)), ]
 
@@ -109,8 +111,9 @@ MQtoMSstatsFormat <- function(evidence,
 
   tempname <- unique(tempprotein[,c("Protein.IDs", "id")])
   colnames(tempname) <- c("uniqueProteins", "Protein.group.IDs")
-
+  print(dim(evidence))
   evidence <- merge(evidence, tempname, by="Protein.group.IDs")
+  print(dim(evidence))
 
   evidence  <-  evidence[c("uniqueProteins", "Protein.group.IDs", "Sequence", "Modified.sequence", "Charge", "Raw.file", "Intensity", "Retention.time", "id")]
 
@@ -169,7 +172,6 @@ MQtoMSstatsFormat <- function(evidence,
   ## *** remove features which has less than 2 measurements across runs
   ## !!! for MSstats v3, we don't need to remove them.
   ## good to remove before reformatting to long-format
-
   if(fewMeasurements == "remove"){
     infile_w <- .remove_feature_with_few(infile_w)
   }

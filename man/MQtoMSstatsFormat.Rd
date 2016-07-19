@@ -9,7 +9,7 @@ MQtoMSstatsFormat(evidence, annotation, proteinGroups,
   fewMeasurements = "remove", removeMpeptides = TRUE)
 }
 \arguments{
-\item{evidence}{MQ evidence.txt read using read.csv(sep="\t")}
+\item{evidence}{MQ evidence.txt read using read.csv(sep=\"\\t\")}
 
 \item{annotation}{data.frame with columns Raw.file, Condition, BioReplicate, Run, IsotopeLabelType}
 
