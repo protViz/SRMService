@@ -11,7 +11,10 @@ Grp2Analysis <- setRefClass("Grp2Analysis",
                                         fields = list( proteinIntensity = "data.frame",
                                                        annotation = "data.frame",
                                                        proteinAnnotation = "data.frame",
-                                                       nrPeptides = "numeric")
+                                                       nrPeptides = "numeric",
+                                                       maxNA = "numeric",
+                                                       conditions = "character",
+                                                       projectName = "character")
                                         , methods = list(
                                           setProteins = function(protein){
                                             "used to verify proteingroups structure and set members"
@@ -19,17 +22,34 @@ Grp2Analysis <- setRefClass("Grp2Analysis",
                                             stopifnot(grep("Intensity\\." , colnames(protein))>0)
                                             stopifnot(sum(duplicated(protein$TopProteinName))==0)
                                             rownames(protein) <- protein$TopProteinName
-                                            .self$proteinIntensity <- protein[, grep("Intensity\\.",colnames(protein))]
-                                            .self$proteinAnnotation <- protein[,proteinColumns]
 
+                                            protein <- protein[protein$nrPeptides >= .self$nrPeptides,]
+
+                                            .self$proteinIntensity <- protein[, grep("Intensity\\.",colnames(protein))]
+                                            colnames(.self$proteinIntensity) <- gsub("Intensity\\.","",colnames(.self$proteinIntensity))
+                                            stopifnot(colnames(.self$proteinIntensity) %in% .self$annotation$Raw.file)
+
+
+                                            .self$proteinIntensity <- .self$proteinIntensity[,.self$annotation$Raw.file]
+                                            .self$proteinIntensity[grp2$proteinIntensity==0] <-NA
+
+                                            nas <-.self$getNrNAs()
+                                            .self$proteinIntensity <- .self$proteinIntensity[nas<=maxNA,]
+                                            .self$proteinAnnotation <- protein[nas<=maxNA,proteinColumns]
 
                                           },
                                           initialize = function(
                                             annotation,
+                                            projectName,
+                                            maxNA=3,
                                             nrPeptides = 2
                                           ){
+                                            .self$projectName <- projectName
                                             stopifnot(annotationColumns %in% colnames(annotation))
                                             .self$annotation <- annotation[order(annotation$Condition),]
+                                            .self$conditions <- unique(.self$annotation$Condition)
+                                            .self$nrPeptides <- nrPeptides
+                                            .self$maxNA <- maxNA
                                           },
                                           setMQProteinGroups = function(MQProteinGroups){
                                             "set MQ protein groups table"
@@ -39,6 +59,9 @@ Grp2Analysis <- setRefClass("Grp2Analysis",
                                                                                                function(x){x[1]}),
                                                                        nrPeptides = MQProteinGroups$Peptides, pint, stringsAsFactors = F)
                                             setProteins(proteinTable)
+                                          },
+                                          getNrNAs = function(){
+                                            return(apply(.self$proteinIntensity, 1, function(x){sum(is.na(x))}))
                                           }
                                         )
 )
