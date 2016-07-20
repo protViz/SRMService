@@ -25,10 +25,13 @@ Experiment is called: `r grp2$experimentName`
 
 The protein matrix is filtered like this:
 
-- Minimum of peptides protein: `r grp2$nrPeptides`
+- Minimum number of peptides / protein: `r grp2$nrPeptides`
 - Maximum of missing values per protein : `r grp2$maxNA`
 
 The total number of proteins in this experiment is: `r nrow(grp2$proteinIntensity)`
+
+
+# The Groups
 
 
 ```{r }
@@ -40,9 +43,6 @@ knitr::kable(tab)
 
 
 ```
-
-
-# The Groups
 
 Here the files in each group:
 
@@ -58,7 +58,7 @@ knitr::kable(tab)
 # Proteins Used for Quantitation
 
 
-```{r histmissing, }
+```{r histmissing }
 
 grp2$proteinIntensity[grp2$proteinIntensity == 0]<-NA
 missing <- apply(grp2$proteinIntensity,1,function(x){sum(is.na(x))})
@@ -70,7 +70,7 @@ grp2$proteinIntensity <- grp2$proteinIntensity[order(missing, -int,decreasing = 
 The input matrix has the following structure.
 
 
-```{r overview, fig.with=9,fig.height=6,fig.cap="Heatmap for quantifyable proteins sorted by missigness and intensity (log2). Gray - missing values"}
+```{r overview, fig.with=9,fig.height=7,dpi=300,fig.cap="Heatmap for quantifyable proteins sorted by missigness and intensity (log2). Gray - missing values"}
 library(quantable)
 
 grp2$proteinIntensity[grp2$proteinIntensity == 0]<-NA
