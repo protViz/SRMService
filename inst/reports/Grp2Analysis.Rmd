@@ -19,14 +19,14 @@ knitr::opts_chunk$set(
 
 # Input Matrix
 
-Experiment is called: OID2264
+Experiment is called: `r grp2$experimentName`
 
 ## Numbers
 
-The protein matrix is read like this:
+The protein matrix is filtered like this:
 
-All are QUANTIFIED, as filtering should be done before uploading the matrix file.
-Zero values will eventually be imputed depending on the argument.
+- Minimum of peptides protein: `r grp2$nrPeptides`
+- Maximum of missing values per protein : `r grp2$maxNA`
 
 The total number of proteins in this experiment is: `r nrow(grp2$proteinIntensity)`
 

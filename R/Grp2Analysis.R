@@ -14,7 +14,8 @@ Grp2Analysis <- setRefClass("Grp2Analysis",
                                                        nrPeptides = "numeric",
                                                        maxNA = "numeric",
                                                        conditions = "character",
-                                                       projectName = "character")
+                                                       projectName = "character",
+                                                       experimentName = "character")
                                         , methods = list(
                                           setProteins = function(protein){
                                             "used to verify proteingroups structure and set members"
@@ -29,7 +30,6 @@ Grp2Analysis <- setRefClass("Grp2Analysis",
                                             colnames(.self$proteinIntensity) <- gsub("Intensity\\.","",colnames(.self$proteinIntensity))
                                             stopifnot(colnames(.self$proteinIntensity) %in% .self$annotation$Raw.file)
 
-
                                             .self$proteinIntensity <- .self$proteinIntensity[,.self$annotation$Raw.file]
                                             .self$proteinIntensity[grp2$proteinIntensity==0] <-NA
 
@@ -41,10 +41,12 @@ Grp2Analysis <- setRefClass("Grp2Analysis",
                                           initialize = function(
                                             annotation,
                                             projectName,
+                                            experimentName="First experiment",
                                             maxNA=3,
                                             nrPeptides = 2
                                           ){
                                             .self$projectName <- projectName
+                                            .self$experimentName <- experimentName
                                             stopifnot(annotationColumns %in% colnames(annotation))
                                             .self$annotation <- annotation[order(annotation$Condition),]
                                             .self$conditions <- unique(.self$annotation$Condition)
