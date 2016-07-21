@@ -3,15 +3,15 @@ title: "FGCZ Two-Group Analysis for: `r grp2$projectName` \n Statistics for a Qu
 author: "Functional Genomics Center Zurich"
 date: "`r format(Sys.time(), '%d %B, %Y')`"
 output:
-  pdf_document:
-    fig_caption: yes
+pdf_document:
+fig_caption: yes
 ---
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(
-	echo = FALSE,
-	message = FALSE,
-	warning = FALSE
+  echo = FALSE,
+  message = FALSE,
+  warning = FALSE
 )
 ```
 
@@ -58,10 +58,9 @@ knitr::kable(tab)
 # Proteins Used for Quantitation
 
 
-```{r histmissing }
 
-grp2$proteinIntensity[grp2$proteinIntensity == 0]<-NA
-missing <- apply(grp2$proteinIntensity,1,function(x){sum(is.na(x))})
+```{r histmissing }
+missing <- grp2$getNrNAs()
 int <- apply(grp2$proteinIntensity,1,sum, na.rm=TRUE)
 grp2$proteinIntensity <- grp2$proteinIntensity[order(missing, -int,decreasing = T),]
 ```
@@ -73,15 +72,13 @@ The input matrix has the following structure.
 ```{r overview, fig.with=9,fig.height=7,dpi=300,fig.cap="Heatmap for quantifyable proteins sorted by missigness and intensity (log2). Gray - missing values"}
 library(quantable)
 
-grp2$proteinIntensity[grp2$proteinIntensity == 0]<-NA
-z <- log2(grp2$proteinIntensity)
-imageWithLabels(t(z), col.labels = NULL, col=quantable::getBlueScale(21))
+imageWithLabels(t(log2(grp2$proteinIntensity)), col.labels = NULL, col=quantable::getBlueScale(21))
 
 ```
 
 ```{r, fig.cap="# of missing values per protein"}
-
 plot(table(missing))
+
 ```
 
 \pagebreak
@@ -95,7 +92,7 @@ are the z transformed values (subtracted median and divided by variance).
 ```{r distributionRaw, fig.width=7, fig.height=7, fig.cap="Density plot for quantifyable proteins (log2 transformed)"}
 library(ggplot2)
 library(reshape2)
-longm <- melt(z)
+longm <- melt(log2(grp2$proteinIntensity))
 
 p <- qplot( variable , value , data=longm , geom="violin" , xlab="" , ylab="log10(I)")
 p + stat_summary(fun.y=median,geom='point') +theme(axis.text.x = element_text(angle = 90, hjust = 1))
@@ -105,9 +102,8 @@ p + stat_summary(fun.y=median,geom='point') +theme(axis.text.x = element_text(an
 
 
 ```{r normalized,  fig.width=7,fig.height=7,dpi=300, fig.cap="Density plot for normalized values (log2)"}
-normalized <- quantable::robustscale(z)
 
-longm <- melt(normalized$data)
+longm <- melt(grp2$getNormalized()$data)
 p <- qplot( variable , value , data=longm , geom="violin" , xlab="" , ylab="log10(I)")
 p + stat_summary(fun.y=median,geom='point') + theme(axis.text.x = element_text(angle = 90, hjust = 1))
 
@@ -116,12 +112,13 @@ p + stat_summary(fun.y=median,geom='point') + theme(axis.text.x = element_text(a
 The scaling factors are visualized in Figure \@ref(scaling). It shows with what factor the individually samples
 are normalized. Large differences in the scaling factors are critical.
 
+
 ```{r  scaling,dpi=300, fig.height=6, fig.cap="Applied scaling factors for normalization (calculated using median normalization)."}
 par(mfrow=c(2,1))
 par(mar=c(3,10,3,3))
 
-barplot(normalized$medians,horiz=T,las=2, main="median correction", cex.names = 0.6)
-barplot(normalized$mads,horiz=T, las=2 , main="standard deviation correction", cex.names = 0.6)
+barplot(grp2$getNormalized()$medians,horiz=T,las=2, main="median correction", cex.names = 0.6)
+barplot(grp2$getNormalized()$mads,horiz=T, las=2 , main="standard deviation correction", cex.names = 0.6)
 
 ```
 
@@ -131,12 +128,17 @@ barplot(normalized$mads,horiz=T, las=2 , main="standard deviation correction", c
 # Coefficients of variation
 
 ```{r CViolin, fig.cap="distribution of protein CV within condition and overall"}
-cond1 <- grp2$proteinIntensity[, grp2$annotation$Raw.file[grp2$annotation$Condition == grp2$conditions[1]]]
-cond2 <- grp2$proteinIntensity[, grp2$annotation$Raw.file[grp2$annotation$Condition == grp2$conditions[2]]]
+#cond1 <- grp2$proteinIntensity[, grp2$annotation$Raw.file[grp2$annotation$Condition == grp2$conditions[1]]]
+cond1 <- grp2$getConditionData(grp2$conditions[1])
+
+cond2 <- grp2$getConditionData(grp2$conditions[2])
+
+
+
 cond1 <- quantable::CV(cond1)
 cond2 <- quantable::CV(cond2)
 all <- quantable::CV(grp2$proteinIntensity)
-CVs<-rbind(data.frame(condition=grp2$conditions[1], cv=cond1), data.frame(condition=grp2$conditions[2],cv=cond2 ), data.frame(condition="all", cv=all))
+CVs <- rbind(data.frame(condition=grp2$conditions[1], cv=cond1), data.frame(condition=grp2$conditions[2],cv=cond2 ), data.frame(condition="all", cv=all))
 
 p <- qplot( condition , cv , data=CVs , geom="violin" , xlab="" , ylab="log10(I)")
 p + stat_summary(fun.y=median,geom='point') + theme(axis.text.x = element_text(angle = 90, hjust = 1))
@@ -145,19 +147,21 @@ p + stat_summary(fun.y=median,geom='point') + theme(axis.text.x = element_text(a
 
 
 ```{r}
-cvSummary <-aggregate(cv ~ condition , data=CVs , median, na.rm=TRUE)
+cvSummary <- aggregate(cv ~ condition , data=CVs , median, na.rm=TRUE)
 knitr::kable(cvSummary,caption = 'median of cv')
 ```
 
 \pagebreak
 
-```{r SDViolin, fig.cap="Distribution of protein SD (after sample normalization) within condition and overall"}
-cond1 <- normalized$data[, grp2$annotation$Raw.file[grp2$annotation$Condition == grp2$conditions[1]]]
-cond2 <- normalized$data[, grp2$annotation$Raw.file[grp2$annotation$Condition == grp2$conditions[2]]]
-cond1 <- apply(cond1,1, sd, na.rm=TRUE)
-cond2 <- apply(cond2,1, sd, na.rm=TRUE)
-all <- apply(normalized$data,1, sd, na.rm=TRUE)
-SDs<-rbind(data.frame(condition=grp2$conditions[1], sd=cond1), data.frame(condition=grp2$conditions[2],sd=cond2 ), data.frame(condition="all", sd=all))
+```{r SDViolin, fig.cap="Distribution of protein standard deviation (after sample normalization and scaling) within conditions and overall"}
+cond1 <- grp2$getNormalizedConditionData( grp2$conditions[1] )
+cond2 <- grp2$getNormalizedConditionData( grp2$conditions[2] )
+
+cond1 <- apply(cond1, 1, sd, na.rm=TRUE)
+cond2 <- apply(cond2, 1, sd, na.rm=TRUE)
+
+all <- apply( grp2$getNormalized()$data, 1 , sd, na.rm=TRUE )
+SDs<-rbind(data.frame( condition=grp2$conditions[1], sd=cond1), data.frame(condition=grp2$conditions[2],sd=cond2 ), data.frame(condition="all", sd=all))
 
 p <- qplot( condition , sd , data=SDs , geom="violin" , xlab="" , ylab="log10(I)")
 p + stat_summary(fun.y=median,geom='point') + theme(axis.text.x = element_text(angle = 90, hjust = 1))
@@ -176,7 +180,7 @@ knitr::kable(sdSummary, caption = 'median of sd')
 
 ```{r correlation,dpi=300,fig.height=8,fig.width=8, fig.cap="Heatmap of correlations (spearman) between samples."}
 col <- c("red","blue")
-simpleheatmap(cor(normalized$data, use="pairwise.complete.obs", method="spearman")^2,palette = getGreensScale(21),ColSideColors = col[as.factor(grp2$annotation$Condition)], margins = c(10,3))
+simpleheatmap(cor(grp2$getNormalized()$data , use="pairwise.complete.obs", method="spearman")^2,palette = getGreensScale(21),ColSideColors = col[as.factor(grp2$annotation$Condition)], margins = c(10,3))
 
 ```
 
@@ -186,11 +190,69 @@ In Figure \@ref(heatmapData) we show how samples are clustering depending on the
 Also proteins are clustered according their profiles within the different samples.
 
 
-```{r heatmapData, fig.width=8, fig.height=10, dpi=300 }
-nas <-apply(normalized$data,1, function(x){sum(is.na(x))})
-simpleheatmap(normalized$data[nas < 6,],ColSideColors = col[as.factor(grp2$annotation$Condition)], margins=c(10,3) )
+```{r heatmapData, fig.width=8, fig.height=10, dpi=300, fig.cap="Heatmap for normalized and scaled values based (log2 transformed data)" }
+tmp <- grp2$getNormalized()$data
+
+simpleheatmap(grp2$getNormalized()$data[grp2$getNrNAs() < ncol(grp2$getNormalized()$data)/2,],ColSideColors = col[as.factor(grp2$annotation$Condition)], margins=c(10,3) )
 
 ```
 
 
-# FGCZ - Two Group Analysis 
+# FGCZ - Two Group Analysis
+
+```{r include=FALSE}
+fixcols <- function(resRel){
+  resRel<-do.call("rbind", resRel)
+  rownames(resRel) <- NULL
+  resRel <- data.frame(resRel,tmp= 2^resRel$foldchange)
+  colnames(resRel) <- c("regulation", "Accession", "log2(T/N)", "qvalue", "foldchange (T/N)")
+  return(resRel)
+}
+```
+## Stringent Thresholds
+
+Here we show for the normalized matrices the result of a
+two group analysis using bioconductor limma. Significant calls are made with q Value smaller 0.01 (false discovery rate, computed with bioconductor package qvalue). The list is also written to a text file with group means,
+pValue, FDR (qValue), FoldChange. Additionally we output graphically the Volcano plot.
+
+
+```{r fig.width=10, fig.height=8, dpi=300, fig.cap="VolcanoPlot for normalized and scaled proteins with stringent thresholds. x axis log2 fold change"}
+res.eb <-grp2$getPValues()
+resStr <-quantable::volcanoplot(res.eb$logFC, res.eb$q.mod, foldchangethresh = 0.1 , pthresh = 0.01 ,labels=rownames(res.eb))
+
+```
+
+```{r}
+resStr<-fixcols(resStr)
+knitr::kable(resStr, caption = "Stringent cutoff (q < 0.01) regulated proteins.")
+```
+
+
+## Relaxed Threshold
+
+ere we show for the normalized matrices the result of a
+two group analysis using bioconductor limma. Significant calls are made with qValue smaller 0.05 (false discovery rate, computed with bioconductor package qvalue). We output first the length of the list (the list is also written to a text file with group means,
+pValue, FDR, FoldChange). Additionally we output graphically the Volcano plot
+
+
+
+```{r fig.width=10, fig.height=8, dpi=300, fig.cap="VolcanoPlot for normalized and imputed matrix (asinh) with relaxed thresholds."}
+res.eb <-grp2$getPValues()
+resRel <- quantable::volcanoplot(res.eb$logFC, res.eb$q.mod, foldchangethresh = 0.1 , pthresh = 0.05 ,labels=rownames(res.eb))
+
+```
+
+
+
+
+```{r}
+resRel <- fixcols(resRel)
+knitr::kable(resRel, caption = "Relaxed cutoff (q < 0.05) regulated proteins.")
+
+```
+
+
+## Disclaimer and Acknowledgements
+
+This document was generated using Rmarkdown and processes text files which are generated either with a label-free quantitation software such as ProgenesisLCMS or MaxQuant. In anycase the obtained results should be validated orthogonally as well (e.g. with Western blots).
+The FGCZ does not provide any kind of guarantee of the validity of these statistics.

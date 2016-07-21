@@ -15,6 +15,13 @@ annotation <-data.frame(Raw.file = rawF,
 source("R/Grp2Analysis.R")
 grp2 <- Grp2Analysis(annotation, "p2084", maxNA=8 , nrPeptides=2)
 grp2$setMQProteinGroups(protein)
-table(grp2$getNrNAs())
+grp2$getDesignMatrix()
+library(dScipa)
+idx <-grep("SL9B2_MOUSE",rownames(grp2$proteinIntensity))
+grp2$proteinIntensity[idx,]
+res.eb <-grp2$getPValues()
+head(res.eb)
+grep("SL9B2_MOUSE",rownames(res.eb))
 
 rmarkdown::render("inst/reports/Grp2Analysis.Rmd",output_format = "pdf_document", output_file = "Grp2Analysis.pdf")
+
