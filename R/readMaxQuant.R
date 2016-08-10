@@ -116,7 +116,6 @@ MQtoMSstatsFormat <- function(evidence,
   print(dim(evidence))
 
   evidence  <-  evidence[c("uniqueProteins", "Protein.group.IDs", "Sequence", "Modified.sequence", "Charge", "Raw.file", "Intensity", "Retention.time", "id")]
-
   colnames(evidence)[colnames(evidence) == "uniqueProteins"] <- "Proteins"
 
   ## remove "_" at the beginning and end
