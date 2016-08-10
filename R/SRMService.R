@@ -19,26 +19,29 @@
 #' library(SRMService)
 #' tmp <- "D:/googledrive/DataAnalysis/p1930"
 #' allData <- read.csv( file=file.path(tmp,"data/longFormat.txt"),row.names = 1)
+#' head(allData)
 #' data <-allData
 #' pool=2
 #' data <-allData[allData$pool==pool,]
 #' head(data)
 #' srms <- SRMService(data,qvalue=0.25)
-#'
+#' head(srms$piw)
 #'
 #' srms$plotQValues()
 #' srms$plotTransition()
 #' srms$plotTransition(light=TRUE)
+#'
 #' srms$getNrNAs()
 #' srms$getNrNAs(light=TRUE)
 #' srms$maxNAHeavy
 #' srms$maxNALight
 #'
+#' srms$plotCommonTransitions()
+#' srms$getLHLog2FoldChange()
 #' srms$setMaxNAHeavy(30)
 #' srms$setMaxNALight(40)
 #'
 #' colnames(srms$piw)
-#' head(srms$piw)
 #' tmpH <- srms$getTransitionIntensities()
 #' dim(tmpH)
 #' stopifnot(max(apply(tmpH, 1, function(x){sum(is.na(x))}))<=30)
@@ -46,32 +49,7 @@
 #' dim(tmpL)
 #' stopifnot(max(apply(tmpL, 1, function(x){sum(is.na(x))}))<=40)
 #' x<-srms$getMatchingIntensities()
-#' rownames(x$light)[1:10]
 #'
-#'
-#' tmp<-srms$getLHLog2FoldChange()
-#' head(tmp)
-#'
-# d<-(srms$data)
-# dim(d)
-# head(d)
-# x<-piwotPiw(d)
-# d2<-reshape2::melt(x, id.vars= colnames(x)[1:6], variable.name = 'Area')
-# head(d2)
-# dim(d2)
-#
-#
-# dl <- d[d$Isotope.Label == 'light',]
-# dh <- d[d$Isotope.Label == 'heavy',]
-#
-# tmp <- merge(dl,dh,by=colnames(dl)[c(1:6)],suffixes = c(".light",".heavy"))
-# head(tmp)
-# dim(tmp)
-# xx1<-dplyr::anti_join(dl,dh,by=colnames(dl)[c(1:6)])
-#
-# xx2<-dplyr::full_join(dh,dl,by=colnames(dl)[c(1:6)])
-# head(xx2)
-
 SRMService <- setRefClass("SRMService",
                           fields = list( data = "data.frame",
                                          dataq = "data.frame",
@@ -155,12 +133,13 @@ SRMService <- setRefClass("SRMService",
                             plotCommonTransitions = function(light=FALSE){
                               "Shows transitions which occure in heavy and light"
                               int_ <- getMatchingIntensities()
-                              int_ <- ifelse(light,int_$light, int_$heavy)
+                              int_ <- if(light){ int_$light}else{int_$heavy}
                               imageWithLabels(log2(t((int_))),col = quantable::getRedScale(),
                                               main="heavy Int",marLeft=c(5,15,3,3),marRight = c(5,0,3,3))
                               invisible(int_)
                             },
                             getLHLog2FoldChange = function(plot=TRUE){
+
                               int_<-getMatchingIntensities()
                               stopifnot(colnames( int_$light) == colnames(int_$heavy))
                               stopifnot(rownames( int_$light) == rownames(int_$heavy))

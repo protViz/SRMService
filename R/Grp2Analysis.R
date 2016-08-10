@@ -89,8 +89,5 @@ Grp2Analysis <- setRefClass("Grp2Analysis",
                               getPValues = function(){
                                 return(eb.fit(.self$getNormalized()$data , .self$getDesignMatrix()))
                               }
-
-
-
                             )
 )

@@ -209,6 +209,8 @@ fixcols <- function(resRel){
   return(resRel)
 }
 ```
+
+
 ## Stringent Thresholds
 
 Here we show for the normalized matrices the result of a
@@ -217,6 +219,7 @@ pValue, FDR (qValue), FoldChange. Additionally we output graphically the Volcano
 
 
 ```{r fig.width=10, fig.height=8, dpi=300, fig.cap="VolcanoPlot for normalized and scaled proteins with stringent thresholds. x axis log2 fold change"}
+
 res.eb <-grp2$getPValues()
 resStr <-quantable::volcanoplot(res.eb$logFC, res.eb$q.mod, foldchangethresh = 0.1 , pthresh = 0.01 ,labels=rownames(res.eb))
 
