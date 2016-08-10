@@ -1,3 +1,20 @@
+.reportMissing <- function(dl, dh){
+  df_args <- c( subset(dl, select = colnames(dl)!="Area"), sep=".")
+  dlid <-do.call(paste, df_args)
+  df_args <- c( subset(dh, select = colnames(dh)!="Area"), sep=".")
+  dhid <-do.call(paste, df_args)
+
+  missingInHeavy <- setdiff(dlid,dhid)
+  missingInLight <- setdiff(dhid,dlid)
+  if(length(missingInHeavy) > 0){
+    warning("Transitions present in Light but missing in Heavy")
+    warning(missingInHeavy)
+  }
+  if(length(missingInLight) > 0){
+    warning("Transitions present in Light but missing in Light")
+    warning(missingInHeavy)
+  }
+}
 #' R access to Bibliospec File
 #'
 #' @description
@@ -24,7 +41,7 @@
 #' pool=2
 #' data <-allData[allData$pool==pool,]
 #' head(data)
-#' srms <- SRMService(data,qvalue=0.25)
+#' srms <- SRMService(data,qvalue=0.05)
 #' head(srms$piw)
 #'
 #' srms$plotQValues()
@@ -49,6 +66,9 @@
 #' dim(tmpL)
 #' stopifnot(max(apply(tmpL, 1, function(x){sum(is.na(x))}))<=40)
 #' x<-srms$getMatchingIntensities()
+#' names(x)
+#' dim(x$light)
+#' dim(x$heavy)
 #'
 SRMService <- setRefClass("SRMService",
                           fields = list( data = "data.frame",
@@ -57,34 +77,62 @@ SRMService <- setRefClass("SRMService",
                                          maxNAHeavy = "numeric",
                                          maxNALight = "numeric",
                                          piw = "data.frame",
-                                         int = "data.frame"
+                                         int = "data.frame",
+                                         lightLabel = "character",
+                                         heavyLable = "character"
+
 
                           ),methods = list(
-                            setQ = function(qvalue = 0.05){
-                              .self$dataq <- .self$data
-                              .self$qValueThreshold <- qvalue
-                              message("setting stuff")
-                              .self$dataq$Area[.self$dataq$annotation_QValue > .self$qValueThreshold] <- NA
-                              .makePivotData()
-                            },
-                            .makePivotData = function(){
-                              message("pivoting data")
-                              .self$piw <- SRMService::piwotPiw(.self$dataq)
-                              .self$int <- SRMService::getIntensities(.self$piw)
-                              rownames(.self$piw) <-rownames(.self$int)
-                              .self$piw <- .self$piw#[,1:6]
-                              nas <- apply(.self$int , 1 , function(x){sum(is.na(x))})
-                              .self$piw$nrNA <- nas
-                            },
                             initialize = function(data,
                                                   qvalue = 0.05
                             ){
+                              .self$lightLabel = "light"
+                              .self$heavyLable = "heavy"
+
                               stopifnot(getRequiredColumns() %in% colnames(data))
                               .self$data <- data[,getRequiredColumns()]
                               .self$maxNAHeavy <- length(unique(.self$data$Replicate.Name))
                               .self$maxNALight <- length(unique(.self$data$Replicate.Name))
                               setQ(qvalue)
                             },
+                            setQ = function(qvalue = 0.05){
+                              .self$dataq <- .self$data
+                              .self$qValueThreshold <- qvalue
+                              message( "Setting intensities to NA for qvalues larger than: ", .self$qValueThreshold )
+                              .self$dataq$Area[.self$dataq$annotation_QValue > .self$qValueThreshold] <- NA
+                              .makePivotData()
+                            },
+                            .mergeHL=function(piwdata){
+                              " make sure that to every light you have also an heavy transition "
+                              d2 <- reshape2::melt(piwdata, id.vars= colnames(piwdata)[1:6], variable.name = 'Replicate.Name',value.name='Area')
+                              dl <- d2[d2$Isotope.Label == .self$lightLabel,]
+                              dh <- d2[d2$Isotope.Label == .self$heavyLable,]
+
+                              dl <- subset(dl, select = colnames(dl)!="Isotope.Label")
+                              dh <- subset(dh, select = colnames(dh)!="Isotope.Label")
+
+                              reportMissing(dl,dh)
+
+                              colnames(dl)[colnames(dl) == "Area"] <- "light"
+                              colnames(dh)[colnames(dh) == "Area"] <- "heavy"
+
+
+                              fixedData <- merge(dl,dh)
+                              tmp <-melt(fixedData, id.vars = colnames(fixedData)[1:6],variable.name = "Isotope.Label",value.name = "Area" )
+                              return(tmp)
+                              }
+                            ,.makePivotData = function(){
+                              message("pivoting data")
+                              .self$piw <- SRMService::piwotPiw(.self$dataq)
+                              .self$dataq <- .mergeHL(.self$piw)
+                              print("mergeDone!")
+                              .self$piw <- SRMService::piwotPiw(.self$dataq)
+                              .self$int <- SRMService::getIntensities(.self$piw)
+                              rownames(.self$piw) <-rownames(.self$int)
+                              nas <- apply(.self$int , 1 , function(x){sum(is.na(x))})
+                              .self$piw$nrNA <- nas
+                            },
+
                             summary = function(){
                               "summarize experiment"
                             },
