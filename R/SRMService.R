@@ -33,6 +33,7 @@
 #' @details The function performs a SQL query on the SQLite
 #'
 #' @examples
+#'
 #' library(SRMService)
 #' tmp <- "D:/googledrive/DataAnalysis/p1930"
 #' allData <- read.csv( file=file.path(tmp,"data/longFormat.txt"),row.names = 1)
@@ -103,6 +104,7 @@ SRMService <- setRefClass("SRMService",
                               .makePivotData()
                             },
                             .mergeHL=function(piwdata){
+                              library(reshape2)
                               " make sure that to every light you have also an heavy transition "
                               d2 <- reshape2::melt(piwdata, id.vars= colnames(piwdata)[1:6], variable.name = 'Replicate.Name',value.name='Area')
                               dl <- d2[d2$Isotope.Label == .self$lightLabel,]
@@ -111,7 +113,7 @@ SRMService <- setRefClass("SRMService",
                               dl <- subset(dl, select = colnames(dl)!="Isotope.Label")
                               dh <- subset(dh, select = colnames(dh)!="Isotope.Label")
 
-                              reportMissing(dl,dh)
+                              .reportMissing(dl,dh)
 
                               colnames(dl)[colnames(dl) == "Area"] <- "light"
                               colnames(dh)[colnames(dh) == "Area"] <- "heavy"
