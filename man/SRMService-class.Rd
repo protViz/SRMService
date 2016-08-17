@@ -73,7 +73,7 @@ resAll <- srms$getMatchingIntensities()
 dim(resAll$light)
 
 tmpH <- srms$getTransitionIntensities()
-tmpL <- srms$getTransitionIntensities(light=TRUE)
+tmpL <- srms$getTransitionIntensities(light=TRUE)f
 dim(tmpL)
 
 }

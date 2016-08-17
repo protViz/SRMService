@@ -1,12 +1,20 @@
+#' id lables for piw
+#'
+#' @export
+#'
+getIDLabels <- function(){
+.idlables <- c("Peptide.Sequence", "Protein.Name", "Precursor.Charge", "Product.Charge", "Fragment.Ion", "Isotope.Label")
+}
 #' piwots light
 #'
 #'@export
 piwotPiw <- function(data){
   lightPiw <- reshape2::dcast(data,
-                              Peptide.Sequence + Precursor.Charge +
-                                Protein.Name + Fragment.Ion + Product.Charge + Isotope.Label
+                              Peptide.Sequence + Protein.Name + Precursor.Charge +
+                                Product.Charge + Fragment.Ion + Isotope.Label
                               ~ Replicate.Name,
                               value.var = "Area")
+  idlables <- c("Peptide.Sequence", "Protein.Name", "Precursor.Charge", "Product.Charge", "Fragment.Ion", "Isotope.Label")
   return(lightPiw)
 }
 
@@ -24,16 +32,16 @@ getIntensities <- function(lightPiw ){
 #'
 #'@export
 getRequiredColumns <- function(){
-  cols <- c("Peptide.Sequence",
+  cols <- c("Replicate.Name",
+            "Peptide.Sequence",
             "Protein.Name",
-            "Replicate.Name",
             "Precursor.Charge",
             "Product.Charge",
             "Fragment.Ion",
-            "annotation_QValue",
             "Isotope.Label",
             "Precursor.Mz",
             "Product.Mz",
+            "annotation_QValue",
             "Retention.Time",
             "Area",
             "Background")
@@ -63,6 +71,7 @@ plotNicely <- function(dataX, main="", log="", ylab="log(intensity)"){
     imageWithLabelsNoLayout(dd,col=getBlueWhiteRed(),zlim=c(-1,1))
     imageColorscale(dd,col=getBlueWhiteRed(), zlim=c(-1,1))
   }
+  return(dd)
 }
 
 

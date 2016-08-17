@@ -1,3 +1,4 @@
+library(quantable)
 .reportMissing <- function(dl, dh){
   df_args <- c( subset(dl, select = colnames(dl)!="Area"), sep=".")
   dlid <-do.call(paste, df_args)
@@ -15,6 +16,43 @@
     warning(missingInHeavy)
   }
 }
+
+#' Transition table
+#'
+#' @export TransitionTable
+#' @exportClass TransitionTable
+TransitionTable <- setRefClass("TransitionTable",
+                               fields = list( data = "data.frame",
+                                              ids = "data.frame")
+                               ,methods = list(
+                                 initialize = function(data){
+                                   .self$data = data
+                                   .self$ids <- .self$rownamesAsTable(rownames(data))
+                                   rownames(.self$ids) <- rownames(.self$data)
+                                 },
+                                 rownamesAsTable = function(x){
+                                   "help function"
+                                   tab <- data.frame(quantable::split2table(x,split="\\_"))
+                                   colnames(tab) <- getIDLabels()[1:ncol(tab)]
+                                   return(tab)
+                                 },
+                                 filterData = function(minNrTransition = 2, minNrPeptides = 0){
+                                   trans <- aggregate(rep(1, nrow(.self$ids)),
+                                                      by = list(Peptide.Sequence = .self$ids$Peptide.Sequence,
+                                                                Precursor.Charge = .self$ids$Precursor.Charge ),
+                                                      length)
+                                   trans <- trans[trans$x >= minNrTransition,]
+                                   .ids <- merge(trans[,1:2], .self$ids)
+                                   .ids <- .ids[,getIDLabels()[1:ncol(.ids)]]
+                                   df_args <- c(.ids, sep="_")
+                                   .ids <- do.call(paste, df_args)
+                                   return(TransitionTable(.self$data[.ids, ]))
+                                 }, dim=function(){
+                                   dd <- base::dim(.self$data)
+                                   return(dd)
+                                 }
+
+                               ))
 #' R access to Bibliospec File
 #'
 #' @description
@@ -49,8 +87,8 @@
 #' head(srms$piw)
 #'
 #' srms$plotQValues()
-#' srms$plotTransition()
-#' srms$plotTransition(light=TRUE)
+#' srms$plotTransitions()
+#' srms$plotTransitions(light=TRUE)
 #'
 #' srms$getNrNAs()
 #' srms$getNrNAs(light=TRUE)
@@ -69,8 +107,9 @@
 #' resAll <- srms$getMatchingIntensities()
 #' dim(resAll$light)
 #'
-#' tmpH <- srms$getTransitionIntensities()
-#' tmpL <- srms$getTransitionIntensities(light=TRUE)
+#' tmpH <- srms$getTransitionIntensities()$data
+#' tmpL <- srms$getTransitionIntensities(light=TRUE)$data
+#'
 #' dim(tmpL)
 #'
 SRMService <- setRefClass("SRMService",
@@ -84,8 +123,6 @@ SRMService <- setRefClass("SRMService",
                                          int = "data.frame",
                                          lightLabel = "character",
                                          heavyLabel = "character"
-
-
                           ),methods = list(
                             initialize = function(data,
                                                   qvalue = 0.05
@@ -193,8 +230,9 @@ SRMService <- setRefClass("SRMService",
                                              .self$piw$Isotope.Label==ifelse(light,.self$lightLabel, .self$heavyLabel)
                                              & idx
                               )
-                              return(int_)
-                            },
+                              return(TransitionTable(int_))
+                            }
+                            ,
                             stripLabel=function(int_,light=FALSE){
                               label<-if(light){.self$lightLabel}else{.self$heavyLabel}
                               rownames(int_) <- gsub(paste("_",label,"$",sep=""),"",rownames(int_))
@@ -203,13 +241,13 @@ SRMService <- setRefClass("SRMService",
                             ,
                             getMatchingIntensities = function(){
                               "get matrix with intensities, where nr of NAs in row < maxNA"
-                              intLight_ <- .self$getTransitionIntensities(light=TRUE)
-                              intHeavy_ <- .self$getTransitionIntensities()
+                              intLight_ <- .self$getTransitionIntensities(light=TRUE)$data
+                              intHeavy_ <- .self$getTransitionIntensities()$data
 
                               intLight_ <- stripLabel(intLight_, light=TRUE)
                               intHeavy_ <- stripLabel(intHeavy_)
 
-                              idx <-intersect(rownames(intLight_),rownames(intHeavy_))
+                              idx <- intersect(rownames(intLight_),rownames(intHeavy_))
 
                               return(list(light = intLight_[idx,], heavy = intHeavy_[idx,]))
                             },
@@ -222,7 +260,7 @@ SRMService <- setRefClass("SRMService",
                                               main=main,marLeft=c(5,15,3,3),marRight = c(5,0,3,3))
                               invisible(int_)
                             },
-                            getLHLog2FoldChange = function(maxNA, plot=TRUE){
+                            getLHLog2FoldChange = function( maxNA, minNrOfTransitons=2, plot=TRUE){
                               int_<-getMatchingIntensities()
                               stopifnot(colnames( int_$light) == colnames(int_$heavy))
                               stopifnot(rownames( int_$light) == rownames(int_$heavy))
@@ -240,18 +278,17 @@ SRMService <- setRefClass("SRMService",
                                                 marLeft=c(5,15,3,3),
                                                 marRight = c(5,0,3,3))
                               }
-                              invisible(logfc)
+                              invisible(TransitionTable(logfc))
 
                             },
 
-                            plotTransition = function(light = FALSE){
-                              int_ <- .self$getTransitionIntensities(light=light)
+                            plotTransitions = function(light = FALSE){
+                              int_ <- .self$getTransitionIntensities(light=light)$data
                               quantable::imageWithLabels( t(as.matrix(log2( int_ ) )) ,
                                                           col = quantable::getRedScale(),
                                                           main=ifelse(light, .self$lightLabel,.self$heavyLabel),
                                                           marLeft=c(5,15,3,3),
                                                           marRight = c(5,0,3,3))
-                              invisible(int_)
                             }
 
                           )

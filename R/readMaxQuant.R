@@ -20,8 +20,7 @@
   remove_feature_name$Feature <- paste(remove_feature_name$Proteins, remove_feature_name$Modified.sequence, remove_feature_name$Charge, sep="_")
 
   x <- x[-which(x$Feature %in% remove_feature_name$Feature), ]
-  x <- x[, -ncol(x)]
-
+  x <- x[ , -ncol(x)]
   return(x)
 }
 
