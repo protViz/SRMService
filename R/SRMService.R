@@ -195,13 +195,19 @@ SRMService <- setRefClass("SRMService",
                               )
                               return(int_)
                             },
+                            stripLabel=function(int_,light=FALSE){
+                              label<-if(light){.self$lightLabel}else{.self$heavyLabel}
+                              rownames(int_) <- gsub(paste("_",label,"$",sep=""),"",rownames(int_))
+                              invisible(int_)
+                            }
+                            ,
                             getMatchingIntensities = function(){
                               "get matrix with intensities, where nr of NAs in row < maxNA"
                               intLight_ <- .self$getTransitionIntensities(light=TRUE)
                               intHeavy_ <- .self$getTransitionIntensities()
 
-                              rownames(intLight_) <- gsub("_light$","",rownames(intLight_))
-                              rownames(intHeavy_) <- gsub("_heavy$","",rownames(intHeavy_))
+                              intLight_ <- stripLabel(intLight_, light=TRUE)
+                              intHeavy_ <- stripLabel(intHeavy_)
 
                               idx <-intersect(rownames(intLight_),rownames(intHeavy_))
 

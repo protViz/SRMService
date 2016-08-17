@@ -1,12 +1,10 @@
 annotationColumns <- c("Raw.file","Condition", "BioReplicate", "Run","IsotopeLabelType")
 proteinColumns <- c("ProteinName","TopProteinName","nrPeptides")
 
-#'
+#' Perform 2 group analysis with visualization
 #' @export Grp2Analysis
 #' @exportClass Grp2Analysis
 #'
-#' @examples
-#' Grp2Analysis()
 Grp2Analysis <- setRefClass("Grp2Analysis",
                             fields = list( proteinIntensity = "data.frame",
                                            annotation = "data.frame",
