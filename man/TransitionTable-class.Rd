@@ -11,6 +11,12 @@ Transition table
 \section{Methods}{
 
 \describe{
+\item{\code{getCorrelatedPeptides(is = TRUE, minCorrelation = 0.8)}}{returns peptides with well correlated transitions}
+
+\item{\code{getPeptidesAsList()}}{returns list of matrices each matrix representing single peptide}
+
+\item{\code{removeDecorrelated(minCorrelation = 0.8)}}{removes decorrelated peptides}
+
 \item{\code{rownamesAsTable(x)}}{help function}
 }}
 

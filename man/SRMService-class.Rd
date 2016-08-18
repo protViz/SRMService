@@ -52,8 +52,8 @@ SRMService$fields()
 head(srms$piw)
 
 srms$plotQValues()
-srms$plotTransition()
-srms$plotTransition(light=TRUE)
+srms$plotTransitions()
+srms$plotTransitions(light=TRUE)
 
 srms$getNrNAs()
 srms$getNrNAs(light=TRUE)
@@ -72,8 +72,9 @@ dim(resL)
 resAll <- srms$getMatchingIntensities()
 dim(resAll$light)
 
-tmpH <- srms$getTransitionIntensities()
-tmpL <- srms$getTransitionIntensities(light=TRUE)f
+tmpH <- srms$getTransitionIntensities()$data
+tmpL <- srms$getTransitionIntensities(light=TRUE)$data
+
 dim(tmpL)
 
 }

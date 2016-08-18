@@ -17,15 +17,67 @@ library(quantable)
   }
 }
 
+.findDecorrelated <- function(res, threshold = 0.8){
+  nrtrans <- ncol(res)
+  ids <- rowSums(res < threshold)
+  names(which((nrtrans-1)== ids))
+}
+
+#' Peptide table
+#' @export PeptideTable
+#' @exportClass PeptideTable
+PeptideTable <- setRefClass("PeptideTable",
+                           fields = list( data = "data.frame",
+                                          ids = "data.frame",
+                                          experimentID= "character")
+                           ,methods = list(
+                             initialize = function(data, ids, experimentID){
+                               .self$experimentID = experimentID
+                               .self$data = data
+                               .self$ids = ids
+                               rownames(.self$ids) <- rownames(.self$data)
+                             },
+                             getProteinsAsList = function(){
+                               xx <- .self$ids$Protein.Name
+                               peptab <- by(.self$data ,INDICES=xx,function(x){x})
+                               return(peptab)
+                             },
+                             getProteinIntensities = function(plot=TRUE, FUN = median, scale=TRUE){
+                               proteins <- (aggregate(.self$data, list(Protein.Name=.self$ids$Protein.Name),FUN, na.rm=TRUE))
+                               rownames(proteins) <- proteins$Protein.Name
+                               proteins <- proteins[,2:ncol(proteins)]
+                               if(plot){
+                                 toplot <- if(scale){scale(t(proteins))}else{t(proteins)}
+                                 imageWithLabels(toplot ,
+                                                 main="log2(L/H)",
+                                                 col= getBlueWhiteRed(),
+                                                 marLeft=c(5,15,3,3),
+                                                 marRight = c(5,0,3,3))
+                               }
+                               invisible(proteins)
+                             },
+                             plot = function(){
+                                 imageWithLabels(t(.self$data) ,
+                                                 main="log2(L/H)",
+                                                 col= getBlueWhiteRed(),
+                                                 marLeft=c(5,15,3,3),
+                                                 marRight = c(5,0,3,3))
+
+                             }
+                           )
+)
+
 #' Transition table
 #'
 #' @export TransitionTable
 #' @exportClass TransitionTable
 TransitionTable <- setRefClass("TransitionTable",
                                fields = list( data = "data.frame",
-                                              ids = "data.frame")
+                                              ids = "data.frame",
+                                              experimentID = "character")
                                ,methods = list(
-                                 initialize = function(data){
+                                 initialize = function(data, experimentID=""){
+                                   .self$experimentID = experimentID
                                    .self$data = data
                                    .self$ids <- .self$rownamesAsTable(rownames(data))
                                    rownames(.self$ids) <- rownames(.self$data)
@@ -46,11 +98,65 @@ TransitionTable <- setRefClass("TransitionTable",
                                    .ids <- .ids[,getIDLabels()[1:ncol(.ids)]]
                                    df_args <- c(.ids, sep="_")
                                    .ids <- do.call(paste, df_args)
-                                   return(TransitionTable(.self$data[.ids, ]))
-                                 }, dim=function(){
+                                   return(TransitionTable(.self$data[.ids, ], .self$experimentID))
+                                 },
+                                 dim=function(){
                                    dd <- base::dim(.self$data)
                                    return(dd)
+                                 },
+                                 getCorrelatedPeptides = function(is = TRUE, minCorrelation = 0.8){
+                                   ' returns peptides with well correlated transitions'
+                                   prottab <- .self$getPeptidesAsList()
+                                   res<-vector(mode = "list", length(prottab))
+                                   for(i in 1:length(prottab)){
+
+                                     res[[i]] <- SRMService::transitionCorrelations(dataX)
+                                   }
+                                   if(is){
+                                     idx <-which(sapply(res, min) >= 0.8)
+                                   }else{
+                                     idx <-which(sapply(res, min) < 0.8)
+                                   }
+                                   return(prottab[idx])
+                                 }, getPeptidesAsList = function(){
+                                   ' returns list of matrices each matrix representing single peptide'
+
+                                   xx <- .self$getPeptideIDs()
+                                   paste_args <- c(xx, sep="_")
+                                   prottab <- by(.self$data ,INDICES=do.call(paste,paste_args),function(x){x})
+                                   return(prottab)
+                                 },
+                                 removeDecorrelated = function(minCorrelation = 0.8){
+                                   "removes decorrelated peptides"
+                                   prottab <- .self$getPeptidesAsList()
+                                   res <- lapply(prottab, SRMService::transitionCorrelations)
+                                   toremove <- unlist(lapply(res, .findDecorrelated, threshold=minCorrelation))
+                                   xx<-TransitionTable(filteredfc$data[setdiff(rownames(filteredfc$data),toremove),],.self$experimentID)
+                                   return(xx)
+                                 },
+                                 plot = function(){
+                                   imageWithLabels(.self$data , main="log2(L/H)",
+                                                   col= getBlueWhiteRed(),
+                                                   marLeft=c(5,15,3,3),
+                                                   marRight = c(5,0,3,3))
+                                 },
+                                 getPeptideIDs = function(){
+                                   .self$ids[,c("Protein.Name","Peptide.Sequence","Precursor.Charge")]
+                                 },
+                                 getPeptideIntensities = function(plot=TRUE, FUN = median){
+                                   peptides <- (aggregate(.self$data, .self$getPeptideIDs(),FUN, na.rm=TRUE))
+                                   rownames(peptides) <- do.call(paste, c(peptides[,1:ncol(.self$getPeptideIDs())], sep="_"))
+
+
+                                   invisible(PeptideTable(data=peptides[,(ncol(.self$getPeptideIDs())+1):ncol(peptides)],
+                                                          ids = peptides[,1:ncol(.self$getPeptideIDs())]), .self$experimentID)
+                                 },
+                                 getProteinsAsList = function(){
+                                   xx <- .self$ids$Protein.Name
+                                   peptab <- by(.self$data ,INDICES=xx,function(x){x})
+                                   return(peptab)
                                  }
+
 
                                ))
 #' R access to Bibliospec File
@@ -122,11 +228,13 @@ SRMService <- setRefClass("SRMService",
                                          piw = "data.frame",
                                          int = "data.frame",
                                          lightLabel = "character",
-                                         heavyLabel = "character"
+                                         heavyLabel = "character",
+                                         experimentID = "character"
                           ),methods = list(
-                            initialize = function(data,
+                            initialize = function(data,experimentID="",
                                                   qvalue = 0.05
                             ){
+                              .self$experimentID = experimentID
                               .self$lightLabel = "light"
                               .self$heavyLabel = "heavy"
 
@@ -230,7 +338,7 @@ SRMService <- setRefClass("SRMService",
                                              .self$piw$Isotope.Label==ifelse(light,.self$lightLabel, .self$heavyLabel)
                                              & idx
                               )
-                              return(TransitionTable(int_))
+                              return(TransitionTable(int_,.self$experimentID))
                             }
                             ,
                             stripLabel=function(int_,light=FALSE){
@@ -278,7 +386,7 @@ SRMService <- setRefClass("SRMService",
                                                 marLeft=c(5,15,3,3),
                                                 marRight = c(5,0,3,3))
                               }
-                              invisible(TransitionTable(logfc))
+                              invisible(TransitionTable(logfc,.self$experimentID))
 
                             },
 
