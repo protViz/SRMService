@@ -1,10 +1,10 @@
 Package: SRMService
 Type: Package
-Title: What the Package Does (Title Case)
+Title: Performs Service SRM and LFQ analysis
 Version: 0.1.0
-Author: Who wrote it
-Maintainer: Who to complain to <yourfault@somewhere.net>
+Author: Witold Wolski and Christian Panse
+Maintainer:  Witold Wolski <wewolski@gmail.com>
 Description: More about what it does (maybe more than one line)
-License: What license is it under?
+License: GPL
 LazyData: TRUE
 RoxygenNote: 5.0.1
