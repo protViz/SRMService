@@ -30,14 +30,16 @@ library(quantable)
 #' @field conditionmapping data.frame with 2 columns providing mapping of sampleID to condition
 #' @field experimentID name of the experiment
 #'
-ProteinTable <- setRefClass("PeptideTable",
+ProteinTable <- setRefClass("ProteinTable",
                             fields = list( data = "data.frame",
-                                           conditionmapping = "data.frame",
-                                           experimentID = "character")
+                                           conditionmap = "data.frame",
+                                           experimentID = "character",
+                                           housekeeper = "character")
                             ,methods=list(
-                              initialize = function(data, conditionmapping, experimentID){
+                              initialize = function(data, conditionmapping, experimentID=""){
+
                                 reccolumns <- c("Replicate.Name","Condition")
-                                if(sum(reccolumns %in% columns(conditionmapping))!=2){
+                                if(sum(reccolumns %in% colnames(conditionmapping))!=2){
                                   stop("condition mappings does not contain columns : ", reccolumns)
                                 }
 
@@ -46,12 +48,65 @@ ProteinTable <- setRefClass("PeptideTable",
                                   warning(check)
                                   stop("Colnames data do not match conditionmappings")
                                 }
+                                rownames(conditionmapping) <- conditionmapping$Replicate.Name
 
                                 .self$experimentID = experimentID
                                 .self$data = data
-                                .self$ids = conditionmapping
-                                rownames(.self$ids) <- rownames(.self$data)
-                              })
+                                .self$conditionmap = conditionmapping
+                              }, conditionColors=function(){
+                                fact <- as.factor(.self$conditionmap[colnames(.self$data), "Condition"])
+                                tmpcol <- as.numeric(fact)
+                                plot(1,type="n",axes=FALSE, xlab="", ylab="")
+                                legend(1, 1, legend=levels(fact), col= c("blue","red","pink","green"), lty=1,lwd=3,pch=1)
+
+                              },setHouseKeepers = function(housekeeper){
+                                .self$housekeeper <- housekeeper[housekeeper %in% rownames(.self$data)]
+                                diff <- setdiff(housekeeper,.self$housekeeper)
+                                if( length(diff) > 0){
+                                  warning(diff, " are not among the proteins")
+                                }
+
+                              },
+                              normalize = function(protein,FUN = median, plot=TRUE){
+                                if(missing(protein)){
+                                  .housekeepers <- .self$data[.self$housekeeper,]
+                                  normalize <- apply(.housekeepers,2, FUN, na.rm=T)
+                                }else{
+                                  .housekeepers <- .self$data[protein,]
+                                  normalize <- unlist(.housekeepers)
+                                }
+                                if(sum(is.na(normalize))>0){
+                                  stop("can normalize data, protein not quantified in some samples")
+                                }
+                                if(plot){
+                                  nrlines <- nrow(.housekeepers)
+                                  matplot(t(.housekeepers),lwd=2,
+                                          col=1:nrlines,
+                                          lty=1:nrlines,
+                                          type="l",las=2,xaxt="n")
+                                  axis(1,at=1:ncol(.housekeepers), labels=colnames(.housekeepers),las=2)
+                                  legend("bottomleft",legend=(colnames(t(.housekeepers))),col=1:nrlines, lty=1:nrlines , lwd=2)
+                                  lines(1:length(normalize), normalize, col=2)
+                                }
+
+                                normprotquant <- sweep(.self$data, 2, normalize, "-" )
+
+                                pp <-ProteinTable(normprotquant,
+                                                  .self$conditionmap,
+                                                  experimentID = .self$experimentID
+                                )
+                                return(pp)
+                              },
+                              getProtein=function(protein){
+                                return(.self$data[protein,])
+                              },
+                              heatmap = function(){
+                                fact <- as.factor(.self$conditionmap[colnames(.self$data), "Condition"])
+                                tmpcol <- as.numeric(fact)
+                                simpleheatmap(t(.self$data),margin=c(10,5),
+                                              RowSideColors = c("blue","red","pink","green")[tmpcol], main=cc[i])
+                              }
+                            )
 )
 
 #' Peptide table
