@@ -14,20 +14,17 @@ shinyUI(fluidPage(
 
   # Application title
   titlePanel("2 Group Comparizon"),
-
   # Sidebar with a slider input for number of bins
   sidebarLayout(
     sidebarPanel(
-       sliderInput("bins",
-                   "Number of bins:",
-                   min = 1,
-                   max = 50,
-                   value = 30),
+      numericInput("peptides", "Nr of Peptides per protein:", 2),
+      numericInput("maxMissing", "Maximum number of missing values",8),
       tags$hr(),
-      fileInput('file1', 'Choose CSV File',
+      fileInput('proteinGroups', 'Choose MQ ProteinGroups File',
                 accept=c('text/csv',
                          'text/comma-separated-values,text/plain',
-                         '.csv'))
+                         '.csv','.zip')),
+      downloadButton('downloadReport', label="Download Report (.pdf)")
       ),
     # Show a plot of the generated distribution
     mainPanel(

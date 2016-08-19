@@ -1,8 +1,8 @@
 rm(list=ls())
 
-protein <- read.csv("d:/googledrive/DataAnalysis/p2084/215579/proteinGroups.txt",sep="\t",stringsAsFactors = F)
+dir("inst/samples/")
+protein <- read.table(unz("inst/samples/proteinGroups/proteinGroups.txt"),sep="\t",stringsAsFactors = F)
 
-colnames(protein)
 
 rawF <-gsub("Intensity\\.", "", grep("Intensity\\.",colnames(protein),value=T) )
 

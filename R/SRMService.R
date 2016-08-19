@@ -134,6 +134,7 @@ PeptideTable <- setRefClass("PeptideTable",
                               },
                               getProteinIntensities = function(plot=TRUE, FUN = median, scale=TRUE){
                                 proteins <- (aggregate(.self$data, list(Protein.Name=.self$ids$Protein.Name),FUN, na.rm=TRUE))
+
                                 rownames(proteins) <- proteins$Protein.Name
                                 proteins <- proteins[,2:ncol(proteins)]
                                 if(plot){
@@ -226,7 +227,7 @@ TransitionTable <- setRefClass("TransitionTable",
                                    return(xx)
                                  },
                                  plot = function(){
-                                   imageWithLabels(.self$data , main="log2(L/H)",
+                                   imageWithLabels(t(.self$data) , main="log2(L/H)",
                                                    col= getBlueWhiteRed(),
                                                    marLeft=c(5,15,3,3),
                                                    marRight = c(5,0,3,3))
@@ -467,15 +468,13 @@ SRMService <- setRefClass("SRMService",
                               if(missing(maxNA)){
                                 maxNA <- .self$MaxNAFC
                               }
-                              logfc <- subset(logfc , maxNA >= apply(logfc ,1, function(x){sum(is.na(x))}))
-
                               if(plot){
-                                imageWithLabels(t(logfc), main=
-                                                  paste("log2(",.self$lightLabel, "/", .self$heavyLabel, ")"),
-                                                col= getBlueWhiteRed(),
-                                                marLeft=c(5,15,3,3),
-                                                marRight = c(5,0,3,3))
+                                plot(table(quantable::rowNAs(logfc)), main="log2(L/H)")
+                                abline(v=maxNA,col=2)
                               }
+
+                              logfc <- subset(logfc , maxNA >= quantable::rowNAs(logfc))
+
                               invisible(TransitionTable(logfc,.self$experimentID))
 
                             },

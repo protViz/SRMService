@@ -8,36 +8,42 @@
 #
 
 library(shiny)
+options(shiny.maxRequestSize=30*1024^2)
 
 # Define server logic required to draw a histogram
 shinyServer(function(input, output) {
+  output$downloadReport <- downloadHandler(
+    filename = function() {
+      paste('my-report', sep = '.', switch(
+        input$format, PDF = 'pdf', HTML = 'html', Word = 'docx'
+      ))
+    },
 
- # output$distPlot <- renderPlot({
+    content = function(file) {
+      src <- normalizePath('report.Rmd')
 
-    # generate bins based on input$bins from ui.R
- #   x    <- faithful[, 2]
- #   bins <- seq(min(x), max(x), length.out = input$bins + 1)
+      # temporarily switch to the temp dir, in case you do not have write
+      # permission to the current working directory
+      owd <- setwd(tempdir())
+      on.exit(setwd(owd))
+      file.copy(src, 'report.Rmd')
 
-    # draw the histogram with the specified number of bins
- #   hist(x, breaks = bins, col = 'darkgray', border = 'white')
+      library(rmarkdown)
+      out <- render('report.Rmd', switch(
+        input$format,
+        PDF = pdf_document(), HTML = html_document(), Word = word_document()
+      ))
+      file.rename(out, file)
+    }
+  )
 
- # })
-#
+
   output$contents <- renderTable({
 
-    # input$file1 will be NULL initially. After the user selects
-    # and uploads a file, it will be a data frame with 'name',
-    # 'size', 'type', and 'datapath' columns. The 'datapath'
-    # column will contain the local filenames where the data can
-    # be found.
-
-    inFile <- input$file1
-
+    inFile <- input$proteinGroups
     if (is.null(inFile))
       return(NULL)
-
-    read.csv(inFile$datapath, header=TRUE, sep=",",
-             quote="#")
+    read.csv(inFile$datapath, sep="\t",stringsAsFactors = F)
   })
 
 })
