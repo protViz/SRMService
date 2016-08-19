@@ -4,7 +4,15 @@ Title: Performs Service SRM and LFQ analysis
 Version: 0.1.0
 Author: Witold Wolski and Christian Panse
 Maintainer:  Witold Wolski <wewolski@gmail.com>
-Description: More about what it does (maybe more than one line)
+Description: Analysing and LFQ and SRM experiments in service mode.
+  Data preprocessing and visualization.
+Imports:
+  quantable,
+  methods,
+  reshape2
 License: GPL
 LazyData: TRUE
+URL: https://github.com/protViz/SRMService
+BugReports: https://github.com/protViz/SRMService/issues
+Repository: CRAN
 RoxygenNote: 5.0.1

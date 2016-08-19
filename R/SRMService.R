@@ -1,4 +1,4 @@
-library(quantable)
+
 .reportMissing <- function(dl, dh){
   df_args <- c( subset(dl, select = colnames(dl)!="Area"), sep=".")
   dlid <-do.call(paste, df_args)
@@ -260,7 +260,6 @@ TransitionTable <- setRefClass("TransitionTable",
 #'
 #' @field dbfile database file location
 #' @import parallel
-#' @import DBI
 #' @import quantable
 #' @import methods
 #' @export SRMService
