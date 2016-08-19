@@ -34,10 +34,11 @@ ProteinTable <- setRefClass("ProteinTable",
                             fields = list( data = "data.frame",
                                            conditionmap = "data.frame",
                                            experimentID = "character",
-                                           housekeeper = "character")
+                                           housekeeper = "character",
+                                           normalized="character")
                             ,methods=list(
                               initialize = function(data, conditionmapping, experimentID=""){
-
+                                .self$normalized =""
                                 reccolumns <- c("Replicate.Name","Condition")
                                 if(sum(reccolumns %in% colnames(conditionmapping))!=2){
                                   stop("condition mappings does not contain columns : ", reccolumns)
@@ -65,7 +66,7 @@ ProteinTable <- setRefClass("ProteinTable",
                                 if( length(diff) > 0){
                                   warning(diff, " are not among the proteins")
                                 }
-
+                                invisible(.self$housekeeper)
                               },
                               normalize = function(protein,FUN = median, plot=TRUE){
                                 if(missing(protein)){
@@ -76,8 +77,12 @@ ProteinTable <- setRefClass("ProteinTable",
                                   normalize <- unlist(.housekeepers)
                                 }
                                 if(sum(is.na(normalize))>0){
-                                  stop("can normalize data, protein not quantified in some samples")
+                                  warning("can not normalize data, protein not quantified in some samples. NAs")
+                                  return(FALSE)
                                 }
+
+                                .self$normalized = colnames(.housekeepers)
+
                                 if(plot){
                                   nrlines <- nrow(.housekeepers)
                                   matplot(t(.housekeepers),lwd=2,
@@ -90,7 +95,6 @@ ProteinTable <- setRefClass("ProteinTable",
                                 }
 
                                 normprotquant <- sweep(.self$data, 2, normalize, "-" )
-
                                 pp <-ProteinTable(normprotquant,
                                                   .self$conditionmap,
                                                   experimentID = .self$experimentID
@@ -100,11 +104,11 @@ ProteinTable <- setRefClass("ProteinTable",
                               getProtein=function(protein){
                                 return(.self$data[protein,])
                               },
-                              heatmap = function(){
+                              heatmap = function(main = ""){
                                 fact <- as.factor(.self$conditionmap[colnames(.self$data), "Condition"])
                                 tmpcol <- as.numeric(fact)
                                 simpleheatmap(t(.self$data),margin=c(10,5),
-                                              RowSideColors = c("blue","red","pink","green")[tmpcol], main=cc[i])
+                                              RowSideColors = c("blue","red","pink","green")[tmpcol], main=main)
                               }
                             )
 )
