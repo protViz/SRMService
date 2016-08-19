@@ -23,48 +23,80 @@ library(quantable)
   names(which((nrtrans-1)== ids))
 }
 
+#' Protein Table
+#' @export ProteinTable
+#' @exportClass ProteinTable
+#' @field data data.frame with colnames sample ID rownames proteinID
+#' @field conditionmapping data.frame with 2 columns providing mapping of sampleID to condition
+#' @field experimentID name of the experiment
+#'
+ProteinTable <- setRefClass("PeptideTable",
+                            fields = list( data = "data.frame",
+                                           conditionmapping = "data.frame",
+                                           experimentID = "character")
+                            ,methods=list(
+                              initialize = function(data, conditionmapping, experimentID){
+                                reccolumns <- c("Replicate.Name","Condition")
+                                if(sum(reccolumns %in% columns(conditionmapping))!=2){
+                                  stop("condition mappings does not contain columns : ", reccolumns)
+                                }
+
+                                check <- setdiff(colnames(data) , conditionmapping$Replicate.Name)
+                                if(length(check)!=0){
+                                  warning(check)
+                                  stop("Colnames data do not match conditionmappings")
+                                }
+
+                                .self$experimentID = experimentID
+                                .self$data = data
+                                .self$ids = conditionmapping
+                                rownames(.self$ids) <- rownames(.self$data)
+                              })
+)
+
 #' Peptide table
 #' @export PeptideTable
 #' @exportClass PeptideTable
 PeptideTable <- setRefClass("PeptideTable",
-                           fields = list( data = "data.frame",
-                                          ids = "data.frame",
-                                          experimentID= "character")
-                           ,methods = list(
-                             initialize = function(data, ids, experimentID){
-                               .self$experimentID = experimentID
-                               .self$data = data
-                               .self$ids = ids
-                               rownames(.self$ids) <- rownames(.self$data)
-                             },
-                             getProteinsAsList = function(){
-                               xx <- .self$ids$Protein.Name
-                               peptab <- by(.self$data ,INDICES=xx,function(x){x})
-                               return(peptab)
-                             },
-                             getProteinIntensities = function(plot=TRUE, FUN = median, scale=TRUE){
-                               proteins <- (aggregate(.self$data, list(Protein.Name=.self$ids$Protein.Name),FUN, na.rm=TRUE))
-                               rownames(proteins) <- proteins$Protein.Name
-                               proteins <- proteins[,2:ncol(proteins)]
-                               if(plot){
-                                 toplot <- if(scale){scale(t(proteins))}else{t(proteins)}
-                                 imageWithLabels(toplot ,
-                                                 main="log2(L/H)",
-                                                 col= getBlueWhiteRed(),
-                                                 marLeft=c(5,15,3,3),
-                                                 marRight = c(5,0,3,3))
-                               }
-                               invisible(proteins)
-                             },
-                             plot = function(){
-                                 imageWithLabels(t(.self$data) ,
-                                                 main="log2(L/H)",
-                                                 col= getBlueWhiteRed(),
-                                                 marLeft=c(5,15,3,3),
-                                                 marRight = c(5,0,3,3))
+                            fields = list( data = "data.frame",
+                                           ids = "data.frame",
+                                           experimentID= "character")
+                            ,methods = list(
+                              initialize = function(data, ids, experimentID){
+                                .self$experimentID = experimentID
+                                .self$data = data
+                                .self$ids = ids
+                                rownames(.self$ids) <- rownames(.self$data)
+                              },
+                              getProteinsAsList = function(){
+                                xx <- .self$ids$Protein.Name
+                                peptab <- by(.self$data ,INDICES=xx,function(x){x})
+                                return(peptab)
+                              },
+                              getProteinIntensities = function(plot=TRUE, FUN = median, scale=TRUE){
+                                proteins <- (aggregate(.self$data, list(Protein.Name=.self$ids$Protein.Name),FUN, na.rm=TRUE))
+                                rownames(proteins) <- proteins$Protein.Name
+                                proteins <- proteins[,2:ncol(proteins)]
+                                if(plot){
+                                  toplot <- if(scale){scale(t(proteins))}else{t(proteins)}
+                                  imageWithLabels(toplot ,
+                                                  main="log2(L/H)",
+                                                  col= getBlueWhiteRed(),
+                                                  marLeft=c(5,15,3,3),
+                                                  marRight = c(5,0,3,3))
+                                }
+                                invisible(proteins)
+                              },
+                              plot = function(){
+                                ""
+                                imageWithLabels(t(.self$data) ,
+                                                main="log2(L/H)",
+                                                col= getBlueWhiteRed(),
+                                                marLeft=c(5,15,3,3),
+                                                marRight = c(5,0,3,3))
 
-                             }
-                           )
+                              }
+                            )
 )
 
 #' Transition table
@@ -149,7 +181,7 @@ TransitionTable <- setRefClass("TransitionTable",
 
 
                                    invisible(PeptideTable(data=peptides[,(ncol(.self$getPeptideIDs())+1):ncol(peptides)],
-                                                          ids = peptides[,1:ncol(.self$getPeptideIDs())]), .self$experimentID)
+                                                          ids = peptides[,1:ncol(.self$getPeptideIDs())], experimentID=.self$experimentID))
                                  },
                                  getProteinsAsList = function(){
                                    xx <- .self$ids$Protein.Name
