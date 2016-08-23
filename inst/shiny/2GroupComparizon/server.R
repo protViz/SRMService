@@ -14,36 +14,44 @@ options(shiny.maxRequestSize=30*1024^2)
 shinyServer(function(input, output) {
   output$downloadReport <- downloadHandler(
     filename = function() {
-      paste('my-report', sep = '.', switch(
-        input$format, PDF = 'pdf', HTML = 'html', Word = 'docx'
-      ))
+      paste(input$experimentID, ".pdf",sep="")
     },
 
     content = function(file) {
-      src <- normalizePath('report.Rmd')
+      print(input$experimentID)
+      print(input$maxMissing)
+      print(input$peptides)
+      inFile <- input$proteinGroups
+      if (is.null(inFile))
+        return(NULL)
+      print(inFile$datapath)
 
-      # temporarily switch to the temp dir, in case you do not have write
-      # permission to the current working directory
-      owd <- setwd(tempdir())
-      on.exit(setwd(owd))
-      file.copy(src, 'report.Rmd')
 
-      library(rmarkdown)
-      out <- render('report.Rmd', switch(
-        input$format,
-        PDF = pdf_document(), HTML = html_document(), Word = word_document()
-      ))
+      protein <- read.table(inFile$datapath,sep="\t",stringsAsFactors = F,header=T)
+
+      print(dim(protein))
+      print(length(colnames(protein)))
+      rawF <- gsub("Intensity\\.", "", grep("Intensity\\.",colnames(protein),value=T) )
+      print(rawF)
+      condition <- quantable::split2table(rawF)[,3]
+      annotation <- data.frame(Raw.file = rawF,
+                              Condition = condition,
+                              BioReplicate = paste("X",1:length(condition),sep=""),
+                              Run = 1:length(condition),
+                              IsotopeLabelType = rep("L",length(condition)), stringsAsFactors = F)
+
+
+      library(SRMService)
+
+      grp2 <- Grp2Analysis(annotation, input$experimentID , maxNA=input$maxMissing  , nrPeptides=input$peptides)
+      grp2$setMQProteinGroups(protein)
+      print("rendering the ting")
+      out <- rmarkdown::render('C:/Users/wolski/prog/SRMService/inst/reports/Grp2Analysis.Rmd', output_format = "pdf_document")
       file.rename(out, file)
     }
   )
 
 
-  output$contents <- renderTable({
 
-    inFile <- input$proteinGroups
-    if (is.null(inFile))
-      return(NULL)
-    read.csv(inFile$datapath, sep="\t",stringsAsFactors = F)
-  })
 
 })
