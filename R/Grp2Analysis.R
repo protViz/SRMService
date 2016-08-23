@@ -29,7 +29,7 @@ Grp2Analysis <- setRefClass("Grp2Analysis",
                                 stopifnot(colnames(.self$proteinIntensity) %in% .self$annotation$Raw.file)
 
                                 .self$proteinIntensity <- .self$proteinIntensity[,.self$annotation$Raw.file]
-                                .self$proteinIntensity[grp2$proteinIntensity==0] <-NA
+                                .self$proteinIntensity[.self$proteinIntensity==0] <-NA
 
                                 nas <-.self$getNrNAs()
                                 .self$proteinIntensity <- .self$proteinIntensity[nas<=maxNA,]

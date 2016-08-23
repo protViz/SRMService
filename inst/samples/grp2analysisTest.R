@@ -1,12 +1,17 @@
 rm(list=ls())
 
 dir("inst/samples/")
-protein <- read.table(unz("inst/samples/proteinGroups/proteinGroups.txt"),sep="\t",stringsAsFactors = F)
+protein <- read.table(("inst/samples/proteinGroups/proteinGroups.txt"),sep="\t",stringsAsFactors = F,header=T)
+dim(protein)
+length(colnames(protein))
 
+rawF <- gsub("Intensity\\.", "", grep("Intensity\\.",colnames(protein),value=T) )
 
-rawF <-gsub("Intensity\\.", "", grep("Intensity\\.",colnames(protein),value=T) )
+rawF
+
 
 condition <- quantable::split2table(rawF)[,3]
+condition
 annotation <-data.frame(Raw.file = rawF,
                         Condition = condition,
                         BioReplicate = paste("X",1:length(condition),sep=""),
