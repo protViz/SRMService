@@ -9,6 +9,7 @@
 
 library(shiny)
 options(shiny.maxRequestSize=30*1024^2)
+#options(shiny.port="1234")
 
 # Define server logic required to draw a histogram
 shinyServer(function(input, output) {

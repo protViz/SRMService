@@ -11,7 +11,7 @@ shinyUI(fluidPage(
   sidebarLayout(
     sidebarPanel(
       numericInput("peptides", "Nr of Peptides per protein:", 2),
-      numericInput("maxMissing", "Maximum number of missing values",8),
+      numericInput("maxMissing", "Maximum number of NAs: ",8),
       textInput("experimentID", "Experiment ID","p2084"),
       tags$hr(),
       fileInput('proteinGroups', 'Choose MQ ProteinGroups File',
@@ -24,6 +24,8 @@ shinyUI(fluidPage(
     ),
     # Show a plot of the generated distribution
     mainPanel(
+      htmlOutput("fileInformation"),
+
       uiOutput("downloadlinks"),
       tags$hr(),
       uiOutput("downloadlink2")
