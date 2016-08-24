@@ -50,7 +50,7 @@ getConditionColumns <- function(){
 
 .fixConditionMapping <- function(conditionmap){
   conditionmap <- conditionmap[,getConditionColumns()]
-  conditionmap$Colnames <- do.call(paste,c(conditionmap, sep="_"))
+  conditionmap$Condition <- do.call(paste,c(conditionmap, sep="_"))
   rownames(conditionmap) <- conditionmap$Replicate.Name
   return(conditionmap)
 }
@@ -61,7 +61,6 @@ getConditionColumns <- function(){
 #' @field data data.frame with colnames sample ID rownames proteinID
 #' @field conditionmapping data.frame with 2 columns providing mapping of sampleID to condition
 #' @field experimentID name of the experiment
-#'
 ProteinTable <- setRefClass("ProteinTable",
                             fields = list( data = "data.frame",
                                            conditionmap = "data.frame",
@@ -555,6 +554,9 @@ SRMService <- setRefClass("SRMService",
                                                           main=ifelse(light, .self$lightLabel,.self$heavyLabel),
                                                           marLeft=c(5,15,3,3),
                                                           marRight = c(5,0,3,3))
+                            },
+                            getForMSStats=function(){
+
                             }
 
                           )
