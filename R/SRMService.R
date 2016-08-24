@@ -182,19 +182,22 @@ PeptideTable <- setRefClass("PeptideTable",
                                 return(peptab)
                               },
                               getProteinIntensities = function(plot=TRUE, FUN = median, scale=TRUE){
-                                proteins <- (aggregate(.self$data, list(Protein.Name=.self$ids$Protein.Name),FUN, na.rm=TRUE))
+                                proteins <- (aggregate(.self$data,
+                                                       list(Protein.Name=.self$ids$Protein.Name),
+                                                       FUN,
+                                                       na.rm = TRUE))
 
                                 rownames(proteins) <- proteins$Protein.Name
                                 proteins <- proteins[,2:ncol(proteins)]
                                 if(plot){
                                   toplot <- if(scale){scale(t(proteins))}else{t(proteins)}
                                   imageWithLabels(toplot ,
-                                                  main="log2(L/H)",
-                                                  col= getBlueWhiteRed(),
-                                                  marLeft=c(5,15,3,3),
+                                                  main = "log2(L/H)",
+                                                  col = getBlueWhiteRed(),
+                                                  marLeft = c(5,15,3,3),
                                                   marRight = c(5,0,3,3))
                                 }
-                                invisible(proteins)
+                                invisible(ProteinTable(proteins,.self$conditionmap, .self$experimentID))
                               },
                               plot = function(){
                                 ""
@@ -244,7 +247,9 @@ TransitionTable <- setRefClass("TransitionTable",
                                    .ids <- .ids[,getIDLabels()[1:ncol(.ids)]]
                                    df_args <- c(.ids, sep="_")
                                    .ids <- do.call(paste, df_args)
-                                   return(TransitionTable(.self$data[.ids, ], .self$experimentID))
+                                   return(TransitionTable(.self$data[.ids, ],
+                                                          .self$conditionmap,
+                                                          .self$experimentID))
                                  },
                                  dim=function(){
                                    dd <- base::dim(.self$data)
@@ -277,7 +282,9 @@ TransitionTable <- setRefClass("TransitionTable",
                                    prottab <- .self$getPeptidesAsList()
                                    res <- lapply(prottab, SRMService::transitionCorrelations)
                                    toremove <- unlist(lapply(res, .findDecorrelated, threshold=minCorrelation))
-                                   xx<-TransitionTable(filteredfc$data[setdiff(rownames(filteredfc$data),toremove),],.self$experimentID)
+                                   xx<-TransitionTable(filteredfc$data[setdiff(rownames(filteredfc$data),toremove),],
+                                                       .self$conditionmap,
+                                                       .self$experimentID)
                                    return(xx)
                                  },
                                  plot = function(){
@@ -295,7 +302,9 @@ TransitionTable <- setRefClass("TransitionTable",
 
 
                                    invisible(PeptideTable(data=peptides[,(ncol(.self$getPeptideIDs())+1):ncol(peptides)],
-                                                          ids = peptides[,1:ncol(.self$getPeptideIDs())], experimentID=.self$experimentID))
+                                                          ids = peptides[,1:ncol(.self$getPeptideIDs())],
+                                                          conditionmapping = .self$conditionmap,
+                                                          experimentID=.self$experimentID))
                                  },
                                  getProteinsAsList = function(){
                                    xx <- .self$ids$Protein.Name
@@ -487,7 +496,9 @@ SRMService <- setRefClass("SRMService",
                                              .self$piw$Isotope.Label==ifelse(light,.self$lightLabel, .self$heavyLabel)
                                              & idx
                               )
-                              return(TransitionTable(int_,.self$experimentID))
+                              return(TransitionTable(int_,
+                                                     .self$conditionmap,
+                                                     .self$experimentID))
                             }
                             ,
                             stripLabel=function(int_,light=FALSE){
@@ -533,7 +544,7 @@ SRMService <- setRefClass("SRMService",
 
                               logfc <- subset(logfc , maxNA >= quantable::rowNAs(logfc))
 
-                              invisible(TransitionTable(logfc,.self$experimentID))
+                              invisible(TransitionTable(logfc,.self$conditionmap ,.self$experimentID))
 
                             },
 
