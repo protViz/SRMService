@@ -59,7 +59,7 @@ plotNicely <- function(dataX, main="", log="", ylab="log(intensity)"){
 transitionCorrelations <- function(dataX){
   if(nrow(dataX) > 1){
     ordt <- (dataX)[order(apply(dataX,1,mean)),]
-    dd <- cor(t(ordt),use="pairwise.complete.obs", method = "spearman")
+    dd <- stats::cor(t(ordt),use="pairwise.complete.obs", method = "spearman")
     return(dd)
   }else{
     message("Could not compute correlation, nr rows : " , nrow(dataX) )
