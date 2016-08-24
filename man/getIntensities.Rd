@@ -4,7 +4,10 @@
 \alias{getIntensities}
 \title{extracts Intensity columns}
 \usage{
-getIntensities(lightPiw)
+getIntensities(data)
+}
+\arguments{
+\item{data}{data.frame returned by piwotPiw}
 }
 \description{
 extracts Intensity columns

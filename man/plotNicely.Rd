@@ -10,6 +10,10 @@ plotNicely(dataX, main = "", log = "", ylab = "log(intensity)")
 \item{dataX}{data.frame}
 
 \item{main}{some name to plot}
+
+\item{log}{log transform y axes}
+
+\item{ylab}{label for y axes}
 }
 \description{
 Make nice plots of transitions or peptides with correlations

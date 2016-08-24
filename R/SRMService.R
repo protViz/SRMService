@@ -50,7 +50,7 @@ getConditionColumns <- function(){
 
 .fixConditionMapping <- function(conditionmap){
   conditionmap <- conditionmap[,getConditionColumns()]
-  conditionmap$Colnames <- do.call(paste,c(.self$conditionmap, sep="_"))
+  conditionmap$Colnames <- do.call(paste,c(conditionmap, sep="_"))
   rownames(conditionmap) <- conditionmap$Replicate.Name
   return(conditionmap)
 }

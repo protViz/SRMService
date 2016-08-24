@@ -6,7 +6,7 @@ getIDLabels <- function(){
   .idlables <- c("Peptide.Sequence", "Protein.Name", "Precursor.Charge", "Product.Charge", "Fragment.Ion", "Isotope.Label")
 }
 #' piwots light
-#'
+#' @param data data.frame containing columns : Peptide.Sequence ...
 #'@export
 piwotPiw <- function(data){
   lightPiw <- reshape2::dcast(data,
@@ -19,11 +19,11 @@ piwotPiw <- function(data){
 }
 
 #' extracts Intensity columns
-#'
+#' @param data data.frame returned by piwotPiw
 #' @export
-getIntensities <- function(lightPiw ){
-  lightInt <- lightPiw[,7:ncol(lightPiw)]
-  dum <- apply(lightPiw[ ,1:6],1, paste,collapse="_")
+getIntensities <- function(data ){
+  lightInt <- data[,7:ncol(data)]
+  dum <- apply(data[ ,1:6],1, paste,collapse="_")
   rownames(lightInt) <- dum
   return(lightInt)
 }
@@ -32,6 +32,8 @@ getIntensities <- function(lightPiw ){
 #' Make nice plots of transitions or peptides with correlations
 #' @param dataX data.frame
 #' @param main some name to plot
+#' @param log log transform y axes
+#' @param ylab label for y axes
 #' @export
 #'
 plotNicely <- function(dataX, main="", log="", ylab="log(intensity)"){

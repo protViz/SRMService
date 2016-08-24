@@ -6,6 +6,9 @@
 \usage{
 piwotPiw(data)
 }
+\arguments{
+\item{data}{data.frame containing columns : Peptide.Sequence ...}
+}
 \description{
 piwots light
 }
