@@ -1,3 +1,28 @@
+#' get required columns for analysis
+#'
+#'@export
+getRequiredColumns <- function(){
+  cols <- c("Replicate.Name",
+            "Peptide.Sequence",
+            "Protein.Name",
+            "Precursor.Charge",
+            "Product.Charge",
+            "Fragment.Ion",
+            "Isotope.Label",
+            "Precursor.Mz",
+            "Product.Mz",
+            "annotation_QValue",
+            "Retention.Time",
+            "Area",
+            "Background")
+  return(cols)
+}
+#' get required columns for analysis
+#'
+#'@export
+getConditionColumns <- function(){
+  cols <- c("Condition","Replicate.Name")
+}
 
 .reportMissing <- function(dl, dh){
   df_args <- c( subset(dl, select = colnames(dl)!="Area"), sep=".")
@@ -23,6 +48,13 @@
   names(which((nrtrans-1)== ids))
 }
 
+.fixConditionMapping <- function(conditionmap){
+  conditionmap <- conditionmap[,getConditionColumns()]
+  conditionmap$Colnames <- do.call(paste,c(.self$conditionmap, sep="_"))
+  rownames(conditionmap) <- conditionmap$Replicate.Name
+  return(conditionmap)
+}
+
 #' Protein Table
 #' @export ProteinTable
 #' @exportClass ProteinTable
@@ -37,9 +69,9 @@ ProteinTable <- setRefClass("ProteinTable",
                                            housekeeper = "character",
                                            normalized="character")
                             ,methods=list(
-                              initialize = function(data, conditionmapping, experimentID=""){
-                                .self$normalized =""
-                                reccolumns <- c("Replicate.Name","Condition")
+                              initialize = function(data, conditionmapping, experimentID="" ){
+                                .self$normalized = ""
+                                reccolumns <- c("Condition","Replicate.Name")
                                 if(sum(reccolumns %in% colnames(conditionmapping))!=2){
                                   stop("condition mappings does not contain columns : ", reccolumns)
                                 }
@@ -49,18 +81,22 @@ ProteinTable <- setRefClass("ProteinTable",
                                   warning(check)
                                   stop("Colnames data do not match conditionmappings")
                                 }
-                                rownames(conditionmapping) <- conditionmapping$Replicate.Name
 
                                 .self$experimentID = experimentID
                                 .self$data = data
-                                .self$conditionmap = conditionmapping
-                              }, conditionColors=function(){
+                                if(!missing(conditionmapping)){
+                                  .self$conditionmap = .fixConditionMapping(conditionmapping)
+                                }
+                              },
+
+                              conditionColors=function(){
                                 fact <- as.factor(.self$conditionmap[colnames(.self$data), "Condition"])
                                 tmpcol <- as.numeric(fact)
                                 plot(1,type="n",axes=FALSE, xlab="", ylab="")
                                 legend(1, 1, legend=levels(fact), col= c("blue","red","pink","green"), lty=1,lwd=3,pch=1)
 
-                              },setHouseKeepers = function(housekeeper){
+                              },
+                              setHouseKeepers = function(housekeeper){
                                 .self$housekeeper <- housekeeper[housekeeper %in% rownames(.self$data)]
                                 diff <- setdiff(housekeeper,.self$housekeeper)
                                 if( length(diff) > 0){
@@ -80,8 +116,7 @@ ProteinTable <- setRefClass("ProteinTable",
                                   warning("can not normalize data, protein not quantified in some samples. NAs")
                                   return(FALSE)
                                 }
-
-                                .self$normalized = colnames(.housekeepers)
+                                print(rownames(.housekeepers))
 
                                 if(plot){
                                   nrlines <- nrow(.housekeepers)
@@ -99,6 +134,8 @@ ProteinTable <- setRefClass("ProteinTable",
                                                   .self$conditionmap,
                                                   experimentID = .self$experimentID
                                 )
+                                pp$setHouseKeepers(rownames(.housekeepers))
+                                pp$normalized = rownames(.housekeepers)
                                 return(pp)
                               },
                               getProtein=function(protein){
@@ -109,19 +146,31 @@ ProteinTable <- setRefClass("ProteinTable",
                                 tmpcol <- as.numeric(fact)
                                 simpleheatmap(t(.self$data),margin=c(10,5),
                                               RowSideColors = c("blue","red","pink","green")[tmpcol], main=main)
+                              },
+                              getProteinMatrix=function(){
+                                res <- .self$data
+                                colnames(res) <-  .self$conditionmap[colnames(.self$data),"Colnames"]
+                                invisible(res)
                               }
                             )
 )
 
+
 #' Peptide table
 #' @export PeptideTable
 #' @exportClass PeptideTable
+#'
 PeptideTable <- setRefClass("PeptideTable",
                             fields = list( data = "data.frame",
                                            ids = "data.frame",
-                                           experimentID= "character")
+                                           conditionmap = "data.frame",
+                                           experimentID = "character"
+                            )
                             ,methods = list(
-                              initialize = function(data, ids, experimentID){
+                              initialize = function(data, ids, conditionmapping, experimentID=""){
+                                if(!missing(conditionmapping)){
+                                  .self$conditionmap = .fixConditionMapping(conditionmapping)
+                                }
                                 .self$experimentID = experimentID
                                 .self$data = data
                                 .self$ids = ids
@@ -166,9 +215,14 @@ PeptideTable <- setRefClass("PeptideTable",
 TransitionTable <- setRefClass("TransitionTable",
                                fields = list( data = "data.frame",
                                               ids = "data.frame",
+                                              conditionmap="data.frame",
                                               experimentID = "character")
                                ,methods = list(
-                                 initialize = function(data, experimentID=""){
+                                 initialize = function(data,conditionmapping, experimentID=""){
+                                   if(!missing(conditionmapping)){
+                                     .self$conditionmap = .fixConditionMapping(conditionmapping)
+                                   }
+                                   .self$conditionmap = conditionmap
                                    .self$experimentID = experimentID
                                    .self$data = data
                                    .self$ids <- .self$rownamesAsTable(rownames(data))
@@ -312,6 +366,7 @@ TransitionTable <- setRefClass("TransitionTable",
 SRMService <- setRefClass("SRMService",
                           fields = list( data = "data.frame",
                                          dataq = "data.frame",
+                                         conditionmap = "data.frame",
                                          qValueThreshold = "numeric",
                                          MaxNAHeavy = "numeric",
                                          MaxNALight = "numeric",
@@ -321,7 +376,7 @@ SRMService <- setRefClass("SRMService",
                                          lightLabel = "character",
                                          heavyLabel = "character",
                                          experimentID = "character"
-                          ),methods = list(
+                          ), methods = list(
                             initialize = function(data,experimentID="",
                                                   qvalue = 0.05
                             ){
@@ -334,14 +389,16 @@ SRMService <- setRefClass("SRMService",
                               .self$MaxNAHeavy <- length(unique(.self$data$Replicate.Name))
                               .self$MaxNALight <- .self$MaxNAHeavy
                               .self$MaxNAFC <- .self$MaxNAHeavy
+                              .self$conditionmap <- .fixConditionMapping(unique(data[,getConditionColumns()]))
                               setQ(qvalue)
+                              .makePivotData()
                             },
                             setQ = function(qvalue = 0.05){
                               .self$dataq <- .self$data
                               .self$qValueThreshold <- qvalue
                               message( "Setting intensities to NA for qvalues larger than: ", .self$qValueThreshold )
                               .self$dataq$Area[.self$dataq$annotation_QValue > .self$qValueThreshold] <- NA
-                              .makePivotData()
+
                             },
                             qValueHist=function(){
                               hist(.self$data$annotation_QValue, main="q Values")
@@ -371,6 +428,7 @@ SRMService <- setRefClass("SRMService",
                               message("pivoting data")
                               .self$piw <- SRMService::piwotPiw(.self$dataq)
                               .self$dataq <- .mergeHL(.self$piw)
+                              print(colnames(.self$dataq))
                               print("mergeDone!")
                               .self$piw <- SRMService::piwotPiw(.self$dataq)
                               .self$int <- SRMService::getIntensities(.self$piw)

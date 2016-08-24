@@ -28,25 +28,6 @@ getIntensities <- function(lightPiw ){
   return(lightInt)
 }
 
-#' get required columns for analysis
-#'
-#'@export
-getRequiredColumns <- function(){
-  cols <- c("Replicate.Name",
-            "Peptide.Sequence",
-            "Protein.Name",
-            "Precursor.Charge",
-            "Product.Charge",
-            "Fragment.Ion",
-            "Isotope.Label",
-            "Precursor.Mz",
-            "Product.Mz",
-            "annotation_QValue",
-            "Retention.Time",
-            "Area",
-            "Background")
-  return(cols)
-}
 
 #' Make nice plots of transitions or peptides with correlations
 #' @param dataX data.frame
