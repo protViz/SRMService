@@ -13,7 +13,11 @@ Transition table
 \describe{
 \item{\code{getCorrelatedPeptides(is = TRUE, minCorrelation = 0.8)}}{returns peptides with well correlated transitions}
 
+\item{\code{getLongFormat()}}{return data in long format (can easily be converted to msstats input)}
+
 \item{\code{getPeptidesAsList()}}{returns list of matrices each matrix representing single peptide}
+
+\item{\code{getProteinsAsList()}}{Returns the data as an list of dataframes}
 
 \item{\code{removeDecorrelated(minCorrelation = 0.8)}}{removes decorrelated peptides}
 

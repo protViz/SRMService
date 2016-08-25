@@ -50,9 +50,22 @@ getConditionColumns <- function(){
 
 .fixConditionMapping <- function(conditionmap){
   conditionmap <- conditionmap[,getConditionColumns()]
-  conditionmap$Condition <- do.call(paste,c(conditionmap, sep="_"))
+  conditionmap$Colnames <- do.call(paste,c(conditionmap, sep="_"))
   rownames(conditionmap) <- conditionmap$Replicate.Name
   return(conditionmap)
+}
+
+
+# Refactor the stuff for inheritance.
+.getLongFormat = function(Xtable){
+  data1merge <- merge(Xtable$ids, Xtable$data , by="row.names")
+  data1melt <- melt(data1merge,id.vars= 1:(ncol(Xtable$ids)+1),
+                    variable.name = "Replicate.Name",
+                    value.name="Area")
+  condi <-Xtable$conditionmap
+  condi$Sample.Name <- 1:nrow(condi)
+  data1melt <- merge(condi, data1melt)
+  return(data1melt)
 }
 
 #' Protein Table
@@ -61,6 +74,7 @@ getConditionColumns <- function(){
 #' @field data data.frame with colnames sample ID rownames proteinID
 #' @field conditionmapping data.frame with 2 columns providing mapping of sampleID to condition
 #' @field experimentID name of the experiment
+#'
 ProteinTable <- setRefClass("ProteinTable",
                             fields = list( data = "data.frame",
                                            conditionmap = "data.frame",
@@ -268,7 +282,8 @@ TransitionTable <- setRefClass("TransitionTable",
                                      idx <-which(sapply(res, min) < 0.8)
                                    }
                                    return(prottab[idx])
-                                 }, getPeptidesAsList = function(){
+                                 },
+                                 getPeptidesAsList = function(){
                                    ' returns list of matrices each matrix representing single peptide'
 
                                    xx <- .self$getPeptideIDs()
@@ -306,12 +321,16 @@ TransitionTable <- setRefClass("TransitionTable",
                                                           experimentID=.self$experimentID))
                                  },
                                  getProteinsAsList = function(){
+                                   "Returns the data as an list of dataframes"
                                    xx <- .self$ids$Protein.Name
                                    peptab <- by(.self$data ,INDICES=xx,function(x){x})
                                    return(peptab)
+                                 },
+                                 getLongFormat = function(){
+                                   "return data in long format (can easily be converted to msstats input)"
+                                   return(.getLongFormat(.self))
+
                                  }
-
-
                                ))
 #' R access to Bibliospec File
 #'
@@ -550,15 +569,17 @@ SRMService <- setRefClass("SRMService",
                             plotTransitions = function(light = FALSE){
                               int_ <- .self$getTransitionIntensities(light=light)$data
                               quantable::imageWithLabels( t(as.matrix(log2( int_ ) )) ,
-                                                          col = quantable::getRedScale(),
+                                                          # col = quantable::getRedScale(),
                                                           main=ifelse(light, .self$lightLabel,.self$heavyLabel),
                                                           marLeft=c(5,15,3,3),
                                                           marRight = c(5,0,3,3))
                             },
-                            getForMSStats=function(){
+                            getLongFormat = function(){
+                              "return data in long format (can easily be converted to msstats input)"
+                              return(.getLongFormat(.self))
 
                             }
-
+#
                           )
 )
 
