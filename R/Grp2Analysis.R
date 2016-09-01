@@ -13,7 +13,11 @@ Grp2Analysis <- setRefClass("Grp2Analysis",
                                            maxNA = "numeric",
                                            conditions = "character",
                                            projectName = "character",
-                                           experimentName = "character")
+                                           experimentName = "character",
+                                           pvalue= "numeric",
+                                           qvalue= "numeric",
+                                           pfoldchange = "numeric",
+                                           qfoldchange = "numeric")
                             , methods = list(
                               setProteins = function(protein){
                                 "used to verify proteingroups structure and set members"
@@ -29,7 +33,7 @@ Grp2Analysis <- setRefClass("Grp2Analysis",
                                 stopifnot(colnames(.self$proteinIntensity) %in% .self$annotation$Raw.file)
 
                                 .self$proteinIntensity <- .self$proteinIntensity[,.self$annotation$Raw.file]
-                                .self$proteinIntensity[.self$proteinIntensity==0] <-NA
+                                .self$proteinIntensity[.self$proteinIntensity==0] <- NA
 
                                 nas <-.self$getNrNAs()
                                 .self$proteinIntensity <- .self$proteinIntensity[nas<=maxNA,]
@@ -50,6 +54,16 @@ Grp2Analysis <- setRefClass("Grp2Analysis",
                                 .self$conditions <- unique(.self$annotation$Condition)
                                 .self$nrPeptides <- nrPeptides
                                 .self$maxNA <- maxNA
+                                setQValueThresholds()
+                                setPValueThresholds()
+                              },
+                              setQValueThresholds = function(qvalue= 0.05, qfoldchange=0.5){
+                                .self$qvalue= qvalue
+                                .self$qfoldchange = qfoldchange
+                              },
+                              setPValueThresholds = function(pvalue= 0.01, pfoldchange=0.1){
+                                .self$pvalue= pvalue
+                                .self$pfoldchange = pfoldchange
                               },
                               setMQProteinGroups = function(MQProteinGroups){
                                 "set MQ protein groups table"

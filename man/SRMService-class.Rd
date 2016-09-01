@@ -21,8 +21,6 @@ The function performs a SQL query on the SQLite
 \section{Methods}{
 
 \describe{
-\item{\code{getLongFormat()}}{return data in long format (can easily be converted to msstats input)}
-
 \item{\code{getMatchingIntensities()}}{get matrix with intensities, where nr of NAs in row < maxNA}
 
 \item{\code{getNrNAs(light = FALSE)}}{show nr of NA's for heavy (defalt) or light transitions}

@@ -14,6 +14,12 @@ knitr::opts_chunk$set(
   warning = FALSE
 )
 library(dScipa)
+
+if(!exists("progress")){
+    progress <- function(howmuch, detail){
+    
+  }
+}
 ```
 
 
@@ -80,6 +86,8 @@ imageWithLabels(t(log2(grp2$proteinIntensity)), col.labels = NULL, col=quantable
 ```{r, fig.cap="# of missing values per protein"}
 plot(table(missing))
 
+progress(0.1, "Summary")
+
 ```
 
 \pagebreak
@@ -120,6 +128,8 @@ par(mar=c(3,10,3,3))
 
 barplot(grp2$getNormalized()$medians,horiz=T,las=2, main="median correction", cex.names = 0.6)
 barplot(grp2$getNormalized()$mads,horiz=T, las=2 , main="standard deviation correction", cex.names = 0.6)
+
+progress(0.2, "Normalization")
 
 ```
 
@@ -172,6 +182,9 @@ p + stat_summary(fun.y=median,geom='point') + theme(axis.text.x = element_text(a
 ```{r}
 sdSummary <-aggregate(sd ~ condition , data=SDs , median, na.rm=TRUE)
 knitr::kable(sdSummary, caption = 'median of sd')
+
+progress(0.1, "CVs")
+
 ```
 
 \pagebreak
@@ -196,67 +209,90 @@ tmp <- grp2$getNormalized()$data
 
 simpleheatmap(grp2$getNormalized()$data[grp2$getNrNAs() < ncol(grp2$getNormalized()$data)/2,],ColSideColors = col[as.factor(grp2$annotation$Condition)], margins=c(10,3) )
 
+progress(0.2, "Heatmaps")
 ```
 
 
 # FGCZ - Two Group Analysis
 
+Here we show for the normalized matrices the result of a
+two group analysis using bioconductor limma. 
+
 ```{r include=FALSE}
-fixcols <- function(resRel){
+fixcols <- function(resRel, name = "qvalue", top = 20){
   resRel<-do.call("rbind", resRel)
   rownames(resRel) <- NULL
   resRel <- data.frame(resRel,tmp= 2^resRel$foldchange)
-  colnames(resRel) <- c("regulation", "Accession", "log2(T/N)", "qvalue", "foldchange (T/N)")
+  colnames(resRel) <- c("regulation", "Accession", "log2(T/N)", name, "foldchange (T/N)")
+
+  resRel <- resRel[order(resRel[,name])[1:min(top,nrow(resRel))],]
+
   return(resRel)
 }
 ```
 
+\newpage
 
-## Stringent Thresholds
+## Adjusted moderated p-values (q-values)
 
-Here we show for the normalized matrices the result of a
-two group analysis using bioconductor limma. Significant calls are made with q Value smaller 0.01 (false discovery rate, computed with bioconductor package qvalue). The list is also written to a text file with group means,
-pValue, FDR (qValue), FoldChange. Additionally we output graphically the Volcano plot.
-
+Significant calls are made with q Value smaller 0.01 (false discovery rate, computed with bioconductor package qvalue). 
 
 ```{r fig.width=10, fig.height=8, dpi=300, fig.cap="VolcanoPlot for normalized and scaled proteins with stringent thresholds. x axis log2 fold change"}
 
 res.eb <-grp2$getPValues()
-resStr <-quantable::volcanoplot(res.eb$logFC, res.eb$q.mod, foldchangethresh = 0.1 , pthresh = 0.01 ,labels=rownames(res.eb))
+resStr <-quantable::volcanoplot(res.eb$logFC, res.eb$q.mod, foldchangethresh = grp2$qfoldchange , pthresh = grp2$qvalue ,labels=rownames(res.eb))
 
 ```
 
-```{r}
-resStr<-fixcols(resStr)
-knitr::kable(resStr, caption = "Stringent cutoff (q < 0.01) regulated proteins.")
+\newpage
+
+```{r results="markup"}
+resStr<-fixcols(resStr,name="qvalue")
+knitr::kable(resStr, caption = "Most significant regulated proteins.")
 ```
 
+\newpage
 
-## Relaxed Threshold
+## Moderated p-values
 
-ere we show for the normalized matrices the result of a
-two group analysis using bioconductor limma. Significant calls are made with qValue smaller 0.05 (false discovery rate, computed with bioconductor package qvalue). We output first the length of the list (the list is also written to a text file with group means,
-pValue, FDR, FoldChange). Additionally we output graphically the Volcano plot
+Significant calls are made with *moderated* p Value smaller 0.05. 
 
-
-
-```{r fig.width=10, fig.height=8, dpi=300, fig.cap="VolcanoPlot for normalized and imputed matrix (asinh) with relaxed thresholds."}
+```{r fig.width=10, fig.height=8, dpi=300, fig.cap="VolcanoPlot for normalized and imputed matrix (asinh) with moderated p Values."}
 res.eb <-grp2$getPValues()
-resRel <- quantable::volcanoplot(res.eb$logFC, res.eb$q.mod, foldchangethresh = 0.1 , pthresh = 0.05 ,labels=rownames(res.eb))
+resStr <- quantable::volcanoplot(res.eb$logFC, res.eb$p.mod, foldchangethresh = grp2$pfoldchange , pthresh = grp2$pvalue ,labels=rownames(res.eb))
+```
+
+\newpage
+
+```{r  results="markup"}
+resStr<-fixcols(resStr)
+knitr::kable(resStr, caption = "Most significant regulated proteins.")
+```
+
+\newpage
+
+## p-values
+
+Significant calls are made with a p Value smaller 0.05. 
+
+
+```{r fig.width=10, fig.height=8, dpi=300, fig.cap="VolcanoPlot for normalized and imputed matrix (asinh) with moderated q Values."}
+res.eb <-grp2$getPValues()
+
+resRel <- quantable::volcanoplot(res.eb$logFC, res.eb$p.ord, foldchangethresh = grp2$pfoldchange , pthresh = grp2$pvalue ,labels=rownames(res.eb))
 
 ```
 
+\newpage
 
-
-
-```{r}
+```{r  results="markup"}
 resRel <- fixcols(resRel)
-knitr::kable(resRel, caption = "Relaxed cutoff (q < 0.05) regulated proteins.")
-
+knitr::kable(resRel, caption = "Most significant regulated proteins.")
+progress(0.1, "volcanos")
 ```
 
 
 ## Disclaimer and Acknowledgements
 
-This document was generated using Rmarkdown and processes text files which are generated either with a label-free quantitation software such as ProgenesisLCMS or MaxQuant. In anycase the obtained results should be validated orthogonally as well (e.g. with Western blots).
+This document was generated using Rmarkdown and processes text files which are generated either with a label-free quantitation software such as  MaxQuant. In anycase the obtained results should be validated orthogonally as well (e.g. with Western blots).
 The FGCZ does not provide any kind of guarantee of the validity of these statistics.

@@ -55,9 +55,7 @@ getConditionColumns <- function(){
   return(conditionmap)
 }
 
-
-# Refactor the stuff for inheritance.
-.getLongFormat = function(Xtable){
+.getLongFormat <- function(Xtable){
   data1merge <- merge(Xtable$ids, Xtable$data , by="row.names")
   data1melt <- melt(data1merge,id.vars= 1:(ncol(Xtable$ids)+1),
                     variable.name = "Replicate.Name",
@@ -84,7 +82,7 @@ ProteinTable <- setRefClass("ProteinTable",
                             ,methods=list(
                               initialize = function(data, conditionmapping, experimentID="" ){
                                 .self$normalized = ""
-                                reccolumns <- c("Condition","Replicate.Name")
+                                reccolumns <- c("Condition", "Replicate.Name")
                                 if(sum(reccolumns %in% colnames(conditionmapping))!=2){
                                   stop("condition mappings does not contain columns : ", reccolumns)
                                 }
@@ -410,7 +408,6 @@ SRMService <- setRefClass("SRMService",
                               .self$experimentID = experimentID
                               .self$lightLabel = "light"
                               .self$heavyLabel = "heavy"
-
                               stopifnot(getRequiredColumns() %in% colnames(data))
                               .self$data <- data[,getRequiredColumns()]
                               .self$MaxNAHeavy <- length(unique(.self$data$Replicate.Name))
@@ -571,15 +568,9 @@ SRMService <- setRefClass("SRMService",
                               quantable::imageWithLabels( t(as.matrix(log2( int_ ) )) ,
                                                           # col = quantable::getRedScale(),
                                                           main=ifelse(light, .self$lightLabel,.self$heavyLabel),
-                                                          marLeft=c(5,15,3,3),
+                                                          # marLeft=c(5,15,3,3),
                                                           marRight = c(5,0,3,3))
-                            },
-                            getLongFormat = function(){
-                              "return data in long format (can easily be converted to msstats input)"
-                              return(.getLongFormat(.self))
-
                             }
-#
                           )
 )
 
