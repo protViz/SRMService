@@ -9,12 +9,13 @@ getRequiredColumns <- function(){
             "Product.Charge",
             "Fragment.Ion",
             "Isotope.Label",
-            "Precursor.Mz",
-            "Product.Mz",
+            "Precursor.Mz", #optional
+            "Product.Mz", #optional
             "annotation_QValue",
-            "Retention.Time",
+            "Retention.Time", # optional
             "Area",
-            "Background")
+            "Background" # optional
+            )
   return(cols)
 }
 #' get required columns for analysis

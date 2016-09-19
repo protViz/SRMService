@@ -6,8 +6,6 @@ protein <- read.table(("inst/samples/proteinGroups/proteinGroups2x4.txt"),sep="\
 rawF <- gsub("Intensity\\.", "", grep("Intensity\\.",colnames(protein),value=T) )
 
 
-
-
 condition <- quantable::split2table(rawF)[,3]
 annotation <-data.frame(Raw.file = rawF,
                         Condition = condition,

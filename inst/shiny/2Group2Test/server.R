@@ -5,7 +5,7 @@
 
 library(shiny)
 library(SRMService)
-
+library(rhandsontable)
 options(shiny.maxRequestSize=30*1024^2)
 
 # Define server logic required to draw a histogram
@@ -18,7 +18,6 @@ shinyServer(function(input, output) {
   filename <- observeEvent(input$proteinGroups,{
     v_upload_file$filenam <- input$proteinGroups
   })
-
 
   ## Create output button
   output$generatereportbutton <- renderUI({
@@ -48,7 +47,7 @@ shinyServer(function(input, output) {
                               Run = 1:length(condition),
                               IsotopeLabelType = rep("L",length(condition)), stringsAsFactors = F)
 
-      v_upload_file$annotation <- annotation
+
 
       ## number of peptides plot ####
       nrPep <- cumsum(rev(table(protein$Peptides)))
@@ -76,7 +75,7 @@ shinyServer(function(input, output) {
       v_upload_file$bestNA <- ncol(pint) - 4
 
       ## prepare gui output
-      list(renderTable(annotation),
+      list(rhandsontable(annotation),
            renderTable(table(annotation$Condition)),
            nrPeptidePlot,
            naPlot,
@@ -123,8 +122,11 @@ shinyServer(function(input, output) {
 
       ### Rendering report
       library(SRMService)
+      print(names(input))
+      annotation <- input$fileInformation
+      print(annotation)
 
-      grp2 <- Grp2Analysis(v_upload_file$annotation, input$experimentID, maxNA=8  , nrPeptides=2)
+      grp2 <- Grp2Analysis(annotation, input$experimentID, maxNA=8  , nrPeptides=2)
       grp2$setMQProteinGroups(v_upload_file$protein)
       grp2$setQValueThresholds(qvalue = input$qValue , qfoldchange = input$qValueFC)
       grp2$setPValueThresholds(pvalue = input$pValue, pfoldchange = input$pValueFC)
