@@ -16,7 +16,7 @@ knitr::opts_chunk$set(
 library(dScipa)
 
 if(!exists("progress")){
-    progress <- function(howmuch, detail){
+  progress <- function(howmuch, detail){
     
   }
 }
@@ -103,7 +103,7 @@ library(ggplot2)
 library(reshape2)
 longm <- melt(log2(grp2$proteinIntensity))
 
-p <- qplot( variable , value , data=longm , geom="violin" , xlab="" , ylab="log10(I)")
+p <- qplot( variable , value , data=longm , geom="violin" , xlab="" , ylab="log2(I)")
 p + stat_summary(fun.y=median,geom='point') +theme(axis.text.x = element_text(angle = 90, hjust = 1))
 
 ```
@@ -113,7 +113,7 @@ p + stat_summary(fun.y=median,geom='point') +theme(axis.text.x = element_text(an
 ```{r normalized,  fig.width=7,fig.height=7,dpi=300, fig.cap="Density plot for normalized values (log2)"}
 
 longm <- melt(grp2$getNormalized()$data)
-p <- qplot( variable , value , data=longm , geom="violin" , xlab="" , ylab="log10(I)")
+p <- qplot( variable , value , data=longm , geom="violin" , xlab="" , ylab="log2(I)")
 p + stat_summary(fun.y=median,geom='point') + theme(axis.text.x = element_text(angle = 90, hjust = 1))
 
 ```
@@ -141,7 +141,6 @@ progress(0.2, "Normalization")
 ```{r CViolin, fig.cap="distribution of protein CV within condition and overall"}
 #cond1 <- grp2$proteinIntensity[, grp2$annotation$Raw.file[grp2$annotation$Condition == grp2$conditions[1]]]
 cond1 <- grp2$getConditionData(grp2$conditions[1])
-
 cond2 <- grp2$getConditionData(grp2$conditions[2])
 
 
@@ -151,7 +150,7 @@ cond2 <- quantable::CV(cond2)
 all <- quantable::CV(grp2$proteinIntensity)
 CVs <- rbind(data.frame(condition=grp2$conditions[1], cv=cond1), data.frame(condition=grp2$conditions[2],cv=cond2 ), data.frame(condition="all", cv=all))
 
-p <- qplot( condition , cv , data=CVs , geom="violin" , xlab="" , ylab="log10(I)")
+p <- qplot( condition , cv , data=CVs , geom="violin" , xlab="" , ylab="log2(I)")
 p + stat_summary(fun.y=median,geom='point') + theme(axis.text.x = element_text(angle = 90, hjust = 1))
 
 ```
@@ -174,7 +173,7 @@ cond2 <- apply(cond2, 1, sd, na.rm=TRUE)
 all <- apply( grp2$getNormalized()$data, 1 , sd, na.rm=TRUE )
 SDs<-rbind(data.frame( condition=grp2$conditions[1], sd=cond1), data.frame(condition=grp2$conditions[2],sd=cond2 ), data.frame(condition="all", sd=all))
 
-p <- qplot( condition , sd , data=SDs , geom="violin" , xlab="" , ylab="log10(I)")
+p <- qplot( condition , sd , data=SDs , geom="violin" , xlab="" , ylab="log2(I)")
 p + stat_summary(fun.y=median,geom='point') + theme(axis.text.x = element_text(angle = 90, hjust = 1))
 
 ```
@@ -224,9 +223,9 @@ fixcols <- function(resRel, name = "qvalue", top = 20){
   rownames(resRel) <- NULL
   resRel <- data.frame(resRel,tmp= 2^resRel$foldchange)
   colnames(resRel) <- c("regulation", "Accession", "log2(T/N)", name, "foldchange (T/N)")
-
+  
   resRel <- resRel[order(resRel[,name])[1:min(top,nrow(resRel))],]
-
+  
   return(resRel)
 }
 ```
@@ -240,15 +239,17 @@ Significant calls are made with q Value smaller 0.01 (false discovery rate, comp
 ```{r fig.width=10, fig.height=8, dpi=300, fig.cap="VolcanoPlot for normalized and scaled proteins with stringent thresholds. x axis log2 fold change"}
 
 res.eb <-grp2$getPValues()
-resStr <-quantable::volcanoplot(res.eb$logFC, res.eb$q.mod, foldchangethresh = grp2$qfoldchange , pthresh = grp2$qvalue ,labels=rownames(res.eb))
+resStr <-quantable::volcanoplot(res.eb$logFC, res.eb$q.mod, foldchangethresh = grp2$qfoldchange , pthresh = grp2$qvalue ,labels=rownames(res.eb),xlab = paste("log2(",unique(grp2$annotation$Condition)[2],"/",unique(grp2$annotation$Condition)[1],")"))
 
 ```
 
 \newpage
 
 ```{r results="markup"}
-resStr<-fixcols(resStr,name="qvalue")
-knitr::kable(resStr, caption = "Most significant regulated proteins.")
+if(!is.null(resStr)){
+  resStr<-fixcols(resStr,name="qvalue")
+  knitr::kable(resStr, caption = "Most significant regulated proteins.")
+}
 ```
 
 \newpage
@@ -259,14 +260,16 @@ Significant calls are made with *moderated* p Value smaller 0.05.
 
 ```{r fig.width=10, fig.height=8, dpi=300, fig.cap="VolcanoPlot for normalized and imputed matrix (asinh) with moderated p Values."}
 res.eb <-grp2$getPValues()
-resStr <- quantable::volcanoplot(res.eb$logFC, res.eb$p.mod, foldchangethresh = grp2$pfoldchange , pthresh = grp2$pvalue ,labels=rownames(res.eb))
+resStr <- quantable::volcanoplot(res.eb$logFC, res.eb$p.mod, foldchangethresh = grp2$pfoldchange , pthresh = grp2$pvalue ,labels=rownames(res.eb), xlab = paste("log2(",unique(grp2$annotation$Condition)[2],"/",unique(grp2$annotation$Condition)[1],")"))
 ```
 
 \newpage
 
 ```{r  results="markup"}
-resStr<-fixcols(resStr)
-knitr::kable(resStr, caption = "Most significant regulated proteins.")
+if(!is.null(resStr)){
+  resStr<-fixcols(resStr)
+  knitr::kable(resStr, caption = "Most significant regulated proteins.")
+}
 ```
 
 \newpage
@@ -279,7 +282,7 @@ Significant calls are made with a p Value smaller 0.05.
 ```{r fig.width=10, fig.height=8, dpi=300, fig.cap="VolcanoPlot for normalized and imputed matrix (asinh) with moderated q Values."}
 res.eb <-grp2$getPValues()
 
-resRel <- quantable::volcanoplot(res.eb$logFC, res.eb$p.ord, foldchangethresh = grp2$pfoldchange , pthresh = grp2$pvalue ,labels=rownames(res.eb))
+resRel <- quantable::volcanoplot(res.eb$logFC, res.eb$p.ord, foldchangethresh = grp2$pfoldchange , pthresh = grp2$pvalue ,labels=rownames(res.eb),xlab = paste("log2(",unique(grp2$annotation$Condition)[2],"/",unique(grp2$annotation$Condition)[1],")"))
 
 ```
 

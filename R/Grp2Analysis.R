@@ -20,6 +20,7 @@ Grp2Analysis <- setRefClass("Grp2Analysis",
                                            qfoldchange = "numeric")
                             , methods = list(
                               setProteins = function(protein){
+                                protein <- as.data.frame(protein)
                                 "used to verify proteingroups structure and set members"
                                 stopifnot(proteinColumns %in% colnames(protein))
                                 stopifnot(grep("Intensity\\." , colnames(protein))>0)
@@ -57,11 +58,11 @@ Grp2Analysis <- setRefClass("Grp2Analysis",
                                 setQValueThresholds()
                                 setPValueThresholds()
                               },
-                              setQValueThresholds = function(qvalue= 0.05, qfoldchange=0.5){
+                              setQValueThresholds = function(qvalue= 0.05, qfoldchange=0.1){
                                 .self$qvalue= qvalue
                                 .self$qfoldchange = qfoldchange
                               },
-                              setPValueThresholds = function(pvalue= 0.01, pfoldchange=0.1){
+                              setPValueThresholds = function(pvalue= 0.01, pfoldchange=0.5){
                                 .self$pvalue= pvalue
                                 .self$pfoldchange = pfoldchange
                               },
