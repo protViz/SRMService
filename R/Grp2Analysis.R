@@ -1,5 +1,6 @@
 annotationColumns <- c("Raw.file","Condition", "BioReplicate", "Run","IsotopeLabelType")
 proteinColumns <- c("ProteinName","TopProteinName","nrPeptides")
+library(dScipa)
 
 #' Perform 2 group analysis with visualization
 #' @export Grp2Analysis
@@ -11,13 +12,15 @@ Grp2Analysis <- setRefClass("Grp2Analysis",
                                            proteinAnnotation = "data.frame",
                                            nrPeptides = "numeric",
                                            maxNA = "numeric",
-                                           conditions = "character",
+                                           conditions = "factor",
                                            projectName = "character",
                                            experimentName = "character",
                                            pvalue= "numeric",
                                            qvalue= "numeric",
                                            pfoldchange = "numeric",
-                                           qfoldchange = "numeric")
+                                           qfoldchange = "numeric",
+                                           reference = "character"
+                                           )
                             , methods = list(
                               setProteins = function(protein){
                                 protein <- as.data.frame(protein)
@@ -46,7 +49,8 @@ Grp2Analysis <- setRefClass("Grp2Analysis",
                                 projectName,
                                 experimentName="First experiment",
                                 maxNA=3,
-                                nrPeptides = 2
+                                nrPeptides = 2,
+                                reference = "Control"
                               ){
                                 .self$projectName <- projectName
                                 .self$experimentName <- experimentName
@@ -55,6 +59,7 @@ Grp2Analysis <- setRefClass("Grp2Analysis",
                                 .self$conditions <- unique(.self$annotation$Condition)
                                 .self$nrPeptides <- nrPeptides
                                 .self$maxNA <- maxNA
+                                .self$reference <- reference
                                 setQValueThresholds()
                                 setPValueThresholds()
                               },
@@ -90,7 +95,6 @@ Grp2Analysis <- setRefClass("Grp2Analysis",
                               },
                               getNormalizedConditionData = function(condition){
                                 normalized <- .self$getNormalized()$data
-
                                 stopifnot(condition %in% .self$conditions)
                                 fileID <-subset(.self$annotation, Condition == condition)$Raw.file
                                 normalized[, fileID]
