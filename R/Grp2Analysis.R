@@ -5,6 +5,18 @@ library(dScipa)
 #' Perform 2 group analysis with visualization
 #' @export Grp2Analysis
 #' @exportClass Grp2Analysis
+#' @field proteinIntensity data.frame where colnames are Raw.File names, row.names are protein ID's and cells are protein abundances.
+#' @field annotation_ annotations data.frame with columns such as Raw.File, Condition, Run etc.
+#' @field proteinAnnotation
+#' @field nrPeptides min number of peptides per protein
+#' @field maxNA maximum number of NA's
+#' @field condition summary of conditions
+#' @field projectName name of project
+#' @field experimentName name of experiment
+#' @field pvalue pvalue threshold
+#' @field qvalue qvalue threshold
+#' @field pfoldchange foldchange threshold for p volcano plot
+#' @field qfoldchange foldchange threshold for q volcano plot
 #'
 Grp2Analysis <- setRefClass("Grp2Analysis",
                             fields = list( proteinIntensity = "data.frame",
@@ -12,7 +24,7 @@ Grp2Analysis <- setRefClass("Grp2Analysis",
                                            proteinAnnotation = "data.frame",
                                            nrPeptides = "numeric",
                                            maxNA = "numeric",
-                                           conditions = "factor",
+                                           conditions = "character",
                                            projectName = "character",
                                            experimentName = "character",
                                            pvalue= "numeric",
@@ -55,9 +67,6 @@ Grp2Analysis <- setRefClass("Grp2Analysis",
                                 .self$projectName <- projectName
                                 .self$experimentName <- experimentName
                                 stopifnot(annotationColumns %in% colnames(annotation))
-                                # hack so that in the design matrix the condition is the denominator.
-                                annotation$Condition <- gsub(reference, paste("A_", reference, sep=""), annotation)
-
                                 .self$annotation_ <- annotation[order(annotation$Condition),]
                                 .self$conditions <- unique(.self$annotation_$Condition)
                                 .self$nrPeptides <- nrPeptides
@@ -103,6 +112,10 @@ Grp2Analysis <- setRefClass("Grp2Analysis",
                                 normalized[, fileID]
                               },
                               getDesignMatrix = function(){
+                                # hack for putting reference into denomintor.
+                                .self$annotation_$Condition <- gsub(reference, paste("Z_", reference, sep=""),
+                                                                    .self$annotation_$Condition)
+
                                 design <- model.matrix(~.self$annotation_$Condition)
                                 return(design)
                               },
