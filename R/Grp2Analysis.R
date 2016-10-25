@@ -1,13 +1,12 @@
 annotationColumns <- c("Raw.file","Condition", "BioReplicate", "Run","IsotopeLabelType")
 proteinColumns <- c("ProteinName","TopProteinName","nrPeptides")
-library(dScipa)
 
 #' Perform 2 group analysis with visualization
 #' @export Grp2Analysis
 #' @exportClass Grp2Analysis
 #' @field proteinIntensity data.frame where colnames are Raw.File names, row.names are protein ID's and cells are protein abundances.
 #' @field annotation_ annotations data.frame with columns such as Raw.File, Condition, Run etc.
-#' @field proteinAnnotation
+#' @field proteinAnnotation information about the proteins, nr of peptides etc.
 #' @field nrPeptides min number of peptides per protein
 #' @field maxNA maximum number of NA's
 #' @field condition summary of conditions
@@ -17,6 +16,7 @@ library(dScipa)
 #' @field qvalue qvalue threshold
 #' @field pfoldchange foldchange threshold for p volcano plot
 #' @field qfoldchange foldchange threshold for q volcano plot
+#' @import dScipa
 #'
 Grp2Analysis <- setRefClass("Grp2Analysis",
                             fields = list( proteinIntensity = "data.frame",

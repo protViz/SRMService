@@ -9,7 +9,8 @@ Description: Analysing and LFQ and SRM experiments in service mode.
 Imports:
   quantable,
   methods,
-  reshape2
+  reshape2,
+  dScipa
 License: GPL
 LazyData: TRUE
 URL: https://github.com/protViz/SRMService

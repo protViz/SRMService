@@ -13,11 +13,10 @@ knitr::opts_chunk$set(
   message = FALSE,
   warning = FALSE
 )
-library(dScipa)
+
 
 if(!exists("progress")){
   progress <- function(howmuch, detail){
-    
   }
 }
 ```
