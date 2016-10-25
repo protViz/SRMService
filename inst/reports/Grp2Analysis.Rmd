@@ -53,7 +53,7 @@ knitr::kable(tab)
 Here the files in each group:
 
 ```{r }
-tab<-grp2$annotation[,c("Condition","Raw.file")]
+tab<-grp2$getAnnotation()[,c("Condition","Raw.file")]
 rownames(tab) <- NULL
 knitr::kable(tab)
 
@@ -138,7 +138,6 @@ progress(0.2, "Normalization")
 # Coefficients of variation
 
 ```{r CViolin, fig.cap="distribution of protein CV within condition and overall"}
-#cond1 <- grp2$proteinIntensity[, grp2$annotation$Raw.file[grp2$annotation$Condition == grp2$conditions[1]]]
 cond1 <- grp2$getConditionData(grp2$conditions[1])
 cond2 <- grp2$getConditionData(grp2$conditions[2])
 
@@ -147,7 +146,9 @@ cond2 <- grp2$getConditionData(grp2$conditions[2])
 cond1 <- quantable::CV(cond1)
 cond2 <- quantable::CV(cond2)
 all <- quantable::CV(grp2$proteinIntensity)
-CVs <- rbind(data.frame(condition=grp2$conditions[1], cv=cond1), data.frame(condition=grp2$conditions[2],cv=cond2 ), data.frame(condition="all", cv=all))
+CVs <- rbind(data.frame(condition=grp2$conditions[1], cv=cond1),
+             data.frame(condition=grp2$conditions[2],cv=cond2 ),
+             data.frame(condition="all", cv=all))
 
 p <- qplot( condition , cv , data=CVs , geom="violin" , xlab="" , ylab="log2(I)")
 p + stat_summary(fun.y=median,geom='point') + theme(axis.text.x = element_text(angle = 90, hjust = 1))
@@ -192,7 +193,7 @@ progress(0.1, "CVs")
 
 ```{r correlation,dpi=300,fig.height=8,fig.width=8, fig.cap="Heatmap of correlations (spearman) between samples."}
 col <- c("red","blue")
-simpleheatmap(cor(grp2$getNormalized()$data , use="pairwise.complete.obs", method="spearman")^2,palette = getGreensScale(21),ColSideColors = col[as.factor(grp2$annotation$Condition)], margins = c(10,3))
+simpleheatmap(cor(grp2$getNormalized()$data , use="pairwise.complete.obs", method="spearman")^2,palette = getGreensScale(21),ColSideColors = col[as.factor(grp2$getAnnotation()$Condition)], margins = c(10,3))
 
 ```
 
@@ -205,7 +206,7 @@ Also proteins are clustered according their profiles within the different sample
 ```{r heatmapData, fig.width=8, fig.height=10, dpi=300, fig.cap="Heatmap for normalized and scaled values based (log2 transformed data)" }
 tmp <- grp2$getNormalized()$data
 
-simpleheatmap(grp2$getNormalized()$data[grp2$getNrNAs() < ncol(grp2$getNormalized()$data)/2,],ColSideColors = col[as.factor(grp2$annotation$Condition)], margins=c(10,3) )
+simpleheatmap(grp2$getNormalized()$data[grp2$getNrNAs() < ncol(grp2$getNormalized()$data)/2,],ColSideColors = col[as.factor(grp2$getAnnotation()$Condition)], margins=c(10,3) )
 
 progress(0.2, "Heatmaps")
 ```
@@ -238,7 +239,7 @@ Significant calls are made with q Value smaller 0.01 (false discovery rate, comp
 ```{r fig.width=10, fig.height=8, dpi=300, fig.cap="VolcanoPlot for normalized and scaled proteins with stringent thresholds. x axis log2 fold change"}
 
 res.eb <-grp2$getPValues()
-resStr <-quantable::volcanoplot(res.eb$logFC, res.eb$q.mod, foldchangethresh = grp2$qfoldchange , pthresh = grp2$qvalue ,labels=rownames(res.eb),xlab = paste("log2(",unique(grp2$annotation$Condition)[2],"/",unique(grp2$annotation$Condition)[1],")"))
+resStr <-quantable::volcanoplot(res.eb$logFC, res.eb$q.mod, foldchangethresh = grp2$qfoldchange , pthresh = grp2$qvalue ,labels=rownames(res.eb),xlab = paste("log2(",grp2$getConditions()$condition,"/",grp2$getConditions()$reference,")"))
 
 ```
 
@@ -259,7 +260,7 @@ Significant calls are made with *moderated* p Value smaller 0.05.
 
 ```{r fig.width=10, fig.height=8, dpi=300, fig.cap="VolcanoPlot for normalized and imputed matrix (asinh) with moderated p Values."}
 res.eb <-grp2$getPValues()
-resStr <- quantable::volcanoplot(res.eb$logFC, res.eb$p.mod, foldchangethresh = grp2$pfoldchange , pthresh = grp2$pvalue ,labels=rownames(res.eb), xlab = paste("log2(",unique(grp2$annotation$Condition)[2],"/",unique(grp2$annotation$Condition)[1],")"))
+resStr <- quantable::volcanoplot(res.eb$logFC, res.eb$p.mod, foldchangethresh = grp2$pfoldchange , pthresh = grp2$pvalue ,labels=rownames(res.eb), xlab = paste("log2(",grp2$getConditions()$condition,"/",grp2$getConditions()$reference,")"))
 ```
 
 \newpage
@@ -281,7 +282,7 @@ Significant calls are made with a p Value smaller 0.05.
 ```{r fig.width=10, fig.height=8, dpi=300, fig.cap="VolcanoPlot for normalized and imputed matrix (asinh) with moderated q Values."}
 res.eb <-grp2$getPValues()
 
-resRel <- quantable::volcanoplot(res.eb$logFC, res.eb$p.ord, foldchangethresh = grp2$pfoldchange , pthresh = grp2$pvalue ,labels=rownames(res.eb),xlab = paste("log2(",unique(grp2$annotation$Condition)[2],"/",unique(grp2$annotation$Condition)[1],")"))
+resRel <- quantable::volcanoplot(res.eb$logFC, res.eb$p.ord, foldchangethresh = grp2$pfoldchange , pthresh = grp2$pvalue ,labels=rownames(res.eb),xlab = paste("log2(",grp2$getConditions()$condition,"/",grp2$getConditions()$reference,")"))
 
 ```
 

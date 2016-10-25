@@ -113,10 +113,10 @@ Grp2Analysis <- setRefClass("Grp2Analysis",
                               },
                               getDesignMatrix = function(){
                                 # hack for putting reference into denomintor.
-                                .self$annotation_$Condition <- gsub(reference, paste("Z_", reference, sep=""),
+                                design <- gsub(reference, paste("A_", reference, sep=""),
                                                                     .self$annotation_$Condition)
 
-                                design <- model.matrix(~.self$annotation_$Condition)
+                                design <- model.matrix(~design)
                                 return(design)
                               },
                               getPValues = function(){
@@ -124,6 +124,9 @@ Grp2Analysis <- setRefClass("Grp2Analysis",
                               },
                               getAnnotation = function(){
                                 return(.self$annotation_)
+                              },
+                              getConditions = function(){
+                                list(reference = .self$reference, condition = setdiff(.self$conditions, .self$reference) )
                               }
                             )
 )
