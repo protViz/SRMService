@@ -43,7 +43,7 @@ The total number of proteins in this experiment is: `r nrow(grp2$proteinIntensit
 ```{r }
 library(knitr)
 
-tab <- data.frame(table(grp2$annotation$Condition))
+tab <- data.frame(table(grp2$getAnnotation()$Condition))
 colnames(tab) <- c("Condition","# samples")
 knitr::kable(tab)
 
