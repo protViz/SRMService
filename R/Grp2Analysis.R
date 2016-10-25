@@ -8,7 +8,7 @@ library(dScipa)
 #'
 Grp2Analysis <- setRefClass("Grp2Analysis",
                             fields = list( proteinIntensity = "data.frame",
-                                           annotation = "data.frame",
+                                           annotation_ = "data.frame",
                                            proteinAnnotation = "data.frame",
                                            nrPeptides = "numeric",
                                            maxNA = "numeric",
@@ -34,9 +34,9 @@ Grp2Analysis <- setRefClass("Grp2Analysis",
 
                                 .self$proteinIntensity <- protein[, grep("Intensity\\.",colnames(protein))]
                                 colnames(.self$proteinIntensity) <- gsub("Intensity\\.","",colnames(.self$proteinIntensity))
-                                stopifnot(colnames(.self$proteinIntensity) %in% .self$annotation$Raw.file)
-                                # Sorts them in agreement with annotation.
-                                .self$proteinIntensity <- .self$proteinIntensity[,.self$annotation$Raw.file]
+                                stopifnot(colnames(.self$proteinIntensity) %in% .self$annotation_$Raw.file)
+                                # Sorts them in agreement with annotation_.
+                                .self$proteinIntensity <- .self$proteinIntensity[,.self$annotation_$Raw.file]
                                 .self$proteinIntensity[.self$proteinIntensity==0] <- NA
 
                                 nas <-.self$getNrNAs()
@@ -58,8 +58,8 @@ Grp2Analysis <- setRefClass("Grp2Analysis",
                                 # hack so that in the design matrix the condition is the denominator.
                                 annotation$Condition <- gsub(reference, paste("A_", reference, sep=""), annotation)
 
-                                .self$annotation <- annotation[order(annotation$Condition),]
-                                .self$conditions <- unique(.self$annotation$Condition)
+                                .self$annotation_ <- annotation[order(annotation$Condition),]
+                                .self$conditions <- unique(.self$annotation_$Condition)
                                 .self$nrPeptides <- nrPeptides
                                 .self$maxNA <- maxNA
                                 .self$reference <- reference
@@ -90,7 +90,7 @@ Grp2Analysis <- setRefClass("Grp2Analysis",
                               getConditionData = function(condition){
                                 'get intensities as matrix for single condition'
                                 stopifnot(condition %in% .self$conditions)
-                                fileID <-subset(.self$annotation, Condition == condition)$Raw.file
+                                fileID <-subset(.self$annotation_, Condition == condition)$Raw.file
                                 .self$proteinIntensity[, fileID]
                               },
                               getNormalized = function(){
@@ -99,11 +99,11 @@ Grp2Analysis <- setRefClass("Grp2Analysis",
                               getNormalizedConditionData = function(condition){
                                 normalized <- .self$getNormalized()$data
                                 stopifnot(condition %in% .self$conditions)
-                                fileID <-subset(.self$annotation, Condition == condition)$Raw.file
+                                fileID <-subset(.self$annotation_, Condition == condition)$Raw.file
                                 normalized[, fileID]
                               },
                               getDesignMatrix = function(){
-                                design <- model.matrix(~.self$annotation$Condition)
+                                design <- model.matrix(~.self$annotation_$Condition)
                                 return(design)
                               },
                               getPValues = function(){
