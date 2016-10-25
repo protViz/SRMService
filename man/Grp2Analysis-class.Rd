@@ -8,6 +8,33 @@
 \description{
 Perform 2 group analysis with visualization
 }
+\section{Fields}{
+
+\describe{
+\item{\code{proteinIntensity}}{data.frame where colnames are Raw.File names, row.names are protein ID's and cells are protein abundances.}
+
+\item{\code{annotation_}}{annotations data.frame with columns such as Raw.File, Condition, Run etc.}
+
+\item{\code{proteinAnnotation}}{information about the proteins, nr of peptides etc.}
+
+\item{\code{nrPeptides}}{min number of peptides per protein}
+
+\item{\code{maxNA}}{maximum number of NA's}
+
+\item{\code{condition}}{summary of conditions}
+
+\item{\code{projectName}}{name of project}
+
+\item{\code{experimentName}}{name of experiment}
+
+\item{\code{pvalue}}{pvalue threshold}
+
+\item{\code{qvalue}}{qvalue threshold}
+
+\item{\code{pfoldchange}}{foldchange threshold for p volcano plot}
+
+\item{\code{qfoldchange}}{foldchange threshold for q volcano plot}
+}}
 \section{Methods}{
 
 \describe{
@@ -16,7 +43,5 @@ Perform 2 group analysis with visualization
 \item{\code{getNrNAs()}}{return number of NAs per protein}
 
 \item{\code{setMQProteinGroups(MQProteinGroups)}}{set MQ protein groups table}
-
-\item{\code{setProteins(protein)}}{used to verify proteingroups structure and set members}
 }}
 
