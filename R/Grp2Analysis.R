@@ -35,7 +35,7 @@ Grp2Analysis <- setRefClass("Grp2Analysis",
                                 .self$proteinIntensity <- protein[, grep("Intensity\\.",colnames(protein))]
                                 colnames(.self$proteinIntensity) <- gsub("Intensity\\.","",colnames(.self$proteinIntensity))
                                 stopifnot(colnames(.self$proteinIntensity) %in% .self$annotation$Raw.file)
-
+                                # Sorts them in agreement with annotation.
                                 .self$proteinIntensity <- .self$proteinIntensity[,.self$annotation$Raw.file]
                                 .self$proteinIntensity[.self$proteinIntensity==0] <- NA
 
@@ -55,6 +55,9 @@ Grp2Analysis <- setRefClass("Grp2Analysis",
                                 .self$projectName <- projectName
                                 .self$experimentName <- experimentName
                                 stopifnot(annotationColumns %in% colnames(annotation))
+                                # hack so that in the design matrix the condition is the denominator.
+                                annotation$Condition <- gsub(reference, paste("A_", reference, sep=""), annotation)
+
                                 .self$annotation <- annotation[order(annotation$Condition),]
                                 .self$conditions <- unique(.self$annotation$Condition)
                                 .self$nrPeptides <- nrPeptides
@@ -100,7 +103,7 @@ Grp2Analysis <- setRefClass("Grp2Analysis",
                                 normalized[, fileID]
                               },
                               getDesignMatrix = function(){
-                                design <- model.matrix(~factor(.self$annotation$Condition))
+                                design <- model.matrix(~.self$annotation$Condition)
                                 return(design)
                               },
                               getPValues = function(){
@@ -108,3 +111,7 @@ Grp2Analysis <- setRefClass("Grp2Analysis",
                               }
                             )
 )
+
+
+
+
