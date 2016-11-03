@@ -73,13 +73,13 @@ shinyServer(function(input, output) {
 
       v_upload_file$maxNA <- ncol(pint)
       v_upload_file$bestNA <- ncol(pint) - 4
+      v_upload_file$conditions <- rownames(table(annotation$Condition))
 
       ## prepare gui output
       list(renderTable(annotation),
            renderTable(table(annotation$Condition)),
            nrPeptidePlot,
            naPlot,
-
            HTML(paste(v_upload_file$filenam[1], v_upload_file$filenam$datapath , dim(protein)[1], dim(protein)[2],
                       "any questions?"
                       ,sep="<br/>")))
@@ -91,7 +91,14 @@ shinyServer(function(input, output) {
     if(is.null(v_upload_file$filenam[1])){
       NULL
     }else{
-      list(numericInput("peptides", "Nr of Peptides per protein:", 2, max= v_upload_file$maxPeptides),
+      conds <- as.list(v_upload_file$conditions)
+      names(conds) <- v_upload_file$conditions
+      tmp <- selectInput("select", label = h3("Select Control"),
+                         choices = conds,
+                         selected = 1)
+
+      list(tmp,
+           numericInput("peptides", "Nr of Peptides per protein:", 2, max= v_upload_file$maxPeptides),
            numericInput("maxMissing", "Maximum number of NAs: ",value = v_upload_file$bestNA, min=0, max = v_upload_file$maxNA),
            tags$hr(),
            numericInput("pValue", "p value threshold", value = 0.01, min=0, max=1, step=0.01 ),
@@ -119,7 +126,6 @@ shinyServer(function(input, output) {
 
     }
     withProgress(message = 'Generating Report', detail = "part 0", value = 0, {
-
       ### Rendering report
       library(SRMService)
       print(names(input))
@@ -127,7 +133,9 @@ shinyServer(function(input, output) {
       print("Annotation!")
       print(annotation)
 
-      grp2 <- Grp2Analysis(v_upload_file$annotation, input$experimentID, maxNA=8  , nrPeptides=2)
+      cat("SELECT", input$select, "\n")
+      grp2 <- Grp2Analysis(v_upload_file$annotation,
+                           input$experimentID, maxNA=8  , nrPeptides=2, reference = input$select)
       grp2$setMQProteinGroups(v_upload_file$protein)
       grp2$setQValueThresholds(qvalue = input$qValue , qfoldchange = input$qValueFC)
       grp2$setPValueThresholds(pvalue = input$pValue, pfoldchange = input$pValueFC)
@@ -135,6 +143,7 @@ shinyServer(function(input, output) {
 
       library(dScipa)
       print(getwd())
+      # TODO render in temp directories.
       rmarkdown::render("C:/Users/wolski/prog/SRMService/inst/reports/Grp2Analysis.Rmd",
                         output_format = "pdf_document",
                         output_dir=".",
@@ -147,7 +156,7 @@ shinyServer(function(input, output) {
 
 
       ### Writing p-values
-      write.table(grp2$getPValues(), file="pValues.csv", quote=FALSE, sep = "\t")
+      write.table(grp2$getPValues(), file="pValues.csv", quote=FALSE, sep = "\t", col.names=NA)
       incProgress(0.1, detail = paste("part", "report"))
       v_download_links$tsvTable <- "pValues.csv"
 

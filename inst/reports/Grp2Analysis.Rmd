@@ -65,13 +65,14 @@ knitr::kable(tab)
 missing <- grp2$getNrNAs()
 int <- apply(grp2$proteinIntensity,1,sum, na.rm=TRUE)
 grp2$proteinIntensity <- grp2$proteinIntensity[order(missing, -int,decreasing = T),]
+
 ```
 
 
 The input matrix has the following structure.
 
 
-```{r overview, fig.with=9,fig.height=7,dpi=300,fig.cap="Heatmap for quantifyable proteins sorted by missigness and intensity (log2). Gray - missing values"}
+```{r overview, fig.with=9,fig.height=6,dpi=300,fig.cap="Heatmap for quantifyable proteins sorted by missigness and intensity (log2). Gray - missing values"}
 library(quantable)
 
 imageWithLabels(t(log2(grp2$proteinIntensity)), col.labels = NULL, col=quantable::getBlueScale(21))
