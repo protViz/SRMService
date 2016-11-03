@@ -1,11 +1,11 @@
 ## TESTESTTEST ##
 # shiny::runApp("inst/shiny/2Group2Test",port=1234, host="130.60.81.134")
-#shiny::runApp('C:/Users/wolski/prog/SRMService/inst/shiny/2Group2Test', port = 1234, host=)
+# shiny::runApp('C:/Users/wolski/prog/SRMService/inst/shiny/2Group2Test', port = 1234, host=)
 
 
 library(shiny)
 library(SRMService)
-library(rhandsontable)
+#library(rhandsontable)
 options(shiny.maxRequestSize=30*1024^2)
 
 # Define server logic required to draw a histogram
@@ -46,7 +46,7 @@ shinyServer(function(input, output) {
                               BioReplicate = paste("X",1:length(condition),sep=""),
                               Run = 1:length(condition),
                               IsotopeLabelType = rep("L",length(condition)), stringsAsFactors = F)
-
+      v_upload_file$annotation <- annotation
 
 
       ## number of peptides plot ####
@@ -75,7 +75,7 @@ shinyServer(function(input, output) {
       v_upload_file$bestNA <- ncol(pint) - 4
 
       ## prepare gui output
-      list(rhandsontable(annotation),
+      list(renderTable(annotation),
            renderTable(table(annotation$Condition)),
            nrPeptidePlot,
            naPlot,
@@ -124,9 +124,10 @@ shinyServer(function(input, output) {
       library(SRMService)
       print(names(input))
       annotation <- input$fileInformation
+      print("Annotation!")
       print(annotation)
 
-      grp2 <- Grp2Analysis(annotation, input$experimentID, maxNA=8  , nrPeptides=2)
+      grp2 <- Grp2Analysis(v_upload_file$annotation, input$experimentID, maxNA=8  , nrPeptides=2)
       grp2$setMQProteinGroups(v_upload_file$protein)
       grp2$setQValueThresholds(qvalue = input$qValue , qfoldchange = input$qValueFC)
       grp2$setPValueThresholds(pvalue = input$pValue, pfoldchange = input$pValueFC)
