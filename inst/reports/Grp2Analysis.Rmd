@@ -3,8 +3,8 @@ title: "FGCZ Two-Group Analysis for: `r grp2$projectName` \n Statistics for a Qu
 author: "Functional Genomics Center Zurich"
 date: "`r format(Sys.time(), '%d %B, %Y')`"
 output:
-pdf_document:
-fig_caption: yes
+  pdf_document:
+    fig_caption: yes
 ---
 
 ```{r setup, include=FALSE}
@@ -16,6 +16,7 @@ knitr::opts_chunk$set(
 
 if(!exists("progress")){
   progress <- function(howmuch, detail){
+    invisible(NULL)
   }
 }
 ```
@@ -69,14 +70,13 @@ grp2$proteinIntensity <- grp2$proteinIntensity[order(missing, -int,decreasing = 
 ```
 
 
-The input matrix has the following structure.
+The input matrix has the following structure (Figure 1).
 
 
 ```{r overview, fig.with=9,fig.height=6,dpi=300,fig.cap="Heatmap for quantifyable proteins sorted by missigness and intensity (log2). Gray - missing values"}
 library(quantable)
 
 imageWithLabels(t(log2(grp2$proteinIntensity)), col.labels = NULL, col=quantable::getBlueScale(21))
-
 ```
 
 ```{r, fig.cap="# of missing values per protein"}
@@ -106,10 +106,10 @@ p + stat_summary(fun.y=median,geom='point') +theme(axis.text.x = element_text(an
 
 
 
-```{r normalized,  fig.width=7,fig.height=7,dpi=300, fig.cap="Density plot for normalized values (log2)"}
+```{r normalized,  fig.width=7,fig.height=7,dpi=300, fig.cap="Density plot for normalized values (z-score)"}
 
 longm <- melt(grp2$getNormalized()$data)
-p <- qplot( variable , value , data=longm , geom="violin" , xlab="" , ylab="log2(I)")
+p <- qplot( variable , value , data=longm , geom="violin" , xlab="" , ylab="z-score")
 p + stat_summary(fun.y=median,geom='point') + theme(axis.text.x = element_text(angle = 90, hjust = 1))
 
 ```
@@ -122,8 +122,8 @@ are normalized. Large differences in the scaling factors are critical.
 par(mfrow=c(2,1))
 par(mar=c(3,10,3,3))
 
-barplot(grp2$getNormalized()$medians,horiz=T,las=2, main="median correction", cex.names = 0.6)
-barplot(grp2$getNormalized()$mads,horiz=T, las=2 , main="standard deviation correction", cex.names = 0.6)
+barplot(grp2$getNormalized()$medians,horiz=T,las=2, main="median", cex.names = 0.6)
+barplot(grp2$getNormalized()$mads,horiz=T, las=2 , main="standard deviation", cex.names = 0.6)
 
 progress(0.2, "Normalization")
 
@@ -147,7 +147,7 @@ CVs <- rbind(data.frame(condition=grp2$conditions[1], cv=cond1),
              data.frame(condition=grp2$conditions[2],cv=cond2 ),
              data.frame(condition="all", cv=all))
 
-p <- qplot( condition , cv , data=CVs , geom="violin" , xlab="" , ylab="log2(I)")
+p <- qplot( condition , cv , data=CVs , geom="violin" , xlab="" , ylab="Coefficient of Variation (%)")
 p + stat_summary(fun.y=median,geom='point') + theme(axis.text.x = element_text(angle = 90, hjust = 1))
 
 ```
@@ -170,7 +170,7 @@ cond2 <- apply(cond2, 1, sd, na.rm=TRUE)
 all <- apply( grp2$getNormalized()$data, 1 , sd, na.rm=TRUE )
 SDs<-rbind(data.frame( condition=grp2$conditions[1], sd=cond1), data.frame(condition=grp2$conditions[2],sd=cond2 ), data.frame(condition="all", sd=all))
 
-p <- qplot( condition , sd , data=SDs , geom="violin" , xlab="" , ylab="log2(I)")
+p <- qplot( condition , sd , data=SDs , geom="violin" , xlab="" , ylab="sd of z-score")
 p + stat_summary(fun.y=median,geom='point') + theme(axis.text.x = element_text(angle = 90, hjust = 1))
 
 ```
@@ -194,13 +194,11 @@ simpleheatmap(cor(grp2$getNormalized()$data , use="pairwise.complete.obs", metho
 
 ```
 
-
-
-In Figure \@ref(heatmapData) we show how samples are clustering depending on their protein expression profiles.
+In Figure 8 we show how samples are clustering depending on their protein expression profiles.
 Also proteins are clustered according their profiles within the different samples.
 
 
-```{r heatmapData, fig.width=8, fig.height=10, dpi=300, fig.cap="Heatmap for normalized and scaled values based (log2 transformed data)" }
+```{r heatmapData, fig.width=8, fig.height=10, dpi=300, fig.cap="Heatmap for normalized and scaled values (z-scores)." }
 tmp <- grp2$getNormalized()$data
 
 simpleheatmap(grp2$getNormalized()$data[grp2$getNrNAs() < ncol(grp2$getNormalized()$data)/2,],ColSideColors = col[as.factor(grp2$getAnnotation()$Condition)], margins=c(10,3) )
@@ -231,9 +229,9 @@ fixcols <- function(resRel, fcname = "log2(Cond/Cont)", name = "qvalue", top = 2
 
 ## Adjusted moderated p-values (q-values)
 
-Significant calls are made with q Value smaller 0.01 (false discovery rate, computed with bioconductor package qvalue). 
+Significant calls are made with q-value smaller `r grp2$qvalue` (false discovery rate, computed with bioconductor package qvalue). 
 
-```{r fig.width=10, fig.height=8, dpi=300, fig.cap="VolcanoPlot for normalized and scaled proteins with stringent thresholds. x axis log2 fold change"}
+```{r fig.width=10, fig.height=8, dpi=300, fig.cap="VolcanoPlot for normalized and scaled proteins with stringent thresholds. x axis log2 fold change of z-score"}
 fcname = paste("log2(",grp2$getConditions()$condition,"/",grp2$getConditions()$reference,")",sep="")
 res.eb <-grp2$getPValues()
 resStr <-quantable::volcanoplot(res.eb$logFC, res.eb$q.mod, foldchangethresh = grp2$qfoldchange , pthresh = grp2$qvalue ,labels=rownames(res.eb),xlab = fcname)
@@ -253,7 +251,7 @@ if(!is.null(resStr)){
 
 ## Moderated p-values
 
-Significant calls are made with *moderated* p Value smaller 0.05. 
+Significant calls are made with *moderated* p Value smaller `r grp2$pvalue`. 
 
 ```{r fig.width=10, fig.height=8, dpi=300, fig.cap="VolcanoPlot for normalized and imputed matrix (asinh) with moderated p Values."}
 res.eb <-grp2$getPValues()
@@ -273,7 +271,7 @@ if(!is.null(resStr)){
 
 ## p-values
 
-Significant calls are made with a p Value smaller 0.05. 
+Significant calls are made with a p Value smaller `r grp2$pvalue`. 
 
 
 ```{r fig.width=10, fig.height=8, dpi=300, fig.cap="VolcanoPlot for normalized and imputed matrix (asinh) with moderated q Values."}
