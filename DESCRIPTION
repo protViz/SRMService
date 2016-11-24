@@ -10,7 +10,8 @@ Imports:
   quantable,
   methods,
   reshape2,
-  dScipa
+  dScipa,
+  rmarkdown
 License: GPL
 LazyData: TRUE
 URL: https://github.com/protViz/SRMService
