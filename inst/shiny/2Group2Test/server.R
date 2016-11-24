@@ -144,7 +144,7 @@ shinyServer(function(input, output) {
       library(dScipa)
       print(getwd())
       # TODO render in temp directories.
-      rmarkdown::render("C:/Users/wolski/prog/SRMService/inst/reports/Grp2Analysis.Rmd",
+      rmarkdown::render( file.path(path.package("SRMService"),"/reports/Grp2Analysis.Rmd"),
                         output_format = "pdf_document",
                         output_dir=".",
                         output_file = "Grp2Analysis.pdf")
