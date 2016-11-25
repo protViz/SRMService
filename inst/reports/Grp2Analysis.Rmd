@@ -139,7 +139,6 @@ cond1 <- grp2$getConditionData(grp2$conditions[1])
 cond2 <- grp2$getConditionData(grp2$conditions[2])
 
 
-
 cond1 <- quantable::CV(cond1)
 cond2 <- quantable::CV(cond2)
 all <- quantable::CV(grp2$proteinIntensity)
@@ -223,6 +222,7 @@ fixcols <- function(resRel, fcname = "log2(Cond/Cont)", name = "qvalue", top = 2
   
   return(resRel)
 }
+
 ```
 
 \newpage
@@ -233,7 +233,9 @@ Significant calls are made with q-value smaller `r grp2$qvalue` (false discovery
 
 ```{r fig.width=10, fig.height=8, dpi=300, fig.cap="VolcanoPlot for normalized and scaled proteins with stringent thresholds. x axis log2 fold change of z-score"}
 fcname = paste("log2(",grp2$getConditions()$condition,"/",grp2$getConditions()$reference,")",sep="")
+foo
 res.eb <-grp2$getPValues()
+head(res.eb)
 resStr <-quantable::volcanoplot(res.eb$logFC, res.eb$q.mod, foldchangethresh = grp2$qfoldchange , pthresh = grp2$qvalue ,labels=rownames(res.eb),xlab = fcname)
 
 ```

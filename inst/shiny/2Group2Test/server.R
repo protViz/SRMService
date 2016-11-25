@@ -142,24 +142,33 @@ shinyServer(function(input, output) {
       incProgress(0.1, detail = paste("part", "Set up objects"))
 
       library(dScipa)
-      print(getwd())
-      # TODO render in temp directories.
-      rmarkdown::render( file.path(path.package("SRMService"),"/reports/Grp2Analysis.Rmd"),
+
+      tmpdir <- tempdir()
+      workdir <- file.path(tmpdir, gsub(" |:","_",date()))
+      rmdfile <- file.path( path.package("SRMService") , "/reports/Grp2Analysis.Rmd" )
+
+      if(!dir.create(workdir)){
+        stopApp(7)
+      }
+      rmdfile2run <- file.path(workdir ,"Grp2Analysis.Rmd")
+      print(rmdfile2run)
+      if(!file.copy(rmdfile , rmdfile2run)){
+        stopApp(7)
+      }
+      rmarkdown::render( rmdfile2run,
                         output_format = "pdf_document",
-                        output_dir=".",
                         output_file = "Grp2Analysis.pdf")
+
+
       incProgress(0.1, detail = paste("part", "Rendering"))
 
       print(dir())
-      v_download_links$pdfReport <- "Grp2Analysis.pdf"
-      #incProgress(0.8, detail = paste("part", "Report generated"))
+      v_download_links$pdfReport <- file.path(workdir, "Grp2Analysis.pdf")
 
-
-      ### Writing p-values
-      write.table(grp2$getPValues(), file="pValues.csv", quote=FALSE, sep = "\t", col.names=NA)
+            ### Writing p-values
+      write.table(grp2$getPValues(), file=file.path(tmpdir,"pValues.csv"), quote=FALSE, sep = "\t", col.names=NA)
       incProgress(0.1, detail = paste("part", "report"))
-      v_download_links$tsvTable <- "pValues.csv"
-
+      v_download_links$tsvTable <- file.path(workdir,"pValues.csv")
     })
     return(v_download_links$filename)
   })
