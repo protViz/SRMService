@@ -2,9 +2,7 @@
 title: "FGCZ Two-Group Analysis for: `r grp2$projectName` \n Statistics for a Quantitative Protein Matrix"
 author: "Functional Genomics Center Zurich"
 date: "`r format(Sys.time(), '%d %B, %Y')`"
-output:
-  pdf_document:
-    fig_caption: yes
+#output: bookdown::pdf_document2
 ---
 
 ```{r setup, include=FALSE}
@@ -41,6 +39,8 @@ The total number of proteins in this experiment is: `r nrow(grp2$proteinIntensit
 ```{r}
 
 library(knitr)
+library(qvalue)
+library(limma)
 
 tab <- data.frame(table(grp2$getAnnotation()$Condition))
 colnames(tab) <- c("Condition","# samples")
@@ -91,7 +91,7 @@ progress(0.1, "Summary")
 
 # Distribution of intensities
 
-Shown in Figure \@ref(distributionRaw) are the un-normalized values while in Figure  \@ref(normalized)
+Shown in Figure \@ref(fig:distributionRaw) are the un-normalized values while in Figure  \@ref(fig:normalized)
 are the z transformed values (subtracted median and divided by variance).
 
 ```{r distributionRaw, fig.width=7, fig.height=7, fig.cap="Density plot for quantifyable proteins (log2 transformed)"}
@@ -114,7 +114,7 @@ p + stat_summary(fun.y=median,geom='point') + theme(axis.text.x = element_text(a
 
 ```
 
-The scaling factors are visualized in Figure \@ref(scaling). It shows with what factor the individually samples
+The scaling factors are visualized in Figure \@ref(fig:scaling). It shows with what factor the individually samples
 are normalized. Large differences in the scaling factors are critical.
 
 
@@ -233,7 +233,6 @@ Significant calls are made with q-value smaller `r grp2$qvalue` (false discovery
 
 ```{r fig.width=10, fig.height=8, dpi=300, fig.cap="VolcanoPlot for normalized and scaled proteins with stringent thresholds. x axis log2 fold change of z-score"}
 fcname = paste("log2(",grp2$getConditions()$condition,"/",grp2$getConditions()$reference,")",sep="")
-foo
 res.eb <-grp2$getPValues()
 head(res.eb)
 resStr <-quantable::volcanoplot(res.eb$logFC, res.eb$q.mod, foldchangethresh = grp2$qfoldchange , pthresh = grp2$qvalue ,labels=rownames(res.eb),xlab = fcname)

@@ -13,7 +13,7 @@ library(shiny)
 shinyUI(fluidPage(
 
   # Application title
-  titlePanel("2 Group Comparizon"),
+  titlePanel("Two Group Comparison"),
   # Sidebar with a slider input for number of bins
   sidebarLayout(
     sidebarPanel(

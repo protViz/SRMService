@@ -2,7 +2,6 @@
 # shiny::runApp("inst/shiny/2Group2Test",port=1234, host="130.60.81.134")
 # shiny::runApp('C:/Users/wolski/prog/SRMService/inst/shiny/2Group2Test', port = 1234, host=)
 
-
 library(shiny)
 library(SRMService)
 #library(rhandsontable)
@@ -155,9 +154,9 @@ shinyServer(function(input, output) {
       if(!file.copy(rmdfile , rmdfile2run)){
         stopApp(7)
       }
-      rmarkdown::render( rmdfile2run,
-                        output_format = "pdf_document",
-                        output_file = "Grp2Analysis.pdf")
+
+      rmarkdown::render(rmdfile2run,
+                        bookdown::pdf_document2())
 
 
       incProgress(0.1, detail = paste("part", "Rendering"))
