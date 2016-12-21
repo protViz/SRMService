@@ -2,7 +2,6 @@
 title: "FGCZ Two-Group Analysis for: `r grp2$projectName` \n Statistics for a Quantitative Protein Matrix"
 author: "Functional Genomics Center Zurich"
 date: "`r format(Sys.time(), '%d %B, %Y')`"
-#output: bookdown::pdf_document2
 ---
 
 ```{r setup, include=FALSE}
@@ -23,7 +22,7 @@ if(!exists("progress")){
 
 Experiment is called: `r grp2$experimentName`
 
-## Numbers
+## The Numbers
 
 The protein matrix is filtered like this:
 
@@ -33,7 +32,7 @@ The protein matrix is filtered like this:
 The total number of proteins in this experiment is: `r nrow(grp2$proteinIntensity)`
 
 
-# The Groups
+# The Groupings
 
 
 ```{r}
@@ -70,7 +69,7 @@ grp2$proteinIntensity <- grp2$proteinIntensity[order(missing, -int,decreasing = 
 ```
 
 
-The input matrix has the following structure (Figure 1).
+The input matrix has the following structure (Figure \@ref(fig:overview)).
 
 
 ```{r overview, fig.with=9,fig.height=6,dpi=300,fig.cap="Heatmap for quantifyable proteins sorted by missigness and intensity (log2). Gray - missing values"}
@@ -79,7 +78,7 @@ library(quantable)
 imageWithLabels(t(log2(grp2$proteinIntensity)), col.labels = NULL, col=quantable::getBlueScale(21))
 ```
 
-```{r, fig.cap="# of missing values per protein"}
+```{r missingValuesPerProtein, fig.cap="# of missing values per protein"}
 plot(table(missing))
 
 progress(0.1, "Summary")
@@ -89,9 +88,9 @@ progress(0.1, "Summary")
 \pagebreak
 
 
-# Distribution of intensities
+# Distribution of Intensities
 
-Shown in Figure \@ref(fig:distributionRaw) are the un-normalized values while in Figure  \@ref(fig:normalized)
+Shown in Figure \@ref(fig:distributionRaw) are the un-normalized values while in Figure \@ref(fig:normalized)
 are the z transformed values (subtracted median and divided by variance).
 
 ```{r distributionRaw, fig.width=7, fig.height=7, fig.cap="Density plot for quantifyable proteins (log2 transformed)"}
@@ -114,11 +113,10 @@ p + stat_summary(fun.y=median,geom='point') + theme(axis.text.x = element_text(a
 
 ```
 
-The scaling factors are visualized in Figure \@ref(fig:scaling). It shows with what factor the individually samples
-are normalized. Large differences in the scaling factors are critical.
+The effect of the normalization (z transformation) is visualized in Figure \@ref(fig:scaling). It shows the log2-median value which is subtracted from each individually sample. Large differences in these values are critical.
 
 
-```{r  scaling,dpi=300, fig.height=6, fig.cap="Applied scaling factors for normalization (calculated using median normalization)."}
+```{r  scaling,dpi=300, fig.height=6, fig.cap="Median values subtracted for normalization."}
 par(mfrow=c(2,1))
 par(mar=c(3,10,3,3))
 
@@ -132,7 +130,7 @@ progress(0.2, "Normalization")
 
 \pagebreak
 
-# Coefficients of variation
+# Coefficients of Variations
 
 ```{r CViolin, fig.cap="distribution of protein CV within condition and overall"}
 cond1 <- grp2$getConditionData(grp2$conditions[1])
@@ -186,15 +184,13 @@ progress(0.1, "CVs")
 
 # Heatmaps and Clustering for Samples and Proteins
 
-
 ```{r correlation,dpi=300,fig.height=8,fig.width=8, fig.cap="Heatmap of correlations (spearman) between samples."}
 col <- c("red","blue")
 simpleheatmap(cor(grp2$getNormalized()$data , use="pairwise.complete.obs", method="spearman")^2,palette = getGreensScale(21),ColSideColors = col[as.factor(grp2$getAnnotation()$Condition)], margins = c(10,3))
 
 ```
 
-In Figure 8 we show how samples are clustering depending on their protein expression profiles.
-Also proteins are clustered according their profiles within the different samples.
+In Figure \@ref(fig:heatmapData) and Figure \@ref(fig:correlation) we show how samples are clustering depending on their correlation and on the protein expression profiles.
 
 
 ```{r heatmapData, fig.width=8, fig.height=10, dpi=300, fig.cap="Heatmap for normalized and scaled values (z-scores)." }
@@ -208,8 +204,7 @@ progress(0.2, "Heatmaps")
 
 # FGCZ - Two Group Analysis
 
-Here we show for the normalized matrices the result of a
-two group analysis using bioconductor limma. 
+Here we show the result of a two group analysis for the normalized matrix using bioconductor limma. 
 
 ```{r include=FALSE}
 fixcols <- function(resRel, fcname = "log2(Cond/Cont)", name = "qvalue", top = 20){
@@ -254,7 +249,7 @@ if(!is.null(resStr)){
 
 Significant calls are made with *moderated* p Value smaller `r grp2$pvalue`. 
 
-```{r fig.width=10, fig.height=8, dpi=300, fig.cap="VolcanoPlot for normalized and imputed matrix (asinh) with moderated p Values."}
+```{r fig.width=10, fig.height=8, dpi=300, fig.cap="VolcanoPlot for normalized and imputed matrix with moderated p Values."}
 res.eb <-grp2$getPValues()
 resStr <- quantable::volcanoplot(res.eb$logFC, res.eb$p.mod, foldchangethresh = grp2$pfoldchange , pthresh = grp2$pvalue ,labels=rownames(res.eb), xlab =fcname )
 ```
@@ -275,7 +270,7 @@ if(!is.null(resStr)){
 Significant calls are made with a p Value smaller `r grp2$pvalue`. 
 
 
-```{r fig.width=10, fig.height=8, dpi=300, fig.cap="VolcanoPlot for normalized and imputed matrix (asinh) with moderated q Values."}
+```{r fig.width=10, fig.height=8, dpi=300, fig.cap="VolcanoPlot for normalized and imputed matrix with moderated q Values."}
 res.eb <-grp2$getPValues()
 
 resRel <- quantable::volcanoplot(res.eb$logFC, res.eb$p.ord, foldchangethresh = grp2$pfoldchange , pthresh = grp2$pvalue ,labels=rownames(res.eb),xlab = fcname)
@@ -290,13 +285,19 @@ knitr::kable(resRel, caption = "Most significant regulated proteins.")
 progress(0.1, "volcanos")
 ```
 
+\newpage
+
+```{r heatmapOfpValues, fig.width=10, fig.height=8, dpi=300, fig.cap="Histogram of all raw p values"}
+hist(res.eb$p.ord, col="blue")
+```
+
 ## References
 
 The q-values and p-values were computed using the bioconductor package [limma](https://bioconductor.org/packages/release/bioc/html/limma.html).
 
 ## Disclaimer and Acknowledgements
 
-This document was generated using Rmarkdown and processes text files which are generated with a label-free quantitation software MaxQuant or Progenesis. 
-The obtained results should be validated orthogonally as well (e.g. with Western blots). 
+This document was generated using Rmarkdown and processes text files which are generated with a label-free quantitation software such as MaxQuant or Progenesis. 
+The obtained results should be validated orthogonally as well (e.g. with Western blots). The Functional Genomics Center Zurich does not provide any kind of guarantee of the validity of these results.
 
 
