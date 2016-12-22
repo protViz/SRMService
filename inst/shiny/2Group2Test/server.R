@@ -53,7 +53,7 @@ shinyServer(function(input, output) {
       nrPeptidePlot<-renderPlot(barplot(nrPep[(length(nrPep)-5):length(nrPep)],
                                         ylim=c(0, length(protein$Peptides)),
                                         xlab='nr of proteins with at least # peptides'))
-      v_upload_file$maxPeptides <- max(protein$Peptides)
+      v_upload_file$minPeptides <- max(protein$Peptides)
 
       ## number of NA's plot ###
       pint <- protein[,grep("Intensity\\.",colnames(protein))]
@@ -71,7 +71,7 @@ shinyServer(function(input, output) {
       })
 
       v_upload_file$maxNA <- ncol(pint)
-      v_upload_file$bestNA <- ncol(pint) - 4
+      v_upload_file$maxMissing <- ncol(pint) - 4
       v_upload_file$conditions <- rownames(table(annotation$Condition))
 
       ## prepare gui output
@@ -97,8 +97,8 @@ shinyServer(function(input, output) {
                          selected = 1)
 
       list(tmp,
-           numericInput("peptides", "Nr of Peptides per protein:", 2, max= v_upload_file$maxPeptides),
-           numericInput("maxMissing", "Maximum number of NAs: ",value = v_upload_file$bestNA, min=0, max = v_upload_file$maxNA),
+           numericInput("minPeptides", "Nr of Peptides per protein:", 2, max= v_upload_file$minPeptides),
+           numericInput("maxMissing", "Maximum number of NAs: ",value = v_upload_file$maxMissing, min=0, max = v_upload_file$maxNA),
            tags$hr(),
            numericInput("pValue", "p value threshold", value = 0.01, min=0, max=1, step=0.01 ),
            numericInput("pValueFC", "p value foldchange", value = 1, min=0, max=3, step=0.05 ),
@@ -134,10 +134,14 @@ shinyServer(function(input, output) {
 
       cat("SELECT", input$select, "\n")
       grp2 <- Grp2Analysis(v_upload_file$annotation,
-                           input$experimentID, maxNA=8  , nrPeptides=2, reference = input$select)
+                           input$experimentID, maxNA=input$maxMissing,
+                           nrPeptides=input$minPeptides,
+                           reference = input$select
+                           )
       grp2$setMQProteinGroups(v_upload_file$protein)
       grp2$setQValueThresholds(qvalue = input$qValue , qfoldchange = input$qValueFC)
       grp2$setPValueThresholds(pvalue = input$pValue, pfoldchange = input$pValueFC)
+
       incProgress(0.1, detail = paste("part", "Set up objects"))
 
       library(dScipa)
