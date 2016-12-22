@@ -22,7 +22,6 @@ library(SRMService)
 
 grp2 <- Grp2Analysis(annotation, "p2084BlaBla", maxNA=8  , nrPeptides=2, reference="WT")
 grp2$setMQProteinGroups(protein)
-
 head(protein)
 
 

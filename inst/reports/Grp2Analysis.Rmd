@@ -284,6 +284,7 @@ resRel <- quantable::volcanoplot(res.eb$logFC, res.eb$p.ord, foldchangethresh = 
 
 \newpage
 
+<!-- Error handling if resRel is empty-->
 ```{r  results="markup"}
 resRel <- fixcols(resRel,fcname=fcname, name="p-value")
 knitr::kable(resRel, caption = "Most significant regulated proteins.")
