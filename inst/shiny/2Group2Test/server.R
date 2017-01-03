@@ -133,8 +133,7 @@ shinyServer(function(input, output) {
       print(annotation)
 
       cat("SELECT", input$select, "\n")
-      grp2 <- Grp2Analysis(v_upload_file$annotation,
-                           input$experimentID, maxNA=8  , nrPeptides=2, reference = input$select)
+      grp2 <- Grp2Analysis(v_upload_file$annotation, input$experimentID, maxNA=input$maxMissing  , nrPeptides=input$peptides, reference = input$select)
       grp2$setMQProteinGroups(v_upload_file$protein)
       grp2$setQValueThresholds(qvalue = input$qValue , qfoldchange = input$qValueFC)
       grp2$setPValueThresholds(pvalue = input$pValue, pfoldchange = input$pValueFC)
@@ -165,7 +164,7 @@ shinyServer(function(input, output) {
       v_download_links$pdfReport <- file.path(workdir, "Grp2Analysis.pdf")
 
             ### Writing p-values
-      write.table(grp2$getPValues(), file=file.path(tmpdir,"pValues.csv"), quote=FALSE, sep = "\t", col.names=NA)
+      write.table(grp2$getPValues(), file=file.path(workdir,"pValues.csv"), quote=FALSE, sep = "\t", col.names=NA)
       incProgress(0.1, detail = paste("part", "report"))
       v_download_links$tsvTable <- file.path(workdir,"pValues.csv")
     })
