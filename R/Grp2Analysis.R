@@ -59,7 +59,7 @@ Grp2Analysis <- setRefClass("Grp2Analysis",
                               initialize = function(
                                 annotation,
                                 projectName,
-                                experimentName="First experiment",
+                                experimentName="LFQ experiment",
                                 maxNA=3,
                                 nrPeptides = 2,
                                 reference = "Control"
