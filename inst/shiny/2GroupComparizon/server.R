@@ -19,8 +19,11 @@ shinyServer(function(input, output) {
     },
 
     content = function(file) {
+      print("some debugging - ExpID: ")
       print(input$experimentID)
+      print("some debugging - maxNAs: ")
       print(input$maxMissing)
+      print("some debugging - nrPeps: ")
       print(input$peptides)
       inFile <- input$proteinGroups
       if (is.null(inFile))
