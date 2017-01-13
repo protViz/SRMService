@@ -226,9 +226,14 @@ fixcols <- function(resRel, fcname = "log2(Cond/Cont)", name = "qvalue", top = 2
 
 Significant calls are made with q-value smaller `r grp2$qvalue` (false discovery rate, computed with bioconductor package qvalue). 
 
-```{r fig.width=10, fig.height=8, dpi=300, fig.cap="VolcanoPlot for normalized and scaled proteins with stringent thresholds. x axis log2 fold change of z-score"}
+```{r}
 fcname = paste("log2(",grp2$getConditions()$condition,"/",grp2$getConditions()$reference,")",sep="")
 res.eb <-grp2$getPValues()
+
+```
+
+```{r fig.width=10, fig.height=8, dpi=300, fig.cap="VolcanoPlot for normalized and scaled proteins with stringent thresholds. x axis log2 fold change of z-score"}
+
 resStr <-quantable::volcanoplot(res.eb$logFC, res.eb$q.mod, foldchangethresh = grp2$qfoldchange , pthresh = grp2$qvalue ,labels=rownames(res.eb),xlab = fcname)
 
 ```
