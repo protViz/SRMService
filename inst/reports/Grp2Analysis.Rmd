@@ -229,7 +229,6 @@ Significant calls are made with q-value smaller `r grp2$qvalue` (false discovery
 ```{r fig.width=10, fig.height=8, dpi=300, fig.cap="VolcanoPlot for normalized and scaled proteins with stringent thresholds. x axis log2 fold change of z-score"}
 fcname = paste("log2(",grp2$getConditions()$condition,"/",grp2$getConditions()$reference,")",sep="")
 res.eb <-grp2$getPValues()
-head(res.eb)
 resStr <-quantable::volcanoplot(res.eb$logFC, res.eb$q.mod, foldchangethresh = grp2$qfoldchange , pthresh = grp2$qvalue ,labels=rownames(res.eb),xlab = fcname)
 
 ```
@@ -288,8 +287,8 @@ progress(0.1, "volcanos")
 
 \newpage
 
-```{r heatmapOfpValues, fig.width=10, fig.height=8, dpi=300, fig.cap="Histogram of moderated p values"}
-hist(res.eb$p.mod, breaks=40, xlab="", main="")
+```{r histOfpValues, fig.width=10, fig.height=8, dpi=300, fig.cap="Histogram of moderated p values"}
+hist(res.eb$p.mod, breaks=20, xlab="", main="")
 ```
 
 ## References
