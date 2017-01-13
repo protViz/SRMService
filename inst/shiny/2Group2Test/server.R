@@ -73,14 +73,14 @@ shinyServer(function(input, output) {
       v_upload_file$maxNA <- ncol(pint)
       v_upload_file$maxMissing <- ncol(pint) - 4
       v_upload_file$conditions <- rownames(table(annotation$Condition))
-
+      version <- help(package="SRMService")$info[[1]][4]
       ## prepare gui output
       list(renderTable(annotation),
            renderTable(table(annotation$Condition)),
            nrPeptidePlot,
            naPlot,
            HTML(paste(v_upload_file$filenam[1], v_upload_file$filenam$datapath , dim(protein)[1], dim(protein)[2],
-                      "any questions?"
+                      "any questions?",version
                       ,sep="<br/>")))
     }
   })
