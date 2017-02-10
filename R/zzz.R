@@ -2,8 +2,8 @@
 
 .onAttach <- function(lib, pkg){
 	if(interactive()){
-		version <- packageVersion('SRMservice')
-		packageStartupMessage("Package 'SRMservice' version ", version)
+		version <- packageVersion('SRMService')
+		packageStartupMessage("Package 'SRMService' version ", version)
 	  invisible()
 	}
 }
