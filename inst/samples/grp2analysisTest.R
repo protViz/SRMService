@@ -1,8 +1,12 @@
 rm(list=ls())
+
 library(limma)
 library(qvalue)
+
 dir("inst/samples/")
+
 protein <- read.table(("inst/samples/proteinGroups/proteinGroups2x4.txt"),sep="\t",stringsAsFactors = F, header=T)
+
 
 rawF <- gsub("Intensity\\.", "", grep("Intensity\\.",colnames(protein),value=T) )
 
@@ -20,7 +24,7 @@ barplot(tmp[(length(tmp)-5):length(tmp)],ylim=c(0, length(protein$Peptides)),xla
 head(protein$Peptides)
 library(SRMService)
 
-grp2 <- Grp2Analysis(annotation, "p2084BlaBla", maxNA=8  , nrPeptides=2, reference="WT")
+grp2 <- Grp2Analysis(annotation, "p2084BlaBla", maxNA=3  , nrPeptides=2, reference="WT")
 grp2$setMQProteinGroups(protein)
 head(protein)
 
