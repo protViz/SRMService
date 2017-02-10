@@ -1,7 +1,7 @@
 Package: SRMService
 Type: Package
 Title: Performs Service SRM and LFQ analysis
-Version: 0.1.11
+Version: 0.1.12
 Author: Witold Wolski and Christian Panse and Jonas Grossmann
 Maintainer:  Witold Wolski <wewolski@gmail.com>
 Description: Analysing and LFQ and SRM experiments in service mode.
