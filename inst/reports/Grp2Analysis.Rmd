@@ -327,7 +327,8 @@ The q-values and p-values were computed using the bioconductor package [limma](h
 This document was generated using Rmarkdown and processes text files which are generated with a label-free quantitation software such as MaxQuant or Progenesis. 
 The obtained results should be validated orthogonally as well (e.g. with Western blots). The Functional Genomics Center Zurich does not provide any kind of guarantee of the validity of these results.
 
-## Session Info
+\newpage
+# Session Info
 
 ```{r}
 sessionInfo()
