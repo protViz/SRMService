@@ -184,10 +184,14 @@ progress(0.1, "CVs")
 
 # Heatmaps and Clustering for Samples and Proteins
 
-```{r correlation,dpi=300,fig.height=8,fig.width=8, fig.cap="Heatmap of correlations (spearman) between samples."}
+```{r correlation,dpi=300, fig.height=8, fig.width=8, fig.cap="Heatmap of correlations (spearman) between samples."}
 col <- c("red","blue")
-simpleheatmap(cor(grp2$getNormalized()$data , use="pairwise.complete.obs", method="spearman")^2,palette = getGreensScale(21),ColSideColors = col[as.factor(grp2$getAnnotation()$Condition)], margins = c(10,3))
-
+simpleheatmap(cor(grp2$getNormalized()$data, 
+                  use="pairwise.complete.obs", 
+                  method="spearman")^2,
+                  palette = getGreensScale(21),
+                  ColSideColors = col[as.factor(grp2$getAnnotation()$Condition)], 
+                  margins = c(10,3))
 ```
 
 In Figure \@ref(fig:heatmapData) and Figure \@ref(fig:correlation) we show how samples are clustering depending on their correlation and on the protein expression profiles.
@@ -204,7 +208,7 @@ progress(0.2, "Heatmaps")
 
 # FGCZ - Two Group Analysis
 
-Here we show the result of a two group analysis for the normalized matrix using bioconductor limma. 
+Here we show the result of a two group analysis for the normalized matrix using the bioconductor limma package. 
 
 ```{r include=FALSE}
 fixcols <- function(resRel, fcname = "log2(Cond/Cont)", name = "qvalue", top = 20){
@@ -217,7 +221,6 @@ fixcols <- function(resRel, fcname = "log2(Cond/Cont)", name = "qvalue", top = 2
   
   return(resRel)
 }
-
 ```
 
 \newpage
@@ -227,9 +230,8 @@ fixcols <- function(resRel, fcname = "log2(Cond/Cont)", name = "qvalue", top = 2
 Significant calls are made with q-value smaller `r grp2$qvalue` (false discovery rate, computed with bioconductor package qvalue). 
 
 ```{r}
-fcname = paste("log2(",grp2$getConditions()$condition,"/",grp2$getConditions()$reference,")",sep="")
+fcname = paste("log2(", grp2$getConditions()$condition,"/", grp2$getConditions()$reference, ")", sep="")
 res.eb <-grp2$getPValues()
-
 ```
 
 ```{r fig.width=10, fig.height=8, dpi=300, fig.cap="VolcanoPlot for normalized and scaled proteins with stringent thresholds. x axis log2 fold change of z-score"}
@@ -250,7 +252,9 @@ if(!is.null(resStr)){
 \newpage
 
 ## Moderated p-values
-
+```{r}
+progress(0.1, "debug0")
+```
 Significant calls are made with *moderated* p Value smaller `r grp2$pvalue`. 
 
 ```{r fig.width=10, fig.height=8, dpi=300, fig.cap="VolcanoPlot for normalized and imputed matrix with moderated p Values."}
@@ -259,7 +263,9 @@ resStr <- quantable::volcanoplot(res.eb$logFC, res.eb$p.mod, foldchangethresh = 
 ```
 
 \newpage
-
+```{r}
+progress(0.1, "debug1")
+```
 ```{r  results="markup"}
 if(!is.null(resStr)){
   resStr<-fixcols(resStr, fcname=fcname , name = "moderated pvalue" )
@@ -272,7 +278,9 @@ if(!is.null(resStr)){
 ## p-values
 
 Significant calls are made with a p Value smaller `r grp2$pvalue`. 
-
+```{r}
+progress(0.1, "debug2")
+```
 
 ```{r fig.width=10, fig.height=8, dpi=300, fig.cap="VolcanoPlot for normalized and imputed matrix with p Values."}
 res.eb <-grp2$getPValues()
