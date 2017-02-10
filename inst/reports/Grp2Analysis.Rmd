@@ -205,9 +205,6 @@ simpleheatmap(grp2$getNormalized()$data[grp2$getNrNAs() < ncol(grp2$getNormalize
 progress(0.2, "Heatmaps")
 ```
 
-```{r}
-progress(0.1, "debug-4")
-```
 
 # FGCZ - Two Group Analysis
 
@@ -237,11 +234,14 @@ progress(0.1, "debug-3")
 Significant calls are made with q-value smaller `r grp2$qvalue` (false discovery rate, computed with bioconductor package qvalue). 
 
 ```{r}
-fcname = paste("log2(", grp2$getConditions()$condition,"/", grp2$getConditions()$reference, ")", sep="")
+fcname <- paste("log2(", grp2$getConditions()$condition, "/", grp2$getConditions()$reference, ")", sep="")
+
+progress(0.1, "debug-2")
+
 res.eb <-grp2$getPValues()
 ```
 ```{r}
-progress(0.1, "debug-2")
+
 ```
 
 ```{r fig.width=10, fig.height=8, dpi=300, fig.cap="VolcanoPlot for normalized and scaled proteins with stringent thresholds. x axis log2 fold change of z-score"}
