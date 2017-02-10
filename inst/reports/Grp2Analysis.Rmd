@@ -239,6 +239,7 @@ fcname <- paste("log2(", grp2$getConditions()$condition, "/", grp2$getConditions
 progress(0.1, "debug-2")
 
 res.eb <-grp2$getPValues()
+progress(0.1, "debug-1.8")
 ```
 ```{r}
 
