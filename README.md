@@ -10,5 +10,5 @@ install_github(c('protViz/dScipa', 'protViz/quantable'))
 
 install.packages(c('bookdown'))
 
-install_github(c('SRMService'))
+install_github(c('protViz/SRMService'))
 ```

@@ -205,6 +205,9 @@ simpleheatmap(grp2$getNormalized()$data[grp2$getNrNAs() < ncol(grp2$getNormalize
 progress(0.2, "Heatmaps")
 ```
 
+```{r}
+progress(0.1, "debug-4")
+```
 
 # FGCZ - Two Group Analysis
 
@@ -223,6 +226,10 @@ fixcols <- function(resRel, fcname = "log2(Cond/Cont)", name = "qvalue", top = 2
 }
 ```
 
+```{r}
+progress(0.1, "debug-3")
+```
+
 \newpage
 
 ## Adjusted moderated p-values (q-values)
@@ -233,6 +240,9 @@ Significant calls are made with q-value smaller `r grp2$qvalue` (false discovery
 fcname = paste("log2(", grp2$getConditions()$condition,"/", grp2$getConditions()$reference, ")", sep="")
 res.eb <-grp2$getPValues()
 ```
+```{r}
+progress(0.1, "debug-2")
+```
 
 ```{r fig.width=10, fig.height=8, dpi=300, fig.cap="VolcanoPlot for normalized and scaled proteins with stringent thresholds. x axis log2 fold change of z-score"}
 
@@ -241,6 +251,10 @@ resStr <-quantable::volcanoplot(res.eb$logFC, res.eb$q.mod, foldchangethresh = g
 ```
 
 \newpage
+
+```{r}
+progress(0.1, "debug-1")
+```
 
 ```{r results="markup"}
 if(!is.null(resStr)){
