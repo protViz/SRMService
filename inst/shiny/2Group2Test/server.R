@@ -106,7 +106,7 @@ shinyServer(function(input, output) {
            numericInput("qValue", "q value threshold", value = 0.05, min=0, max=1, step=0.01 ),
            numericInput("qValueFC", "q value foldchange", value = 0.5, min=0, max=3, step=0.05 ),
 
-           textInput("experimentID", "Experiment Title Name","e.g. Knockout (p2084)"))
+           textInput("experimentID", "Experiment Title Name", "p2084_knockout"))
     }
   })
 
