@@ -4,6 +4,7 @@ proteinColumns <- c("ProteinName","TopProteinName","nrPeptides")
 #' Perform 2 group analysis with visualization
 #' @export Grp2Analysis
 #' @exportClass Grp2Analysis
+#' @include eb.fit.R
 #' @field proteinIntensity data.frame where colnames are Raw.File names, row.names are protein ID's and cells are protein abundances.
 #' @field annotation_ annotations data.frame with columns such as Raw.File, Condition, Run etc.
 #' @field proteinAnnotation information about the proteins, nr of peptides etc.
@@ -34,25 +35,27 @@ Grp2Analysis <- setRefClass("Grp2Analysis",
                                            reference = "character"
                                            )
                             , methods = list(
+
                               setProteins = function(protein){
-                                protein <- as.data.frame(protein)
                                 "used to verify proteingroups structure and set members"
+                                protein <- as.data.frame(protein)
                                 stopifnot(proteinColumns %in% colnames(protein))
                                 stopifnot(grep("Intensity\\." , colnames(protein))>0)
                                 stopifnot(sum(duplicated(protein$TopProteinName))==0)
-                                rownames(protein) <- protein$TopProteinName
 
+                                rownames(protein) <- protein$TopProteinName
                                 protein <- protein[protein$nrPeptides >= .self$nrPeptides,]
 
                                 .self$proteinIntensity <- protein[, grep("Intensity\\.",colnames(protein))]
                                 colnames(.self$proteinIntensity) <- gsub("Intensity\\.","",colnames(.self$proteinIntensity))
                                 stopifnot(colnames(.self$proteinIntensity) %in% .self$annotation_$Raw.file)
+
                                 # Sorts them in agreement with annotation_.
                                 .self$proteinIntensity <- .self$proteinIntensity[,.self$annotation_$Raw.file]
                                 .self$proteinIntensity[.self$proteinIntensity==0] <- NA
 
                                 nas <-.self$getNrNAs()
-                                .self$proteinIntensity <- .self$proteinIntensity[nas<=maxNA,]
+                                .self$proteinIntensity <- .self$proteinIntensity[nas <= maxNA,]
                                 .self$proteinAnnotation <- protein[nas<=maxNA,proteinColumns]
 
                               },
@@ -120,7 +123,8 @@ Grp2Analysis <- setRefClass("Grp2Analysis",
                                 return(design)
                               },
                               getPValues = function(){
-                                return(eb.fit(.self$getNormalized()$data , .self$getDesignMatrix()))
+                                tmp <- eb.fit(.self$getNormalized()$data , .self$getDesignMatrix())
+                                tmp$logFC <- tmp$effectSize * mean(.self$getNormalize()$mad)
                               },
                               getAnnotation = function(){
                                 return(.self$annotation_)

@@ -2,9 +2,10 @@ rm(list=ls())
 
 library(limma)
 library(qvalue)
-
+library(dScipa)
 dir("inst/samples/")
 
+source("R/Grp2Analysis.R")
 protein <- read.table(("inst/samples/proteinGroups/proteinGroups2x4.txt"),sep="\t",stringsAsFactors = F, header=T)
 
 
@@ -27,6 +28,10 @@ library(SRMService)
 grp2 <- Grp2Analysis(annotation, "p2084BlaBla", maxNA=3  , nrPeptides=2, reference="WT")
 grp2$setMQProteinGroups(protein)
 head(protein)
+
+xx <- grp2$getPValues()
+xx$logFC * mean(grp2$getNormalized()$mad)
+
 
 
 rmarkdown::render("inst/reports/Grp2Analysis.Rmd")
