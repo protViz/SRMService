@@ -145,7 +145,6 @@ shinyServer(function(input, output) {
 
       incProgress(0.1, detail = paste("part", "Set up objects"))
 
-      library(dScipa)
 
       tmpdir <- tempdir()
       workdir <- file.path(tmpdir, gsub(" |:","_",date()))

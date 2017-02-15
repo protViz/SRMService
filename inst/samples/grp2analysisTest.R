@@ -2,7 +2,6 @@ rm(list=ls())
 
 library(limma)
 library(qvalue)
-library(dScipa)
 dir("inst/samples/")
 
 source("R/Grp2Analysis.R")
@@ -29,7 +28,9 @@ grp2 <- Grp2Analysis(annotation, "p2084BlaBla", maxNA=3  , nrPeptides=2, referen
 grp2$setMQProteinGroups(protein)
 head(protein)
 
+
 xx <- grp2$getPValues()
+
 head(xx)
 
 

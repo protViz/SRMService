@@ -17,7 +17,6 @@ proteinColumns <- c("ProteinName","TopProteinName","nrPeptides")
 #' @field qvalue qvalue threshold
 #' @field pfoldchange foldchange threshold for p volcano plot
 #' @field qfoldchange foldchange threshold for q volcano plot
-#' @import dScipa
 #'
 Grp2Analysis <- setRefClass("Grp2Analysis",
                             fields = list( proteinIntensity = "data.frame",

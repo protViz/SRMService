@@ -5,7 +5,7 @@
 
 ```{r}
 library(devtools)
-install_github(c('protViz/dScipa', 'protViz/quantable'))
+install_github(c( 'protViz/quantable'))
 
 
 install.packages(c('bookdown'))

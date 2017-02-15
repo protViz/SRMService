@@ -2,7 +2,6 @@
 #'
 #' @export
 #' @examples
-#' library(dScipa)
 #' data <- matrix(rnorm(120),ncol=6)
 #' x <- c(rep("a",3),rep("b",3))
 #' x <- model.matrix(~x)
