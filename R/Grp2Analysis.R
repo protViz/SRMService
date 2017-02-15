@@ -124,7 +124,8 @@ Grp2Analysis <- setRefClass("Grp2Analysis",
                               },
                               getPValues = function(){
                                 tmp <- eb.fit(.self$getNormalized()$data , .self$getDesignMatrix())
-                                tmp$logFC <- tmp$effectSize * mean(.self$getNormalize()$mad)
+                                tmp$logFC <- tmp$effectSize * mean(.self$getNormalized()$mad)
+                                return(tmp)
                               },
                               getAnnotation = function(){
                                 return(.self$annotation_)

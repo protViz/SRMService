@@ -30,8 +30,7 @@ grp2$setMQProteinGroups(protein)
 head(protein)
 
 xx <- grp2$getPValues()
-xx$logFC * mean(grp2$getNormalized()$mad)
-
+head(xx)
 
 
 rmarkdown::render("inst/reports/Grp2Analysis.Rmd")

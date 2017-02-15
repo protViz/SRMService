@@ -100,11 +100,11 @@ shinyServer(function(input, output) {
            numericInput("minPeptides", "Nr of Peptides per protein:", 2, max= v_upload_file$minPeptides),
            numericInput("maxMissing", "Maximum number of NAs: ",value = v_upload_file$maxMissing, min=0, max = v_upload_file$maxNA),
            tags$hr(),
-           numericInput("pValue", "p value threshold", value = 0.01, min=0, max=1, step=0.01 ),
-           numericInput("pValueFC", "p value foldchange", value = 1, min=0, max=3, step=0.05 ),
+           numericInput("pValue", "p value threshold", value = 0.05, min=0, max=1, step=0.01 ),
+           numericInput("pValueFC", "p value foldchange", value = 2, min=0, step=0.05 ),
            tags$hr(),
            numericInput("qValue", "q value threshold", value = 0.05, min=0, max=1, step=0.01 ),
-           numericInput("qValueFC", "q value foldchange", value = 0.5, min=0, max=3, step=0.05 ),
+           numericInput("qValueFC", "q value foldchange", value = 2, min=0, step=0.05 ),
 
            textInput("experimentID", "Experiment Title Name", "p2084_knockout"))
     }
