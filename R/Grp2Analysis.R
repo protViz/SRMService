@@ -117,13 +117,12 @@ Grp2Analysis <- setRefClass("Grp2Analysis",
                                 # hack for putting reference into denomintor.
                                 design <- gsub(reference, paste("A_", reference, sep=""),
                                                                     .self$annotation_$Condition)
-
                                 design <- model.matrix(~design)
                                 return(design)
                               },
                               getPValues = function(){
                                 tmp <- eb.fit(.self$getNormalized()$data , .self$getDesignMatrix())
-                                tmp$logFC <- tmp$effectSize * mean(.self$getNormalized()$mad)
+                                tmp$log2FC <- tmp$effectSize * mean(.self$getNormalized()$mad)
                                 return(tmp)
                               },
                               getAnnotation = function(){
@@ -131,6 +130,23 @@ Grp2Analysis <- setRefClass("Grp2Analysis",
                               },
                               getConditions = function(){
                                 list(reference = .self$reference, condition = setdiff(.self$conditions, .self$reference) )
+                              },
+                              getResultTable = function(){
+                                pvalues <- .self$getPValues()
+                                pvalues <- subset(pvalues, select = c("effectSize","p.ord","p.mod","q.ord","q.mod","log2FC"))
+                                intensityWithNA <- head(merge(data.frame(nrNAs = .self$getNrNAs()),.self$proteinIntensity, by="row.names" ))
+                                rownames(intensityWithNA) <- intensityWithNA$Row.names
+                                intensityWithNA <- intensityWithNA[,-1]
+                                intensityWithNA <- merge(intensityWithNA, .self$getNormalized()$data, by="row.names", suffix = c(".raw", ".transformed"))
+                                rownames(intensityWithNA) <- intensityWithNA$Row.names
+                                intensityWithNA <- intensityWithNA[,-1]
+                                intensityWithNA <- merge(pvalues,intensityWithNA, by="row.names")
+                                rownames(intensityWithNA) <- intensityWithNA$Row.names
+                                intensityWithNA <- intensityWithNA[,-1]
+                                prots <- .self$proteinAnnotation
+                                intensityWithNA<-merge(prots, intensityWithNA, by="row.names")
+                                intensityWithNA <- intensityWithNA[,-1]
+                                return(intensityWithNA)
                               }
                             )
 )

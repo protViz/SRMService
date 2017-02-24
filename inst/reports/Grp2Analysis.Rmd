@@ -248,7 +248,7 @@ res.eb <-grp2$getPValues()
 
 ```{r fig.width=10, fig.height=8, dpi=300, fig.cap="VolcanoPlot for normalized and scaled proteins with stringent thresholds. x axis log2 fold change of z-score"}
 
-resStr <-quantable::volcanoplot(res.eb$logFC, res.eb$q.mod, foldchangethresh = grp2$qfoldchange , pthresh = grp2$qvalue ,labels=rownames(res.eb),xlab = fcname)
+resStr <-quantable::volcanoplot(res.eb$log2FC, res.eb$q.mod, foldchangethresh = grp2$qfoldchange , pthresh = grp2$qvalue ,labels=rownames(res.eb),xlab = fcname)
 
 ```
 
@@ -276,7 +276,7 @@ progress(0.1, "debug2")
 ```{r fig.width=10, fig.height=8, dpi=300, fig.cap="VolcanoPlot for normalized and imputed matrix with p Values."}
 res.eb <-grp2$getPValues()
 
-resRel <- quantable::volcanoplot(res.eb$logFC, res.eb$q.ord, foldchangethresh = grp2$pfoldchange , pthresh = grp2$pvalue ,labels=rownames(res.eb),xlab = fcname)
+resRel <- quantable::volcanoplot(res.eb$log2FC, res.eb$q.ord, foldchangethresh = grp2$pfoldchange , pthresh = grp2$pvalue ,labels=rownames(res.eb),xlab = fcname)
 
 ```
 
@@ -298,19 +298,7 @@ hist(res.eb$p.mod, breaks=20, xlab="", main="")
 
 ## Output Data Description
 
-- effectSize
-- t.ord
-- t.mod
-- p.ord
-- p.mod
-- q.ord
-- q.mod
-- df.r
-- df.0
-- s2.0
-- s2
-- s2.post
-- logFC
+knitr::kable(data.frame(columns=colnames(grp2$getResultTable())[1:11]))
 
 
 ## References

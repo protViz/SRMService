@@ -4,7 +4,8 @@ library(limma)
 library(qvalue)
 dir("inst/samples/")
 
-source("R/Grp2Analysis.R")
+#source("R/Grp2Analysis.R")
+
 protein <- read.table(("inst/samples/proteinGroups/proteinGroups2x4.txt"),sep="\t",stringsAsFactors = F, header=T)
 
 
@@ -26,12 +27,6 @@ library(SRMService)
 
 grp2 <- Grp2Analysis(annotation, "p2084BlaBla", maxNA=3  , nrPeptides=2, reference="WT")
 grp2$setMQProteinGroups(protein)
-head(protein)
-
-
-xx <- grp2$getPValues()
-
-head(xx)
-
+grp2$getResultTable()
 
 rmarkdown::render("inst/reports/Grp2Analysis.Rmd")
