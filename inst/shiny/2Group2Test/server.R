@@ -99,9 +99,9 @@ shinyServer(function(input, output) {
       list(tmp,
            numericInput("minPeptides", "Nr of Peptides per protein:", 2, max= v_upload_file$minPeptides),
            numericInput("maxMissing", "Maximum number of NAs: ",value = v_upload_file$maxMissing, min=0, max = v_upload_file$maxNA),
-           tags$hr(),
-           numericInput("pValue", "p value threshold", value = 0.05, min=0, max=1, step=0.01 ),
-           numericInput("pValueFC", "p value foldchange", value = 2, min=0, step=0.05 ),
+           #tags$hr(),
+           #numericInput("pValue", "p value threshold", value = 0.05, min=0, max=1, step=0.01 ),
+           #numericInput("pValueFC", "p value foldchange", value = 2, min=0, step=0.05 ),
            tags$hr(),
            numericInput("qValue", "q value threshold", value = 0.05, min=0, max=1, step=0.01 ),
            numericInput("qValueFC", "q value foldchange", value = 2, min=0, step=0.05 ),
@@ -141,7 +141,7 @@ shinyServer(function(input, output) {
 
       grp2$setMQProteinGroups(v_upload_file$protein)
       grp2$setQValueThresholds(qvalue = input$qValue , qfoldchange = input$qValueFC)
-      grp2$setPValueThresholds(pvalue = input$pValue, pfoldchange = input$pValueFC)
+      #grp2$setPValueThresholds(pvalue = input$pValue, pfoldchange = input$pValueFC)
 
       incProgress(0.1, detail = paste("part", "Set up objects"))
 

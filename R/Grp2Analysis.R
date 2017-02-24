@@ -134,7 +134,7 @@ Grp2Analysis <- setRefClass("Grp2Analysis",
                               getResultTable = function(){
                                 pvalues <- .self$getPValues()
                                 pvalues <- subset(pvalues, select = c("effectSize","p.ord","p.mod","q.ord","q.mod","log2FC"))
-                                intensityWithNA <- head(merge(data.frame(nrNAs = .self$getNrNAs()),.self$proteinIntensity, by="row.names" ))
+                                intensityWithNA <- merge(data.frame(nrNAs = .self$getNrNAs()),.self$proteinIntensity, by="row.names" )
                                 rownames(intensityWithNA) <- intensityWithNA$Row.names
                                 intensityWithNA <- intensityWithNA[,-1]
                                 intensityWithNA <- merge(intensityWithNA, .self$getNormalized()$data, by="row.names", suffix = c(".raw", ".transformed"))
