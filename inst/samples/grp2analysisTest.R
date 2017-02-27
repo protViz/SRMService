@@ -1,5 +1,4 @@
 rm(list=ls())
-
 library(limma)
 library(qvalue)
 dir("inst/samples/")
@@ -22,11 +21,9 @@ annotation <-data.frame(Raw.file = rawF,
 tmp <- cumsum(rev(table(protein$Peptides)))
 barplot(tmp[(length(tmp)-5):length(tmp)],ylim=c(0, length(protein$Peptides)),xlab='nr of proteins with at least # peptides')
 
-head(protein$Peptides)
 library(SRMService)
 
 grp2 <- Grp2Analysis(annotation, "p2084BlaBla", maxNA=3  , nrPeptides=2, reference="WT")
 grp2$setMQProteinGroups(protein)
-grp2$getResultTable()
 
 rmarkdown::render("inst/reports/Grp2Analysis.Rmd")
