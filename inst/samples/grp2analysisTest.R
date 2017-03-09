@@ -5,7 +5,10 @@ dir("inst/samples/")
 
 #source("R/Grp2Analysis.R")
 
-protein <- read.table(("inst/samples/proteinGroups/proteinGroups2x4.txt"),sep="\t",stringsAsFactors = F, header=T)
+protein <- read.table(("inst/samples/proteinGroups/proteinGroups2x4.txt"),
+                      sep="\t",
+                      stringsAsFactors = F,
+                      header=T)
 
 
 rawF <- gsub("Intensity\\.", "", grep("Intensity\\.",colnames(protein),value=T) )
@@ -16,7 +19,8 @@ annotation <-data.frame(Raw.file = rawF,
                         Condition = condition,
                         BioReplicate = paste("X",1:length(condition),sep=""),
                         Run = 1:length(condition),
-                        IsotopeLabelType = rep("L",length(condition)), stringsAsFactors = F)
+                        IsotopeLabelType = rep("L",length(condition)),
+                        stringsAsFactors = F)
 
 tmp <- cumsum(rev(table(protein$Peptides)))
 barplot(tmp[(length(tmp)-5):length(tmp)],ylim=c(0, length(protein$Peptides)),xlab='nr of proteins with at least # peptides')
