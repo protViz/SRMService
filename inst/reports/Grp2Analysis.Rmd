@@ -206,7 +206,7 @@ progress(0.2, "Heatmaps")
 ```
 
 
-# FGCZ - Two Group Analysis
+# Two Group Analysis
 
 Here we show the result of a two group analysis for the normalized matrix using the bioconductor limma package. 
 
@@ -253,11 +253,29 @@ resStr <-quantable::volcanoplot(res.eb$log2FC, res.eb$q.mod, foldchangethresh = 
 ```
 
 \newpage
-
+```{r, eval=FALSE, include=FALSE}
+ resRel<-do.call("rbind", resRel)
+ head(resRel)
+  rownames(resRel) <- NULL
+  resRel <- data.frame(resRel,tmp= 2^resRel$foldchange)
+  c("regulation", "Accession", fcname, name, gsub("log2","",fcname))
+  resRel
+  
+  colnames(resRel) <- c("regulation", "Accession", fcname, name, gsub("log2","",fcname))
+  
+  resRel <- resRel[order(resRel[,name])[1:min(top,nrow(resRel))],]
+  
+  return(resRel)
+```
 
 ```{r results="markup"}
 if(!is.null(resStr)){
+  
+  head(resStr)
+  resRel <- resStr
+  
   resStr<-fixcols(resStr,fcname = fcname, name="moderated qvalue")
+  
   knitr::kable(resStr, caption = "Most significant regulated proteins.")
 }
 ```
@@ -300,11 +318,15 @@ hist(res.eb$p.mod, breaks=20, xlab="", main="")
 
 ```{r}
 knitr::kable(data.frame(columns=colnames(grp2$getResultTable())[1:11]))
+
 ```
 
 ## References
 
-The q-values and p-values were computed using the bioconductor package [limma](https://bioconductor.org/packages/release/bioc/html/limma.html).
+This report was generated using the package [SRMService](http://github.com/protViz/SRMService) and [quantable](http://github.com/protViz/quantable). The q-values and p-values were computed using the bioconductor package [limma](https://bioconductor.org/packages/release/bioc/html/limma.html) and [qvalue](https://bioconductor.org/packages/release/bioc/html/qvalue.html).
+
+For questions and improvements please do contact the authors of the package [_SRMService_](https://github.com/protViz/SRMService/graphs/contributors).
+
 
 ## Disclaimer and Acknowledgements
 

@@ -34,7 +34,6 @@ Grp2Analysis <- setRefClass("Grp2Analysis",
                                            reference = "character"
                                            )
                             , methods = list(
-
                               setProteins = function(protein){
                                 "used to verify proteingroups structure and set members"
                                 protein <- as.data.frame(protein)

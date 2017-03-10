@@ -22,6 +22,8 @@ annotation <-data.frame(Raw.file = rawF,
                         IsotopeLabelType = rep("L",length(condition)),
                         stringsAsFactors = F)
 
+head(annotation)
+
 tmp <- cumsum(rev(table(protein$Peptides)))
 barplot(tmp[(length(tmp)-5):length(tmp)],ylim=c(0, length(protein$Peptides)),xlab='nr of proteins with at least # peptides')
 
