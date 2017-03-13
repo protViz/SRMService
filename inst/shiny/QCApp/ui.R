@@ -10,7 +10,8 @@ shinyUI(fluidPage(
   sidebarLayout(
     sidebarPanel(
       selectInput("selectFiletyp", label = h3("Select Filetype"),
-                  choices = c("MaxQuant ProteinGroups","MaxQuant Peptide.txt", "Progenesis Protein xls", "Progenesis Pepitde xls")
+                  choices = c("MaxQuant ProteinGroups" = "maxProt","MaxQuant Peptide.txt" = "maxPep",
+                              "Progenesis Protein xls" = "progProt", "Progenesis Pepitde xls" = "progPep")
                   ,selected = 1),
 
       fileInput('proteinGroups', 'Choose MQ ProteinGroups File',

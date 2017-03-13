@@ -27,7 +27,7 @@ shinyServer(function(input, output) {
     }
   })
 
-  ##
+  ## File information output for main panel.
   output$fileInformation <- renderUI({
     if(is.null(v_upload_file$filenam[1])){
       ("Please upload a ProteinGroups.txt file.")
