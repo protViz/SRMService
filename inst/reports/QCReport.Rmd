@@ -1,0 +1,215 @@
+---
+title: "FGCZ MaxQuant Protein Groups QC-Report Analysis: `r grp2$projectName` \n Statistics for a Quantitative Protein Matrix"
+author: "Functional Genomics Center Zurich"
+date: "`r format(Sys.time(), '%d %B, %Y')`"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(
+  echo = FALSE,
+  message = FALSE,
+  warning = FALSE
+)
+
+if(!exists("progress")){
+  progress <- function(howmuch, detail){
+    invisible(NULL)
+  }
+}
+
+```
+
+# Input Matrix
+
+Experiment is called: `r grp2$projectName`
+
+## The Numbers
+
+The protein matrix is filtered like this:
+
+- Minimum number of peptides / protein: `r grp2$nrPeptides`
+- Maximum of missing values per protein : `r grp2$maxNA`
+
+The total number of proteins in this experiment is: `r nrow(grp2$proteinIntensity)`
+
+
+
+```{r}
+
+library(knitr)
+library(qvalue)
+library(limma)
+
+```
+
+\pagebreak
+
+# Proteins Used for Quantitation
+
+
+```{r histmissing}
+missing <- grp2$getNrNAs()
+int <- apply(grp2$proteinIntensity,1,sum, na.rm=TRUE)
+grp2$proteinIntensity <- grp2$proteinIntensity[order(missing, -int,decreasing = T),]
+
+```
+
+The input matrix has the following structure (Figure \@ref(fig:overview)).
+
+
+```{r overview, fig.with=9,fig.height=6,dpi=300,fig.cap="Heatmap for quantifyable proteins sorted by missigness and intensity (log2). Gray - missing values"}
+library(quantable)
+imageWithLabels(t(log2(grp2$proteinIntensity)), col.labels = NULL, col=quantable::getBlueScale(21))
+```
+
+```{r missingValuesPerProtein, fig.cap="% of proteins vs # of missing values in protein"}
+plot(cumsum(table(missing))/length(missing)*100, ylab="% of proteins", xlab="# of missing values per protein")
+progress(0.1, "Summary")
+
+```
+
+
+
+```{r missingPerSample  , fig.cap="Percent of missing values in sample."}
+barplot(quantable::colNAs(grp2$proteinIntensity)/nrow(grp2$proteinIntensity)*100, las=2, ylab="% missing")
+
+```
+
+
+\pagebreak
+
+# Distribution of Intensities
+
+Shown in Figure \@ref(fig:distributionRaw) are the un-normalized values while in Figure \@ref(fig:normalized)
+are the z-transformed values (subtracted median and divided by variance).
+
+```{r distributionRaw, fig.width=7, fig.height=7, fig.cap="Density plot for quantifyable proteins (log2 transformed)"}
+library(ggplot2)
+library(reshape2)
+longm <- melt(log2(grp2$proteinIntensity))
+
+p <- qplot( variable , value , data=longm , geom="violin" , xlab="" , ylab="log2(I)")
+p + stat_summary(fun.y=median,geom='point') +theme(axis.text.x = element_text(angle = 90, hjust = 1))
+
+```
+
+
+
+```{r normalized,  fig.width=7,fig.height=7,dpi=300, fig.cap="Density plot for normalized values (z-score)"}
+longm <- melt(grp2$getNormalized()$data)
+p <- qplot( variable , value , data=longm , geom="violin" , xlab="" , ylab="z-score")
+p + stat_summary(fun.y=median,geom='point') + theme(axis.text.x = element_text(angle = 90, hjust = 1))
+
+```
+
+The effect of the normalization (z transformation) is visualized in Figure \@ref(fig:scaling). It shows the log2-median value which is subtracted from each individually sample. Large differences in these values are critical.
+
+
+```{r  scaling,dpi=300, fig.height=6, fig.cap="Median values subtracted for normalization."}
+par(mfrow=c(2,1))
+par(mar=c(3,10,3,3))
+
+barplot(grp2$getNormalized()$medians,horiz=T,las=2, main="median", cex.names = 0.6)
+barplot(grp2$getNormalized()$mads,horiz=T, las=2 , main="standard deviation", cex.names = 0.6)
+
+progress(0.2, "Normalization")
+
+```
+
+\pagebreak
+
+```{r pairsplot, fig.width=9, fig.height=9}
+if(nrow(grp2$getNormalized()$data) <= 10){
+  quantable::mypairs(grp2$getNormalized()$data)
+}
+
+```
+
+\pagebreak
+
+# Coefficients of Variations
+
+```{r CViolin, fig.cap="distribution of protein CV within condition and overall"}
+
+all <- quantable::CV(grp2$proteinIntensity)
+CVs <- rbind(data.frame(condition="all", cv=all))
+
+p <- qplot( condition , cv , data=CVs , geom="violin" , xlab="" , ylab="Coefficient of Variation (%)")
+p + stat_summary(fun.y=median,geom='point') + theme(axis.text.x = element_text(angle = 90, hjust = 1))
+
+```
+
+
+```{r}
+cvSummary <- aggregate(cv ~ condition , data=CVs , median, na.rm=TRUE)
+knitr::kable(cvSummary,caption = 'median of cv')
+```
+
+\pagebreak
+
+```{r SDViolin, fig.cap="Distribution of protein standard deviation (after sample normalization and scaling) within conditions and overall"}
+
+all <- apply( grp2$getNormalized()$data, 1 , sd, na.rm=TRUE )
+SDs <- rbind(data.frame(condition="all", sd=all))
+
+p <- qplot( condition , sd , data=SDs , geom="violin" , xlab="" , ylab="sd of z-score")
+p + stat_summary(fun.y=median,geom='point') + theme(axis.text.x = element_text(angle = 90, hjust = 1))
+
+```
+
+```{r}
+sdSummary <-aggregate(sd ~ condition , data=SDs , median, na.rm=TRUE)
+knitr::kable(sdSummary, caption = 'median of sd')
+
+progress(0.1, "CVs")
+
+```
+
+\pagebreak
+
+# Heatmaps and Clustering for Samples and Proteins
+
+```{r correlation,dpi=300, fig.height=8, fig.width=8, fig.cap="Heatmap of correlations (spearman) between samples."}
+simpleheatmap(cor(grp2$getNormalized()$data, 
+                  use="pairwise.complete.obs", 
+                  method="spearman")^2,
+                  palette = getGreensScale(21),
+                  margins = c(10,3))
+```
+
+In Figure \@ref(fig:heatmapData) and Figure \@ref(fig:correlation) we show how samples are clustering depending on their correlation and on the protein expression profiles.
+
+
+```{r heatmapData, fig.width=8, fig.height=10, dpi=300, fig.cap="Heatmap for normalized and scaled values (z-scores)." }
+tmp <- grp2$getNormalized()$data
+
+simpleheatmap(
+  grp2$getNormalized()$data[grp2$getNrNAs() < ncol(grp2$getNormalized()$data)/2,],
+  margins=c(10,3) 
+)
+
+progress(0.2, "Heatmaps")
+```
+
+
+
+## References
+
+This report was generated using the package [SRMService](http://github.com/protViz/SRMService) and [quantable](http://github.com/protViz/quantable). The q-values and p-values were computed using the bioconductor package [limma](https://bioconductor.org/packages/release/bioc/html/limma.html) and [qvalue](https://bioconductor.org/packages/release/bioc/html/qvalue.html).
+
+For questions and improvements please do contact the authors of the package [_SRMService_](https://github.com/protViz/SRMService/graphs/contributors).
+
+
+## Disclaimer and Acknowledgements
+
+This document was generated using Rmarkdown and processes text files which are generated with a label-free quantitation software such as MaxQuant or Progenesis. 
+The obtained results should be validated orthogonally as well (e.g. with Western blots). The Functional Genomics Center Zurich does not provide any kind of guarantee of the validity of these results.
+
+\newpage
+# Session Info
+
+```{r}
+sessionInfo()
+```
+
+
