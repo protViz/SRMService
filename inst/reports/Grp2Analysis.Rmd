@@ -302,9 +302,11 @@ resRel <- quantable::volcanoplot(res.eb$log2FC, res.eb$q.ord, foldchangethresh =
 
 <!-- Error handling if resRel is empty-->
 ```{r  results="markup"}
-resRel <- fixcols(resRel,fcname=fcname, name="p-value")
-knitr::kable(resRel, caption = "Most significant regulated proteins.")
-progress(0.1, "volcanos")
+if(!is.null(resRel)){
+  resRel <- fixcols(resRel,fcname=fcname, name="p-value")
+  knitr::kable(resRel, caption = "Most significant regulated proteins.")
+  progress(0.1, "volcanos")
+}
 ```
 
 \newpage
