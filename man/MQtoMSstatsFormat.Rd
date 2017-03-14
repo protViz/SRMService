@@ -20,6 +20,8 @@ MQtoMSstatsFormat(evidence, annotation, proteinGroups,
 \item{summaryforMultipleRows}{: max or sum - when there are multiple measurements for certain feature and certain fun, use highest or sum of all.}
 
 \item{fewMeasurements}{: if 1 or 2 measurements across runs per feature, 'remove' will remove those featuares. It can affected for unequal variance analysis.}
+
+\item{removeMpeptides}{remove remove the peptides including M sequence}
 }
 \description{
 MaxQtoMSstatsFormat

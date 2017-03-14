@@ -1,6 +1,8 @@
 #' fit limma
 #' @param dat data matrix
 #' @param design design matrix
+#' @import qvalue
+#' @import limma
 #' @export
 #' @examples
 #' data <- matrix(rnorm(120),ncol=6)
