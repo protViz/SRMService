@@ -27,7 +27,7 @@ shinyServer(function(input, output) {
     }
   })
 
-  ##
+  ## File information output for main panel.
   output$fileInformation <- renderUI({
     if(is.null(v_upload_file$filenam[1])){
       ("Please upload a ProteinGroups.txt file.")
@@ -90,13 +90,14 @@ shinyServer(function(input, output) {
     if(is.null(v_upload_file$filenam[1])){
       NULL
     }else{
-      conds <- as.list(v_upload_file$conditions)
-      names(conds) <- v_upload_file$conditions
-      tmp <- selectInput("select", label = h3("Select Control"),
+      selection <- selectInput("select", label = h3("Select Control"),
                          choices = conds,
                          selected = 1)
 
-      list(tmp,
+      conds <- as.list(v_upload_file$conditions)
+      names(conds) <- v_upload_file$conditions
+
+      list(selection,
            numericInput("minPeptides", "Nr of Peptides per protein:", 2, max= v_upload_file$minPeptides),
            numericInput("maxMissing", "Maximum number of NAs: ",value = v_upload_file$maxMissing, min=0, max = v_upload_file$maxNA),
            #tags$hr(),
