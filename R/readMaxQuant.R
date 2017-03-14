@@ -72,6 +72,7 @@
 #' @param useUniquePeptide : (likely same as proteotypic) remove peptides that are assigned for more than one proteins. We assume to use unique peptide for each protein.
 #' @param summaryforMultipleRows : max or sum - when there are multiple measurements for certain feature and certain fun, use highest or sum of all.
 #' @param fewMeasurements : if 1 or 2 measurements across runs per feature, 'remove' will remove those featuares. It can affected for unequal variance analysis.
+#' @param removeMpeptides
 #' @import reshape2
 #' @export
 MQtoMSstatsFormat <- function(evidence,
@@ -139,7 +140,7 @@ MQtoMSstatsFormat <- function(evidence,
     pepcount$Modified.sequence <- factor(pepcount$Modified.sequence)
 
     ## count how many proteins are assigned for each peptide
-    structure <- aggregate(Proteins~., data=pepcount, length)
+    structure <- stats::aggregate(Proteins~., data=pepcount, length)
     remove_peptide <- structure[structure$Proteins!=1, ]
 
     ## remove the peptides which are used in more than one protein

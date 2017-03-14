@@ -6,6 +6,11 @@
 \usage{
 eb.fit(dat, design)
 }
+\arguments{
+\item{dat}{data matrix}
+
+\item{design}{design matrix}
+}
 \description{
 fit limma
 }

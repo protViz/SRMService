@@ -12,7 +12,9 @@ Imports:
     methods,
     reshape2,
     rmarkdown,
-    bookdown
+    bookdown,
+    limma,
+    qvalue
 License: GPL
 LazyData: TRUE
 URL: https://github.com/protViz/SRMService
