@@ -2,19 +2,19 @@
 ## shiny::runApp("inst/shiny/2Group2Test",port=1234, host="130.60.81.134")
 ## shiny::runApp('C:/Users/wolski/prog/SRMService/inst/shiny/2Group2Test', port = 1234, host=)
 
-
-
 library(shiny)
 library(SRMService)
 
 #library(rhandsontable)
 
 options( shiny.maxRequestSize=30*1024^2 )
-
-mqReport<- function(input,v_upload_file, v_download_links ){
-  withProgress(message = 'Generating MaxQuant Protein Report', detail = "part 0", value = 0,
+mqReport <- function(input,v_upload_file, v_download_links ){
+  ## Create some summary of the loaded data
+  progress <- function(howmuch, detail){
+    incProgress(howmuch, detail = detail)
+  }
+  withProgress(message = 'Generating MaxQuant QC Report', detail = "part 0", value = 0,
                {
-                 print("Rendering MQ report")
                  library(SRMService)
                  print(names(input))
 
@@ -38,26 +38,25 @@ mqReport<- function(input,v_upload_file, v_download_links ){
                  if(!file.copy(rmdfile , rmdfile2run)){
                    stopApp(7)
                  }
-
+                 print(rmdfile2run)
                  rmarkdown::render(rmdfile2run,
                                    bookdown::pdf_document2())
 
+                 print(rmdfile2run)
                  incProgress(0.1, detail = paste("part", "Rendering"))
                  print(dir())
                  v_download_links$pdfReport <- file.path(workdir, "QCReport.pdf")
 
                  ### Writing p-values
-                 # write.table(grp2$getResultTable(), file=file.path(workdir,"pValues.csv"), quote=FALSE, sep = "\t", col.names=NA)
+                 #write.table(grp2$getResultTable(), file=file.path(workdir,"pValues.csv"), quote=FALSE, sep = "\t", col.names=NA)
                  incProgress(0.1, detail = paste("part", "report"))
-                 # v_download_links$tsvTable <- file.path(workdir,"pValues.csv")
+                 #v_download_links$tsvTable <- file.path(workdir,"pValues.csv")
                } ## end progress
   ) ## end with progress
 }
 
 
-
 mqProtPlotting <- function(input,v_upload_file){
-
   print(input$selectFiletyp)
   if(input$selectFiletyp == "maxProt"){
     protein <- read.csv(v_upload_file$filenam$datapath, sep="\t",stringsAsFactors = F, header=TRUE)
@@ -89,17 +88,17 @@ mqProtPlotting <- function(input,v_upload_file){
 
     v_upload_file$maxNA <- ncol(pint)
     v_upload_file$maxMissing <- ncol(pint) - 4
-    version <- help(package="SRMService")$info[[1]][4]
-    ## prepare gui output
-    list(nrPeptidePlot,
+    version <- "HERE PACKAGE VERSION"
+
+        ## prepare gui output
+    return(list(nrPeptidePlot,
          naPlot,
-         HTML(paste(v_upload_file$filenam[1], v_upload_file$filenam$datapath ,
-                    "nr row: " ,
-                    dim(protein)[1],
-                    "nr columns: ",
-                    dim(protein)[2],
-                    "package Version : ",version
-                    ,sep="<br/>")))
+         HTML(paste(
+                    "nr row: " , dim(protein)[1],
+                    "<br/>nr columns: ", dim(protein)[2],
+                    "<br/> render path: ", v_upload_file$filenam$datapath
+                    ,"<br/> package Version : <pre> " ,version, "</pre>"
+                    ,sep=""))))
   }
 }
 
@@ -125,9 +124,11 @@ shinyServer(function(input, output) {
 
   ##
   output$fileInformation <- renderUI({
+    print("test")
     if(is.null(v_upload_file$filenam[1])){
       HTML("Please select: <br/> a) the type of the file. <br/> The file.")
     }else{
+      print(v_upload_file$filenam[1])
       mqProtPlotting(input,v_upload_file)
     }
   })
@@ -146,10 +147,6 @@ shinyServer(function(input, output) {
     }
   })
 
-  ## Create some summary of the loaded data
-  progress <- function(howmuch, detail){
-    incProgress(howmuch, detail = detail)
-  }
 
   ## react on GO button
   ## this method does all the computation
@@ -204,5 +201,4 @@ shinyServer(function(input, output) {
       file.copy(v_download_links$pdfReport, file)
     }
   )
-
 })

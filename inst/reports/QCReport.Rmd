@@ -69,10 +69,11 @@ progress(0.1, "Summary")
 ```
 
 
-
-```{r missingPerSample  , fig.cap="Percent of missing values in sample."}
-barplot(quantable::colNAs(grp2$proteinIntensity)/nrow(grp2$proteinIntensity)*100, las=2, ylab="% missing")
-
+```{r missingPerSample, fig.cap="Percent of missing values in sample."}
+mar <-par()$mar
+par(mar = c(10,3,3,3))
+barplot(quantable::colNAs(grp2$proteinIntensity)/nrow(grp2$proteinIntensity)*100, las=2, ylab="percent missing")
+par(mar= mar)
 ```
 
 

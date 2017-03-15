@@ -27,6 +27,7 @@ grp2 <- QCProteinReport( "p2244_MilenaS_PN_HvsR", maxNA=3  , nrPeptides=2)
 
 
 grp2$setMQProteinGroups(protein)
+rmarkdown::render("inst/reports/QCReport.Rmd","pdf_document")
 
-rmarkdown::render("inst/reports/QCReport.Rmd",bookdown::pdf_document2())
+#rmarkdown::render("inst/reports/QCReport.Rmd",bookdown::pdf_document2())
 
