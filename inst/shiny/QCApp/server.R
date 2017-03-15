@@ -26,8 +26,7 @@ mqReport <- function(input,v_upload_file, v_download_links ){
                  incProgress(0.1, detail = paste("part", "Set up objects"))
 
 
-                 tmpdir <- tempdir()
-                 workdir <- file.path(tmpdir, gsub(" |:","_",date()))
+                 workdir <- v_upload_file$workdir
                  rmdfile <- file.path( path.package("SRMService") , "/reports/QCReport.Rmd" )
 
                  if(!dir.create(workdir)){
@@ -90,13 +89,19 @@ mqProtPlotting <- function(input,v_upload_file){
     v_upload_file$maxMissing <- ncol(pint) - 4
     version <- "HERE PACKAGE VERSION"
 
+    tmpdir <- tempdir()
+    workdir <- file.path(tmpdir, gsub(" |:","_",date()))
+    v_upload_file$workdir <- workdir
+
+
         ## prepare gui output
     return(list(nrPeptidePlot,
          naPlot,
          HTML(paste(
                     "nr row: " , dim(protein)[1],
                     "<br/>nr columns: ", dim(protein)[2],
-                    "<br/> render path: ", v_upload_file$filenam$datapath
+                    "<br/> data path: ", gsub("\\\\","/",v_upload_file$filenam$datapath),
+                    "<br/> work dir : ", gsub("\\\\","/",v_upload_file$workdir)
                     ,"<br/> package Version : <pre> " ,version, "</pre>"
                     ,sep=""))))
   }
