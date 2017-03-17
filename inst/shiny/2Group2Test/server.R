@@ -90,12 +90,12 @@ shinyServer(function(input, output) {
     if(is.null(v_upload_file$filenam[1])){
       NULL
     }else{
+      conds <- as.list(v_upload_file$conditions)
+      names(conds) <- v_upload_file$conditions
       selection <- selectInput("select", label = h3("Select Control"),
                          choices = conds,
                          selected = 1)
 
-      conds <- as.list(v_upload_file$conditions)
-      names(conds) <- v_upload_file$conditions
 
       list(selection,
            numericInput("minPeptides", "Nr of Peptides per protein:", 2, max= v_upload_file$minPeptides),

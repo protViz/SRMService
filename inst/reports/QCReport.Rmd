@@ -94,19 +94,10 @@ p + stat_summary(fun.y=median,geom='point') +theme(axis.text.x = element_text(an
 
 ```
 
+Figure \@ref{fig:scaling} shows the median and standard deviations of the log2 transformed intensities. Large differences in these values are critical. These values are used to scale the samples.
 
 
-```{r normalized,  fig.width=7,fig.height=7,dpi=300, fig.cap="Density plot for normalized values (z-score)"}
-longm <- melt(grp2$getNormalized()$data)
-p <- qplot( variable , value , data=longm , geom="violin" , xlab="" , ylab="z-score")
-p + stat_summary(fun.y=median,geom='point') + theme(axis.text.x = element_text(angle = 90, hjust = 1))
-
-```
-
-The effect of the normalization (z transformation) is visualized in Figure \@ref(fig:scaling). It shows the log2-median value which is subtracted from each individually sample. Large differences in these values are critical.
-
-
-```{r  scaling,dpi=300, fig.height=6, fig.cap="Median values subtracted for normalization."}
+```{r  scaling,dpi=300, fig.height=6, fig.cap="Sample median and standard deviation of log2(Intensities)."}
 par(mfrow=c(2,1))
 par(mar=c(3,10,3,3))
 
@@ -117,7 +108,19 @@ progress(0.2, "Normalization")
 
 ```
 
+
+The effect of the normalization (z transformation) is visualized in Figure \@ref(fig:normalized). It shows the z transformed log2 intensities. 
+
+```{r normalized,  fig.width=7,fig.height=7,dpi=300, fig.cap="Density plot for normalized values (z-score)"}
+longm <- melt(grp2$getNormalized()$data)
+p <- qplot( variable , value , data=longm , geom="violin" , xlab="" , ylab="z-score")
+p + stat_summary(fun.y=median,geom='point') + theme(axis.text.x = element_text(angle = 90, hjust = 1))
+
+```
+
+
 \pagebreak
+
 
 ```{r pairsplot, fig.width=9, fig.height=9}
 if(nrow(grp2$getNormalized()$data) <= 10){
