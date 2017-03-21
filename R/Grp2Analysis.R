@@ -103,7 +103,7 @@ Grp2Analysis <- setRefClass("Grp2Analysis",
                                 fileID <-subset(.self$annotation_, Condition == condition)$Raw.file
                                 .self$proteinIntensity[, fileID]
                               },
-                              getNormalized = function(){
+                              getNormalized = function(center=TRUE, scale=TRUE){
                                 quantable::robustscale(log2(.self$proteinIntensity))
                               },
                               getNormalizedConditionData = function(condition){
