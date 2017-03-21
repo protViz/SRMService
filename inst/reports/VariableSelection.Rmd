@@ -1,0 +1,440 @@
+---
+title: "Immunodata vis"
+author: "Witold Wolski"
+date: "30 May 2016"
+output: pdf_document
+---
+
+
+```{r global_options, include=FALSE}
+knitr::opts_chunk$set(fig.width=8, fig.height=8, fig.path='Figs/',
+                      echo=FALSE, warning=FALSE, message=FALSE)
+
+```
+
+
+```{r}
+
+barplot(table(datam$Condition))
+```
+
+Number of samples per group.
+
+
+```{r boxplotBB, fig.height=25, fig.width=25}
+library(lattice)
+library(latticeExtra)
+library(reshape2)
+library(RColorBrewer)
+library(quantable)
+
+
+xx<-melt(datam)
+bwplot(value ~ Condition | variable, data=xx,scales=list(x=list(rot=90),relation="free") ) 
+
+```
+
+Distribution of protein fold changes per group.
+
+```{r}
+cast2IntensityMatrix <- function( datam ){
+  datamI <- datam[,3:ncol(datam)]
+  rownames(datamI) <- datam$Run
+  datalog2 <- datamI
+}
+
+datalog2 <- cast2IntensityMatrix(datam)
+
+```
+
+```{r makecolors, fig.width=3, fig.height=3}
+
+colors <- rep("",nrow(datam))
+
+Ucond <- unique(datam$Condition)
+mypalette <- brewer.pal(length(Ucond),"Dark2")
+
+for(i in 1:length(Ucond)){
+  colors[datam$Condition==Ucond[i]]<-mypalette[i]
+}
+pch <- colors
+for(i in 1:length(Ucond)){
+  pch[datam$Condition==Ucond[i]]<-i
+}
+
+pch <- as.numeric(pch)
+plot(c(0,3),c(0,3),type="n",axes = FALSE,xlab="",ylab="")
+legend("topleft", legend=Ucond,cex=1,pch=1:length(Ucond),lwd=4,lty=1,col=mypalette)
+
+
+```
+
+
+The variable selection algorithm does not work with missing values therefore we replace them with
+the median fold change of a protein. A possible improvement would be to replace them with the median protein intensity of protein within a group.
+
+```{r}
+medians <- apply(datalog2,2,median)
+for(i in 1:ncol(datalog2)){
+  datalog2[is.na(datalog2[,i]),i]<- medians[1]
+}
+
+```
+
+
+# Overview Heatmap
+
+
+```{r heatmapDefault,fig.width=7,fig.height=7}
+simpleheatmap( (datalog2) , palette = getBlueWhiteRed(21),ylab="Ig", main="",RowSideColors=colors)
+
+```
+
+# Overview Heatmap Scaled
+
+```{r heatmapScaled,fig.width=7,fig.height=7}
+simpleheatmap( scale(datalog2) , palette = getBlueWhiteRed(21), main="",RowSideColors=colors)
+```
+
+# How do the variables correlate
+
+
+
+
+```{r correlationHeatmap,fig.width=7,fig.height=7}
+
+
+simpleheatmap( cor((datalog2), use="pairwise.complete.obs", method="spearman")^2 , palette = getGreensScale(21),xlab="Ig",ylab="Ig", main="R^2")
+
+```
+
+# How do the bio replicates correlate
+
+
+```{r,fig.width=7,fig.height=7}
+mat <- (cor(t(datalog2),use="pairwise.complete.obs", method="spearman"))^2
+
+simpleheatmap(mat,RowSideColors=colors, xlab="patient", ylab="patient", main="R^2",palette = getGreensScale(21))
+
+```
+
+
+# Violin Plot
+## Bioreplicate
+
+```{r violinSamples}
+library(ggplot2)
+library(reshape2)
+tmp <- longm
+p <- qplot( Run , Intensity , data=tmp , geom="violin" , xlab="" , ylab="log10(I)")
+p + stat_summary(fun.y=median,geom='point') +theme(axis.text.x = element_text(angle = 90, hjust = 1))
+
+```
+
+## Variables
+
+```{r violinProteins, fig.width=14, fig.height=8}
+p <- qplot( Variable , Intensity , data=tmp , geom="violin" , xlab="" , ylab="log10(I)")
+p + stat_summary(fun.y=median,geom='point') +theme(axis.text.x = element_text(angle = 90, hjust = 1))
+
+```
+
+
+# PCA
+
+```{r, fig.width=6, fig.height=10}
+
+#datalog2 <- scale(datalog2)
+sum(is.na(unlist(datalog2)))
+#colnames(datalog2)<-paste("p", colnames(datalog2), sep=".")
+
+fmla <- as.formula(paste(" ~ ", paste(colnames(datalog2), collapse= "+")))
+
+ir.pca <- prcomp( fmla, data=data.frame(datalog2), center = TRUE, scale. = TRUE, na.action=na.omit)
+par(mfrow=c(3,1))
+
+plot(ir.pca$x[,1:2],col=colors,pch=pch)
+legend("topleft",legend=Ucond,col=c(mypalette),pch=1:length(Ucond))
+
+plot(ir.pca$x[,2:3],col=colors,pch=pch)
+legend("topleft",legend=Ucond,col=c(mypalette),pch=1:length(Ucond))
+
+plot(ir.pca$x[,3:4],col=colors,pch=pch)
+legend("topleft",legend=Ucond,col=c(mypalette),pch=1:length(Ucond))
+
+```
+
+
+# Variable Selection
+
+
+```{r}
+library(glmnet)
+
+disease <- as.factor(datam$Condition)
+mylambda <- 1/(1:25)^1.7
+datalog2 <- as.matrix(datalog2)
+
+sum(is.na(datalog2))
+glmmod <- glmnet(datalog2,y=disease,family='multinomial', lambda =mylambda,maxit= 1000000)
+
+
+```
+
+
+```{r fig.height=7, fig.width=7}
+
+cv.glmmod <- cv.glmnet(datalog2, y = disease, alpha = 1, family='multinomial', nfolds=20, lambda=mylambda )
+
+plot(cv.glmmod)
+best_lambda <- cv.glmmod$lambda.min
+abline(v=log(best_lambda))
+abline(v=log(best_lambda),col=2)
+
+```
+
+
+
+```{r fig.height=8, fig.width=8, include = FALSE}
+i<-1
+for(i in 1:length(glmmod$beta)){
+  imageWithLabels(as.matrix(t(glmmod$beta[[i]])) , row.labels = round(mylambda,digits=3),
+                  col=getBlueWhiteRed(151),zlim=c(-2,2),main=names(glmmod$beta)[i],ylab="Ig", xlab="L1")
+  
+  abline(v=(which(best_lambda==mylambda))/(length(mylambda)))
+}
+
+```
+
+
+
+```{r}
+co<-coef(glmmod,s=best_lambda)
+
+resCoeff <-list()
+for(i in 1:length(co)){
+  dat<- as.matrix(co[[i]])
+  resCoeff[[length(resCoeff)+1]] <- data.frame(Condition=names(co)[i], features = rownames(dat) , Coefficients = dat[,1])
+}
+resCoeff <- do.call("rbind",resCoeff)
+
+library(lattice)
+barchart(Coefficients ~ features | Condition , data=resCoeff ,origin=0,scales=list(x=list(rot=90)))
+
+predictors <- list()
+
+for( i in 1:length(co) ) {
+  yvals <- (co[[i]][,1])
+  prednames <- names(yvals)
+  predictors[[names(co)[i]]]<- data.frame(names = prednames, values= yvals)
+}
+
+bound <- do.call("rbind", predictors)
+
+
+bound <- cbind(gsub("\\..*$","",rownames(bound)), bound )
+colnames(bound)[1]<-"Condition"
+
+
+bound <- bound[abs(bound$values) > 0,]
+
+```
+
+\newpage
+
+### Values of coefficient
+
+
+```{r results="markup"}
+tmp <- dcast(names ~ Condition, data=bound, value.var = "values")
+
+knitr::kable(tmp )
+
+```
+
+Values of coefficients in the model.
+
+```{r fig.height=8}
+rownames(tmp) <- tmp[,1]
+tmp <- tmp[,2:ncol(tmp)]
+imageWithLabels(t(tmp),col = getBlueWhiteRed(51),zlim=c(-8,8))
+
+```
+
+
+Same table shown with coefficients color coded for better readability.
+
+
+## Visualize distribution of relevant features 
+
+
+```{r fig.width=15, fig.height=15}
+rnam <-rownames(tmp)[2:nrow(tmp)]
+
+variables<-datam[,rnam]
+variables<-cbind(datam[,1:2],variables)
+xx<-melt(variables)
+
+bwplot(value ~ Condition | variable, data=xx,scales=list(x=list(rot=90),relation="free") )
+
+
+```
+
+
+
+## Predict the outcomes
+
+```{r font.adjustmen=0.5}
+
+classPred <- predict(glmmod, datalog2, s=best_lambda, type="class")
+tab <-cbind(file = rownames(datalog2), truth=as.character(disease) , prediction = classPred)
+```
+
+
+### first part
+
+```{r, results="markup"}
+
+knitr::kable(tab[1:33,])
+
+```
+
+
+
+### second part
+
+
+```{r, results="markup"}
+
+knitr::kable(tab[34:nrow(tab),])
+
+```
+
+
+```{r  results="markup"}
+
+xx<-table(disease, classPred)
+knitr::kable(xx)
+
+```
+
+Table columns : predicted category, Table rows : real category.
+
+
+```{r  results="markup"}
+
+wrongPred <- round(sum(disease != classPred)/length(disease) * 100)
+pred <- rbind(c("Wrong predictions :",wrongPred ),
+              c("Correct predictions :", 100 - wrongPred ))
+
+colnames(pred) <- c("", "%")
+knitr::kable(pred)
+
+```
+
+# Two group analysis
+
+## Adjusted p-values
+
+```{r, fig.height=10, fig.width=7}
+
+tdatalog2<-t(datalog2)
+Ucond <- as.character(Ucond)
+
+nrpics<-sum(1:(length(Ucond)-1))
+par(mfrow=c(ceiling(nrpics/2),2))
+res<-list()
+significant <- list()
+plots <- list()
+w <- 1
+
+for(i in 1:length(Ucond)){
+  if(i < length(Ucond)){
+    
+    for(j in (i+1):length(Ucond)){
+      cat(" i:", Ucond[i], " j:", Ucond[j], "\n")
+      iidx <- grep(Ucond[i], datam$Condition)
+      jidx <- grep(Ucond[j], datam$Condition)
+      tvals <- getTValuesForVolcano(tdatalog2[,iidx], tdatalog2[,jidx] )
+      res[[length(res)+1]] <- data.frame(comparison = paste(Ucond[i],"-", Ucond[j],sep=""),
+                                         label = rownames(tdatalog2),
+                                         pvals=tvals$pval ,
+                                         group1Mean = apply(tdatalog2[,iidx],1, mean, na.rm=TRUE),
+                                         group2Mean = apply(tdatalog2[,jidx],1, mean, na.rm=TRUE),
+                                         
+                                         foldchange=tvals$fchange,
+                                         pvals.adj = tvals$pvaladj )
+      p=volcano2G(tvals$fchange, tvals$pvaladj,  labels = rownames(tdatalog2), log2FCThresh = 0.5,
+                  xlab=paste( Ucond[i], "-", Ucond[j],sep=""), ylab="-log10(PAdj)")
+      length(p)
+      plots[[w]] <- p
+      w <- w+1
+      tmp <- data.frame(names = rownames(tdatalog2), tvals)
+      #tmp <- quantable::filterSignificant(tvals$fchange, tvals$pvaladj,rownames(tdatalog2),foldchangethresh = 0.5)
+      
+      #tmp <- plyr::rbind.fill(tmp)
+      tmp$comparison <- paste(Ucond[i],"-", Ucond[j],sep="")
+      significant[[length(significant) + 1]] <- tmp
+    }
+  }
+}
+
+```
+
+```{r gridextra, fig.width=8, fig.height=8}
+gridExtra::marrangeGrob(plots, ncol=2,nrow=3)
+
+```
+
+
+```{r}
+library(plyr)
+significant<-lapply(significant,function(x){if(class(x) == "data.frame"){x}})
+
+res <- do.call("rbind",res)
+write.table(res, file="output/pvalsSRM.txt", quote=FALSE, sep="\t")
+significant <- do.call("rbind", significant)
+write.table(significant, file="output/significantSRM.txt", quote=FALSE, sep="\t")
+```
+
+
+## p-values
+
+
+```{r, fig.height=10, fig.width=7}
+
+par(mfrow=c(ceiling(nrpics/2),2))
+res<-list()
+plots <- list()
+tvaluesRES <- list()
+for(i in 1:length(Ucond)){
+  if(i < length(Ucond)){
+    for(j in (i+1):length(Ucond)){
+      cat(" i:", Ucond[i], " j:", Ucond[j], "\n")
+      iidx <- grep(Ucond[i], datam$Condition)
+      jidx <- grep(Ucond[j], datam$Condition)
+      tvals <- getTValuesForVolcano(tdatalog2[,iidx], tdatalog2[,jidx] )
+      res[[length(res)+1]] <- data.frame(comparison = paste(Ucond[i],"_", Ucond[j],sep=""),
+                                         label = rownames(tdatalog2),
+                                         pvals=tvals$pval ,
+                                         foldchange=tvals$fchange,
+                                         pvals.adj = tvals$pvaladj )
+                                         
+      tvaluesRES[[paste( Ucond[i], "-", Ucond[j],sep="")]] <- tvals
+      
+      p<-volcano2G( tvals$fchange, tvals$pval,labels = rownames(tdatalog2), log2FCThresh = 1 , pthresh=0.05,
+                 xlab=paste( Ucond[i], "-", Ucond[j],sep=""), ylab="-log10(P)")
+      plots[[length(plots)+1]] <- p
+      print(p)
+    }
+  }
+}
+
+
+```
+
+
+
+```{r gridextra2, fig.width=8, fig.height=8}
+gridExtra::marrangeGrob(plots, ncol=2,nrow=3)
+```
