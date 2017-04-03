@@ -13,10 +13,12 @@ knitr::opts_chunk$set(fig.width=8, fig.height=8, fig.path='Figs/',
 ```
 
 
-```{r}
 
+```{r}
 barplot(table(datam$Condition))
+
 ```
+
 
 Number of samples per group.
 
