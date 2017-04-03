@@ -25,6 +25,7 @@ Collate:
     'eb.fit.R'
     'Grp2Analysis.R'
     'MSStatsMappings.R'
+    'PrepareRmdAnalysisEnv.R'
     'QCReport.R'
     'SRMService.R'
     'ScaffoldHelpers.R'
