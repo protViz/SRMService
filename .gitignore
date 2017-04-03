@@ -2,3 +2,6 @@
 .Rproj.user
 .Rhistory
 inst/**/*.pdf
+inst/**/*.html
+inst/**/*.log
+inst/samples/**/*.zip
