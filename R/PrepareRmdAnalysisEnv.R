@@ -24,18 +24,29 @@
 #' Please see the Run_QuantTwoGroupAnalysis.R for more details
 #' @export
 #' @examples
-#' SRMService::RMD2GrpAnalysis()
+#' SRMService::RMD_Quant_2GrpAnalysis()
 #'
 RMD_Quant_2GrpAnalysis <- function(){
   .scriptCopyHelper("/samples/Run_QuantTwoGroupAnalysis.R","/reports/Grp2Analysis.Rmd" )
 }
 
-#' copies the RMD and Run files for 2 grp analysis in your working directory.
-#' Please see the Run_QuantTwoGroupAnalysis.R for more details
+#' copies the RMD and Run files for the QuantQCReport in your working directory.
+#' Please see the Run_QuantQCReport.R for more details
 #' @export
 #' @examples
-#' SRMService::RMD_QC_QuantReport()
+#' SRMService::RMD_Quant_QCReport()
 #'
 RMD_Quant_QCReport <- function(){
   .scriptCopyHelper("/samples/Run_QuantQCReport.R","/reports/QCReport.Rmd" )
 }
+
+#' Copies the RMD and Run files for 2 grp analysis in your working directory.
+#' Please see the Run_QuantTwoGroupAnalysis.R for more details
+#'
+#' @examples
+#' SRMService::RMD_VarSelection_QCReport()
+#'
+RMD_VarSelection_QCReport <- function(){
+  .scriptCopyHelper("/samples/Run_QuantQCReport.R","/reports/QCReport.Rmd" )
+}
+
