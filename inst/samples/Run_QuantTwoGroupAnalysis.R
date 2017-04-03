@@ -33,7 +33,7 @@ fix(annotation)
 ####### END of user configuration ##
 
 
-grp2 <- Grp2Analysis(annotation, "Experimentname", maxNA=3  , nrPeptides=2, reference="WT")
+grp2 <- Grp2Analysis(annotation, "Experimentname", maxNA=nrNas  , nrPeptides=nrPeptides, reference="WT")
 grp2$setMQProteinGroups(protein)
 
 write.table(grp2$getResultTable(), file=file.path(workdir,"pValues.csv"), quote=FALSE, sep = "\t", col.names=NA)
