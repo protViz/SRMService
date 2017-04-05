@@ -9,9 +9,9 @@
   dest_runscript <- file.path(workdir, basename(src_runscript))
 
   if(!file.copy(src_rmdfile , dest_rmdfile)){
-    stopApp(7)
+    warning("could not copy file. Does file already exist?")
   }else if(!file.copy(src_runscript,dest_runscript )){
-    stopApp(7)
+    warning("could not copy file. Does file already exist?")
   }
 
   message("your working directory now should contain 2 files :",
@@ -43,8 +43,6 @@ RMD_Quant_QCReport <- function(){
 #' Copies the RMD and Run files for 2 grp analysis in your working directory.
 #' Please see the Run_QuantTwoGroupAnalysis.R for more details
 #'
-#' @examples
-#' SRMService::RMD_VarSelection_QCReport()
 #'
 RMD_VarSelection_QCReport <- function(){
   .scriptCopyHelper("/samples/Run_QuantQCReport.R","/reports/QCReport.Rmd" )
