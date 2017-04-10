@@ -323,7 +323,7 @@ knitr::kable(data.frame(columns=colnames(grp2$getResultTable())[1:11]))
 
 ```
 
-## References
+# References
 
 This report was generated using the package [SRMService](http://github.com/protViz/SRMService) and [quantable](http://github.com/protViz/quantable). The q-values and p-values were computed using the bioconductor package [limma](https://bioconductor.org/packages/release/bioc/html/limma.html) and [qvalue](https://bioconductor.org/packages/release/bioc/html/qvalue.html).
 

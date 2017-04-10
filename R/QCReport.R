@@ -38,7 +38,6 @@ QCProteinReport <- setRefClass("QCProteinReport",
                                 nas <-.self$getNrNAs()
                                 .self$proteinIntensity <- .self$proteinIntensity[nas <= maxNA,]
                                 .self$proteinAnnotation <- protein[nas<=maxNA,proteinColumns]
-
                               },
                               initialize = function(
                                 projectName,
