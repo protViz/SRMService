@@ -1,29 +1,34 @@
 Package: SRMService
 Type: Package
 Title: Performs Service SRM and LFQ analysis
-Version: 0.1.18
+Version: 0.1.19
 Author: Witold Wolski and Christian Panse and Jonas Grossmann
 Maintainer: Witold Wolski <wewolski@gmail.com>
 Description: Analysing and LFQ and SRM experiments in service mode.
     Data preprocessing and visualization.
 Imports:
-    shiny,
-    quantable,
+    affy,
+    bookdown,
+    gplots,
+    limma,
     methods,
+    missForest,
+    shiny,
+    quantable (>= 0.3.1),
+    qvalue,
     reshape2,
     rmarkdown,
-    bookdown,
-    limma,
-    qvalue
+    yaml
 License: GPL
 LazyData: TRUE
 URL: https://github.com/protViz/SRMService
 BugReports: https://github.com/protViz/SRMService/issues
 Repository: CRAN
-RoxygenNote: 5.0.1
-Collate:
+RoxygenNote: 6.0.1
+Collate: 
     'eb.fit.R'
     'Grp2Analysis.R'
+    'MQ_resultOverView.R'
     'MSStatsMappings.R'
     'PrepareRmdAnalysisEnv.R'
     'QCReport.R'
