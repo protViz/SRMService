@@ -1,0 +1,293 @@
+---
+title: "Assay Library Report"
+author: "Witold Wolski"
+mailto: "wew@fgcz.ethz.ch"
+date: "`r format(Sys.time(), '%d %B, %Y')`"
+output: pdf_document
+toc : true
+---
+
+# Generate Ion Libraries
+
+## Parameters
+
+```{r installLatestversions, echo=FALSE, message=FALSE, eval=TRUE, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE, fig.width=10, fig.height=10, warning = FALSE)
+
+library(prozor)
+library(specL)
+
+```
+
+```{r prepareEnvLoadLibraries, echo=FALSE, message=FALSE}
+R.Version()$version.string
+library(specL)
+packageVersion('specL')
+
+```
+
+Library generation is run with the following parameters:
+
+```{r setparameters, echo=FALSE}
+
+SWATH_LIBRARY <- file.path(OUTPUTDIR, "assay_library.tsv")
+PEPPROTMAPPING <- file.path(OUTPUTDIR, "pepprot.tsv")
+
+FRAGMENTIONMZRANGE <- c(300,1250)
+FRAGMENTIONRANGE <- c(MIN_IONS,200)
+
+
+
+
+```
+
+```{r, echo=FALSE}
+if(TRUE){
+cat(" SWATH_LIBRARY = ", SWATH_LIBRARY, "\n", 
+    " PEPPROTMAPPING = ",PEPPROTMAPPING , "\n",
+    " NON_REDUNDANT = ",NON_REDUNDANT , "\n",
+    " REDUNDANT = ",REDUNDANT, "\n" )
+}
+
+cat(" MZ_ERROR = ",MZ_ERROR, "\n",
+    " FRAGMENTIONMZRANGE = ", FRAGMENTIONMZRANGE, "\n",
+    " FRAGMENTIONRANGE = ",FRAGMENTIONRANGE, "\n",
+    " FASTA_FILE = ", FASTA_FILE, "\n",
+    " MAX_IONS = ", MAX_IONS, "\n",
+    " MIN_IONS = ", MIN_IONS, "\n",
+    " MASCOT_MIN_SCORE = ", MASCOT_MIN_SCORE, "\n"
+    )
+
+```
+
+```{r readDatabases, eval=TRUE, echo=FALSE, message=FALSE}
+
+print(NON_REDUNDANT)
+system.time( nonRedundantBlib <- read.bibliospec(NON_REDUNDANT) )
+system.time( redundantBlib <- read.bibliospec(REDUNDANT) )
+#save(redundantBlib, file=file.path(OUTPUTDIR,"redundant.Rdata"))
+#save(nonRedundantBlib, file=file.path(OUTPUTDIR,"nonredundant.Rdata"))
+  
+redundantBlibF <- plyr::laply(redundantBlib, function(x){x$mascotScore > MASCOT_MIN_SCORE})
+redundantBlib <- redundantBlib[redundantBlibF]
+
+nonRedundantBlibF <- plyr::laply(nonRedundantBlib, function(x){x$mascotScore > MASCOT_MIN_SCORE})
+nonRedundantBlib <- nonRedundantBlib[nonRedundantBlibF]
+```
+
+
+Defined filtering function.
+
+```{r defineFragmentFunction}
+
+fragmentIonFunctionUpTo2 <- function (b, y) {
+  Hydrogen <- 1.007825
+  Oxygen <- 15.994915
+  Nitrogen <- 14.003074
+  b1_ <- (b )
+  y1_ <- (y )
+  b2_ <- (b + Hydrogen) / 2
+  y2_ <- (y + Hydrogen) / 2 
+  return( cbind(b1_, y1_, b2_, y2_) )
+}
+
+```
+
+
+```{r, echo=FALSE, message=FALSE, eval=TRUE}
+
+rtPep <- bibliospec::CiRTpeptides
+colnames(rtPep) <- c("peptide", "rt")
+specLibrary <- genSwathIonLib(
+  data = nonRedundantBlib,
+  data.fit = redundantBlib,
+  max.mZ.Da.error = MZ_ERROR,
+  topN = MAX_IONS,
+  fragmentIonMzRange = FRAGMENTIONMZRANGE,
+  fragmentIonRange = FRAGMENTIONRANGE,
+  fragmentIonFUN = fragmentIonFunctionUpTo2,
+  iRT = IRT_PEPTIDES,
+  mascotIonScoreCutOFF = IRT_PEPTIDES
+  )
+
+op <- par(mfrow=c(2, 1))
+class(specLibrary)
+
+plot(specLibrary)
+
+length(nonRedundantBlib)
+```
+
+## Library Generation Summary
+
+```{r, echo=FALSE}
+length(specLibrary)
+slotNames(specLibrary)
+
+length(specLibrary@rt.input)
+length(specLibrary@rt.normalized)
+specLibrary@ionlibrary[[1]]
+
+slotNames(specLibrary@ionlibrary[[1]])
+
+if(length(specLibrary@ionlibrary) ==0){
+  library(knitr)
+  opts_chunk$set(eval=FALSE, message=FALSE, echo=FALSE)
+}
+
+summary(specLibrary)
+
+```
+
+
+Total Number of PSM's with Mascot e score < 0.05, in your search is __`r length(redundantBlib)`__. The number of unique precurosors is __`r length(nonRedundantBlib)`__.
+
+The size of the generated ion library is __`r length(specLibrary@ionlibrary)`__.
+
+That means that __`r length(specLibrary@ionlibrary)/length(nonRedundantBlib) *100`__ % of the unique precursors fullfilled the filtering criteria.
+
+
+# Assigning identified precursors to proteins
+
+
+```{r getPeptideProt, echo=FALSE, message=FALSE}
+protpep = getProteinPeptideTable(specLibrary)
+```
+
+```{r prozor, echo=FALSE, message=FALSE }
+library(prozor)
+fasta = read.fasta(file = FASTA_FILE, as.string = TRUE, seqtype="AA")
+
+protpepDF <- data.frame(protpep)
+
+
+protpepDF <- plyr::rename(protpepDF, c('peptideSequence'='peptideSeq',
+                                       'peptideModSequence' = 'peptideModSeq',
+                                       'z' = 'precursorCharge' ))
+
+protpepAnnot = annotatePeptides(protpepDF,fasta)
+save(protpepAnnot, file=file.path(OUTPUTDIR,"protprotpepAnnot.rda"))
+
+```
+
+## Annotate peptides
+
+```{r, echo=FALSE, message=FALSE}
+
+library(Matrix)
+write.table(protpepAnnot,file=PEPPROTMAPPING,quote = FALSE, row.names = FALSE,sep="\t")
+load(file.path(OUTPUTDIR,"protprotpepAnnot.rda"))
+
+pepProtMatrix = prepareMatrix(protpepAnnot, sep=".")
+protPepAssingments = greedy(pepProtMatrix)
+xx= cbind(names(protPepAssingments),protPepAssingments)
+
+
+for(i in 1:length(specLibrary@ionlibrary)){
+  specl <- specLibrary@ionlibrary[[i]]
+  id <- paste(specl@peptideModSeq, specl@prec_z, sep="." )
+  tmp = protPepAssingments[[id]]
+  if(!is.null(tmp)){
+    specLibrary@ionlibrary[[i]]@proteinInformation = tmp
+  }
+}
+
+
+uniq <- rowSums(pepProtMatrix)
+names(uniq)<-rownames(pepProtMatrix)
+
+proteotyp<- table(uniq)
+plot(proteotyp, ylab="nr peptides", xlab="matching number proteins", main="proteotypic")
+
+tp <- unlist(protPepAssingments)
+
+```
+
+Protein FDR `r length(grep("REV_",tp))/length(tp) * 100`
+
+
+```{r}
+freq.table <- table(table(tp))
+plot(freq.table,
+	ylab = "number of proteins",  
+	xlab="number of precurosor assignments", 
+	main="single hit wonders")
+```
+
+```{r}
+freq.table <- table(table(tp))
+plot(as.numeric(names(rev(freq.table))), cumsum(rev(freq.table)), 
+	type = "h",
+	log = "x")
+
+```
+
+
+
+- Least specific peptide precursor : `r names(uniq)[which.max(uniq)]` matching `r max(uniq)`
+
+proteins.
+
+- Protein `r names(tmp)[which.max(tmp)]` with most peptide assignments = `r max(tmp)`
+
+
+Number of annotated precursors is :`r  dim(pepProtMatrix)[1]`
+
+There are in total: `r  dim(protpepAnnot)[1]`
+precursor protein assingments.
+There are: `r sum(uniq == 1)`
+
+proteotypic precursors, while 
+`r dim(pepProtMatrix)[1] - sum(uniq == 1) `
+where assigned to 2 or more protein sequences.
+
+## Compute minimal protein set explaining peptides
+
+The  `r dim(pepProtMatrix)[1]` peptide precursors matched protein sequences assigned to 
+`r dim(pepProtMatrix)[2]` unique protein identifies.
+
+The minimal protein set explaining precursors has a size of 
+`r length(unique(unlist(protPepAssingments)))` 
+proteins.
+
+```{r writeSpecnaut, echo=FALSE, message=FALSE}
+if(file.exists(SWATH_LIBRARY)){
+  file.remove(SWATH_LIBRARY)
+}
+slotNames(specLibrary)
+write.spectronaut(specLibrary,file=SWATH_LIBRARY)
+assay_library = read.table(file=SWATH_LIBRARY,header=TRUE,sep="\t")
+
+```
+
+# Session Information
+
+```{r}
+sessionInfo()
+```
+
+# Summary
+
+The file `assay_library.tsv` contains a spectronaut compatible assay library. The assays in this file are annotated with razor proteins.
+
+
+# Remarks
+
+This report was generated using the packages:
+
+- [http://bioconductor.org/packages/specL](http://bioconductor.org/packages/specL/) 
+
+- [https://github.com/protViz/prozor](https://github.com/protViz/prozor)
+
+
+We have invested a lot of time and effort in creating and maintaining this software.
+Please cite our publication:
+
+- Panse C, Trachsel C, Grossmann J and Schlapbach R (2015). 
+``specL - An R/Bioconductor package to prepare peptide spectrum matches for use in targeted proteomics.'' 
+Bioinformatics, pp. 2228-2231. 
+[DOI:10.1093/bioinformatics/btv105](http://dx.doi.org/10.1093/bioinformatics/btv105), 
+[PMID: 25712692](https://www.ncbi.nlm.nih.gov/pubmed/25712692).
+
+For questions and improvements please do contact the authors of the application [_generateSpecLibrary_](https://github.com/fgcz/generateSpecLibrary/graphs/contributors).
+

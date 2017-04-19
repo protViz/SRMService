@@ -40,11 +40,18 @@ RMD_Quant_QCReport <- function(){
   .scriptCopyHelper("/samples/Run_QuantQCReport.R","/reports/QCReport.Rmd" )
 }
 
+#' Copies the RMD and Run files for 2 variable selection into your working directory.
+#' Please see the Run_QuantTwoGroupAnalysis.R for more details
+#' @export
+#'
+RMD_VarSelection <- function(){
+  .scriptCopyHelper("/samples/Run_QuantQCReport.R","/reports/QCReport.Rmd" )
+}
+
 #' Copies the RMD and Run files for 2 grp analysis in your working directory.
 #' Please see the Run_QuantTwoGroupAnalysis.R for more details
 #'
-#'
-RMD_VarSelection_QCReport <- function(){
-  .scriptCopyHelper("/samples/Run_QuantQCReport.R","/reports/QCReport.Rmd" )
+RMD_LibraryGen_specLProzor <- function(){
+  .scriptCopyHelper("/samples/Run_specLProzor.R","/reports/specLWithProzor.Rmd" )
 }
 
