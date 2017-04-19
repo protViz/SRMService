@@ -36,10 +36,9 @@ PEPPROTMAPPING <- file.path(OUTPUTDIR, "pepprot.tsv")
 FRAGMENTIONMZRANGE <- c(300,1250)
 FRAGMENTIONRANGE <- c(MIN_IONS,200)
 
-
-
-
 ```
+
+
 
 ```{r, echo=FALSE}
 if(TRUE){
@@ -59,6 +58,7 @@ cat(" MZ_ERROR = ",MZ_ERROR, "\n",
     )
 
 ```
+
 
 ```{r readDatabases, eval=TRUE, echo=FALSE, message=FALSE}
 
