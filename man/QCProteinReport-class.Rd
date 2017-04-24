@@ -2,8 +2,8 @@
 % Please edit documentation in R/QCReport.R
 \docType{class}
 \name{QCProteinReport-class}
-\alias{QCProteinReport}
 \alias{QCProteinReport-class}
+\alias{QCProteinReport}
 \title{Perform 2 group analysis with visualization}
 \description{
 Perform 2 group analysis with visualization
@@ -23,6 +23,7 @@ Perform 2 group analysis with visualization
 
 \item{\code{experimentName}}{name of experiment}
 }}
+
 \section{Methods}{
 
 \describe{

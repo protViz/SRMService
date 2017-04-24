@@ -12,4 +12,3 @@ transitionCorrelations(dataX)
 \description{
 Compute correlation matrix
 }
-

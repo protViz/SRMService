@@ -12,4 +12,3 @@ fixScaffoldQuantReport(filename)
 \description{
 fix scaffold file (utility function)
 }
-

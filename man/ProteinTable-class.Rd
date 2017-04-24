@@ -2,8 +2,8 @@
 % Please edit documentation in R/SRMService.R
 \docType{class}
 \name{ProteinTable-class}
-\alias{ProteinTable}
 \alias{ProteinTable-class}
+\alias{ProteinTable}
 \title{Protein Table}
 \description{
 Protein Table
@@ -17,4 +17,5 @@ Protein Table
 
 \item{\code{experimentID}}{name of the experiment}
 }}
+
 

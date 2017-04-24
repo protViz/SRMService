@@ -9,4 +9,3 @@ getConditionColumns()
 \description{
 get required columns for analysis
 }
-

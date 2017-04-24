@@ -2,17 +2,14 @@
 % Please edit documentation in R/PrepareRmdAnalysisEnv.R
 \name{RMD_Quant_2GrpAnalysis}
 \alias{RMD_Quant_2GrpAnalysis}
-\title{copies the RMD and Run files for 2 grp analysis in your working directory.
-Please see the Run_QuantTwoGroupAnalysis.R for more details}
+\title{copies the RMD and Run files for 2 grp analysis in your working directory.}
 \usage{
 RMD_Quant_2GrpAnalysis()
 }
 \description{
-copies the RMD and Run files for 2 grp analysis in your working directory.
 Please see the Run_QuantTwoGroupAnalysis.R for more details
 }
 \examples{
 SRMService::RMD_Quant_2GrpAnalysis()
 
 }
-

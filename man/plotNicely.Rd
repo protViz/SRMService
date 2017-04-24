@@ -18,4 +18,3 @@ plotNicely(dataX, main = "", log = "", ylab = "log(intensity)")
 \description{
 Make nice plots of transitions or peptides with correlations
 }
-

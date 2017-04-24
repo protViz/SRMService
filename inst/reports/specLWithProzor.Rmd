@@ -65,9 +65,7 @@ cat(" MZ_ERROR = ",MZ_ERROR, "\n",
 print(NON_REDUNDANT)
 system.time( nonRedundantBlib <- read.bibliospec(NON_REDUNDANT) )
 system.time( redundantBlib <- read.bibliospec(REDUNDANT) )
-#save(redundantBlib, file=file.path(OUTPUTDIR,"redundant.Rdata"))
-#save(nonRedundantBlib, file=file.path(OUTPUTDIR,"nonredundant.Rdata"))
-  
+
 redundantBlibF <- plyr::laply(redundantBlib, function(x){x$mascotScore > MASCOT_MIN_SCORE})
 redundantBlib <- redundantBlib[redundantBlibF]
 
@@ -166,8 +164,6 @@ protpepDF <- plyr::rename(protpepDF, c('peptideSequence'='peptideSeq',
                                        'z' = 'precursorCharge' ))
 
 protpepAnnot = annotatePeptides(protpepDF,fasta)
-save(protpepAnnot, file=file.path(OUTPUTDIR,"protprotpepAnnot.rda"))
-
 ```
 
 ## Annotate peptides
@@ -176,7 +172,6 @@ save(protpepAnnot, file=file.path(OUTPUTDIR,"protprotpepAnnot.rda"))
 
 library(Matrix)
 write.table(protpepAnnot,file=PEPPROTMAPPING,quote = FALSE, row.names = FALSE,sep="\t")
-load(file.path(OUTPUTDIR,"protprotpepAnnot.rda"))
 
 pepProtMatrix = prepareMatrix(protpepAnnot, sep=".")
 protPepAssingments = greedy(pepProtMatrix)

@@ -2,17 +2,14 @@
 % Please edit documentation in R/PrepareRmdAnalysisEnv.R
 \name{RMD_Quant_QCReport}
 \alias{RMD_Quant_QCReport}
-\title{copies the RMD and Run files for the QuantQCReport in your working directory.
-Please see the Run_QuantQCReport.R for more details}
+\title{copies the RMD and Run files for the QuantQCReport in your working directory.}
 \usage{
 RMD_Quant_QCReport()
 }
 \description{
-copies the RMD and Run files for the QuantQCReport in your working directory.
 Please see the Run_QuantQCReport.R for more details
 }
 \examples{
 SRMService::RMD_Quant_QCReport()
 
 }
-

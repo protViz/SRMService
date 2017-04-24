@@ -2,8 +2,8 @@
 % Please edit documentation in R/SRMService.R
 \docType{class}
 \name{PeptideTable-class}
-\alias{PeptideTable}
 \alias{PeptideTable-class}
+\alias{PeptideTable}
 \title{Peptide table}
 \description{
 Peptide table

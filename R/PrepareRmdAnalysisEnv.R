@@ -2,8 +2,10 @@
 
 .scriptCopyHelper <- function(runscript, rmfile ){
   workdir <- getwd()
-  src_rmdfile <- file.path( path.package("SRMService") , rmfile )
-  src_runscript <- file.path(path.package("SRMService"), runscript)
+  src_rmdfile <- file.path( find.package("SRMService") , rmfile )
+  src_runscript <- file.path(find.package("SRMService"), runscript)
+  message(src_rmdfile)
+  message(src_runscript)
 
   dest_rmdfile <- file.path(workdir ,basename(src_rmdfile))
   dest_runscript <- file.path(workdir, basename(src_runscript))
@@ -21,7 +23,9 @@
 }
 
 #' copies the RMD and Run files for 2 grp analysis in your working directory.
+#'
 #' Please see the Run_QuantTwoGroupAnalysis.R for more details
+#'
 #' @export
 #' @examples
 #' SRMService::RMD_Quant_2GrpAnalysis()
@@ -31,7 +35,9 @@ RMD_Quant_2GrpAnalysis <- function(){
 }
 
 #' copies the RMD and Run files for the QuantQCReport in your working directory.
+#'
 #' Please see the Run_QuantQCReport.R for more details
+#'
 #' @export
 #' @examples
 #' SRMService::RMD_Quant_QCReport()
@@ -40,18 +46,23 @@ RMD_Quant_QCReport <- function(){
   .scriptCopyHelper("/samples/Run_QuantQCReport.R","/reports/QCReport.Rmd" )
 }
 
-#' Copies the RMD and Run files for 2 variable selection into your working directory.
+#' Copies the RMD and Run files for variable selection into your working directory.
+#'
 #' Please see the Run_QuantTwoGroupAnalysis.R for more details
+#'
 #' @export
 #'
 RMD_VarSelection <- function(){
   .scriptCopyHelper("/samples/Run_QuantQCReport.R","/reports/QCReport.Rmd" )
 }
 
-#' Copies the RMD and Run files for 2 grp analysis in your working directory.
-#' Please see the Run_QuantTwoGroupAnalysis.R for more details
+#' Copies the RMD and Run R file for Library generation your working directory.
+#'
+#' Please see the Run_specLProzor.R file in the working directory for more details
+#'
+#' @export
 #'
 RMD_LibraryGen_specLProzor <- function(){
-  .scriptCopyHelper("/samples/Run_specLProzor.R","/reports/specLWithProzor.Rmd" )
+  .scriptCopyHelper("/samples/Run_specLWithProzor.R","/reports/specLWithProzor.Rmd" )
 }
 

@@ -26,4 +26,3 @@ MQtoMSstatsFormat(evidence, annotation, proteinGroups,
 \description{
 MaxQtoMSstatsFormat
 }
-

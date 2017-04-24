@@ -2,8 +2,8 @@
 % Please edit documentation in R/SRMService.R
 \docType{class}
 \name{SRMService-class}
-\alias{SRMService}
 \alias{SRMService-class}
+\alias{SRMService}
 \title{R access to Bibliospec File}
 \description{
 This class implements an R referenz class for BiblioSpec
@@ -18,6 +18,7 @@ The function performs a SQL query on the SQLite
 \describe{
 \item{\code{dbfile}}{database file location}
 }}
+
 \section{Methods}{
 
 \describe{
@@ -35,6 +36,7 @@ The function performs a SQL query on the SQLite
 
 \item{\code{plotQValues()}}{show q value distribution for peak groups}
 }}
+
 \examples{
 
 library(SRMService)
@@ -78,4 +80,3 @@ tmpL <- srms$getTransitionIntensities(light=TRUE)$data
 dim(tmpL)
 
 }
-

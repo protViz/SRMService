@@ -2,8 +2,8 @@
 % Please edit documentation in R/Grp2Analysis.R
 \docType{class}
 \name{Grp2Analysis-class}
-\alias{Grp2Analysis}
 \alias{Grp2Analysis-class}
+\alias{Grp2Analysis}
 \title{Perform 2 group analysis with visualization}
 \description{
 Perform 2 group analysis with visualization
@@ -35,6 +35,7 @@ Perform 2 group analysis with visualization
 
 \item{\code{qfoldchange}}{foldchange threshold for q volcano plot}
 }}
+
 \section{Methods}{
 
 \describe{

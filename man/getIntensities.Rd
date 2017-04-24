@@ -12,4 +12,3 @@ getIntensities(data)
 \description{
 extracts Intensity columns
 }
-

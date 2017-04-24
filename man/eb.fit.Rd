@@ -21,4 +21,3 @@ x <- model.matrix(~x)
 eb.fit(data,x)
 
 }
-

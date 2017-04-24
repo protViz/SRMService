@@ -9,4 +9,3 @@ getRequiredColumns()
 \description{
 get required columns for analysis
 }
-

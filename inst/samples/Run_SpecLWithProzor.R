@@ -5,8 +5,10 @@ library(bibliospec)
 #BLIB_REDUNDANT <- "test0.9.blib"
 #BLIB_FILTERED <- "test0.9.filtered.blib"
 
+
 NON_REDUNDANT <- "test0.9.filtered.blib"
 REDUNDANT <- "test0.9.blib"
+
 
 
 OUTPUTDIR = "C:/Users/wolski/prog/generateSpecLibrary/res.49562"

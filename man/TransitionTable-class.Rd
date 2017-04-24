@@ -2,8 +2,8 @@
 % Please edit documentation in R/SRMService.R
 \docType{class}
 \name{TransitionTable-class}
-\alias{TransitionTable}
 \alias{TransitionTable-class}
+\alias{TransitionTable}
 \title{Transition table}
 \description{
 Transition table
