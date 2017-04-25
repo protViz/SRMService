@@ -11,14 +11,7 @@ knitr::opts_chunk$set(echo = TRUE)
 
 
 ```{r, echo=FALSE}
-print(compute.config)
-print(compute.config$scratch)
-files <- list.files(compute.config$scratch)
 
-
-yaml.filename <- files[grep(pattern="config.*yaml", x=files)]
-# yaml.filename
-config <- yaml::yaml.load_file(paste(compute.config$scratch, yaml.filename, sep='/'))
 ```
 
 
