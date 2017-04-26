@@ -29,7 +29,7 @@ The general FGCZ LFQ workflow is described in Figure \ref{fig:workflowOverview}.
 proteins are precipitated using cold acetone, digested with trypsin and analysed via LC-MS/MS using high-end MS systems (e.g. Q-Exactive). The acquired raw files are processed using MaxQuant. The resulting text files are parsed and further processed to extract critical information on sample preparation and LC-MS performances (e.g. number of missed cleavages, correlation plots, protein identifications, quantitative values, ...).
 
 \begin{figure}[!htb]
-  \centerline{\includegraphics[width=0.8\textwidth]{images/LFQ_QC_workflow.pdf}}
+  \centerline{\includegraphics[width=0.8\textwidth]{inst/samples/images/LFQ_QC_workflow.pdf}}
   \caption{Shown is an Overview over the workflow how the following results are generated}
   \label{fig:workflowOverview}
 \end{figure}
