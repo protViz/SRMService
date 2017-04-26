@@ -1,6 +1,6 @@
 ##
 ##
-
+library(tools)
 maxquanttxtdirectory <- ""
 #evidence <- read.table("inst/samples/maxquant_txt/MSQC1/evidence.txt")
 
@@ -33,5 +33,5 @@ dat <- read.table(f, header=T, sep="\t",row.names=1)
 # get Sample QC running
 Stangle('inst/samples/MQ_sampleQC_overview.Rnw')
 Sweave('inst/samples/MQ_sampleQC_overview.Rnw')
-# missing:: xelatex step directly out of R to generate the PDF
+texi2dvi('MQ_sampleQC_overview.tex', pdf = TRUE)
 
