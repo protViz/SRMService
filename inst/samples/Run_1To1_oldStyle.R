@@ -29,6 +29,7 @@ pepts <- read.table(ff, header=T, sep="\t")
 f <- "inst/samples/maxquant_txt/MSQC1/proteinGroups_FGCZ2grp_Intensity.txt"
 dat <- read.table(f, header=T, sep="\t",row.names=1)
 
+# get it committed
 
 # get Sample QC running
 Stangle('inst/samples/MQ_sampleQC_overview.Rnw')
