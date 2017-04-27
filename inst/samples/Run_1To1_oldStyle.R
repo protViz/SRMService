@@ -26,8 +26,8 @@ bool_moreThanOnePeptide <- Fulldat$Razor...unique.peptides > 1
 params <- read.table(parameters, header=T, sep="\t")
 
 # peptides
-#peptides <- "peptides.txt"
-#pepts <- read.table(peptides, header=T, sep="\t")
+peptides <- "peptides.txt"
+pepts <- read.table(peptides, header=T, sep="\t")
 
 # this is for witold to be replaced
 #fixedProteingroups <- "proteinGroups_FGCZ2grp_Intensity.txt"

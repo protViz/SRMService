@@ -18,7 +18,7 @@
 library(lattice)
 library(xtable)
 print(getwd())
-source("inst/samples/QprotMatrixFunctions_rn_V3.R")
+source("QprotMatrixFunctions_rn_V3.R")
 @
 \maketitle
 

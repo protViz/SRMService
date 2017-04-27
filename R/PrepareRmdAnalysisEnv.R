@@ -97,7 +97,8 @@ RMD_QC1To1_Old <- function(){
   .scriptCopyHelperVec(c("/samples/Run_1To1_oldStyle.R",
                          "/reports/MQ_sampleQC_overview.Rnw",
                          "/samples/helpers/QprotMatrixFunctions_rn_V3.R",
-                         "/samples/images/LFQ_QC_workflow.pdf"))
+                         "/samples/images/LFQ_QC_workflow.pdf",
+                         "/samples/images/Sweave.sty"))
 }
 
 

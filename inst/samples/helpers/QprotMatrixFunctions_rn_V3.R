@@ -14,12 +14,12 @@
 ### Function for ProteinQuantMatrix
 ###################################################
 
-library(affy)
+#library(affy)
 library(missForest)
-library(gplots)
-library(limma)
-library(genefilter)
-library(beeswarm)
+#library(gplots)
+#library(limma)
+#library(genefilter)
+#library(beeswarm)
 library(quantable)
 
 
@@ -165,7 +165,7 @@ ImputeValuesInProtMatrixForRowsWithZeros = function(ProtQuantMatrix_rn){
   NumSamples <- ncol(ProtQuantMatrix_rn)
   #replace zeros with NA
   ProtQuantMatrix_rn[ProtQuantMatrix_rn==0] <- NA
-#  library(missForest)
+  #  library(missForest)
   dataimpute <- missForest(ProtQuantMatrix_rn)$ximp
   ProtQuantMatrix_rn_imputed<-dataimpute
   colnames(ProtQuantMatrix_rn_imputed) = colnames(ProtQuantMatrix_rn)
