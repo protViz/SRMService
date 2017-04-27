@@ -30,7 +30,7 @@ Library generation is run with the following parameters:
 
 ```{r setparameters, echo=FALSE}
 
-SWATH_LIBRARY <- file.path(OUTPUTDIR, "assay_library.tsv")
+SWATH_LIBRARY <- file.path(OUTPUTDIR, SWATH_LIBRARY)
 PEPPROTMAPPING <- file.path(OUTPUTDIR, "pepprot.tsv")
 
 FRAGMENTIONMZRANGE <- c(300,1250)
