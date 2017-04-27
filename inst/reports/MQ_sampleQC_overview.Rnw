@@ -17,7 +17,6 @@
 <<echo=FALSE, result=HIDE>>=
 library(lattice)
 library(xtable)
-print(getwd())
 source("QprotMatrixFunctions_rn_V3.R")
 @
 \maketitle
