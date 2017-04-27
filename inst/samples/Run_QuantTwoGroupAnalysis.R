@@ -1,3 +1,9 @@
+#
+# If you are going to use results produced by the scripts please do cite the
+# SRMSerivce R package by providing the following URL
+# www.github.com/protViz/SRMService
+# by W.E. Wolski, J. Grossmann, C. Panse
+#
 rm(list=ls())
 library(limma)
 library(qvalue)

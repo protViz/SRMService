@@ -1,3 +1,10 @@
+#
+# If you are going to use results produced by the scripts please do cite the
+# SRMSerivce R package by providing the following reference
+# www.github.com/protViz/SRMService
+# by W.E. Wolski, J. Grossmann, C. Panse
+#
+
 library(prozor)
 library(specL)
 library(bibliospec)
@@ -32,7 +39,6 @@ IRT_PEPTIDES <- plyr::rename(bibliospec::CiRTpeptides, c("iRT"="rt"))
 bb<-bibliospec::Blib()
 bb$build(idfiles = DATFILE, outfile = REDUNDANT,cutoff = 0.9)
 bb$filter(infile = REDUNDANT, outfile = NON_REDUNDANT)
-
 
 
 rmarkdown::render("specLWithProzor.Rmd")

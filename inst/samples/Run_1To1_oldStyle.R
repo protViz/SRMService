@@ -5,6 +5,12 @@ maxquanttxtdirectory <- ""
 #evidence <- read.table("inst/samples/maxquant_txt/MSQC1/evidence.txt")
 
 #
+# If you are going to use results produced by the scripts please do cite the
+# SRMSerivce R package by providing the following URL
+# www.github.com/protViz/SRMService
+# by W.E. Wolski, J. Grossmann, C. Panse
+#
+
 msmsName<- "msms.txt"
 summary <- "summary.txt"
 evidence <- "evidence.txt"
