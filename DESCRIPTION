@@ -29,7 +29,6 @@ RoxygenNote: 6.0.1
 Collate: 
     'eb.fit.R'
     'Grp2Analysis.R'
-    'MQ_resultOverView.R'
     'MSStatsMappings.R'
     'PrepareRmdAnalysisEnv.R'
     'QCReport.R'

@@ -7,5 +7,6 @@
 RMD_LibraryGen_specLProzor()
 }
 \description{
-Please see the Run_specLProzor.R file in the working directory for more details
+Please see the Run_specLProzor.R file in the working directory
+for more details
 }

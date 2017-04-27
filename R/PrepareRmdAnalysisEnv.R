@@ -1,4 +1,23 @@
 # this are some function to copy RMD files and preprare envs.
+.scriptCopyHelperVec <- function(runscripts ){
+  workdir <- getwd()
+  for(scripts in runscripts){
+    src_script <- file.path( find.package("SRMService") , scripts )
+
+    dest_script <- file.path(workdir ,basename(scripts))
+    message("copy ", src_script, " to ", dest_script)
+
+    if(!file.copy(src_script , dest_script)){
+      warning(paste("could not copy script file. Does file already exist?", dest_script, sep=" "))
+    }
+  }
+
+  message(paste("your working directory now should contain ", length(runscripts) , "new files :\n",sep=" "))
+  for(script in runscripts){
+    message( basename(script) )
+  }
+}
+
 
 .scriptCopyHelper <- function(runscript, rmfile ){
   workdir <- getwd()
@@ -58,11 +77,27 @@ RMD_VarSelection <- function(){
 
 #' Copies the RMD and Run R file for Library generation your working directory.
 #'
-#' Please see the Run_specLProzor.R file in the working directory for more details
+#' Please see the Run_specLProzor.R file in the working directory
+#' for more details
 #'
 #' @export
 #'
 RMD_LibraryGen_specLProzor <- function(){
   .scriptCopyHelper("/samples/Run_specLWithProzor.R","/reports/specLWithProzor.Rmd" )
 }
+
+#' Copies the Rnw file and Run R file for old 1To1 QC into your working directory.
+#'
+#' Please see the Run_1To1_oldStyle.R file in your working directory,
+#' for more details
+#'
+#' @export
+#'
+RMD_QC1To1_Old <- function(){
+  .scriptCopyHelperVec(c("/samples/Run_1To1_oldStyle.R",
+                         "/reports/MQ_sampleQC_overview.Rnw",
+                         "/samples/helpers/QprotMatrixFunctions_rn_V3.R",
+                         "/samples/images/LFQ_QC_workflow.pdf"))
+}
+
 
