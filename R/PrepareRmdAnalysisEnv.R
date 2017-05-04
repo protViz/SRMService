@@ -1,6 +1,5 @@
 # this are some function to copy RMD files and preprare envs.
-.scriptCopyHelperVec <- function(runscripts ){
-  workdir <- getwd()
+.scriptCopyHelperVec <- function(runscripts, workdir = getwd() ){
   for(scripts in runscripts){
     src_script <- file.path( find.package("SRMService") , scripts )
 
@@ -19,28 +18,6 @@
 }
 
 
-.scriptCopyHelper <- function(runscript, rmfile ){
-  workdir <- getwd()
-  src_rmdfile <- file.path( find.package("SRMService") , rmfile )
-  src_runscript <- file.path(find.package("SRMService"), runscript)
-  message(src_rmdfile)
-  message(src_runscript)
-
-  dest_rmdfile <- file.path(workdir ,basename(src_rmdfile))
-  dest_runscript <- file.path(workdir, basename(src_runscript))
-
-  if(!file.copy(src_rmdfile , dest_rmdfile)){
-    warning("could not copy file. Does file already exist?")
-  }else if(!file.copy(src_runscript,dest_runscript )){
-    warning("could not copy file. Does file already exist?")
-  }
-
-  message("your working directory now should contain 2 files :",
-          basename(src_rmdfile),
-          " and ",
-          basename(src_runscript),"\n" )
-}
-
 #' copies the RMD and Run files for 2 grp analysis in your working directory.
 #'
 #' Please see the Run_QuantTwoGroupAnalysis.R for more details
@@ -49,8 +26,8 @@
 #' @examples
 #' SRMService::RMD_Quant_2GrpAnalysis()
 #'
-RMD_Quant_2GrpAnalysis <- function(){
-  .scriptCopyHelper("/samples/Run_QuantTwoGroupAnalysis.R","/reports/Grp2Analysis.Rmd" )
+RMD_Quant_2GrpAnalysis <- function(workdir= getwd()){
+  .scriptCopyHelperVec(c("/samples/Run_QuantTwoGroupAnalysis.R","/reports/Grp2Analysis.Rmd"), workdir =workdir )
 }
 
 #' copies the RMD and Run files for the QuantQCReport in your working directory.
@@ -61,8 +38,8 @@ RMD_Quant_2GrpAnalysis <- function(){
 #' @examples
 #' SRMService::RMD_Quant_QCReport()
 #'
-RMD_Quant_QCReport <- function(){
-  .scriptCopyHelper("/samples/Run_QuantQCReport.R","/reports/QCReport.Rmd" )
+RMD_Quant_QCReport <- function(workdir = getwd()){
+  .scriptCopyHelperVec(c("/samples/Run_QuantQCReport.R","/reports/QCReport.Rmd"), workdir = workdir )
 }
 
 #' Copies the RMD and Run files for variable selection into your working directory.
@@ -71,8 +48,8 @@ RMD_Quant_QCReport <- function(){
 #'
 #' @export
 #'
-RMD_VarSelection <- function(){
-  .scriptCopyHelper("/samples/Run_QuantQCReport.R","/reports/QCReport.Rmd" )
+RMD_VarSelection <- function(workdir = getwd()){
+  .scriptCopyHelperVec(c("/samples/Run_QuantQCReport.R","/reports/QCReport.Rmd"). workdir =workdir )
 }
 
 #' Copies the RMD and Run R file for Library generation your working directory.
@@ -82,8 +59,8 @@ RMD_VarSelection <- function(){
 #'
 #' @export
 #'
-RMD_LibraryGen_specLProzor <- function(){
-  .scriptCopyHelper("/samples/Run_specLWithProzor.R","/reports/specLWithProzor.Rmd" )
+RMD_LibraryGen_specLProzor <- function(workdir = getwd()){
+  .scriptCopyHelperVec(c("/samples/Run_specLWithProzor.R","/reports/specLWithProzor.Rmd"), workdir = workdir )
 }
 
 #' Copies the Rnw file and Run R file for old 1To1 QC into your working directory.
@@ -93,12 +70,12 @@ RMD_LibraryGen_specLProzor <- function(){
 #'
 #' @export
 #'
-RMD_QC1To1_Old <- function(){
+RMD_QC1To1_Old <- function(workdir = getwd()){
   .scriptCopyHelperVec(c("/samples/Run_1To1_oldStyle.R",
                          "/reports/MQ_sampleQC_overview.Rnw",
                          "/samples/helpers/QprotMatrixFunctions_rn_V3.R",
                          "/samples/images/LFQ_QC_workflow.pdf",
-                         "/samples/images/Sweave.sty"))
+                         "/samples/images/Sweave.sty"), workdir = workdir)
 }
 
 

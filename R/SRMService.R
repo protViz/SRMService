@@ -116,11 +116,11 @@ ProteinTable <- setRefClass("ProteinTable",
                                 }
                                 invisible(.self$housekeeper)
                               },
-                              normalize = function(protein,FUN = median, plot=TRUE){
-                                if(missing(protein)){
+                              normalize = function( protein , FUN = median , plot=TRUE ){
+                                if(missing(protein)) {
                                   .housekeepers <- .self$data[.self$housekeeper,]
                                   normalize <- apply(.housekeepers,2, FUN, na.rm=T)
-                                }else{
+                                } else {
                                   .housekeepers <- .self$data[protein,]
                                   normalize <- unlist(.housekeepers)
                                 }
