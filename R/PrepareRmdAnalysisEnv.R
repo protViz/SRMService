@@ -49,7 +49,7 @@ RMD_Quant_QCReport <- function(workdir = getwd()){
 #' @export
 #'
 RMD_VarSelection <- function(workdir = getwd()){
-  .scriptCopyHelperVec(c("/samples/Run_QuantQCReport.R","/reports/QCReport.Rmd"). workdir =workdir )
+  .scriptCopyHelperVec(c("/samples/Run_QuantQCReport.R","/reports/QCReport.Rmd"), workdir =workdir )
 }
 
 #' Copies the RMD and Run R file for Library generation your working directory.
