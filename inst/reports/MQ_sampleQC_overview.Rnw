@@ -19,7 +19,6 @@ library(lattice)
 library(xtable)
 library(gplots)
 library(affy)
-print(getwd())
 
 source("QprotMatrixFunctions_rn_V3.R")
 @
