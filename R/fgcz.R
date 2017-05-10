@@ -5,7 +5,7 @@
 # www.github.com/protViz/SRMService
 #
 
-#' Title
+#' prtform rendering of report file
 #'
 #' @param maxquanttxtdirectory
 #' @param reportFileBaseName
@@ -50,5 +50,5 @@
    # get Sample QC running
    Stangle(RnwFile)
    Sweave(RnwFile)
-   tools::texi2dvi(texFIle, pdf = TRUE)
+   tools::texi2dvi(texFile, pdf = TRUE)
 }
