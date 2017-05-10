@@ -1,16 +1,20 @@
-## TESTESTTEST ##
+#R
 ## shiny::runApp("inst/shiny/2Group2Test",port=1234, host="130.60.81.134")
 ## shiny::runApp('C:/Users/wolski/prog/SRMService/inst/shiny/2Group2Test', port = 1234, host=)
 
+library(tools)
 library(shiny)
 library(SRMService)
+
 #library(rhandsontable)
+
 options(shiny.maxRequestSize = 30 * 1024^2)
 
-# Define server logic required to draw a histogram
+
 shinyServer(function(input, output) {
   grp2 <- NULL
   v_upload_file <- reactiveValues(data = NULL)
+
   v_download_links <- reactiveValues(filename= NULL)
 
   # TODO(WEW,CP): all data should be kept here
@@ -46,11 +50,14 @@ shinyServer(function(input, output) {
 
 
   proteinGroups <- observeEvent(input$load,
-                                if (!is.null(input$workunitID)){
-                                  message(paste("wuid", input$workunitID))
-                                  values$proteinGroups <- bfabricShiny:::.ssh_unzip()
-                                  values$filenames <- gsub("Intensity\\.", "", grep("Intensity\\.", colnames(values$proteinGroups), value=TRUE))
-                                }
+      if (!is.null(input$workunitID)){
+
+        values$proteinGroups <- bfabricShiny:::.unzip(file='proteinGroups.txt',
+                                                      zipfile=file.path('/srv/www/htdocs',
+                                                                        bfabricShiny:::.workunit2resource(input$workunitID)[1,1]))
+
+        values$filenames <- gsub("Intensity\\.", "", grep("Intensity\\.", colnames(values$proteinGroups), value=TRUE))
+      }
   )
 
   proteinGroups <- observeEvent(v_upload_file$filenam$datapath,{
