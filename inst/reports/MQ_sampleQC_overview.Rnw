@@ -14,14 +14,14 @@
 \begin{document}
 \SweaveOpts{concordance=TRUE}
 
+\graphicspath{{/usr/local/lib/R/site-library/SRMService/samples/images/}{.}}
 
 <<echo=FALSE, result=HIDE>>=
 library(lattice)
 library(xtable)
 library(gplots)
 library(affy)
-
-source("QprotMatrixFunctions_rn_V3.R")
+library(missForest)
 @
 \maketitle
 
@@ -108,12 +108,14 @@ bool_moreThanOnePeptide <- Fulldat$Razor...unique.peptides > 1
 #f <- "proteinGroups_FGCZ2grp_Intensity.txt"
 #dat <- read.table(f, header=T, sep="\t",row.names=1)
 quantDat <- dat[bool_moreThanOnePeptide,]
-i_dat <- ImputeValuesInProtMatrixForRowsWithZeros(quantDat)
-n_i_dat <- NormalizeWithMedianPQMatrix(i_dat)
+i_dat <- SRMService:::ImputeValuesInProtMatrixForRowsWithZeros(quantDat)
+n_i_dat <- SRMService:::NormalizeWithMedianPQMatrix(i_dat)
 sf <- "appliedScaleFactors_Median.txt"
 scaleF <- read.table(sf, sep=" ", header=F)
 mat <- n_i_dat
-list <- Do2grpTtestRobustOnMatrixAndBHcorrWithThresholdAndFoldChangeAndReturnOnlySignificantsInternalTrafo(ProtQuantMatrix=mat,SignificanceThreshold=sigThr, LinFoldChangeThreshold=FCth, bool_TrafoHere=TRUE)
+
+# TODO(cp): rename the shit
+list <- SRMService:::Do2grpTtestRobustOnMatrixAndBHcorrWithThresholdAndFoldChangeAndReturnOnlySignificantsInternalTrafo(ProtQuantMatrix=mat,SignificanceThreshold=sigThr, LinFoldChangeThreshold=FCth, bool_TrafoHere=TRUE)
 percDiffExp <- round(100*nrow(list)/nrow(n_i_dat),2)
 myTable[1,4] <- percDiffExp
 if(percDiffExp > fixDiffExpTreshold) OkOrNot <- "NOT OK" else OkOrNot <- "OK"
@@ -469,7 +471,7 @@ QuantableProteins <- nrow(quantDat)
 totProteins <- nrow(dat)
 msRuns <- ncol(dat)
 grpSize <- ncol(dat)/2
-dat_noZeros <- RemoveRowsWithZerosFromProtMatrix(dat)
+dat_noZeros <- SRMService:::RemoveRowsWithZerosFromProtMatrix(dat)
 matWoZeros <- nrow(dat_noZeros)
 protsWithZeros <- totProteins - matWoZeros
 protWihtOnlyOne <- totProteins - QuantableProteins
@@ -560,7 +562,7 @@ barplot(scaleF$V2, horiz=TRUE, names.arg=scaleF$V1, cex.names = 1, las=1, main="
 
 \begin{figure}[!htb]
 <<echo=FALSE, fig=TRUE, width=8, height=8>>=
-DoCorrelationOnMatrix(asinh(n_i_dat))
+SRMService:::DoCorrelationOnMatrix(asinh(n_i_dat))
 @
   \caption{Correlation plot for normalized values based on imputed matrix (asinh)}
   \label{fig:normCorr}
@@ -572,7 +574,7 @@ DoCorrelationOnMatrix(asinh(n_i_dat))
 \begin{figure}[!htb]
 <<echo=FALSE, fig=TRUE,  width=6, height=6>>=
 mat <- n_i_dat
-TotList <- Do2grpTtestOnMatrixAndBHcorrReturnAllInternalTrafo(ProtQuantMatrix=mat, bool_TrafoHere=TRUE)
+TotList <- SRMService:::Do2grpTtestOnMatrixAndBHcorrReturnAllInternalTrafo(ProtQuantMatrix=mat, bool_TrafoHere=TRUE)
 hist(as.numeric(TotList[,2]), breaks=20, main="Histogram of pValues", xlab="Density of pValues")
 @
   \caption{Histogram of pValues. For true biological differences between 2 groups, the histogram should not be a flat line but have a peak for small pValues}
@@ -580,14 +582,10 @@ hist(as.numeric(TotList[,2]), breaks=20, main="Histogram of pValues", xlab="Dens
 \end{figure}
 
 
-
-
-
-
 \pagebreak
 
 \section{Disclaimer and Acknowledgements}
-This report is written by J. Grossmann using in Sweave-R and processes text files which are exported from MaxQuant.\\
+This report is written by J. Grossmann using the \href{https://github.com/protViz/SRMService}{SRMService} package version \Sexpr{packageVersion('SRMService')} and processes text files which are exported from MaxQuant.\\
 \\
 ALL INFORMATION, INTELLECTUAL PROPERTY RIGHTS, PRODUCTS AND / OR SERVICES ARE PROVIDED "AS IS" WITHOUT WARRANTY OF ANY KIND, EXPRESSED OR IMPLIED, INCLUDING BUT NOT LIMITED TO, WARRANTIES OF MERCHANTABILITY, SUITABILITY AND / OR FITNESS FOR A PARTICULAR PURPOSE AND NON-INFRINGEMENT. IN PARTICULAR, THE FGCZ (Functional Genomics Center Zurich, or any of its employees) MAKES NO WARRANTIES OF ANY KIND REGARDING THE ACCURACY OF ANY DATA, SOFTWARE, SCRIPTS AND / OR DATABASE.
 \\
