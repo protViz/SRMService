@@ -102,8 +102,10 @@ sigThr <- 0.05
 #f <- "maxquant/evidence.txt"
 #evi_d <- read.table(f, header=T, sep="\t")
 
-#f <- "maxquant/proteinGroups.txt"
-#Fulldat <- read.table(f, header=T, sep="\t")
+# TODO(cp): cleanup the next two lines
+#filename.proteinGroups <- "maxquant/proteinGroups.txt"                                       
+#Fulldat <- read.csv(filename.proteinGroups, sep="\t", stringsAsFactors = FALSE, header=TRUE)
+#read.table(f, header=T, sep="\t")
 bool_moreThanOnePeptide <- Fulldat$Razor...unique.peptides > 1
 #f <- "proteinGroups_FGCZ2grp_Intensity.txt"
 #dat <- read.table(f, header=T, sep="\t",row.names=1)

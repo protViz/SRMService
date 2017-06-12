@@ -42,17 +42,20 @@
    msms_d <<- read.table(msmsName, header = T, sep="\t")
    summ <<- read.table(summary, header = F, sep="\t")
    evi_d <<- read.table(evidence, header = T, sep="\t")
-   Fulldat <<- read.table(proteinGroups, header=T, sep="\t")
+
+   Fulldat <<- read.csv(proteinGroups, sep="\t", stringsAsFactors = FALSE, header = TRUE)
 
    dat <<- Fulldat[,grep("^Intensity\\.", colnames(Fulldat))]
-   rownames(dat) <<- Fulldat$Majority.protein.IDs
+
+   rownames(dat) <- Fulldat$Majority.protein.IDs
 
    bool_moreThanOnePeptide <<- Fulldat$Razor...unique.peptides > 1
 
    params <<- read.table(parameters, header = TRUE, sep = "\t")
 
    # peptides
-   pepts <<- read.table(peptides, header = TRUE, sep = "\t")
+   #pepts <<- read.table(peptides, header = TRUE, sep = "\t")
+   pepts <<- read.csv(peptides, sep="\t", stringsAsFactors = FALSE, header = TRUE)
 
    # this is for witold to be replaced
    #fixedProteingroups <- "proteinGroups_FGCZ2grp_Intensity.txt"
