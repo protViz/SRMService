@@ -1,9 +1,8 @@
-proteinColumns <- c("ProteinName","TopProteinName","nrPeptides")
-
 #' Perform 2 group analysis with visualization
 #' @export QCProteinReport
 #' @exportClass QCProteinReport
 #' @include eb.fit.R
+#' @include RequiredColumns.R
 #' @field proteinIntensity data.frame where colnames are Raw.File names, row.names are protein ID's and cells are protein abundances.
 #' @field proteinAnnotation information about the proteins, nr of peptides etc.
 #' @field nrPeptides min number of peptides per protein
