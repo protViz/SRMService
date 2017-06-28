@@ -17,6 +17,7 @@ Imports:
     shiny,
     quantable (>= 0.3.1),
     qvalue,
+    R6,
     reshape2,
     rmarkdown,
     tools,
@@ -28,14 +29,17 @@ BugReports: https://github.com/protViz/SRMService/issues
 Repository: CRAN
 RoxygenNote: 6.0.1
 Collate: 
+    'RequiredColumns.R'
     'eb.fit.R'
-    'fgcz.R'
     'Grp2Analysis.R'
     'MSStatsMappings.R'
     'PrepareRmdAnalysisEnv.R'
+    'ProteinTable.R'
     'QCReport.R'
     'SRMService.R'
     'ScaffoldHelpers.R'
+    'fgcz.R'
     'hello.R'
+    'limmaHelpers.R'
     'readMaxQuant.R'
     'zzz.R'
