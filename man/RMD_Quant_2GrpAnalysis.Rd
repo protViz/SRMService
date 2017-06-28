@@ -4,7 +4,7 @@
 \alias{RMD_Quant_2GrpAnalysis}
 \title{copies the RMD and Run files for 2 grp analysis in your working directory.}
 \usage{
-RMD_Quant_2GrpAnalysis()
+RMD_Quant_2GrpAnalysis(workdir = getwd())
 }
 \description{
 Please see the Run_QuantTwoGroupAnalysis.R for more details

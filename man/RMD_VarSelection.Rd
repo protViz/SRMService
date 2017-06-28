@@ -4,7 +4,7 @@
 \alias{RMD_VarSelection}
 \title{Copies the RMD and Run files for variable selection into your working directory.}
 \usage{
-RMD_VarSelection()
+RMD_VarSelection(workdir = getwd())
 }
 \description{
 Please see the Run_QuantTwoGroupAnalysis.R for more details

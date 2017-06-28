@@ -4,7 +4,7 @@
 \alias{RMD_Quant_QCReport}
 \title{copies the RMD and Run files for the QuantQCReport in your working directory.}
 \usage{
-RMD_Quant_QCReport()
+RMD_Quant_QCReport(workdir = getwd())
 }
 \description{
 Please see the Run_QuantQCReport.R for more details

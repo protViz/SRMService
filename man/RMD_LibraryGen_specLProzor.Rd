@@ -4,7 +4,7 @@
 \alias{RMD_LibraryGen_specLProzor}
 \title{Copies the RMD and Run R file for Library generation your working directory.}
 \usage{
-RMD_LibraryGen_specLProzor()
+RMD_LibraryGen_specLProzor(workdir = getwd())
 }
 \description{
 Please see the Run_specLProzor.R file in the working directory

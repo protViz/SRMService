@@ -4,7 +4,7 @@
 \alias{RMD_QC1To1_Old}
 \title{Copies the Rnw file and Run R file for old 1To1 QC into your working directory.}
 \usage{
-RMD_QC1To1_Old()
+RMD_QC1To1_Old(workdir = getwd())
 }
 \description{
 Please see the Run_1To1_oldStyle.R file in your working directory,
