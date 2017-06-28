@@ -10,16 +10,16 @@
 .fgcz_copy_report_template <- function(wd, reportfile){
 	rnw <- system.file("reports", reportfile, package = "SRMService")
 	message(rnw)
-	if (file.exists(rnw)){    
+	if (file.exists(rnw)){
 		message(rnw)
 		file.copy(rnw, wd)
 	}
 }
 
-#' prtform rendering of report file
+#' perform rendering of report file
 #'
-#' @param maxquanttxtdirectory
-#' @param reportFileBaseName
+#' @param maxquanttxtdirectory MQ directory
+#' @param reportFileBaseName to be documented
 #' @author W.E. Wolski, J. Grossmann, C. Panse
 #' @seealso www.github.com/protViz/SRMService
 #' @return nothing
@@ -70,7 +70,7 @@
 }
 
 
-#### 
+####
 
 # January 2014
 # some changes along 2015
