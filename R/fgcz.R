@@ -16,13 +16,6 @@
 	}
 }
 
-#' perform rendering of report file
-#'
-#' @param maxquanttxtdirectory MQ directory
-#' @param reportFileBaseName to be documented
-#' @author W.E. Wolski, J. Grossmann, C. Panse
-#' @seealso www.github.com/protViz/SRMService
-#' @return nothing
 .fgcz_perform_rendering <- function(maxquanttxtdirectory = '.', reportFileBaseName = 'MQ_sampleQC_overview'){
 
    # RMD_QC1To1_Old(maxquanttxtdirectory)

@@ -98,7 +98,7 @@ Grp2Analysis <- setRefClass("Grp2Analysis",
                               getConditionData = function(condition){
                                 'get intensities as matrix for single condition'
                                 stopifnot(condition %in% .self$conditions)
-                                fileID <-subset(.self$annotation_, Condition == condition)$Raw.file
+                                fileID <- as.character(subset(.self$annotation_, Condition == condition)$Raw.file)
                                 .self$proteinIntensity[, fileID]
                               },
                               getNormalized = function(center=TRUE, scale=TRUE){
@@ -107,7 +107,7 @@ Grp2Analysis <- setRefClass("Grp2Analysis",
                               getNormalizedConditionData = function(condition){
                                 normalized <- .self$getNormalized()$data
                                 stopifnot(condition %in% .self$conditions)
-                                fileID <-subset(.self$annotation_, Condition == condition)$Raw.file
+                                fileID <-as.character(subset(.self$annotation_, Condition == condition)$Raw.file)
                                 normalized[, fileID]
                               },
                               getDesignMatrix = function(){
