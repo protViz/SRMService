@@ -1,10 +1,8 @@
-annotationColumns <- c("Raw.file","Condition", "BioReplicate", "Run","IsotopeLabelType")
-proteinColumns <- c("ProteinName","TopProteinName","nrPeptides")
-
 #' Perform 2 group analysis with visualization
 #' @export Grp2Analysis
 #' @exportClass Grp2Analysis
 #' @include eb.fit.R
+#' @include RequiredColumns.R
 #' @field proteinIntensity data.frame where colnames are Raw.File names, row.names are protein ID's and cells are protein abundances.
 #' @field annotation_ annotations data.frame with columns such as Raw.File, Condition, Run etc.
 #' @field proteinAnnotation information about the proteins, nr of peptides etc.
@@ -121,7 +119,7 @@ Grp2Analysis <- setRefClass("Grp2Analysis",
                               },
                               getPValues = function(){
                                 tmp <- eb.fit(.self$getNormalized()$data , .self$getDesignMatrix())
-                                tmp$log2FC <- tmp$effectSize * mean(.self$getNormalized()$mad)
+                                tmp$log2FC <- tmp$effectSize
                                 return(tmp)
                               },
                               getAnnotation = function(){
