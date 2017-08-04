@@ -44,7 +44,10 @@ Grp2Analysis <- setRefClass("Grp2Analysis",
 
                                 .self$proteinIntensity <- protein[, grep("Intensity\\.",colnames(protein))]
                                 colnames(.self$proteinIntensity) <- gsub("Intensity\\.","",colnames(.self$proteinIntensity))
-                                stopifnot(colnames(.self$proteinIntensity) %in% .self$annotation_$Raw.file)
+
+                                stopifnot(.self$annotation_$Raw.file %in% colnames(.self$proteinIntensity))
+                                .self$proteinIntensity <- .self$proteinIntensity[,.self$annotation_$Raw.file]
+
 
                                 # Sorts them in agreement with annotation_.
                                 .self$proteinIntensity <- .self$proteinIntensity[,.self$annotation_$Raw.file]
@@ -66,6 +69,7 @@ Grp2Analysis <- setRefClass("Grp2Analysis",
                                 .self$projectName <- projectName
                                 .self$experimentName <- experimentName
                                 stopifnot(annotationColumns %in% colnames(annotation))
+                                annotation <- annotation[!is.na(annotation$Condition),]
                                 .self$annotation_ <- annotation[order(annotation$Condition),]
                                 .self$conditions <- unique(.self$annotation_$Condition)
                                 .self$nrPeptides <- nrPeptides
