@@ -74,11 +74,11 @@ Grp2Analysis <- setRefClass("Grp2Analysis",
                                 setQValueThresholds()
                                 setPValueThresholds()
                               },
-                              setQValueThresholds = function(qvalue= 0.05, qfoldchange=0.1){
-                                .self$qvalue= qvalue
+                              setQValueThresholds = function(qvalue = 0.05, qfoldchange=0.1){
+                                .self$qvalue = qvalue
                                 .self$qfoldchange = qfoldchange
                               },
-                              setPValueThresholds = function(pvalue= 0.01, pfoldchange=0.5){
+                              setPValueThresholds = function(pvalue = 0.01, pfoldchange=0.5){
                                 .self$pvalue= pvalue
                                 .self$pfoldchange = pfoldchange
                               },
