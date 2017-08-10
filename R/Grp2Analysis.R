@@ -64,14 +64,15 @@ Grp2Analysis <- setRefClass("Grp2Analysis",
                                 experimentName="LFQ experiment",
                                 maxNA=3,
                                 nrPeptides = 2,
-                                reference = "Control"
+                                reference = "Control",
+                                annotationColumns = annotationColumns
                               ){
                                 .self$projectName <- projectName
                                 .self$experimentName <- experimentName
                                 stopifnot(annotationColumns %in% colnames(annotation))
                                 annotation <- annotation[!is.na(annotation$Condition),]
                                 .self$annotation_ <- annotation[order(annotation$Condition),]
-                                .self$conditions <- unique(.self$annotation_$Condition)
+                                .self$conditions <- as.character(unique(.self$annotation_$Condition))
                                 .self$nrPeptides <- nrPeptides
                                 .self$maxNA <- maxNA
                                 .self$reference <- reference
@@ -92,7 +93,9 @@ Grp2Analysis <- setRefClass("Grp2Analysis",
                                 proteinTable <- data.frame(ProteinName = MQProteinGroups$Majority.protein.IDs,
                                                            TopProteinName = sapply(strsplit(MQProteinGroups$Majority.protein.IDs, split=";"),
                                                                                    function(x){x[1]}),
-                                                           nrPeptides = MQProteinGroups$Peptides, pint, stringsAsFactors = F)
+                                                           nrPeptides = MQProteinGroups$Peptides,
+                                                           Fasta.headers = MQProteinGroups$Fasta.headers,
+                                                           pint, stringsAsFactors = F)
                                 setProteins(proteinTable)
                               },
                               getNrNAs = function(){
@@ -111,7 +114,7 @@ Grp2Analysis <- setRefClass("Grp2Analysis",
                               getNormalizedConditionData = function(condition){
                                 normalized <- .self$getNormalized()$data
                                 stopifnot(condition %in% .self$conditions)
-                                fileID <-as.character(subset(.self$annotation_, Condition == condition)$Raw.file)
+                                fileID <- as.character(subset(.self$annotation_, Condition == condition)$Raw.file)
                                 normalized[, fileID]
                               },
                               getDesignMatrix = function(){
