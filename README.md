@@ -1,5 +1,8 @@
 # SRMService
 
+For more information about this project please visit the wproject wiki
+<https://github.com/protviz/srmservice/wiki>
+
 
 ## Install
 
