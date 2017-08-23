@@ -44,3 +44,19 @@ mergeLimmEBayesResult <- function(multigrpBayes){
   allData <- join_all(multigrpBayes, by="row.names")
   return(allData)
 }
+#' get pvalues for all coefficients from a limma lmfit ebayes result
+#' @param lmfit.cont.ebayes
+#' @param var = since we work with tibbles what should be the colnames for row.names
+#' @export
+#' @examples
+getPVals <- function(lmfit.cont.ebayes, var = "ProteinID"){
+  res <- list()
+  for(i in 1:length(colnames(lmfit.cont.ebayes$coefficients)))
+  {
+    name <- colnames(lmfit.cont.ebayes$coefficients)[i]
+    res[[name]] <- data.frame(Condition = name, topTable(lmfit.cont.ebayes, coef=name, number=Inf))
+  }
+  res <- lapply(res,tibble::rownames_to_column,var="ProteinID")
+  res <- rbind.fill(res)
+}
+
