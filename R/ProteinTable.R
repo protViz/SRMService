@@ -1,7 +1,7 @@
 #' Condition Map
 #' @docType class
 #' @export
-#' @import RequiredColumns.R
+#' @include RequiredColumns.R
 #' @examples
 #'
 #' x <- data.frame(Raw.file = c("A","B","C"),"MeasOrder" = c(1,2,3) , Gender = c("F","F","M"))

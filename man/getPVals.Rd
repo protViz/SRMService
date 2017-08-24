@@ -7,7 +7,9 @@
 getPVals(lmfitebayes, var = "ProteinID")
 }
 \arguments{
-\item{var}{= since we work with tibbles what should be the colnames for row.names}
+\item{lmfitebayes}{returned by lmFit}
+
+\item{var}{since we work with tibbles what should be the colnames for row.names}
 }
 \description{
 get topTables for all coefficients from a limma lmfit ebayes result an merge them into single tibble.

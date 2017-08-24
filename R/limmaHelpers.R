@@ -45,10 +45,10 @@ mergeLimmEBayesResult <- function(multigrpBayes){
   return(allData)
 }
 #' get topTables for all coefficients from a limma lmfit ebayes result an merge them into single tibble.
-#' @param lmfitebayes
-#' @param var = since we work with tibbles what should be the colnames for row.names
+#' @param lmfitebayes returned by lmFit
+#' @param var since we work with tibbles what should be the colnames for row.names
 #' @export
-#' @examples
+#'
 getPVals <- function(lmfitebayes, var = "ProteinID"){
   res <- list()
   for(i in 1:length(colnames(lmfitebayes$coefficients)))
