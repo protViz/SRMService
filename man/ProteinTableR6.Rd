@@ -21,4 +21,7 @@ Protein Table
 \item{\code{experimentID}}{name of the experiment}
 }}
 
+\examples{
+pt <- ProteinTableR6$new()
+}
 \keyword{datasets}

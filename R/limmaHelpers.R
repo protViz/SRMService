@@ -44,19 +44,58 @@ mergeLimmEBayesResult <- function(multigrpBayes){
   allData <- join_all(multigrpBayes, by="row.names")
   return(allData)
 }
-#' get pvalues for all coefficients from a limma lmfit ebayes result
-#' @param lmfit.cont.ebayes
+#' get topTables for all coefficients from a limma lmfit ebayes result an merge them into single tibble.
+#' @param lmfitebayes
 #' @param var = since we work with tibbles what should be the colnames for row.names
 #' @export
 #' @examples
-getPVals <- function(lmfit.cont.ebayes, var = "ProteinID"){
+getPVals <- function(lmfitebayes, var = "ProteinID"){
   res <- list()
-  for(i in 1:length(colnames(lmfit.cont.ebayes$coefficients)))
+  for(i in 1:length(colnames(lmfitebayes$coefficients)))
   {
-    name <- colnames(lmfit.cont.ebayes$coefficients)[i]
-    res[[name]] <- data.frame(Condition = name, topTable(lmfit.cont.ebayes, coef=name, number=Inf))
+    name <- colnames(lmfitebayes$coefficients)[i]
+    res[[name]] <- data.frame(Condition = name, topTable(lmfitebayes, coef=name, number=Inf))
   }
   res <- lapply(res,tibble::rownames_to_column,var="ProteinID")
   res <- rbind.fill(res)
 }
+
+#' version of limma::contrast.fit which is able to handle NA's in one of the conditions.
+#' @param fit returned by lmFit
+#' @param cont returned by limma::makeContrasts
+#' @return tibble with pValues and fold changes
+#' @export
+#' @examples
+#' \dontrun{
+#' cont <- limma::makeContrasts(contrasts = contrasts, levels =  levels)
+#' fit <- lmFit(intmat , designMatrix)
+#' res <- contrasts.fit.NA(fit,cont)
+#' }
+contrasts.fit.NA <- function(fit, cont){
+
+  resl <- NULL
+  for(i in 1:length(colnames(fit))){
+    x <- colnames(fit)[i]
+    print(x)
+    idx <- !grepl(x, colnames(cont))
+    print(colnames(cont)[idx])
+    lmfit.cont <- contrasts.fit(fit[,-i], cont[-i,idx])
+    lmfitebayes <- eBayes(lmfit.cont)
+    resl[[i]] <- getPVals(lmfitebayes)
+  }
+  lmfit.cont <- contrasts.fit(fit, cont)
+  lmfitebayes <- eBayes(lmfit.cont)
+
+  resl <- c(resl, list(getPVals(lmfitebayes)))
+  #return(resl)
+
+  tmp <- rbind.fill(resl)
+  nrNA <- apply(tmp,1,function(x){sum(is.na(x))})
+  tmp <- tmp[nrNA == 0,]
+  tmp <- tmp[!duplicated(subset(tmp, select =c("ProteinID","Condition"))),]
+
+  return(dplyr::select(tmp, -adj.P.Val, -B))
+}
+
+
 
