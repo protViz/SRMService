@@ -17,31 +17,33 @@ Abstract: Idea is to provide an easy to use API to process and analyze Quantitat
 - Support algorithms working on the precursor (only MSStats and MapDIA), peptide (msqrob) and protein level (limma).
 - Visualize up to 3 explanatory variables e.g. condition, gender, patient. - This also means that the plots need to be annotated.
 - define comparisons using contrasts i.e. condition1 vs condition2
-- define hierarchy of condtions i.e. test >> patient >> gender / MainCondition variable
+- define hierarchy of conditions i.e. test >> patient >> gender / MainCondition variable
 - define set of QC visualizations for each level - transition, precursor and protein.
 - model fractionated experiments
 - create analysis compatible summaries for the analysis so they can be than compared.
-- Compare results. There might be different results do to change in parameters. 
+- Aggregate first then fold changes vs fold changes first than statistics on fold changes.
+     - $log2(a1+b1+c1) - log(a2+b2+c2)$ vs. $log(a1/a2), log(b1/b2), log(c1/c2)$
+- Compare results. There might be different results do to change in parameters.
     - Study parameter sensitivity - which step in the analysis changes the result most.
     - Benchmark datasets.
 
 ## Functionality:
 
 * Data processing summaries
-   * How many conditions, How many samples per condition (2x2 tables).
+   * How many conditions, How many samples per condition (2x2 tables). for implementation see [Pass generic column names to xtabs function in R](https://stackoverflow.com/questions/31992301/pass-generic-column-names-to-xtabs-function-in-r)
 ```
 ftable(xtabs( ~ Time + Treatment, data= annotation))
 ftable(xtabs( ~ Strain + Time + Treatment + Plant, data= annotation))
 ```
-    for implementation see [Pass generic column names to xtabs function in R](https://stackoverflow.com/questions/31992301/pass-generic-column-names-to-xtabs-function-in-r)
+
    * How many transitions, proteins, peptides, precursors at each filtering step.
-   
+
 * generate QC plots for the data:
-   * Scatter plot within condition 
-       - on which level - Precursor, protein 
+   * Scatter plot within condition
+       - on which level - Precursor, protein
        - on which condition if up to 3?
    * CV for each condition if N > 2 and overall.
-       -  How to interpret it in a paired experiment? Maybee disable it? Or show 2 CV plots based on each condition variable.
+       -  How to interpret it in a paired experiment? Maybe disable it? Or show 2 CV plots based on each condition variable.
    * Distribution plot for each file - Violin plot or density?
        * Densities within condition - before and after normalization
        * compare condition based on common density - before and after normalization
@@ -50,9 +52,9 @@ ftable(xtabs( ~ Strain + Time + Treatment + Plant, data= annotation))
        - specify which variables to encode - work out how to encode - color scheme.
    * Summaries for NAs
    * QC for Retention time only possible on transition and precursor level data.
-   * QC of data filtering 
-        - use sample correlation 
-        - use transition and peptide correlation 
+   * QC of data filtering
+        - use sample correlation
+        - use transition and peptide correlation
     * Pairsplot of group averages (output of modeling actually)
 
 * Data preprocessing:
@@ -77,7 +79,7 @@ ftable(xtabs( ~ Strain + Time + Treatment + Plant, data= annotation))
          - row mean and column mean imputation
          - linear regression
          - hot deck encoding.
-     
+
 * Data modeling:
      * ANOVA
      * linear models
@@ -95,19 +97,19 @@ ftable(xtabs( ~ Strain + Time + Treatment + Plant, data= annotation))
          * line plot showing all transitions.
          * Show confidence intervals.
 
-         
+
 ## Protein inference problem
 
-We measure precursor but the subject is proteins. Precursors can be grouped in proteins. Either, unambiguously (N:1) no conflicting peptide protein assignments. Optionally we can allow for ambiguity (N:M), which means that a peptide can be assigned to more than one protein. 
+We measure precursor but the subject is proteins. Precursors can be grouped in proteins. Either, unambiguously (N:1) no conflicting peptide protein assignments. Optionally we can allow for ambiguity (N:M), which means that a peptide can be assigned to more than one protein.
 - Visualize profiles of proteins which have shared peptides.
-     
+
 ## Implementation
 
 - Use long format (tibble) as long as possible and implement functions to switch from wide to long.
 - methods work on _tibble's_ and should support _magrittr_ operator
 - Use tibbles to represent transition, precursor and protein/peptide.
      - those tibbles should have types since some methods are only applicable to transitions, precursors, peptides and proteins.
-- Optional tibble to represent annotation if annotation largish. 
+- Optional tibble to represent annotation if annotation largish.
 - allow for switching between long and wide format (if wide store long format in an tibble attribute).
 
 
@@ -167,7 +169,7 @@ Is modeling diagnostics for single proteins needed?
 
 * modelling results
        Subject, Contrast, fold change, p-value, adjusted-pvalue, obsolete columns (i.e fasta.headers).
-       
+
 * transformation results:
        Subject, Sample, Intensity
 
@@ -249,6 +251,3 @@ We are interested in inferences on the protein or protein groups level usually.
 [Summarization vs Peptide-Based Models in Label-Free Quantitative Proteomics: Performance, Pitfalls, and Data Analysis Guidelines](http://pubs.acs.org/doi/abs/10.1021/pr501223t)
 [MSqRob github](https://github.com/statOmics/MSqRob)
 [Benchmark data for MSqRob](https://github.com/statOmics/MSqRobData/)
-
-
-
