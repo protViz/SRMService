@@ -29,12 +29,11 @@ Abstract: Idea is to provide an easy to use API to process and analyze Quantitat
 
 * Data processing summaries
    * How many conditions, How many samples per condition (2x2 tables).
-
 ```
 ftable(xtabs( ~ Time + Treatment, data= annotation))
 ftable(xtabs( ~ Strain + Time + Treatment + Plant, data= annotation))
 ```
-   for implementation see [Pass generic column names to xtabs function in R](https://stackoverflow.com/questions/31992301/pass-generic-column-names-to-xtabs-function-in-r)
+    for implementation see [Pass generic column names to xtabs function in R](https://stackoverflow.com/questions/31992301/pass-generic-column-names-to-xtabs-function-in-r)
    * How many transitions, proteins, peptides, precursors at each filtering step.
    
 * generate QC plots for the data:
