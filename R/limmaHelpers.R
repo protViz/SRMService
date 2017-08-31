@@ -76,9 +76,9 @@ contrasts.fit.NA <- function(fit, cont){
   resl <- NULL
   for(i in 1:length(colnames(fit))){
     x <- colnames(fit)[i]
-    print(x)
+    #print(x)
     idx <- !grepl(x, colnames(cont))
-    print(colnames(cont)[idx])
+    #print(colnames(cont)[idx])
     lmfit.cont <- contrasts.fit(fit[,-i], cont[-i,idx])
     lmfitebayes <- eBayes(lmfit.cont)
     resl[[i]] <- getPVals(lmfitebayes)
