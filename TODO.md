@@ -227,6 +227,13 @@ We are interested in inferences on the protein or protein groups level usually.
 * Measured.MS1Intensity
 * Measured.MS2IntensityAggregated
 
+# Comparable concepts:
+
+![ms QRob Benchmarking](inst/figures/msQRobBenchmark.gif)
+![TAPR Package Overview](inst/figures/TAPROverviewImage.jpg)
+
+
+
 # References
 
 [TRAPR: R Package for Statistical Analysis and Visualization of RNA-Seq Data](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC5389949/)
