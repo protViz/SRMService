@@ -324,7 +324,7 @@ FC_{transitions} = (log(\frac{a_1}{a_2})) + log(\frac{b_1}{b_2}))/2
 <p>We measure precursor, but the subject is proteins. Precursors can be grouped in proteins. Either, unambiguously (N:1) no conflicting peptide protein assignments, achieved by removing all precursors matching more than one protein. Optionally we can allow for ambiguity (N:M), which means that the same peptide can be assigned to more than one protein.</p>
 <ul>
 <li>Visualize profiles of proteins which have shared peptides.</li>
-<li>Protein Grouping problem</li>
+<li>Protein Grouping problem -&gt; Visualize protein profiles of grouped proteins.</li>
 </ul>
 </div>
 </div>
@@ -343,9 +343,9 @@ FC_{transitions} = (log(\frac{a_1}{a_2})) + log(\frac{b_1}{b_2}))/2
 </ul></li>
 <li>Optional tibble to represent annotation if annotation largish.</li>
 <li>allow for switching between long and wide format (if wide store long format in an tibble attribute).</li>
+<li>(sf)[<a href="https://github.com/r-spatial" class="uri">https://github.com/r-spatial</a>]</li>
+<li><h2 id="configuration">Configuration</h2></li>
 </ul>
-<div id="configuration" class="section level2">
-<h2>Configuration</h2>
 <div id="what-variables-are-needed-for-filtering" class="section level3">
 <h3>What variables are needed for filtering?</h3>
 <ul>
@@ -379,7 +379,6 @@ Response = &quot;vsnIntensity&quot;</code></pre>
 <p>The ProteinID is here the grouping variable. Obsolete columns can be e.g. <strong>Fasta.headers</strong> containing additional information. But obsolete can be also original intensities if transformed intensities are used. The transformed intensity will be the response. We limit the number of fixed effects to 3.</p>
 <p>Do we need to specify those columns?</p>
 <pre class="r"><code>ObsoleteColumns  = c(&quot;FastaHeaders&quot;) #(but required to be cept)</code></pre>
-</div>
 </div>
 <div id="what-configuration-is-needed-for-plotting" class="section level2">
 <h2>What configuration is needed for plotting?</h2>

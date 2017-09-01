@@ -149,7 +149,7 @@ $$
 We measure precursor, but the subject is proteins. Precursors can be grouped in proteins. Either, unambiguously (N:1) no conflicting peptide protein assignments, achieved by removing all precursors matching more than one protein.  Optionally we can allow for ambiguity (N:M), which means that the same peptide can be assigned to more than one protein.
 
 - Visualize profiles of proteins which have shared peptides.
-- Protein Grouping problem
+- Protein Grouping problem -> Visualize protein profiles of grouped proteins.
 
 # Implementation
 
@@ -161,7 +161,8 @@ We measure precursor, but the subject is proteins. Precursors can be grouped in 
      - those tibbles should have types since some methods are only applicable to transitions, precursors, peptides and proteins.
 - Optional tibble to represent annotation if annotation largish.
 - allow for switching between long and wide format (if wide store long format in an tibble attribute).
-
+- (sf)[https://github.com/r-spatial]
+- 
 ## Configuration
 
 ### What variables are needed for filtering?
