@@ -139,26 +139,16 @@ true
 </ul></li>
 <li>Ensure that naming is consistent within analysis.</li>
 <li>Report p-values and adjusted p-values but more importantly report confidence or credibility intervals.</li>
-<li>Provide statistics of fold changes in case of multiple comparisons:
-<ul>
-<li>Barplots, correlation plots, Venn diagrams.</li>
-</ul></li>
+<li>Provide statistics of fold changes for multiple comparison experiments</li>
 <li>Support data on protein, peptide/precursor and transition level (likely peptide/precursor level only).
 <ul>
-<li>use filtering and aggregation on precursor level if statistics backend does not support those levels (e.g. Limma)</li>
+<li>use filtering and aggregation on levels if statistics backend does not support those levels (e.g. limma)</li>
 </ul></li>
-<li>Support algorithms working on the precursor (only MSStats and MapDIA), peptide (msqrob) and protein level (limma).</li>
-<li>Visualize up to 3 explanatory variables e.g. condition, gender, patient. - This also means that the plots need to be annotated.</li>
-<li>define comparisons using contrasts i.e. condition1 vs condition2</li>
-<li>define hierarchy of conditions i.e. test &gt;&gt; patient &gt;&gt; gender / MainCondition variable</li>
-<li>define set of QC visualizations for each level - transition, precursor and protein.</li>
-<li>model fractionated experiments</li>
-<li>create analysis compatible summaries for the analysis so they can be than compared.</li>
-<li>Aggregate first then fold changes vs fold changes first than statistics on fold changes.
-<ul>
-<li><span class="math inline">\(log2(a1+b1+c1) - log(a2+b2+c2)\)</span> vs. <span class="math inline">\(log(a1/a2), log(b1/b2), log(c1/c2)\)</span></li>
-</ul></li>
-<li>Compare results. There might be different results do to change in parameters.
+<li>Support algorithms working on the precursor (MSStats and MapDIA), peptide (msqrob) and protein level (limma).</li>
+<li>Visualize up to 2 explanatory variables e.g. condition, patient. - This also means that the plots need to be annotated.</li>
+<li>Define comparisons using contrasts i.e. condition1 vs condition2</li>
+<li>Model fractionated experiments i.e. LOPID experiments</li>
+<li>create analysis compatible summaries each set of parameters to make metaanalysis possible:
 <ul>
 <li>Study parameter sensitivity - which step in the analysis changes the result most.</li>
 <li>Benchmark datasets.</li>

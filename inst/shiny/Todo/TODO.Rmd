@@ -21,20 +21,14 @@ Abstract: Idea is to provide an easy to use API to process and analyze Quantitat
      - change column names depending on input software and allow for meaningful column names for factors, conditions.
 - Ensure that naming is consistent within analysis.
 - Report p-values and adjusted p-values but more importantly report confidence or credibility intervals.
-- Provide statistics of fold changes in case of multiple comparisons:
-     - Barplots, correlation plots, Venn diagrams.
+- Provide statistics of fold changes for multiple comparison experiments
 - Support data on protein, peptide/precursor and transition level (likely peptide/precursor level only).
-     - use filtering and aggregation on precursor level if statistics backend does not support those levels (e.g. Limma)
-- Support algorithms working on the precursor (only MSStats and MapDIA), peptide (msqrob) and protein level (limma).
-- Visualize up to 3 explanatory variables e.g. condition, gender, patient. - This also means that the plots need to be annotated.
-- define comparisons using contrasts i.e. condition1 vs condition2
-- define hierarchy of conditions i.e. test >> patient >> gender / MainCondition variable
-- define set of QC visualizations for each level - transition, precursor and protein.
-- model fractionated experiments
-- create analysis compatible summaries for the analysis so they can be than compared.
-- Aggregate first then fold changes vs fold changes first than statistics on fold changes.
-     - $log2(a1+b1+c1) - log(a2+b2+c2)$ vs. $log(a1/a2), log(b1/b2), log(c1/c2)$
-- Compare results. There might be different results do to change in parameters.
+     - use filtering and aggregation on levels if statistics backend does not support those levels (e.g. limma)
+- Support algorithms working on the precursor (MSStats and MapDIA), peptide (msqrob) and protein level (limma).
+- Visualize up to 2 explanatory variables e.g. condition, patient. - This also means that the plots need to be annotated.
+- Define comparisons using contrasts i.e. condition1 vs condition2
+- Model fractionated experiments i.e. LOPID experiments
+- create analysis compatible summaries each set of parameters to make metaanalysis possible:
     - Study parameter sensitivity - which step in the analysis changes the result most.
     - Benchmark datasets.
 
