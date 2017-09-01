@@ -1,3 +1,14 @@
+---
+title: "TODO - Multigroup analysis"
+author: "Witold Wolski"
+output:
+  pdf_document: default
+  html_document: default
+mailto: wew@fgcz.ethz.ch
+toc: yes
+---
+
+
 # Multigroup analysis
 
 Abstract: Idea is to provide an easy to use API to process and analyze Quantitative mass spectrometry data from different sources.
@@ -29,33 +40,46 @@ Abstract: Idea is to provide an easy to use API to process and analyze Quantitat
 
 ## Functionality:
 
-* Data processing summaries
-   * How many conditions, How many samples per condition (2x2 tables). for implementation see [Pass generic column names to xtabs function in R](https://stackoverflow.com/questions/31992301/pass-generic-column-names-to-xtabs-function-in-r)
-```
-ftable(xtabs( ~ Time + Treatment, data= annotation))
-ftable(xtabs( ~ Strain + Time + Treatment + Plant, data= annotation))
-```
+### Data processing summaries
 
-   * How many transitions, proteins, peptides, precursors at each filtering step.
+* How many conditions, How many samples per condition (2x2 tables).
+* How many transitions, proteins, peptides, precursors at each filtering step.
 
-* generate QC plots for the data:
-   * Scatter plot within condition
-       - on which level - Precursor, protein
-       - on which condition if up to 3?
-   * CV for each condition if N > 2 and overall.
-       -  How to interpret it in a paired experiment? Maybe disable it? Or show 2 CV plots based on each condition variable.
-   * Distribution plot for each file - Violin plot or density?
-       * Densities within condition - before and after normalization
-       * compare condition based on common density - before and after normalization
+### Generate QC plots for the data:
+* Scatter plot within condition
+   - on which level - Precursor, protein
+   - on which condition if up to 3 conditions possible - main condition
+* Compare ording of transitions, proteins between samples
    * Correlation plot for samples - on which level - precursor protein or on all?
-   * Clustering on not normalized and normalized data with condition labels
-       - specify which variables to encode - work out how to encode - color scheme.
-   * Summaries for NAs
-   * QC for Retention time only possible on transition and precursor level data.
-   * QC of data filtering
-        - use sample correlation
-        - use transition and peptide correlation
-    * Pairsplot of group averages (output of modeling actually)
+   * Pearson, Spearman, R or R^2
+   * Compare clustering based on Correlation with that obtained from annotation.
+* CV for each condition if N > 2 and overall.
+   - How to interpret it in a paired experiment? 
+   - Maybe disable it? Or show 2 CV plots based on each condition variable.
+   - more concise represnetation?
+* Intensity distribution within sample:
+   * Violin - Densities within condition - before and after normalization
+   * Compare condition based on common density - before and after normalization
+   * How to compare 2 empirical distribution using on number?
+      * Plot 5 number summaries - plot Q1, mean, median, Q3 for each sample.
+      * Use moments mean, median, sd, Skewness, Kurtosis.
+      * Show this summary before and after normalization.
+* Clustering on not normalized and normalized data with condition labels:
+   - specify which variables to encode - work out how to encode - color scheme.
+* Summaries for NAs.
+   * nr of NA's per sample on which level (precursor, protein)?
+   * nr of NA's per precursor, peptide, protein
+* QC for Retention time (RT) only possible on precursor level data.
+   * Plot pairwise precursor fold change vs RT.
+   * Think about a summary for each pair?
+      * Fit a loess line or spline. Report systematic deviations.
+* MA plots on various levels
+   * Log2 fold change vs intensity for precursors, aggregated peptides, and proteins.
+   * Summarize their distribution - interesting because fold changes on precursor level sometimes much higher than on protein level.
+* QC of data filtering
+    - use sample correlation
+    - use transition and peptide correlation
+* Pairsplot of group averages (output of modeling actually)
 
 * Data preprocessing:
      * data filtering
@@ -87,21 +111,37 @@ ftable(xtabs( ~ Strain + Time + Treatment + Plant, data= annotation))
      * external packages like _limma_ and _msqrob_ (eventually MSStats) on the data.
 
 * Visualization of modeling results.
-     * Global for all proteins:
+     * Global for all proteins for 2 samples:
          * ma plot for each comparison - color code p-values?
          * volcano plot for each comparison (p-values, adjusted p-values)
-         * scatterplot of fold changes for 2 comparisons
          * distribution of p-values and distribution of adjusted p-values (FDR)
+     * For all Proteins and multiple comparisons
+         * Scatterplot of fold changes
+         * Correlation matrix for fold changes
      * Local (for each protein)
          * boxplot for each protein (unpaired)
          * line plot showing all transitions.
          * Show confidence intervals.
 
+# Open topics:
+
+## Compare results for fold change obtained by:
+
+  
+$$
+FC_{aggr} = log(\frac{a_1+b_1}{a_2+b_2})
+$$
+$$
+FC_{transitions} = (log(\frac{a_1}{a_2})) + log(\frac{b_1}{b_2}))/2
+$$
+
 
 ## Protein inference problem
 
-We measure precursor but the subject is proteins. Precursors can be grouped in proteins. Either, unambiguously (N:1) no conflicting peptide protein assignments. Optionally we can allow for ambiguity (N:M), which means that a peptide can be assigned to more than one protein.
+We measure precursor, but the subject is proteins. Precursors can be grouped in proteins. Either, unambiguously (N:1) no conflicting peptide protein assignments, achieved by removing all precursors matching more than one protein.  Optionally we can allow for ambiguity (N:M), which means that the same peptide can be assigned to more than one protein.
+
 - Visualize profiles of proteins which have shared peptides.
+- Protein grouping problem
 
 ## Implementation
 
@@ -135,7 +175,7 @@ The specification needs to be
 * Formula for fixed and random effects or design matrix if only fixed effects are considered.
 * A list of contrasts based on the 'main' Condition.
 
-# What configuration is needed for plotting?
+## What configuration is needed for plotting?
 
 Most of the plots will work with the long format (ggplot2) but some of the plots need the data in a wide format (e.g. pairs plot).
 
@@ -236,8 +276,8 @@ We are interested in inferences on the protein or protein groups level usually.
 
 # Comparable concepts:
 
-![ms QRob Benchmarking](inst/figures/msQRobBenchmark.gif)
-![TAPR Package Overview](inst/figures/TAPROverviewImage.jpg)
+![ms QRob Benchmarking](../../../inst/figures/msQRobBenchmark.gif)
+![TAPR Package Overview](../../../inst/figures/TAPROverviewImage.jpg)
 
 
 
