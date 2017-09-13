@@ -204,18 +204,18 @@ true
 <ul>
 <li>on which level - Precursor, protein</li>
 <li>on which condition if up to 3 conditions possible - main condition</li>
-<li>lcmsqc_pairs</li>
+<li><code>fzpq_gg_pairs</code></li>
 </ul></li>
 <li>Pairsplot of group averages (output of modeling actually)
 <ul>
-<li>lscmsq_pairs</li>
+<li><code>fzpq_gg_pairs</code></li>
 </ul></li>
 <li>Compare ordering of transitions, proteins between samples
 <ul>
 <li>Correlation plot for samples - on which level - precursor protein or on all?</li>
 <li>Pearson, Spearman, R or R^2</li>
 <li>Compare clustering based on Correlation with that obtained from annotation.</li>
-<li>lcmsqc_gg_heatmap</li>
+<li><code>fzpq_gg_heatmap</code></li>
 <li>Clustering - heatmap, on not normalized and normalized data with condition labels:
 <ul>
 <li>specify which variables to encode - work out how to encode - color scheme.</li>
@@ -226,21 +226,21 @@ true
 <li>How to interpret it in a paired experiment?</li>
 <li>Maybe disable it? Or show 2 CV plots based on each condition variable.</li>
 <li>more concise represnetation?</li>
-<li>lscmsqc_cv</li>
 <li>Violin - Densities within condition - before and after normalization</li>
-<li>lcmsqc_gg_cv</li>
+<li><code>fzpq_gg_cv</code></li>
 </ul></li>
 <li>Intensity distribution within sample:
 <ul>
 <li>Compare condition based on common density - before and after normalization</li>
-<li>lcmsqc_pl_density</li>
+<li><code>fzpq_gg_density</code></li>
 <li>How to compare 2 empirical distribution using on number?
 <ul>
 <li>Plot 5 number summaries - plot Q1, mean, median, Q3 for each sample.</li>
-<li>lcms_gg_summary</li>
-<li>Use moments mean, median, sd, Skewness, Kurtosis.</li>
+<li><code>fzpqc_gg_summary(&quot;five&quot;)</code></li>
+<li>Use also moments mean, median, sd, Skewness, Kurtosis.</li>
+<li><code>fzpqc_gg_summary(&quot;moments&quot;)</code></li>
 <li>Show this summary before and after normalization.</li>
-<li>lcmsqc_gg_boxplot</li>
+<li><code>fzpqc_gg_boxplot</code></li>
 </ul></li>
 </ul></li>
 <li>Summaries for NAs.
@@ -249,9 +249,9 @@ true
 <li>nr of NA’s per precursor, peptide,</li>
 <li>based on mice
 <ul>
-<li><code>lcmsqc_cc</code> select complete cases and <code>lcmsqc_cci</code> complete case indicator</li>
-<li><code>lcmsqc_ic</code> Select incomplete cases</li>
-<li><code>lcmsqc_ici</code> Incomplete case indicator</li>
+<li><code>fzpq_cc</code> select complete cases and <code>fzpq_cci</code> complete case indicator</li>
+<li><code>fzpq_ic</code> Select incomplete cases</li>
+<li><code>fzpq_ici</code> Incomplete case indicator</li>
 </ul></li>
 </ul></li>
 <li>Peptide and transition Summaries
@@ -265,13 +265,13 @@ true
 </ul></li>
 <li>QC for Retention time (RT) only possible on precursor level data.</li>
 <li>Plot pairwise precursor fold change vs RT.</li>
-<li><code>lcmsqc_gg_rtpairs</code></li>
+<li><code>fzpq_gg_rtpairs</code></li>
 <li>Think about a summary for each pair?
 <ul>
 <li>Fit a loess line, moving average or spline. Report systematic deviations.</li>
 </ul></li>
 <li>MA plots on various levels</li>
-<li>Log2 fold change vs intensity for precursors, aggregated peptides, and proteins. <code>lcmsqc_gg_ma</code> see also (ma on ggplot2)[<a href="https://gist.github.com/slavailn/172302c273b737b4219516c93173542c" class="uri">https://gist.github.com/slavailn/172302c273b737b4219516c93173542c</a>]</li>
+<li>Log2 fold change vs intensity for precursors, aggregated peptides, and proteins. <code>fzpq_gg_ma</code> see also (ma on ggplot2)[<a href="https://gist.github.com/slavailn/172302c273b737b4219516c93173542c" class="uri">https://gist.github.com/slavailn/172302c273b737b4219516c93173542c</a>]</li>
 <li>Summarize their distribution - interesting because fold changes on precursor level sometimes much higher than on protein level.</li>
 <li>QC of data filtering
 <ul>
@@ -317,7 +317,7 @@ true
 <li>median</li>
 <li>median and variance</li>
 <li>quantile</li>
-<li>Tuckey median polish, what for: <a href="https://www.youtube.com/watch?v=RtC9ZMOYgk8" class="uri">https://www.youtube.com/watch?v=RtC9ZMOYgk8</a></li>
+<li>Tuckey median polish, what for?: (how to compute)[<a href="https://www.youtube.com/watch?v=RtC9ZMOYgk8" class="uri">https://www.youtube.com/watch?v=RtC9ZMOYgk8</a>]</li>
 </ul></li>
 <li>Missing value imputation - must be used if aggregating is enabled and NA’s in the data
 <ul>
@@ -500,7 +500,7 @@ modelres &lt;- res %&gt;% fmzbf_m_MSqRob() </code></pre>
 - Subject (protein ID)
 - obsolete columns (i.e fasta.headers).
 - Contrast (e.g. T1-T2)
-- foldChange
+- foldChange - log2Ratio
 - averge intensities in both conditions (e.g. avgT1, avgT2)
 - p-value
 - adjusted-pvalue
@@ -510,7 +510,7 @@ modelres &lt;- res %&gt;% fmzbf_m_MSqRob() </code></pre>
 <div id="subject-statistics" class="section level2">
 <h2>subject statistics</h2>
 <pre><code>- Subject
-- nr of peptides
+- nr of peptides (-subjectComponent0, -subjectComponent1)
 - nr of precursors
 - nr of precursors to start with
 - subjectComponent QC measures (how well the transitions were correlated over the samples)
@@ -677,7 +677,7 @@ $(document).ready(function () {
   (function () {
     var script = document.createElement("script");
     script.type = "text/javascript";
-    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    script.src  = "https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
     document.getElementsByTagName("head")[0].appendChild(script);
   })();
 </script>

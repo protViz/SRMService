@@ -71,39 +71,39 @@ The Aims are:
 * Scatter plot within condition
     - on which level - Precursor, protein
     - on which condition if up to 3 conditions possible - main condition
-    - lcmsqc_pairs
+    - `fzpq_gg_pairs`
 * Pairsplot of group averages (output of modeling actually)
-    - lscmsq_pairs
+    - `fzpq_gg_pairs`
 * Compare ordering of transitions, proteins between samples
     * Correlation plot for samples - on which level - precursor protein or on all?
     * Pearson, Spearman, R or R^2
     * Compare clustering based on Correlation with that obtained from annotation.
-    - lcmsqc_gg_heatmap
+    - `fzpq_gg_heatmap`
     * Clustering - heatmap, on not normalized and normalized data with condition labels:
         - specify which variables to encode - work out how to encode - color scheme.
 * CV for each condition if N > 2 and overall.
     - How to interpret it in a paired experiment?
     - Maybe disable it? Or show 2 CV plots based on each condition variable.
     - more concise represnetation?
-    - lscmsqc_cv
     * Violin - Densities within condition - before and after normalization
-    - lcmsqc_gg_cv
+    - `fzpq_gg_cv`
 * Intensity distribution within sample:
     * Compare condition based on common density - before and after normalization
-    - lcmsqc_pl_density
+    - `fzpq_gg_density`
     * How to compare 2 empirical distribution using on number?
         * Plot 5 number summaries - plot Q1, mean, median, Q3 for each sample.
-        - lcms_gg_summary
-        * Use moments mean, median, sd, Skewness, Kurtosis.
+        - `fzpqc_gg_summary("five")`
+        * Use also moments mean, median, sd, Skewness, Kurtosis.
+        - `fzpqc_gg_summary("moments")`
         * Show this summary before and after normalization.
-        - lcmsqc_gg_boxplot
+        - `fzpqc_gg_boxplot`
 * Summaries for NAs.
     * nr of NA's per sample on which level (precursor, protein)?
     * nr of NA's per precursor, peptide,
     - based on mice
-        - `lcmsqc_cc` select complete cases and `lcmsqc_cci` complete case indicator
-        - `lcmsqc_ic`	Select incomplete cases
-        - `lcmsqc_ici`	Incomplete case indicator
+        - `fzpq_cc` select complete cases and `fzpq_cci` complete case indicator
+        - `fzpq_ic`	Select incomplete cases
+        - `fzpq_ici`	Incomplete case indicator
 * Peptide and transition Summaries
     * Summaries of Charge states
     * Nr of precursors per modsequence - min median mean and max - distribution - plot
@@ -113,12 +113,12 @@ The Aims are:
     - can be generated based on `subjectComponents` and their ordering.
 * QC for Retention time (RT) only possible on precursor level data.
    * Plot pairwise precursor fold change vs RT.
-   - `lcmsqc_gg_rtpairs`
+   - `fzpq_gg_rtpairs`
    * Think about a summary for each pair?
       * Fit a loess line, moving average or spline. Report systematic deviations.
 * MA plots on various levels
    * Log2 fold change vs intensity for precursors, aggregated peptides, and proteins.
-    `lcmsqc_gg_ma` see also (ma on ggplot2)[https://gist.github.com/slavailn/172302c273b737b4219516c93173542c]
+    `fzpq_gg_ma` see also (ma on ggplot2)[https://gist.github.com/slavailn/172302c273b737b4219516c93173542c]
    * Summarize their distribution - interesting because fold changes on precursor level sometimes much higher than on protein level.
 * QC of data filtering
     - use sample correlation
@@ -146,7 +146,7 @@ The Aims are:
     - median
     - median and variance
     - quantile
-    - Tuckey median polish, what for: https://www.youtube.com/watch?v=RtC9ZMOYgk8
+    - Tuckey median polish, what for?: (how to compute)[https://www.youtube.com/watch?v=RtC9ZMOYgk8]
 * Missing value imputation - must be used if aggregating is enabled and NA's in the data
     - sparse from Spectronaut
     - row mean and column mean imputation
