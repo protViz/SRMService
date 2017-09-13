@@ -11,9 +11,11 @@ toc: yes
 
 # Multigroup analysis
 
-Abstract: Idea is to provide an easy to use API to process and analyze Quantitative mass spectrometry data from different sources.
+## Abstract
 
-## Aims
+Idea is to provide an easy to use API to process and analyze Quantitative mass spectrometry data from different sources in R or python or maybee both.
+
+The Aims are:
 
 - Single configuration script, object allowing to specify filtering, imputation, normalization methods, models used, visualizations
 - Generate output Report, including figure captions, in HTML and PDF format. Place all figures with reasonable naming in high res png and pdf in folders.
@@ -32,69 +34,114 @@ Abstract: Idea is to provide an easy to use API to process and analyze Quantitat
     - Study parameter sensitivity - which step in the analysis changes the result most.
     - Benchmark datasets.
 
-## Functionality:
+# Comparable concepts {.tabset}
 
-### Data processing summaries
+## MSqRob 
+
+![ms QRob Benchmarking](../../../inst/figures/msQRobBenchmark.gif)
+
+## TAPR
+
+![TAPR Package Overview](../../../inst/figures/TAPROverviewImage.jpg)
+
+
+# Nomenclature
+
+- sample - a single mass spectrometric run
+- sample Annotation - factors associated with this sample e.g. date, donor, condition etc.
+- Subject - the subject we want to learn about - e.g. Protein or peptide
+- Subject Components - Proteins are made of peptides, peptides are aggregated from precursors
+- response variable - intensity
+- explanatory variable - fixed and random effects
+- fixed Effects - what we want to model e.g. condition.
+- random Effects - subject components, some of the sample annotation e.g. technical replicate
+
+
+# Functionality:  {.tabset}
+
+
+## QC and Summaries
+
+### Annotation Summaries
 
 * How many conditions, How many samples per condition (2x2 tables).
-* How many transitions, proteins, peptides, precursors at each filtering step.
 
-### Generate QC plots for the data:
+### Generate QC plots for the data
+
 * Scatter plot within condition
     - on which level - Precursor, protein
     - on which condition if up to 3 conditions possible - main condition
+    - lcmsqc_pairs
 * Pairsplot of group averages (output of modeling actually)
-* Compare ording of transitions, proteins between samples
+    - lscmsq_pairs
+* Compare ordering of transitions, proteins between samples
     * Correlation plot for samples - on which level - precursor protein or on all?
     * Pearson, Spearman, R or R^2
     * Compare clustering based on Correlation with that obtained from annotation.
+    - lcmsqc_gg_heatmap
+    * Clustering - heatmap, on not normalized and normalized data with condition labels:
+        - specify which variables to encode - work out how to encode - color scheme.
 * CV for each condition if N > 2 and overall.
-    - How to interpret it in a paired experiment? 
+    - How to interpret it in a paired experiment?
     - Maybe disable it? Or show 2 CV plots based on each condition variable.
     - more concise represnetation?
-* Intensity distribution within sample:
+    - lscmsqc_cv
     * Violin - Densities within condition - before and after normalization
+    - lcmsqc_gg_cv
+* Intensity distribution within sample:
     * Compare condition based on common density - before and after normalization
+    - lcmsqc_pl_density
     * How to compare 2 empirical distribution using on number?
         * Plot 5 number summaries - plot Q1, mean, median, Q3 for each sample.
+        - lcms_gg_summary
         * Use moments mean, median, sd, Skewness, Kurtosis.
         * Show this summary before and after normalization.
-* Clustering - heatmap, on not normalized and normalized data with condition labels:
-    - specify which variables to encode - work out how to encode - color scheme.
+        - lcmsqc_gg_boxplot
 * Summaries for NAs.
     * nr of NA's per sample on which level (precursor, protein)?
-    * nr of NA's per precursor, peptide, protein
+    * nr of NA's per precursor, peptide,
+    - based on mice
+        - `lcmsqc_cc` select complete cases and `lcmsqc_cci` complete case indicator
+        - `lcmsqc_ic`	Select incomplete cases
+        - `lcmsqc_ici`	Incomplete case indicator
 * Peptide and transition Summaries
     * Summaries of Charge states
-    * Nr of precursors per modsequence
+    * Nr of precursors per modsequence - min median mean and max - distribution - plot
     * Nr of mod sequences per peptide
     * Nr of peptides per protein
     * Nr of proteins with 1,2,3, or peptides / precursors
+    - can be generated based on `subjectComponents` and their ordering.
 * QC for Retention time (RT) only possible on precursor level data.
    * Plot pairwise precursor fold change vs RT.
+   - `lcmsqc_gg_rtpairs`
    * Think about a summary for each pair?
       * Fit a loess line, moving average or spline. Report systematic deviations.
 * MA plots on various levels
    * Log2 fold change vs intensity for precursors, aggregated peptides, and proteins.
+    `lcmsqc_gg_ma` see also (ma on ggplot2)[https://gist.github.com/slavailn/172302c273b737b4219516c93173542c]
    * Summarize their distribution - interesting because fold changes on precursor level sometimes much higher than on protein level.
 * QC of data filtering
     - use sample correlation
     - use transition and peptide correlation
+        - option 1 : pass all matrices
+        - option 2 : annotate rows with filtering results (place an indicator for each filtering)
+              - I could use with for instance.
 
-## Data preprocessing:
+## Data preprocessing
+
 * data filtering
     - based on intensity : top X transitions per precursor, top X precursors per protein
     - correlation based precursor or peptide filtering
          - can be performed on normalized and not normalized data. What is the consequence?
-         - Measure which combines correlation and scale. 
+         - Measure which combines correlation and scale.
              - i.e. it does not matter if transitions not correlated if observed fold change are very small.
     - NA counting and removal, globally and per condition thresholds - how to specify it?
     - Q value filtering for DIA data (strongly related to NA filtering)
     - Protein filtering min X precursors, modified peptide sequences or peptides per protein
     - remove / keep not proteotypic peptides
-* data aggregation (protein from precursors, and precursors from transitions)
+* subject aggregation - (protein from precursors, and precursors from transitions)
     - using sum, mean median
-* data normalization
+* sample normalization
     - vsn
     - median
     - median and variance
@@ -105,13 +152,20 @@ Abstract: Idea is to provide an easy to use API to process and analyze Quantitat
     - row mean and column mean imputation
     - linear regression
     - hot deck encoding
+    
+## Modelling
+
 * Data modeling:
      * ANOVA
      * linear models
      * mixed linear models
      * external packages like _limma_ and _msqrob_ (eventually MSStats) on the data.
+* Local Model QC (for each protein)
+    * boxplot per condition for each protein (unpaired)
+    * matrix plot showing all precursors / peptides.
+    * Show confidence intervals.
 
-## Visualization of modeling results.
+## Visualization of modeling results. {.tabset}
 
 * Global for all proteins for 2 samples:
      * ma plot for each comparison - color code p-values?
@@ -121,22 +175,27 @@ Abstract: Idea is to provide an easy to use API to process and analyze Quantitat
      * Scatterplot of fold changes
      * Correlation matrix for fold changes
      * Heatmap of significant fold changes
-* Local (for each protein)
-   * boxplot per condition for each protein (unpaired)
-   * matrix plot showing all precursors / peptides.
-   * Show confidence intervals.
+* Comparison of multiple analysis
+     * Correlations of fc and p-values
+     * ma plots
+     * nr of differences
 
-# Open topics:
+# Open topics: {.tabset}
 
 ## Compare results for fold change obtained by:
 
 $$
-FC_{aggr} = log(\frac{a_1+b_1}{a_2+b_2})
+FC_{aggr} = \log(\frac{p^1_a+p^2_a + \dots + p^n_a }{p^1_b+p^2_b + \dots + p^n_b})
 $$
 $$
-FC_{transitions} = (log(\frac{a_1}{a_2})) + log(\frac{b_1}{b_2}))/2
+FC_{transitions} = f(\log(\frac{p^1_a}{p^1_b}), \log(\frac{p^1_a}{p^1_b}),\dots, \log(\frac{p^n_a}{p^n_b}))
 $$
 
+$f$ - could be median, mean, robust mean etc.
+$a,b$ is the the sample
+$1,2, dots ,n $ is the precursor belonging to protein $p$.
+
+For top 3 $n\le3$
 
 ## Protein inference problem
 
@@ -145,21 +204,45 @@ We measure precursor, but the subject is proteins. Precursors can be grouped in 
 - Visualize profiles of proteins which have shared peptides.
 - Protein Grouping problem -> Visualize protein profiles of grouped proteins.
 
-# Implementation
+# Implementation {.tabset}
 
-- Use long format (tibble) as long as possible and implement functions to switch from wide to long.
-- Use an additional object which describes which columns means what? 
-    - Store it in a tibble attribute.
-- methods work on _tibble's_ and should support _magrittr_ operator
-- Use tibbles to represent transition, precursor and protein/peptide.
-     - those tibbles should have types since some methods are only applicable to transitions, precursors, peptides and proteins.
+## Naming conventions and programming paradigms
+
+- Use long format (tibble or pandes)
+- use tidyverse (or pandas)
+- implement functions to switch between long to wide `to_wide` - pivot.
+   - functions to switch from wide tolong `tolong` - difficult since wide cant cary the same amount of information?
+   - the wide representation needs to store the more of information in an additional attribute?
+- Use an additional object which describes which columns means what?
+    - additional attributes e.g. `subjectComponents`
+    - Store it in a tibble attribute?
+    - If this works additional table types like peptide protein are not needed, the right method is chosen by examining the _special_ attributes
+    - methods work on _tibble's_ and should support _magrittr_ operator
+    - see also : (sf)[https://github.com/r-spatial]
 - Optional tibble to represent annotation if annotation largish.
-- allow for switching between long and wide format (if wide store long format in an tibble attribute).
-- (sf)[https://github.com/r-spatial]
-- 
-## Configuration
+- function naming: `<package>_<datatype>_<functionname>`
+  - function naming should finding function simpler
+- would spliting into packages help?
+   - base - `fzpb_d_towide()`
+   - quality control - `fzpqc_gg_pairs()`
+   - filtering - `fzpf_d_correlation`
+   - modeling - `fzpm_d_limma()`, `fzpm_g_volcano()`
+   - modeling comparison - `fzpmc_d_ma()`
+- datatypes returned by functions can be:
+  - data.frame `d_`
+  - or ggplot2 objects `gg_`
+  - matrices - `m` wide format
 
-### What variables are needed for filtering?
+
+## Configuration {.tabset}
+
+### Filtering and Aggregation
+
+What variables are needed for filtering?
+
+Aggregation and filtering works between subjectComponent and subject or 2 subjectComponent levels.
+Uses information from the `subjectComponents`.
+
 
 - fixed effects, mayor effect e.g. condition, donor, sex
 - subject e.g. Subject = TopProteinID or Subject = StrippedPeptideID or Subject = ModifiedProteinSequence
@@ -168,8 +251,7 @@ We measure precursor, but the subject is proteins. Precursors can be grouped in 
 
 __Examples:__
 
-
-Describe levels, 
+Describe levels,
 
 ```{r}
 Effects = list(c("Strain", "Treatment", "TimePoint"), "PatientID", "isFemale")
@@ -183,7 +265,7 @@ Effects = list("Condition" = c("Strain", "Treatment", "TimePoint"), "Donor" = "P
 ```
 
 
-Open issue: How do we merge the Condition columns into a new condition identifier? 
+Open issue: How do we merge the Condition columns into a new condition identifier?
 Needed for specifying contrasts.
 
 
@@ -206,11 +288,13 @@ SubjectComponents = list("Peptide" = c("nakedSequence"), "ModifiedPeptide" = c("
 
 Similarily for experiments containing Precursor information.
 
-### What configuration is needed for modeling?
+### Modelling
+
+What configuration is needed for modeling?
 
 We want to learn about proteins, therefore we need to specify:
 
-```{r} 
+```{r}
 Subject = "ProteinID"
 fixedEffects = c("Condition", "Donor")
 randomEffects = c(SubjectComponents, "Sex" = "isFemale")
@@ -226,52 +310,99 @@ Do we need to specify those columns?
 ObsoleteColumns  = c("FastaHeaders") #(but required to be cept)
 ```
 
-## What configuration is needed for plotting?
+### Plotting 
+
+What configuration is needed for plotting?
 
 Most of the plots will work with the long format (ggplot2) but some of the plots need the data in a wide format (e.g. pairs plot).
 
 
-## Aggregation and Correlation Filtering
+### Model evaluation and visualization
 
-uses information from the `subjectComponents`.
-Aggregation and filtering works between subjectComponent and subject or 2 subjectComponent levels.
+Modelling from limma, MSqRob, and others are results are respresented as `tibble`. Good place to start with is the r-package (broom)[https://github.com/tidyverse/broom].
+
+## Code example
+
+```{r, eval=FALSE}
+res <- 
+  read_tsv(tsvfile) %>% 
+  fzb_df_add_config(ymlfile)
+
+res %>%
+  fzbq_gg_cvplot()
+
+res %>%  fzbq_gg_pairs("condition")
+
+# aggregates top 3 transitions
+resPeptide <- res %>% fzbf_df_aggregate(top=3,median)
+
+# returns a dataframe with model annotation.
+modelres <- res %>% fmzbf_m_MSqRob() 
+
+```
 
 
-## Output
 
-* modelling results
-    - Subject 
-    - Contrast
-    - foldChange 
-    - p-value 
-    - adjusted-pvalue
+# Output {.tabset}
+
+Some of the data are of bigger importance to the end user and therefore need to be splitted into sever tables.
+
+## modelling results
+
+    - Pipeline (e.g. limma)
+    - Subject (protein ID)
     - obsolete columns (i.e fasta.headers).
+    - Contrast (e.g. T1-T2)
+    - foldChange - log2Ratio
+    - averge intensities in both conditions (e.g. avgT1, avgT2)
+    - p-value
+    - adjusted-pvalue
     - Confidence interval
+    - Bayes Factor
 
-* subject statistics
+## subject statistics
     - Subject
-    - nr of peptides
+    - nr of peptides (-subjectComponent0, -subjectComponent1)
     - nr of precursors
-    - mean subjectComponent correlation
+    - nr of precursors to start with
+    - subjectComponent QC measures (how well the transitions were correlated over the samples)
+        - _avg_, _min_ and _max_ correlation
+    
 
-* transformation results:
-    - Subject, Sample, Intensity
+## transformation results
+    - Subject
+    - Sample
+    - Intensity
+    
+## Reports - Figures
+- Reports
+    - html
+    - pdf
+- Figures
+    - pdf
+    - png
 
-* do also export all intermediate results.    
+## open issues
 
-## Evaluation
+Do we also need export all intermediate results.
+   - table with top 3 peptides
+   - results of correlation filtering?
+   
 
+# Evaluation {.tabset}
+
+# Filtering
 * How filtering is influenced by the number of samples/conditions?
-* How one filtering step can influence a different filtering step? E.g. stronger qValue filtering might in the increase number of proteins left because more are kept after correlation filtering.
-
-# Types of input data :
+* How one filtering step can influence a different filtering step? E.g. stronger $qValue$ filtering might increase the number of proteins left because more are kept after correlation filtering.
+* 
+# Types of input data
 
 - OpenSwath
 - MaxQuant ProteinGroups.txt , Peptide.txt
 - Spectronaut
 - PD - LFQ workflow
 
-# Example Projects
+# Example Projects {.tabset}
 
 ## Benchmar dataset 3 proteome
 Check with Pedro Navarro if triple proteome datasets are available for various instruments.
@@ -292,32 +423,12 @@ factors - levels
 * Leave
 * BATCH
 
-## fixed effects
 
-interesting to the analysis
+# Nomenclature
 
-* Condition (Strain + Timepoint + Treatment)
-* Since the experiment is paired we also need plant as an additional factor
+## For modelling {.tabset}
 
-## Random effects
-
-Of no interest to the analysis, in this case, this would be the batch. If we move to protein level it will be peptide or precursor.
-
-## Contrasts
-
-Are computed based on a single factor - condition. Which can be a composition of several factors (see above).
-
-## Protein Level Annotation
-
-We are interested in inferences on the protein or protein groups level usually.
-
-* Nr.Peptides
-* Majority.protein.IDs (all proteins belonging to a protein group. See protein grouping  <http://aggrivet.blogspot.ch/2016/12/protein-clusters.html>.
-* Top.Protein.Name - label protein of the protein group
-* Fasta.headers (additional protein annotation)
-
-
-## in proteomics we are usually measuring precursors:
+A proteomics measurement might look like:
 
 * FileName
 * TransitionGroupID
@@ -332,12 +443,46 @@ We are interested in inferences on the protein or protein groups level usually.
 * Measured.MS1Intensity
 * Measured.MS2IntensityAggregated
 
-# Comparable concepts:
+### Fixed effects
 
-![ms QRob Benchmarking](../../../inst/figures/msQRobBenchmark.gif)
+interesting to the analysis
+
+* Condition (Strain + Timepoint + Treatment)
+* Since the experiment is paired we also need plant as an additional factor
+
+For instance
+
+- sample name
+- sex
+- condition
+- donor
 
 
-![TAPR Package Overview](../../../inst/figures/TAPROverviewImage.jpg)
+### Random effects
+
+Of no interest to the analysis, in this case, this would be the batch. If we move to protein level it will be peptide or precursor.
+
+For instance : Protein Level Annotation
+
+We are interested in inferences on the protein or protein groups level usually.
+
+* Nr.Peptides
+* Majority.protein.IDs (all proteins belonging to a protein group. See protein grouping  <http://aggrivet.blogspot.ch/2016/12/protein-clusters.html>.
+* Top.Protein.Name - label protein of the protein group
+* Fasta.headers (additional protein annotation)
+
+
+### Contrasts
+
+Are computed based on a single factor e.g. condition. Which can be a composition of several factors (see above).
+
+## For Filtering {.tabset}
+
+### subject Levels
+
+### Sample Annotations
+
+
 
 
 
