@@ -30,9 +30,9 @@ The Aims are:
 - Visualize up to 2 explanatory variables e.g. condition, patient. - This also means that the plots need to be annotated.
 - Define comparisons using contrasts i.e. condition1 vs condition2
 - Model fractionated experiments i.e. LOPID experiments
-- create analysis compatible summaries each set of parameters to make metaanalysis possible:
+- Create meta analysis compatible summaries for each set of parameters. i.e. do not write results only to report but create an object with all the inforamtion. i.e. store number of proteins, peptides, sample correlations after each processing step.
     - Study parameter sensitivity - which step in the analysis changes the result most.
-    - Benchmark datasets.
+    - Create a set of Benchmark datasets.
 
 # Comparable concepts {.tabset}
 
@@ -44,21 +44,39 @@ The Aims are:
 
 ![TAPR Package Overview](../../../inst/figures/TAPROverviewImage.jpg)
 
+## ROPECA
+
+![ROPECA Package Overview](../../../inst/figures/ROPECA.jpg)
+
+[ROPECA](https://www.nature.com/articles/s41598-017-05949-y)
+
+## LFQBench
+
+An (not necessarily the best) example how to integrate different software and benchmark results.
+
+[LFQBench](https://github.com/IFIproteomics/LFQbench)
+
+![LFQBench 1](../../../inst/figures/LFQBench1.jpg)
+![LFQBench 2](../../../inst/figures/LFQBench2.jpg)
+## Swath2Stats
+
+[Swath2Stats](https://bioconductor.org/packages/release/bioc/html/SWATH2stats.html)
+
+![Swath2Stats](../../../inst/figures/Swath2Stats.PNG)
 
 # Nomenclature
 
 - sample - a single mass spectrometric run
 - sample Annotation - factors associated with this sample e.g. date, donor, condition etc.
-- Subject - the subject we want to learn about - e.g. Protein or peptide
-- Subject Components - Proteins are made of peptides, peptides are aggregated from precursors
+- subject - the subject we want to learn about - e.g. Protein or peptide
+- subject components - Proteins are made of peptides, peptides are aggregated from precursors
 - response variable - intensity
 - explanatory variable - fixed and random effects
-- fixed Effects - what we want to model e.g. condition.
-- random Effects - subject components, some of the sample annotation e.g. technical replicate
+- fixed effects - what we want to model e.g. condition.
+- random effects - subject components, some of the sample annotation e.g. technical replicate
 
 
 # Functionality:  {.tabset}
-
 
 ## QC and Summaries
 
@@ -72,11 +90,11 @@ The Aims are:
     - on which level - Precursor, protein
     - on which condition if up to 3 conditions possible - main condition
     - `fzpq_gg_pairs`
-* Pairsplot of group averages (output of modeling actually)
+* Pairs plot of group averages (output of modelling actually)
     - `fzpq_gg_pairs`
 * Compare ordering of transitions, proteins between samples
     * Correlation plot for samples - on which level - precursor protein or on all?
-    * Pearson, Spearman, R or R^2
+    * Pearson, Spearman rank correlation, R or R^2
     * Compare clustering based on Correlation with that obtained from annotation.
     - `fzpq_gg_heatmap`
     * Clustering - heatmap, on not normalized and normalized data with condition labels:
@@ -142,11 +160,13 @@ The Aims are:
 * subject aggregation - (protein from precursors, and precursors from transitions)
     - using sum, mean median
 * sample normalization
-    - vsn
+    
+    - (vsn)[http://bioconductor.org/packages/release/bioc/html/vsn.html]
     - median
-    - median and variance
+    - median and variance (robust scale)
     - quantile
     - Tuckey median polish, what for?: (how to compute)[https://www.youtube.com/watch?v=RtC9ZMOYgk8]
+    - (cqn)[https://academic.oup.com/biostatistics/article-lookup/doi/10.1093/biostatistics/kxr054]
 * Missing value imputation - must be used if aggregating is enabled and NA's in the data
     - sparse from Spectronaut
     - row mean and column mean imputation
@@ -159,7 +179,7 @@ The Aims are:
      * ANOVA
      * linear models
      * mixed linear models
-     * external packages like _limma_ and _msqrob_ (eventually MSStats) on the data.
+     * external packages like `limma`, `msqrob`, `ropeca` (eventually MSStats) on the data.
 * Local Model QC (for each protein)
     * boxplot per condition for each protein (unpaired)
     * matrix plot showing all precursors / peptides.
@@ -193,7 +213,7 @@ $$
 
 $f$ - could be median, mean, robust mean etc.
 $a,b$ is the the sample
-$1,2, dots ,n $ is the precursor belonging to protein $p$.
+$1,2, \dots ,n$ is the precursor belonging to protein $p$.
 
 For top 3 $n\le3$
 
@@ -208,14 +228,16 @@ We measure precursor, but the subject is proteins. Precursors can be grouped in 
 
 ## Naming conventions and programming paradigms
 
-- Use long format (tibble or pandes)
-- use tidyverse (or pandas)
+- Use long format (tibble or pandes) 
+- use `tidyverse` (or pandas) `plyr`, `dplyr`, `tidyr`.
+- (Programming with dplyr)[http://dplyr.tidyverse.org/articles/programming.html]
 - implement functions to switch between long to wide `to_wide` - pivot.
-   - functions to switch from wide tolong `tolong` - difficult since wide cant cary the same amount of information?
-   - the wide representation needs to store the more of information in an additional attribute?
+- functions to switch from wide tolong `to_long` - difficult since wide can't cary the same amount of information?
+   - If yes the wide representation needs to store the more of information in an additional attribute?
+   - could be usefull for some filtering approaches.
 - Use an additional object which describes which columns means what?
-    - additional attributes e.g. `subjectComponents`
-    - Store it in a tibble attribute?
+    - additional attributes e.g. `Subject`, `subjectComponents`
+    - Store it as an attribute.
     - If this works additional table types like peptide protein are not needed, the right method is chosen by examining the _special_ attributes
     - methods work on _tibble's_ and should support _magrittr_ operator
     - see also : (sf)[https://github.com/r-spatial]
@@ -272,7 +294,7 @@ Needed for specifying contrasts.
 A peptide measurment experiment
 
 ```{r}
-Subject = "modifiedSequnce"
+Subject = "modifiedSequence"
 SubjectComponents = list("Precursor" = c("modifiedSequence", "charge", "precursorID"))
 ```
 
@@ -301,6 +323,15 @@ randomEffects = c(SubjectComponents, "Sex" = "isFemale")
 Response = "vsnIntensity"
 ```
 
+This model syntax would translate to:
+``` vsnIntensity ~ Conditon + Donor ```
+
+Open issue is than still. How do we model interactions?
+
+What might work is:
+```{r}
+fixedEffects = c("Condition", "Donor", "Donor:Contion")
+```
 
 The ProteinID is here the grouping variable. Obsolete columns can be e.g. __Fasta.headers__ containing additional information. But obsolete can be also original intensities if transformed intensities are used. The transformed intensity will be the response. We limit the number of fixed effects to 3.
 
@@ -310,6 +341,12 @@ Do we need to specify those columns?
 ObsoleteColumns  = c("FastaHeaders") #(but required to be cept)
 ```
 
+
+
+__Specifying contrasts__
+
+
+
 ### Plotting 
 
 What configuration is needed for plotting?
@@ -317,9 +354,9 @@ What configuration is needed for plotting?
 Most of the plots will work with the long format (ggplot2) but some of the plots need the data in a wide format (e.g. pairs plot).
 
 
-### Model evaluation and visualization
+## Model evaluation and visualization
 
-Modelling from limma, MSqRob, and others are results are respresented as `tibble`. Good place to start with is the r-package (broom)[https://github.com/tidyverse/broom].
+Modelling from limma, MSqRob, and others are results are respresented as `tibble`. Good place to start with is the r-package [broom](https://github.com/tidyverse/broom).
 
 ## Code example
 
@@ -382,30 +419,52 @@ Some of the data are of bigger importance to the end user and therefore need to 
     - pdf
     - png
 
-## open issues
 
-Do we also need export all intermediate results.
-   - table with top 3 peptides
-   - results of correlation filtering?
-   
 
-# Evaluation {.tabset}
-
-# Filtering
-* How filtering is influenced by the number of samples/conditions?
-* How one filtering step can influence a different filtering step? E.g. stronger $qValue$ filtering might increase the number of proteins left because more are kept after correlation filtering.
-* 
 # Types of input data
 
-- OpenSwath
 - MaxQuant ProteinGroups.txt , Peptide.txt
 - Spectronaut
 - PD - LFQ workflow
+- OpenSwath
+
+The outputs come in various formats, not necessarily in long format (e.g. MaxQuant). Therefore, scripts converting those outputs in long format are needed.
+ 
+
+# Evaluation {.tabset}
+
+## Filtering
+* How filtering is influenced by the number of samples/conditions?
+* How one filtering step can influence a different filtering step? E.g. stronger $qValue$ filtering might increase the number of proteins left because more are kept after correlation filtering.
+
+## Output storage location
+
+In addition to the input also the output location must be configurable. Furthermore, the working directory also needs to be adjustable.
+
+
+## Intermediate results
+
+Do we also need to export all intermediate results and if which one?
+   - table with top 3 peptides
+   - results of correlation filtering?
+
 
 # Example Projects {.tabset}
 
-## Benchmar dataset 3 proteome
+## Benchmar datasets
+
 Check with Pedro Navarro if triple proteome datasets are available for various instruments.
+
+[Triple proteome - Tripel proteome](https://www.ncbi.nlm.nih.gov/pubmed/25545627?dopt=Abstract)
+[Triple Proteome Data Pride](ftp://ftp.pride.ebi.ac.uk/pride/data/archive/2017/04/PXD001240)
+
+[LFQbench - Triple Proteome](http://www.nature.com/nbt/journal/v34/n11/full/nbt.3685.html)
+[LFQbench  - Data](http://proteomecentral.proteomexchange.org/cgi/GetDataset?ID=PXD002952)
+
+[Spike in Benchmark dataset - Bruderer](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC4424408/)
+[Data at Peptide Atlas](https://db.systemsbiology.net/sbeams/cgi/PeptideAtlas/PASS_View?identifier=PASS00589)
+
+
 
 ## Example project Fabienne Cells.
 
@@ -478,7 +537,7 @@ Are computed based on a single factor e.g. condition. Which can be a composition
 
 ## For Filtering {.tabset}
 
-### subject Levels
+### Subject Levels
 
 ### Sample Annotations
 
@@ -496,8 +555,13 @@ Are computed based on a single factor e.g. condition. Which can be a composition
 
 [MSStats](http://msstats.org/)
 
-[Summarization vs Peptide-Based Models in Label-Free Quantitative Proteomics: Performance, Pitfalls, and Data Analysis Guidelines](http://pubs.acs.org/doi/abs/10.1021/pr501223t)
+[MSqRob Summarization vs Peptide-Based Models in Label-Free Quantitative Proteomics: Performance, Pitfalls, and Data Analysis Guidelines](http://pubs.acs.org/doi/abs/10.1021/pr501223t)
 
 [MSqRob github](https://github.com/statOmics/MSqRob)
 
 [Benchmark data for MSqRob](https://github.com/statOmics/MSqRobData/)
+
+
+[VSN A systematic evaluation of normalization methods in quantitative label-free proteomics.](https://www.ncbi.nlm.nih.gov/pubmed/27694351)
+
+
