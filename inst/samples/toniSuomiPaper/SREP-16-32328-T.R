@@ -10,8 +10,7 @@ library(PECA)
 #--------------------------------------------------
 
 # Read data
-data <- read_excel("Data/mcp.M114.044305-3.xlsx", sheet=4)
-
+data <- read_excel("Data/mcp.M114.044305-3.xlsx", sheet=2)
 colnames(data) <- c("Protein","Peptide","Charge","Sample1_R1","Sample1_R2","Sample1_R3","Sample2_R1","Sample2_R2","Sample2_R3","Sample3_R1","Sample3_R2","Sample3_R3","Sample4_R1","Sample4_R2","Sample4_R3","Sample5_R1","Sample5_R2","Sample5_R3","Sample6_R1","Sample6_R2","Sample6_R3","Sample7_R1","Sample7_R2","Sample7_R3","Sample8_R1","Sample8_R2","Sample8_R3")
 data <- data[-1,]
 data <- data.frame(data)

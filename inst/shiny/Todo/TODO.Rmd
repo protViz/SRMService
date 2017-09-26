@@ -191,14 +191,16 @@ An (not necessarily the best) example how to integrate different software and be
      * ma plot for each comparison - color code p-values?
      * volcano plot for each comparison (p-values, adjusted p-values)
      * distribution of p-values and distribution of adjusted p-values (FDR)
+     * distributon of log2 fold changes - with lines marking 0, the median, mean, 1Q and 3Q of the distribution.
+          * Include statistics about how many are less or greater than zero
 * For multiple comparisons
-     * Scatterplot of fold changes
+     * Scatterplot matrix of fold changes
      * Correlation matrix for fold changes
-     * Heatmap of significant fold changes
+     * Heatmap of significant fold changes - nice to see.
 * Comparison of multiple analysis
      * Correlations of fc and p-values
      * ma plots
-     * nr of differences
+     * nr of differences (?)
 
 # Open topics: {.tabset}
 
@@ -519,7 +521,7 @@ For instance
 
 ### Random effects
 
-Of no interest to the analysis, in this case, this would be the batch. If we move to protein level it will be peptide or precursor.
+Of no interest to the analysis, e.g. the batch. If we move to protein level it will be peptide or precursor.
 
 For instance : Protein Level Annotation
 
