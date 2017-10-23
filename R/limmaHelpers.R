@@ -72,16 +72,15 @@ getPVals <- function(lmfitebayes, var = "ProteinID"){
 #' res <- contrasts.fit.NA(fit,cont)
 #' }
 contrasts.fit.NA <- function(fit, cont){
-
   resl <- NULL
   for(i in 1:length(colnames(fit))){
     x <- colnames(fit)[i]
-    #print(x)
     idx <- !grepl(x, colnames(cont))
-    #print(colnames(cont)[idx])
-    lmfit.cont <- contrasts.fit(fit[,-i], cont[-i,idx])
-    lmfitebayes <- eBayes(lmfit.cont)
-    resl[[i]] <- getPVals(lmfitebayes)
+    if(sum(idx) > 0){
+      lmfit.cont <- contrasts.fit(fit[,-i], cont[-i,idx])
+      lmfitebayes <- eBayes(lmfit.cont)
+      resl[[i]] <- getPVals(lmfitebayes)
+    }
   }
   lmfit.cont <- contrasts.fit(fit, cont)
   lmfitebayes <- eBayes(lmfit.cont)

@@ -7,7 +7,6 @@ Maintainer: Witold Wolski <wewolski@gmail.com>
 Description: Analysing and LFQ and SRM experiments in service mode.
     Data preprocessing and visualization.
 Imports:
-    affy,
     bibliospec,
     bookdown,
     gplots,
