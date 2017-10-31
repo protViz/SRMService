@@ -58,40 +58,37 @@ knitr::kable(tab)
 
 \pagebreak
 
-# Proteins Used for Quantitation
 
+
+
+# Proteins Used for Quantitation
 
 ```{r histmissing }
 missing <- grp2$getNrNAs()
 int <- apply(grp2$proteinIntensity,1,sum, na.rm=TRUE)
 grp2$proteinIntensity <- grp2$proteinIntensity[order(missing, -int,decreasing = T),]
-
 ```
-
 
 The input matrix has the following structure (Figure \@ref(fig:overview)).
 
-
-```{r overview, fig.with=9,fig.height=6,dpi=300,fig.cap="Heatmap for quantifyable proteins sorted by missigness and intensity (log2). Gray - missing values"}
+```{r overview, fig.width=8,fig.height=6,dpi=300,fig.cap="Heatmap for quantifyable proteins sorted by missigness and intensity (log2). Gray - missing values"}
 library(quantable)
-
 imageWithLabels(t(log2(grp2$proteinIntensity)), col.labels = NULL, col=quantable::getBlueScale(21))
 ```
 
-```{r missingValuesPerProtein, fig.cap="# of missing values per protein"}
-plot(table(missing))
 
+
+```{r missingValuesPerProtein, fig.cap="# of missing values per protein"}
+plot(table(missing), xlab="number of missing values", ylab="number of proteins")
 progress(0.1, "Summary")
 
 ```
 
 \pagebreak
 
-
 # Distribution of Intensities
 
-Shown in Figure \@ref(fig:distributionRaw) are the un-normalized values while in Figure \@ref(fig:normalized)
-are the z transformed values (subtracted median and divided by variance).
+Shown in Figure \@ref(fig:distributionRaw) are the distributions of raw log2 transormed intensity values. 
 
 ```{r distributionRaw, fig.width=7, fig.height=7, fig.cap="Density plot for quantifyable proteins (log2 transformed)"}
 library(ggplot2)
@@ -101,9 +98,24 @@ longm <- melt(log2(grp2$proteinIntensity))
 p <- qplot( variable , value , data=longm , geom="violin" , xlab="" , ylab="log2(I)")
 p + stat_summary(fun.y=median,geom='point') +theme(axis.text.x = element_text(angle = 90, hjust = 1))
 
+
+```
+
+In Figure \@ref(fig:scaling) the ratios of the median intensity in each sample versus the least intensive sample are shown. Large fold changes (greater than 10) are critical. 
+
+```{r  scaling,dpi=300, fig.height=6, fig.cap="Median(I sample) / min(median(I sample)."}
+par(mar=c(3,10,3,3))
+bb <- 2^grp2$getNormalized()$medians
+barplot(bb/min(bb) ,horiz=F,las=2, main="median", cex.names = 0.6)
+progress(0.2, "Normalization")
+
 ```
 
 
+
+# Normalization
+
+Figure \@ref(fig:normalized) shows the $z$ transformed values. After the z-transformation all samples have same median and the same variance.
 
 ```{r normalized,  fig.width=7,fig.height=7,dpi=300, fig.cap="Density plot for normalized values (z-score)"}
 
@@ -113,22 +125,12 @@ p + stat_summary(fun.y=median,geom='point') + theme(axis.text.x = element_text(a
 
 ```
 
-The effect of the normalization (z transformation) is visualized in Figure \@ref(fig:scaling). It shows the log2-median value which is subtracted from each individually sample. Large differences in these values are critical.
-
-
-```{r  scaling,dpi=300, fig.height=6, fig.cap="Median values subtracted for normalization."}
-par(mfrow=c(2,1))
-par(mar=c(3,10,3,3))
-
-barplot(grp2$getNormalized()$medians,horiz=T,las=2, main="median", cex.names = 0.6)
-barplot(grp2$getNormalized()$mads,horiz=T, las=2 , main="standard deviation", cex.names = 0.6)
-
-progress(0.2, "Normalization")
-
-```
-
 
 \pagebreak
+
+
+
+
 
 # Coefficients of Variations
 
@@ -231,26 +233,30 @@ progress(0.1, "debug-3")
 
 ## Adjusted moderated p-values (q-values) (limma output)
 
-Significant calls are made with q-value smaller `r grp2$qvalue` (false discovery rate, computed with bioconductor package qvalue). 
+If the groups are different we would expect more small p-values in Figure \@ref{fig:histOfpValues} than by chance (blue horizontal line). If there are only as many or less small p-values as by chance than no significant false discovery rate controlled calls will be made in Figure \@ref{fig:volcanoplot}. 
 
 ```{r}
 fcname <- paste("log2(", grp2$getConditions()$condition, "/", grp2$getConditions()$reference, ")", sep="")
-
 progress(0.1, "debug-2")
-
 res.eb <-grp2$getPValues()
 
 ```
 
-```{r}
 
+```{r histOfpValues, fig.width=10, fig.height=8, dpi=300, fig.cap="Histogram of moderated p values."}
+hist(res.eb$p.mod, breaks=20, xlab="", main="")
+abline(h=length(res.eb$p.mod)/20,col="blue")
+abline(v=0.05,col=2)
 ```
 
-```{r fig.width=10, fig.height=8, dpi=300, fig.cap="VolcanoPlot for normalized and scaled proteins with stringent thresholds. x axis log2 fold change of z-score"}
+Significant calls are made with q-value smaller than `r grp2$qvalue` (false discovery rate, computed with bioconductor package qvalue) (see Figure \@ref(fig:volcanoplot))
 
+
+```{r volcanoplot, fig.width=10, fig.height=8, dpi=300, fig.cap="VolcanoPlot for normalized and scaled proteins with stringent thresholds. x axis log2 fold change of z-score"}
 resStr <-quantable::volcanoplot(res.eb$log2FC, res.eb$q.mod, foldchangethresh = grp2$qfoldchange , pthresh = grp2$qvalue ,labels=rownames(res.eb),xlab = fcname)
-
 ```
+
+
 
 \newpage
 ```{r, eval=FALSE, include=FALSE}
@@ -273,47 +279,13 @@ if(!is.null(resStr)){
   
   head(resStr)
   resRel <- resStr
-  
   resStr<-fixcols(resStr,fcname = fcname, name="moderated qvalue")
-  
   knitr::kable(resStr, caption = "Most significant regulated proteins.")
 }
 ```
 
 
 \newpage
-
-## Adjusted p-values (q-values) (normal t-test)
-
-Significant calls are made with a p Value smaller `r grp2$pvalue`. 
-
-```{r}
-progress(0.1, "debug2")
-```
-
-```{r fig.width=10, fig.height=8, dpi=300, fig.cap="VolcanoPlot for normalized and imputed matrix with p Values."}
-res.eb <-grp2$getPValues()
-
-resRel <- quantable::volcanoplot(res.eb$log2FC, res.eb$q.ord, foldchangethresh = grp2$qfoldchange , pthresh = grp2$qvalue ,labels=rownames(res.eb),xlab = fcname)
-
-```
-
-\newpage
-
-<!-- Error handling if resRel is empty-->
-```{r  results="markup"}
-if(!is.null(resRel)){
-  resRel <- fixcols(resRel,fcname=fcname, name="p-value")
-  knitr::kable(resRel, caption = "Most significant regulated proteins.")
-  progress(0.1, "volcanos")
-}
-```
-
-\newpage
-
-```{r histOfpValues, fig.width=10, fig.height=8, dpi=300, fig.cap="Histogram of moderated p values", include=FALSE}
-hist(res.eb$p.mod, breaks=20, xlab="", main="")
-```
 
 
 ## Output Data Description
@@ -322,6 +294,7 @@ hist(res.eb$p.mod, breaks=20, xlab="", main="")
 knitr::kable(data.frame(columns=colnames(grp2$getResultTable())[1:11]))
 
 ```
+
 
 # References
 
@@ -333,7 +306,7 @@ For questions and improvements please do contact the authors of the package [_SR
 ## Disclaimer and Acknowledgements
 
 This document was generated using Rmarkdown and processes text files which are generated with a label-free quantitation software such as MaxQuant or Progenesis. 
-The obtained results should be validated orthogonally as well (e.g. with Western blots). The Functional Genomics Center Zurich does not provide any kind of guarantee of the validity of these results.
+The obtained results should be validated orthogonal as well (e.g. with Western blots). The Functional Genomics Center Zurich does not provide any kind of guarantee of the validity of these results.
 
 \newpage
 # Session Info
