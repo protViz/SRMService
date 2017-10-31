@@ -20,6 +20,7 @@ Imports:
     R6,
     reshape2,
     rmarkdown,
+    scales,
     tools,
     yaml
 License: GPL
