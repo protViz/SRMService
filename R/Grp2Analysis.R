@@ -65,11 +65,11 @@ Grp2Analysis <- setRefClass("Grp2Analysis",
                                 maxNA=3,
                                 nrPeptides = 2,
                                 reference = "Control",
-                                annotationColumns = annotationColumns
+                                annotationCol = annotationColumns
                               ){
                                 .self$projectName <- projectName
                                 .self$experimentName <- experimentName
-                                stopifnot(annotationColumns %in% colnames(annotation))
+                                stopifnot(annotationCol %in% colnames(annotation))
                                 annotation <- annotation[!is.na(annotation$Condition),]
                                 .self$annotation_ <- annotation[order(annotation$Condition),]
                                 .self$conditions <- as.character(unique(.self$annotation_$Condition))

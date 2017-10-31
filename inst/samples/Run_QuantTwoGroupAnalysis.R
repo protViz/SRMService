@@ -31,6 +31,7 @@ barplot(tmp[(length(tmp)-5):length(tmp)],ylim=c(0, length(protein$Peptides)),xla
 
 ###################################
 ### Configuration section
+
 Experimentname = ""
 nrNas = 3
 nrPeptides = 2

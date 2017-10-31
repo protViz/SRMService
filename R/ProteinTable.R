@@ -2,6 +2,7 @@
 #' @docType class
 #' @export
 #' @include RequiredColumns.R
+#' @import scales
 #' @examples
 #'
 #' x <- data.frame(Raw.file = c("A","B","C"),"MeasOrder" = c(1,2,3) , Gender = c("F","F","M"))
@@ -41,7 +42,8 @@ Annotation <- R6::R6Class("Annotation",
                             },
                             exists = function(colname){
                               if(length(setdiff(colname , colnames(self$annotation)))){
-                                stop("annotation does not contain  : ", setdiff(colname, colnames(self$annotation)))
+                                warning("annotation does not contain  : ", setdiff(colname, colnames(self$annotation)))
+                                return(FALSE)
                               }
                               return(TRUE)
                             },
@@ -86,7 +88,9 @@ Annotation <- R6::R6Class("Annotation",
 #' @field experimentID name of the experiment
 #' @importFrom R6 R6Class
 #' @examples
-#' pt <- ProteinTableR6$new()
+#' x <- data.frame(Raw.file = c("A","B","C"),"MeasOrder" = c(1,2,3) , Gender = c("F","F","M"))
+#' cm <- Annotation$new(x, fixed = "Gender")
+#' #pt <- ProteinTableR6$new(cm)
 ProteinTableR6 <- R6::R6Class("ProteinTableR6",public = list(
   proteinIntensities = NULL,
   required = c("ProteinID", "NrPeptides"),

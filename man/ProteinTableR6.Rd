@@ -22,6 +22,8 @@ Protein Table
 }}
 
 \examples{
-pt <- ProteinTableR6$new()
+x <- data.frame(Raw.file = c("A","B","C"),"MeasOrder" = c(1,2,3) , Gender = c("F","F","M"))
+cm <- Annotation$new(x, fixed = "Gender")
+#pt <- ProteinTableR6$new(cm)
 }
 \keyword{datasets}

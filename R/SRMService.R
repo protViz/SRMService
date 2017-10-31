@@ -27,7 +27,7 @@ getConditionColumns <- function(){
 
 .reportMissing <- function(dl, dh){
   df_args <- c( subset(dl, select = colnames(dl)!="Area"), sep=".")
-  dlid <-do.call(paste, df_args)
+  dlid <- do.call(paste, df_args)
   df_args <- c( subset(dh, select = colnames(dh)!="Area"), sep=".")
   dhid <-do.call(paste, df_args)
 
