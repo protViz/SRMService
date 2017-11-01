@@ -86,11 +86,7 @@ nrPrecursors <- function(data){
 }
 
 
-
-
 ### Correlation Filtering
-
-
 .transitionCorrelations <- function(dataX , method="spearman"){
   if(nrow(dataX) > 1){
     ordt <- (dataX)[order(apply(dataX,1,mean)),]
@@ -100,25 +96,28 @@ nrPrecursors <- function(data){
   }else{
     message("Could not compute correlation, nr rows : " , nrow(dataX) )
   }
-
 }
+
 .findDecorrelated <- function(res, threshold = 0.65){
   nrtrans <- ncol(res)
   ids <- rowSums(res < threshold, na.rm = TRUE)
   names(which((nrtrans-1)== ids))
 }
 
-.removeDecorrelated <- function(ff, ValueCol , corThreshold = 0.7, tr = log2, .PrecursorId = ".PrecursorId" ){
+.removeDecorrelated <- function(ff, ValueCol , corThreshold = 0.7, tr = log2, .PrecursorId = ".PrecursorId" , .Decorrelated = ".Decorrelated"){
   fx <-tr(ff[,ValueCol:ncol(ff)])
+  idcolumns <- ff[,1:(ValueCol-1)]
   rownames(fx) <- ff[,.PrecursorId]
   res <-.transitionCorrelations(fx, method="pearson")
-  ff[!ff[,.PrecursorId] %in% .findDecorrelated(res,threshold = corThreshold),]
+  idcolumns[[.Decorrelated]] <- idcolumns[,.PrecursorId] %in% .findDecorrelated(res,threshold = corThreshold)
+  return(idcolumns)
 }
 
 
-removeDecorellated <- function(data, minCorrelation = 0.65){
+whichDecorellated <- function(data, minCorrelation = 0.65){
   config <- getConfig(data)
   required <- config$required
+  newColumn <- ".Decorrelated"
 
   tmp <- data %>%
     select_at(c(config$.PrecursorId, required$ProteinId, config$.SampleLabel,  config$workIntensity  )) %>%
@@ -129,7 +128,12 @@ removeDecorellated <- function(data, minCorrelation = 0.65){
 
   intensitiesCorrelated <- plyr::llply(listProt, .removeDecorrelated,numericColumn , minCorrelation )
   intensitiesD <- plyr::ldply(intensitiesCorrelated, .id = required$ProteinId)
-  return(intensitiesD)
+
+  data <- inner_join(data, intensitiesD)
+  config[[newColumn]]= newColumn
+  data <- setConfig(data, config)
+  message("Added Column: ", newColumn)
+  return(data)
 }
 
 
@@ -170,6 +174,33 @@ imputef <- function(xx,ValueCol){
 }
 
 
+# impute missing
+imputeMissing <- function(data){
+  imputedIntensityColname <- ".ImputedIntensity"
+  config <- getConfig(data)
+  required <- config$required
+  tmp <- data %>%
+    select_at(c(config$.PrecursorId, required$ProteinId, config$.SampleLabel,  config$workIntensity  )) %>%
+    spread( key= config$.SampleLabel , value =  config$workIntensity )
+  numericColumn <- length( c(config$.PrecursorId, required$ProteinId) ) + 1
+
+  listProt <- plyr::dlply(tmp, required$ProteinId)
+
+  intensitiesImputed <- plyr::llply(listProt, imputef ,numericColumn )
+  intensitiesImputed <- plyr::ldply(intensitiesImputed, .id = required$ProteinId)
+
+  intensitiesImputedX <- gather(intensitiesImputed, !!sym(config$.SampleLabel),imputedIntensityColname,
+                                -!!sym(config$.PrecursorId), -!!sym(required$ProteinId))
+
+  head(intensitiesImputedX)
+  data2 <- inner_join(data,intensitiesImputedX)
+  config$.ImputedIntensity <- imputedIntensityColname
+  message("Added Column:",imputedIntensityColname )
+  data2<-setConfig(data2,config)
+  return(data2)
+}
+
+
 rankProteinPrecursors <- function(data, top = NULL,
                                   column = configuration$workIntensity,
                                   fun = function(x){ mean(x, na.rm=TRUE)},
@@ -183,7 +214,6 @@ rankProteinPrecursors <- function(data, top = NULL,
 
   groupedByProtein <- summaryPerPrecursor %>% arrange(!!sym( configuration$required$ProteinId)) %>% group_by(!!sym( configuration$required$ProteinId))
   rankedBySummary <- groupedByProtein %>% mutate(!!rankColumn := rankFunction(!!sym(summaryColumn)))
-
 
   data <- inner_join(data, rankedBySummary)
   return(data)
@@ -204,6 +234,7 @@ rankPrecursorsPerProteinByNAs <- function(data){
   )
   configuration[[summaryColumn]] <- summaryColumn
   configuration[[rankColumn]] <- rankColumn
+  message("Added Columns :", summaryColumn,  rankColumn)
   data <- setConfig(data, configuration)
   return(data)
 }
@@ -211,7 +242,7 @@ rankPrecursorsPerProteinByNAs <- function(data){
 
 rankPrecursorsByIntensity <- function(data){
 
-  configuration <- getConf(data)
+  configuration <- getConfig(data)
   summaryColumn <- ".meanInt"
   rankColumn <- ".meanIntRank"
 
@@ -224,41 +255,24 @@ rankPrecursorsByIntensity <- function(data){
 
   configuration[[summaryColumn]] <- summaryColumn
   configuration[[rankColumn]] <- rankColumn
+  message("Added Columns :", summaryColumn,  rankColumn)
   data <- setConfig(data, configuration)
   return(data)
   }
 
 
 
-
-
-
-# impute missing
-imputeMissing <- function(data){
+aggregateTopNIntensities <- function(data, N = 3){
   config <- getConfig(data)
   required <- config$required
-
-  tmp <- data %>%
-    select_at(c(config$.PrecursorId, required$ProteinId, config$.SampleLabel,  config$workIntensity  )) %>%
-    spread( key= config$.SampleLabel , value =  config$workIntensity )
-  numericColumn <- length( c(config$.PrecursorId, required$ProteinId) ) + 1
-
-  listProt <- plyr::dlply(tmp, required$ProteinId)
-
-  intensitiesImputed <- plyr::llply(listProt, imputef ,numericColumn )
-  intensitiesImputed <- plyr::ldply(intensitiesImputed, .id = required$ProteinId)
-
-  intensitiesImputedX <- gather(intensitiesImputed, !!sym(config$.SampleLabel),".ImputedIntensity",
-                                -!!sym(config$.PrecursorId), -!!sym(required$ProteinId))
-
-  head(intensitiesImputedX)
-  data2 <- inner_join(data,intensitiesImputedX)
-  config$.ImputedIntensity <- ".ImputedIntensity"
-  data2<-setConfig(data2,config)
-  return(data2)
+  xx <- data %>% filter( .meanIntRank <= N) %>%
+    group_by(!!!syms(c(config$.PrecursorId, required$ProteinId, config$.SampleLabel)))
+  sumNA <- function(x){sum(x, na.rm=TRUE)}
+  xx <-xx %>% summarize( .sumTopInt =sumNA(!!sym(conf$workIntensity))  )
+  config$.sumTopInt <- ".sumTopInt"
+  data <- setConfig(data, config)
+  return(data)
 }
-
-
 
 
 
