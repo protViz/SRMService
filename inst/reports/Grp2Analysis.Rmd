@@ -32,7 +32,7 @@ The protein matrix is filtered like this:
 The total number of proteins in this experiment is: `r nrow(grp2$proteinIntensity)`
 
 
-# The Groupings
+## The Groupings
 
 
 ```{r}
@@ -61,7 +61,8 @@ knitr::kable(tab)
 
 
 
-# Proteins Used for Quantitation
+## The Protein Quantities
+
 
 ```{r histmissing }
 missing <- grp2$getNrNAs()
@@ -71,7 +72,7 @@ grp2$proteinIntensity <- grp2$proteinIntensity[order(missing, -int,decreasing = 
 
 The input matrix has the following structure (Figure \@ref(fig:overview)).
 
-```{r overview, fig.width=8,fig.height=6,dpi=300,fig.cap="Heatmap for quantifyable proteins sorted by missigness and intensity (log2). Gray - missing values"}
+```{r overview, fig.width=8,fig.height=8,dpi=300,fig.cap="Heatmap for quantifyable proteins sorted by missigness and intensity (log2). Gray - missing values"}
 library(quantable)
 imageWithLabels(t(log2(grp2$proteinIntensity)), col.labels = NULL, col=quantable::getBlueScale(21))
 ```
@@ -86,7 +87,9 @@ progress(0.1, "Summary")
 
 \pagebreak
 
-# Distribution of Intensities
+# Quality Control
+
+## Distribution of Intensities
 
 Shown in Figure \@ref(fig:distributionRaw) are the distributions of raw log2 transormed intensity values. 
 
@@ -101,40 +104,37 @@ p + stat_summary(fun.y=median,geom='point') +theme(axis.text.x = element_text(an
 
 ```
 
-In Figure \@ref(fig:scaling) the ratios of the median intensity in each sample versus the least intensive sample are shown. Large fold changes (greater than 10) are critical. 
+In Figure \@ref(fig:scaling) the ratios of the average sample intensity versus the mean average intensity of all samples is shown. It is critical if a samples average deviates more than 5 times from mean of all samples.
 
-```{r  scaling,dpi=300, fig.height=6, fig.cap="Median(I sample) / min(median(I sample)."}
+```{r  scaling,dpi=300, fig.height=6, fig.cap="Average intensity in sample vs average intensity in all samples."}
 par(mar=c(3,10,3,3))
-bb <- 2^grp2$getNormalized()$medians
-barplot(bb/min(bb) ,horiz=F,las=2, main="median", cex.names = 0.6)
+bb <- grp2$getNormalized()$medians
+
+barplot(sort(abs(bb))  - mean(bb) ,horiz=F,las=2, main="median", cex.names = 0.6, ylab="log2(median(I)) - mean(log2(median(I))")
+abline(h=c(-5,5),col=2)
+x<-seq(-2,2,by=.5)
+axis(4,x,round(2^abs(x),digits=1))
 progress(0.2, "Normalization")
 
 ```
 
+## Normalization
 
+Figure \@ref(fig:normalized) shows the normalized values. Normalization is applied to remove systematic differences in protein abundance due to different sample concentrations, so that differentially experessed proteins can be detected. After normalization all samples have a similar distribution (same median and similar variance). 
 
-# Normalization
-
-Figure \@ref(fig:normalized) shows the $z$ transformed values. After the z-transformation all samples have same median and the same variance.
 
 ```{r normalized,  fig.width=7,fig.height=7,dpi=300, fig.cap="Density plot for normalized values (z-score)"}
-
 longm <- melt(grp2$getNormalized()$data)
 p <- qplot( variable , value , data=longm , geom="violin" , xlab="" , ylab="z-score")
-p + stat_summary(fun.y=median,geom='point') + theme(axis.text.x = element_text(angle = 90, hjust = 1))
+p + stat_summary(fun.y=median, geom='point') + theme(axis.text.x = element_text(angle = 90, hjust = 1))
 
 ```
 
-
 \pagebreak
 
+## Coefficients of Variations
 
-
-
-
-# Coefficients of Variations
-
-```{r CViolin, fig.cap="distribution of protein CV within condition and overall"}
+```{r CViolin, fig.cap="Distribution of protein CV within condition and overall"}
 cond1 <- grp2$getConditionData(grp2$conditions[1])
 cond2 <- grp2$getConditionData(grp2$conditions[2])
 
@@ -184,7 +184,7 @@ progress(0.1, "CVs")
 
 \pagebreak
 
-# Heatmaps and Clustering for Samples and Proteins
+## Heatmaps and Clustering for Samples and Proteins
 
 ```{r correlation,dpi=300, fig.height=8, fig.width=8, fig.cap="Heatmap of correlations (spearman) between samples."}
 col <- c("red","blue")
@@ -199,7 +199,7 @@ simpleheatmap(cor(grp2$getNormalized()$data,
 In Figure \@ref(fig:heatmapData) and Figure \@ref(fig:correlation) we show how samples are clustering depending on their correlation and on the protein expression profiles.
 
 
-```{r heatmapData, fig.width=8, fig.height=10, dpi=300, fig.cap="Heatmap for normalized and scaled values (z-scores)." }
+```{r heatmapData, fig.width=8, fig.height=10, dpi=300, fig.cap="Heatmap of normalized data." }
 tmp <- grp2$getNormalized()$data
 
 simpleheatmap(grp2$getNormalized()$data[grp2$getNrNAs() < ncol(grp2$getNormalized()$data)/2,],ColSideColors = col[as.factor(grp2$getAnnotation()$Condition)], margins=c(10,3) )
@@ -207,33 +207,20 @@ simpleheatmap(grp2$getNormalized()$data[grp2$getNrNAs() < ncol(grp2$getNormalize
 progress(0.2, "Heatmaps")
 ```
 
+\pagebreak
+
 
 # Two Group Analysis
 
+In the following analysis we assume that most of the proteins are not regulated (fold change is equal zero). p-values and Q-values are a measure of how likely it is to observe the data given this assumption ($H_0$). Figure \@ref{fig:densityOFFoldChanges} shows the distribution of fold changes.
+
 Here we show the result of a two group analysis for the normalized matrix using the bioconductor limma package. 
 
-```{r include=FALSE}
-fixcols <- function(resRel, fcname = "log2(Cond/Cont)", name = "qvalue", top = 20){
-  resRel<-do.call("rbind", resRel)
-  rownames(resRel) <- NULL
-  resRel <- data.frame(resRel,tmp= 2^resRel$foldchange)
-  colnames(resRel) <- c("regulation", "Accession", fcname, name, gsub("log2","",fcname))
-  
-  resRel <- resRel[order(resRel[,name])[1:min(top,nrow(resRel))],]
-  
-  return(resRel)
-}
-```
 
 ```{r}
 progress(0.1, "debug-3")
 ```
 
-\newpage
-
-## Adjusted moderated p-values (q-values) (limma output)
-
-If the groups are different we would expect more small p-values in Figure \@ref{fig:histOfpValues} than by chance (blue horizontal line). If there are only as many or less small p-values as by chance than no significant false discovery rate controlled calls will be made in Figure \@ref{fig:volcanoplot}. 
 
 ```{r}
 fcname <- paste("log2(", grp2$getConditions()$condition, "/", grp2$getConditions()$reference, ")", sep="")
@@ -243,46 +230,62 @@ res.eb <-grp2$getPValues()
 ```
 
 
+```{r densityOFFoldChanges, fig.width=10, fig.height=8, dpi=300, fig.cap = "Distribution of log2(FC). red dashed line - median fold change."}
+plot(density(res.eb$effectSize))
+abline(v=0,col="green")
+abline(v=median(res.eb$effectSize),col=2,lty=2)
+
+```
+
+
+\newpage
+
+## Adjusted moderated p-values (q-values) (limma output)
+
+If the groups are different we would expect more small p-values in Figure \@ref{fig:histOfpValues} than by chance (blue horizontal line). If there are only as many or less small p-values as by chance than no significant false discovery rate controlled calls (Q Value) will be made in Figure \@ref{fig:volcanoplot}. 
+
+
 ```{r histOfpValues, fig.width=10, fig.height=8, dpi=300, fig.cap="Histogram of moderated p values."}
 hist(res.eb$p.mod, breaks=20, xlab="", main="")
 abline(h=length(res.eb$p.mod)/20,col="blue")
-abline(v=0.05,col=2)
 ```
+
 
 Significant calls are made with q-value smaller than `r grp2$qvalue` (false discovery rate, computed with bioconductor package qvalue) (see Figure \@ref(fig:volcanoplot))
 
 
-```{r volcanoplot, fig.width=10, fig.height=8, dpi=300, fig.cap="VolcanoPlot for normalized and scaled proteins with stringent thresholds. x axis log2 fold change of z-score"}
-resStr <-quantable::volcanoplot(res.eb$log2FC, res.eb$q.mod, foldchangethresh = grp2$qfoldchange , pthresh = grp2$qvalue ,labels=rownames(res.eb),xlab = fcname)
-```
+```{r volcanoplot, fig.width=10, fig.height=8, dpi=300, fig.cap="VolcanoPlot : x axis log2 fold change of normalized data, y axis -log10(Q-value)."}
 
+quantable::volcano2G(res.eb$log2FC,
+                     res.eb$q.mod,
+                     rownames(res.eb),
+                     ylab="-log10(Q Value)",
+                     log2FCThresh=grp2$qfoldchange,
+                     pthresh=grp2$qvalue
+                     ,ylim=c(0,-log10(min(res.eb$q.mod))),size=2)
+
+
+```
 
 
 \newpage
-```{r, eval=FALSE, include=FALSE}
- resRel<-do.call("rbind", resRel)
- head(resRel)
-  rownames(resRel) <- NULL
-  resRel <- data.frame(resRel,tmp= 2^resRel$foldchange)
-  c("regulation", "Accession", fcname, name, gsub("log2","",fcname))
-  resRel
-  
-  colnames(resRel) <- c("regulation", "Accession", fcname, name, gsub("log2","",fcname))
-  
-  resRel <- resRel[order(resRel[,name])[1:min(top,nrow(resRel))],]
-  
-  return(resRel)
-```
+
 
 ```{r results="markup"}
-if(!is.null(resStr)){
-  
-  head(resStr)
-  resRel <- resStr
-  resStr<-fixcols(resStr,fcname = fcname, name="moderated qvalue")
-  knitr::kable(resStr, caption = "Most significant regulated proteins.")
-}
+tmp <- grp2$getResultTable()
+x <- data.frame(table(tmp$effectSize < grp2$qfoldchange & tmp$q.mod < grp2$qvalue))
+x$Var1 <- c("Not Significant" , "Significant")
+knitr::kable(x, caption = "Nr of not significant and significant proteins.")
 ```
+
+
+
+```{r top20table}
+library(dplyr)
+top20 <- tmp %>% dplyr::select( TopProteinName,effectSize, q.mod ) %>% arrange((q.mod) ) %>% head(20)
+knitr::kable(top20, caption = "Top 20 proteins by smallest Q Value.")
+```
+
 
 
 \newpage
@@ -303,7 +306,7 @@ This report was generated using the package [SRMService](http://github.com/protV
 For questions and improvements please do contact the authors of the package [_SRMService_](https://github.com/protViz/SRMService/graphs/contributors).
 
 
-## Disclaimer and Acknowledgements
+## Disclaimer
 
 This document was generated using Rmarkdown and processes text files which are generated with a label-free quantitation software such as MaxQuant or Progenesis. 
 The obtained results should be validated orthogonal as well (e.g. with Western blots). The Functional Genomics Center Zurich does not provide any kind of guarantee of the validity of these results.
