@@ -51,14 +51,13 @@ summariseQValues <- function(data){
                                             .funs = funs(".QValueMin"=nthbestQValue(.,param$minNumberOfQValues ),
                                                          ".QValueNR" =npass(., 0.05)
                                             ))
-
   return(qValueSummaries)
 }
 
 
 summariseNAs <- function(data){
   config <- getConfig(data)
-  nNAs <- function(x ){sum(is.na(x))}
+  nNAs <- function(x){sum(is.na(x))}
   lFG <- data %>%
     group_by_at(config$required$PrecursorId)
 
@@ -71,6 +70,21 @@ summariseNAs <- function(data){
 
   return(longQNASummaries)
 }
+
+### Filter using number of precursors
+nrPrecursors <- function(data){
+  configuration <- getConfig(data)
+  tmp <- data %>%
+    select_at(c(configuration$required$ProteinId, configuration$required$PrecursorId)) %>%
+    distinct() %>%
+    group_by_at(configuration$required$ProteinId) %>%
+    summarise(.nrPrecursors=n())
+  configuration$.nrPrecursors <- ".nrPrecursors"
+  data <- m_inner_join(data, tmp )
+  data <- setConfig(data, configuration)
+  return(data)
+}
+
 
 
 
@@ -156,22 +170,67 @@ imputef <- function(xx,ValueCol){
 }
 
 
-## Ranks precursors by NAs (adds new column .NARank)
-rankPrecursorsByNAs <- function(data, topNA = NULL){
-
+rankProteinPrecursors <- function(data, top = NULL,
+                                  column = configuration$workIntensity,
+                                  fun = function(x){ mean(x, na.rm=TRUE)},
+                                  summaryColumn = ".meanInt",
+                                  rankColumn = ".meanIntRank",
+                                  rankFunction = function(x){min_rank(desc(x))}
+){
   configuration <- getConfig(data)
-  natmp <-data %>% group_by(!!!syms(c(configuration$.PrecursorId, configuration$required$ProteinId))) %>%
-    summarise(.NrNAs = min(!!sym(configuration$.NrNAs)))
-  x3 <- natmp %>% arrange(!!sym( configuration$required$ProteinId)) %>% group_by(!!sym( configuration$required$ProteinId))
-  x3 <- x3 %>% mutate(.NARank = min_rank((.NrNAs)))
-  if(!is.null(topNA)){
-    x3 <- x3 %>% filter(.NARank < topNA)
-  }
-  configuration$.NARank <- ".NARank"
-  data2 <- inner_join(data, x3)
-  data <- setConfig(data2, configuration)
+  summaryPerPrecursor <-data %>% group_by(!!!syms(c( configuration$.PrecursorId, configuration$required$ProteinId))) %>%
+    summarise(!!summaryColumn := fun(!!sym(column)))
+
+  groupedByProtein <- summaryPerPrecursor %>% arrange(!!sym( configuration$required$ProteinId)) %>% group_by(!!sym( configuration$required$ProteinId))
+  rankedBySummary <- groupedByProtein %>% mutate(!!rankColumn := rankFunction(!!sym(summaryColumn)))
+
+
+  data <- inner_join(data, rankedBySummary)
   return(data)
 }
+
+
+## Ranks precursors by NAs (adds new column .NARank)
+rankPrecursorsPerProteinByNAs <- function(data){
+  configuration <- getConfig(data)
+  summaryColumn <- ".NrNAs"
+  rankColumn <- ".NrNARank"
+
+  data<- rankProteinPrecursors(data, column = configuration$.NrNAs,
+                               fun = min,
+                               summaryColumn = summaryColumn,
+                               rankColumn = rankColumn,
+                               rankFunction = function(x){min_rank(x)}
+  )
+  configuration[[summaryColumn]] <- summaryColumn
+  configuration[[rankColumn]] <- rankColumn
+  data <- setConfig(data, configuration)
+  return(data)
+}
+
+
+rankPrecursorsByIntensity <- function(data){
+
+  configuration <- getConf(data)
+  summaryColumn <- ".meanInt"
+  rankColumn <- ".meanIntRank"
+
+  data<- rankProteinPrecursors(data, column = configuration$workIntensity,
+                        fun = function(x){ mean(x, na.rm=TRUE)},
+                        summaryColumn = summaryColumn,
+                        rankColumn = rankColumn,
+                        rankFunction = function(x){min_rank(desc(x))}
+                        )
+
+  configuration[[summaryColumn]] <- summaryColumn
+  configuration[[rankColumn]] <- rankColumn
+  data <- setConfig(data, configuration)
+  return(data)
+  }
+
+
+
+
 
 
 # impute missing
@@ -193,7 +252,7 @@ imputeMissing <- function(data){
                                 -!!sym(config$.PrecursorId), -!!sym(required$ProteinId))
 
   head(intensitiesImputedX)
-  data2 <- inner_join(data,intensitiesImputed)
+  data2 <- inner_join(data,intensitiesImputedX)
   config$.ImputedIntensity <- ".ImputedIntensity"
   data2<-setConfig(data2,config)
   return(data2)
