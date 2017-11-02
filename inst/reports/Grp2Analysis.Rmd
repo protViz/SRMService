@@ -91,7 +91,7 @@ progress(0.1, "Summary")
 
 ## Distribution of Intensities
 
-Shown in Figure \@ref(fig:distributionRaw) are the distributions of raw log2 transormed intensity values. 
+Shown in Figure \@ref(fig:distributionRaw) are the distributions of raw log2 transformed intensity values. Ideally the violins should look very similar.
 
 ```{r distributionRaw, fig.width=7, fig.height=7, fig.cap="Density plot for quantifyable proteins (log2 transformed)"}
 library(ggplot2)
@@ -101,26 +101,25 @@ longm <- melt(log2(grp2$proteinIntensity))
 p <- qplot( variable , value , data=longm , geom="violin" , xlab="" , ylab="log2(I)")
 p + stat_summary(fun.y=median,geom='point') +theme(axis.text.x = element_text(angle = 90, hjust = 1))
 
-
 ```
 
 In Figure \@ref(fig:scaling) the ratios of the average sample intensity versus the mean average intensity of all samples is shown. It is critical if a samples average deviates more than 5 times from mean of all samples.
 
 ```{r  scaling,dpi=300, fig.height=6, fig.cap="Average intensity in sample vs average intensity in all samples."}
-par(mar=c(3,10,3,3))
 bb <- grp2$getNormalized()$medians
-
-barplot(sort(abs(bb))  - mean(bb) ,horiz=F,las=2, main="median", cex.names = 0.6, ylab="log2(median(I)) - mean(log2(median(I))")
+par(mar=c(15,6,3,6))
+barplot(sort(abs(bb))  - mean(bb) ,horiz=F,las=2, main="median", cex.names = 0.6, ylab="log2(sample average) - log2(total average)", ylim=c(-6,6))
 abline(h=c(-5,5),col=2)
-x<-seq(-2,2,by=.5)
+x<-seq(-3,3,by=.5)
 axis(4,x,round(2^abs(x),digits=1))
-progress(0.2, "Normalization")
+mtext("linear scale", side=4, line=2)
 
+progress(0.2, "Normalization")
 ```
 
 ## Normalization
 
-Figure \@ref(fig:normalized) shows the normalized values. Normalization is applied to remove systematic differences in protein abundance due to different sample concentrations, so that differentially experessed proteins can be detected. After normalization all samples have a similar distribution (same median and similar variance). 
+Figure \@ref(fig:normalized) shows the normalized values. Normalization is applied to remove systematic differences in protein abundance due to different sample concentrations, so that differentially expressed proteins can be detected. After normalization all samples have a similar distribution (same median and similar variance). 
 
 
 ```{r normalized,  fig.width=7,fig.height=7,dpi=300, fig.cap="Density plot for normalized values (z-score)"}
@@ -133,6 +132,10 @@ p + stat_summary(fun.y=median, geom='point') + theme(axis.text.x = element_text(
 \pagebreak
 
 ## Coefficients of Variations
+
+
+The Figure \@ref(fig:CViolin) show the coefficient of variations for all proteins in each condition and overall. To observe differences between conditions the variation within a condition should be smaller than within all conditions.
+
 
 ```{r CViolin, fig.cap="Distribution of protein CV within condition and overall"}
 cond1 <- grp2$getConditionData(grp2$conditions[1])
@@ -158,6 +161,8 @@ knitr::kable(cvSummary,caption = 'median of cv')
 ```
 
 \pagebreak
+
+The Figure \@ref(fig:SDViolin) shows the distributions of standard deviations for all proteins with the conditions and overall after transforming and normalization the data. To observe differences between conditions the standard deviation within a condition should be smaller than within all conditions.  
 
 ```{r SDViolin, fig.cap="Distribution of protein standard deviation (after sample normalization and scaling) within conditions and overall"}
 cond1 <- grp2$getNormalizedConditionData( grp2$conditions[1] )
@@ -196,15 +201,16 @@ simpleheatmap(cor(grp2$getNormalized()$data,
                   margins = c(10,3))
 ```
 
-In Figure \@ref(fig:heatmapData) and Figure \@ref(fig:correlation) we show how samples are clustering depending on their correlation and on the protein expression profiles.
+In Figure \@ref(fig:correlation) and Figure \@ref(fig:heatmapData) we show how samples are clustering depending on their correlation and on the protein expression profiles.
 
 
 ```{r heatmapData, fig.width=8, fig.height=10, dpi=300, fig.cap="Heatmap of normalized data." }
 tmp <- grp2$getNormalized()$data
-
-simpleheatmap(grp2$getNormalized()$data[grp2$getNrNAs() < ncol(grp2$getNormalized()$data)/2,],ColSideColors = col[as.factor(grp2$getAnnotation()$Condition)], margins=c(10,3) )
-
+stmMm <- grp2$getNormalized()$data[grp2$getNrNAs() < ncol(grp2$getNormalized()$data)/2,]
+simpleheatmap(t(scale(t(stmMm),scale = F)),ColSideColors = col[as.factor(grp2$getAnnotation()$Condition)], margins=c(10,3),
+              breaks=seq(-2.5,2.5,length=26),palette = getBlueWhiteRed(25))
 progress(0.2, "Heatmaps")
+
 ```
 
 \pagebreak
@@ -212,9 +218,8 @@ progress(0.2, "Heatmaps")
 
 # Two Group Analysis
 
-In the following analysis we assume that most of the proteins are not regulated (fold change is equal zero). p-values and Q-values are a measure of how likely it is to observe the data given this assumption ($H_0$). Figure \@ref{fig:densityOFFoldChanges} shows the distribution of fold changes.
+In the following analysis we assume that most of the proteins are not regulated (fold change is equal zero). p-values and Q-values are a measure of how likely it is to observe the data given the assumption that they are not differentially regulated. Small p-values tell us that $H_0$ (no regulation) is very unlikely. Figure \@ref(fig:densityOFFoldChanges) shows the distribution of fold changes. Most of the fold changes should be close to zero and also the median of all fold changes (red dashed line) should be close to zero (green line).
 
-Here we show the result of a two group analysis for the normalized matrix using the bioconductor limma package. 
 
 
 ```{r}
@@ -226,15 +231,13 @@ progress(0.1, "debug-3")
 fcname <- paste("log2(", grp2$getConditions()$condition, "/", grp2$getConditions()$reference, ")", sep="")
 progress(0.1, "debug-2")
 res.eb <-grp2$getPValues()
-
 ```
 
 
 ```{r densityOFFoldChanges, fig.width=10, fig.height=8, dpi=300, fig.cap = "Distribution of log2(FC). red dashed line - median fold change."}
-plot(density(res.eb$effectSize))
+plot(density(res.eb$effectSize), main="")
 abline(v=0,col="green")
 abline(v=median(res.eb$effectSize),col=2,lty=2)
-
 ```
 
 
@@ -242,7 +245,7 @@ abline(v=median(res.eb$effectSize),col=2,lty=2)
 
 ## Adjusted moderated p-values (q-values) (limma output)
 
-If the groups are different we would expect more small p-values in Figure \@ref{fig:histOfpValues} than by chance (blue horizontal line). If there are only as many or less small p-values as by chance than no significant false discovery rate controlled calls (Q Value) will be made in Figure \@ref{fig:volcanoplot}. 
+If the groups are different we would expect more small p-values in Figure \@ref(fig:histOfpValues) than by chance (blue horizontal line). If there are only as many or less small p-values as by chance than no significant false discovery rate controlled calls (Q Values) will be made in Figure \@ref(fig:volcanoplot). 
 
 
 ```{r histOfpValues, fig.width=10, fig.height=8, dpi=300, fig.cap="Histogram of moderated p values."}
