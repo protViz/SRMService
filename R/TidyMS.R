@@ -113,15 +113,22 @@ nrPrecursors <- function(data){
   return(idcolumns)
 }
 
+precursorIntensities2Wide <- function(data){
+  config <- getConfig(data)
+  required <- config$required
+  tmp <- data %>%
+    select_at(c(config$.PrecursorId, required$ProteinId, config$.SampleLabel,  config$workIntensity  )) %>%
+    spread( key= config$.SampleLabel , value =  config$workIntensity )
+  return(tmp)
+}
+
 
 whichDecorellated <- function(data, minCorrelation = 0.65){
   config <- getConfig(data)
   required <- config$required
   newColumn <- ".Decorrelated"
 
-  tmp <- data %>%
-    select_at(c(config$.PrecursorId, required$ProteinId, config$.SampleLabel,  config$workIntensity  )) %>%
-    spread( key= config$.SampleLabel , value =  config$workIntensity )
+  tmp <- precursorIntensities2Wide(data)
   numericColumn <- length( c(config$.PrecursorId, required$ProteinId) ) + 1
 
   listProt <- plyr::dlply(tmp, required$ProteinId)
@@ -158,7 +165,6 @@ imputef <- function(xx,ValueCol){
     return(xx)
   }
   data <- data.frame(t(xx[,ValueCol:ncol(xx)]))
-
   # Why log transforming first
   data <- log2(data)
 
