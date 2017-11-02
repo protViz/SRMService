@@ -21,14 +21,14 @@ summarizeCounts <- function(data){
 }
 
 
-createWorkIntensities <- function(longF){
+setIntensitiesToNA <- function(longF){
   config <- getConfig(longF)
   res <- longF
   threshold <- config$parameters$maxQValue_Threshold
   thresholdF <- function(x,y, threshold = 0.05){ ifelse(x < threshold, y, NA)}
   Vsyms <- rlang::syms(c(config$required$QValue,config$required$startIntensity ))
   res <- longF %>%
-    mutate(!! config$workIntensity := thresholdF(!!!Vsyms))
+    mutate(!! config$workIntensity := thresholdF(!!!Vsyms,threshold = threshold))
   res <- setConfig(res, config)
   return(res)
 }
