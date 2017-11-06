@@ -103,30 +103,30 @@ p + stat_summary(fun.y=median,geom='point') +theme(axis.text.x = element_text(an
 
 ```
 
-In Figure \@ref(fig:scaling) the ratios of the average sample intensity versus the mean average intensity of all samples is shown. It is critical if a samples average deviates more than 5 times from mean of all samples.
+In Figure \@ref(fig:scaling) the log2 fold change of the average sample intensity versus the mean average intensity of all samples is shown. It is critical if a samples average deviates more than 5 times from the average of all samples.
 
-```{r  scaling,dpi=300, fig.height=6, fig.cap="Average intensity in sample vs average intensity in all samples."}
+```{r  scaling,dpi=300, fig.height=6, fig.cap="Average intensity in sample vs average intensity in all samples. red line - critical fold change."}
 bb <- grp2$getNormalized()$medians
+
 par(mar=c(15,6,3,6))
-barplot(sort(abs(bb))  - mean(bb) ,horiz=F,las=2, main="median", cex.names = 0.6, ylab="log2(sample average) - log2(total average)", ylim=c(-6,6))
-abline(h=c(-5,5),col=2)
-x<-seq(-3,3,by=.5)
+barplot(sort(abs(bb))  - mean(bb) ,horiz=F,las=2, main="median", cex.names = 0.6, ylab="log2(sample average) - log2(total average)", ylim=c(-log2(8),log2(8)))
+abline(h=c(-log2(5),log2(5)),col=2)
+x<-seq(-3,3,by=1)
 axis(4,x,round(2^abs(x),digits=1))
 mtext("linear scale", side=4, line=2)
-
 progress(0.2, "Normalization")
+
 ```
 
 ## Normalization
 
-Figure \@ref(fig:normalized) shows the normalized values. Normalization is applied to remove systematic differences in protein abundance due to different sample concentrations, so that differentially expressed proteins can be detected. After normalization all samples have a similar distribution (same median and similar variance). 
+Figure \@ref(fig:normalized) shows the normalized values. Normalization is applied to remove systematic differences in protein abundance due to different sample concentrations, so that differentially expressed proteins can be detected. To this task the z-score of the log2 transformed intensities is computed, which in addition is multiplied by the average of the standard deviation of the log2 transformed intensities in all samples. After normalization all samples have a similar distribution.
 
 
 ```{r normalized,  fig.width=7,fig.height=7,dpi=300, fig.cap="Density plot for normalized values (z-score)"}
 longm <- melt(grp2$getNormalized()$data)
 p <- qplot( variable , value , data=longm , geom="violin" , xlab="" , ylab="z-score")
 p + stat_summary(fun.y=median, geom='point') + theme(axis.text.x = element_text(angle = 90, hjust = 1))
-
 ```
 
 \pagebreak
@@ -270,20 +270,28 @@ quantable::volcano2G(res.eb$log2FC,
 
 ```
 
+
 \newpage
+
 
 ```{r results="markup"}
 tmp <- grp2$getResultTable()
 x <- data.frame(table(tmp$effectSize < grp2$qfoldchange & tmp$q.mod < grp2$qvalue))
-x$Var1 <- c("Not Significant" , "Significant")
+if(length(x$Var1) == 2){
+ x$Var1 <- c("Not Significant" , "Significant")
+}
 knitr::kable(x, caption = "Nr of not significant and significant proteins.")
 ```
+
+
 
 ```{r top20table}
 library(dplyr)
 top20 <- tmp %>% dplyr::select( TopProteinName,effectSize, q.mod ) %>% arrange((q.mod) ) %>% head(20)
 knitr::kable(top20, caption = "Top 20 proteins by smallest Q Value.")
 ```
+
+
 
 \newpage
 
@@ -292,7 +300,9 @@ knitr::kable(top20, caption = "Top 20 proteins by smallest Q Value.")
 
 ```{r}
 knitr::kable(data.frame(columns=colnames(grp2$getResultTable())[1:11]))
+
 ```
+
 
 # References
 

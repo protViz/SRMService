@@ -34,6 +34,10 @@ Perform 2 group analysis with visualization
 \item{\code{pfoldchange}}{foldchange threshold for p volcano plot}
 
 \item{\code{qfoldchange}}{foldchange threshold for q volcano plot}
+
+\item{\code{reference}}{document}
+
+\item{\code{removeDates}}{}
 }}
 
 \section{Methods}{

@@ -15,6 +15,8 @@
 #' @field qvalue qvalue threshold
 #' @field pfoldchange foldchange threshold for p volcano plot
 #' @field qfoldchange foldchange threshold for q volcano plot
+#' @field reference document
+#' @field removeDates
 #'
 Grp2Analysis <- setRefClass("Grp2Analysis",
                             fields = list( proteinIntensity = "data.frame",
@@ -29,7 +31,8 @@ Grp2Analysis <- setRefClass("Grp2Analysis",
                                            qvalue= "numeric",
                                            pfoldchange = "numeric",
                                            qfoldchange = "numeric",
-                                           reference = "character"
+                                           reference = "character",
+                                           removeDates= "logical"
                                            )
                             , methods = list(
                               setProteins = function(protein){
@@ -45,12 +48,16 @@ Grp2Analysis <- setRefClass("Grp2Analysis",
                                 .self$proteinIntensity <- protein[, grep("Intensity\\.",colnames(protein))]
                                 colnames(.self$proteinIntensity) <- gsub("Intensity\\.","",colnames(.self$proteinIntensity))
 
+                                # Hack made for the FGCZ file conventions... Remove data from file start..
+                                if(.self$removeDates == TRUE){
+                                  colnames(.self$proteinIntensity) <- gsub("^[0-9]{8,8}_", "" ,colnames(.self$proteinIntensity))
+                                  #.self$annotation_$Raw.file <- gsub("^[0-9]{8,8}_", "" ,colnames(.self$proteinIntensity))
+                                }
+
                                 stopifnot(.self$annotation_$Raw.file %in% colnames(.self$proteinIntensity))
                                 .self$proteinIntensity <- .self$proteinIntensity[,.self$annotation_$Raw.file]
-
-
                                 # Sorts them in agreement with annotation_.
-                                .self$proteinIntensity <- .self$proteinIntensity[,.self$annotation_$Raw.file]
+                                #.self$proteinIntensity <- .self$proteinIntensity[,.self$annotation_$Raw.file]
                                 .self$proteinIntensity[.self$proteinIntensity==0] <- NA
 
                                 nas <-.self$getNrNAs()
@@ -65,7 +72,8 @@ Grp2Analysis <- setRefClass("Grp2Analysis",
                                 maxNA=3,
                                 nrPeptides = 2,
                                 reference = "Control",
-                                annotationCol = annotationColumns
+                                annotationCol = annotationColumns,
+                                removeDates = TRUE
                               ){
                                 .self$projectName <- projectName
                                 .self$experimentName <- experimentName
@@ -76,6 +84,7 @@ Grp2Analysis <- setRefClass("Grp2Analysis",
                                 .self$nrPeptides <- nrPeptides
                                 .self$maxNA <- maxNA
                                 .self$reference <- reference
+                                .self$removeDates <- removeDates
                                 setQValueThresholds()
                                 setPValueThresholds()
                               },
