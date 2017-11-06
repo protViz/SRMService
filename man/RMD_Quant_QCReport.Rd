@@ -6,10 +6,12 @@
 \usage{
 RMD_Quant_QCReport(workdir = getwd())
 }
+\arguments{
+\item{workdir}{specify working directory}
+}
 \description{
 Please see the Run_QuantQCReport.R for more details
 }
 \examples{
 SRMService::RMD_Quant_QCReport()
-
 }

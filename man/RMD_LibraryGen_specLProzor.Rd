@@ -6,6 +6,9 @@
 \usage{
 RMD_LibraryGen_specLProzor(workdir = getwd())
 }
+\arguments{
+\item{workdir}{specify working directory}
+}
 \description{
 Please see the Run_specLProzor.R file in the working directory
 for more details

@@ -6,6 +6,9 @@
 \usage{
 RMD_VarSelection(workdir = getwd())
 }
+\arguments{
+\item{workdir}{specify working directory}
+}
 \description{
 Please see the Run_QuantTwoGroupAnalysis.R for more details
 }

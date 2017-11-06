@@ -13,7 +13,6 @@
       warning(paste("could not copy script file. Does file already exist?", dest_script, sep=" "))
     }
   }
-
   message(paste("your working directory now should contain ", length(runscripts) , "new files :\n",sep=" "))
   for(script in runscripts){
     message( basename(script) )
@@ -28,6 +27,7 @@
 #' @export
 #' @examples
 #' SRMService::RMD_Quant_2GrpAnalysis()
+#' @param workdir specify working directory
 #'
 RMD_Quant_2GrpAnalysis <- function(workdir= getwd()){
   .scriptCopyHelperVec(c("/samples/Run_QuantTwoGroupAnalysis.R","/reports/Grp2Analysis.Rmd"), workdir =workdir )
@@ -40,6 +40,7 @@ RMD_Quant_2GrpAnalysis <- function(workdir= getwd()){
 #' @export
 #' @examples
 #' SRMService::RMD_Quant_QCReport()
+#' @param workdir specify working directory
 #'
 RMD_Quant_QCReport <- function(workdir = getwd()){
   .scriptCopyHelperVec(c("/samples/Run_QuantQCReport.R","/reports/QCReport.Rmd"), workdir = workdir )
@@ -51,6 +52,8 @@ RMD_Quant_QCReport <- function(workdir = getwd()){
 #'
 #' @export
 #'
+#' @param workdir specify working directory
+#'
 RMD_VarSelection <- function(workdir = getwd()){
   .scriptCopyHelperVec(c("/samples/Run_QuantQCReport.R","/reports/QCReport.Rmd"), workdir =workdir )
 }
@@ -61,6 +64,7 @@ RMD_VarSelection <- function(workdir = getwd()){
 #' for more details
 #'
 #' @export
+#' @param workdir specify working directory
 #'
 RMD_LibraryGen_specLProzor <- function(workdir = getwd()){
   .scriptCopyHelperVec(c("/samples/Run_specLWithProzor.R","/reports/specLWithProzor.Rmd"), workdir = workdir )
@@ -72,6 +76,7 @@ RMD_LibraryGen_specLProzor <- function(workdir = getwd()){
 #' for more details
 #'
 #' @export
+#' @param workdir specify working directory
 #'
 RMD_QC1To1_Old <- function(workdir = getwd()){
   .scriptCopyHelperVec(c("/samples/Run_1To1_oldStyle.R",

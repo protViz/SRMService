@@ -6,6 +6,9 @@
 \usage{
 RMD_QC1To1_Old(workdir = getwd())
 }
+\arguments{
+\item{workdir}{specify working directory}
+}
 \description{
 Please see the Run_1To1_oldStyle.R file in your working directory,
 for more details
