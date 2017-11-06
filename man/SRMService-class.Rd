@@ -39,8 +39,9 @@ The function performs a SQL query on the SQLite
 
 \examples{
 
+if(0){
 library(SRMService)
-tmp <- "D:/googledrive/DataAnalysis/p1930"
+tmp <- "D:/Dropbox/DataAnalysis/p1930_NAGI/"
 allData <- read.csv( file=file.path(tmp,"data/longFormat.txt"),row.names = 1)
 head(allData)
 data <-allData
@@ -78,5 +79,6 @@ tmpH <- srms$getTransitionIntensities()$data
 tmpL <- srms$getTransitionIntensities(light=TRUE)$data
 
 dim(tmpL)
+}
 
 }
