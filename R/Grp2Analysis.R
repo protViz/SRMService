@@ -49,10 +49,12 @@ Grp2Analysis <- setRefClass("Grp2Analysis",
                                 colnames(.self$proteinIntensity) <- gsub("Intensity\\.","",colnames(.self$proteinIntensity))
 
                                 # Hack made for the FGCZ file conventions... Remove data from file start..
+
                                 if(.self$removeDates == TRUE){
                                   colnames(.self$proteinIntensity) <- gsub("^[0-9]{8,8}_", "" ,colnames(.self$proteinIntensity))
-                                  #.self$annotation_$Raw.file <- gsub("^[0-9]{8,8}_", "" ,colnames(.self$proteinIntensity))
+                                  .self$annotation_$Raw.file <- gsub("^[0-9]{8,8}_", "" ,.self$annotation_$Raw.file)
                                 }
+
 
                                 stopifnot(.self$annotation_$Raw.file %in% colnames(.self$proteinIntensity))
                                 .self$proteinIntensity <- .self$proteinIntensity[,.self$annotation_$Raw.file]
