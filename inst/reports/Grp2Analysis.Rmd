@@ -29,7 +29,14 @@ The protein matrix is filtered like this:
 - Minimum number of peptides / protein: `r grp2$nrPeptides`
 - Maximum of missing values per protein : `r grp2$maxNA`
 
-The total number of proteins in this experiment is: `r nrow(grp2$proteinIntensity)`
+
+- The total number of proteins in this experiment is: `r nrow(grp2$proteinIntensity)` 
+- Total number without decoys sequences is `r nrow(grp2$proteinIntensity) -  sum(grepl("REV__",grp2$proteinAnnotation$ProteinName))` 
+
+
+- Percentage of contaminants : `r round(mean(grepl("CON__",grp2$proteinAnnotation$ProteinName)) * 100, digits=1)` %
+- Percentage of false postivies : `r round(mean(grepl("REV__",grp2$proteinAnnotation$ProteinName)) * 100, digits=1)` %
+
 
 
 ## The Groupings

@@ -50,14 +50,19 @@ QCProteinReport <- setRefClass("QCProteinReport",
                                 .self$nrPeptides <- nrPeptides
                                 .self$maxNA <- maxNA
                               },
-                              setMQProteinGroups = function(MQProteinGroups){
+                              setMQProteinGroups = function(MQProteinGroups, debug = FALSE){
                                 "set MQ protein groups table"
                                 pint <- MQProteinGroups[,grep("Intensity\\.",colnames(MQProteinGroups))]
                                 proteinTable <- data.frame(ProteinName = MQProteinGroups$Majority.protein.IDs,
                                                            TopProteinName = sapply(strsplit(MQProteinGroups$Majority.protein.IDs, split=";"),
                                                                                    function(x){x[1]}),
+                                                           Fasta.headers = MQProteinGroups$Fasta.headers,
                                                            nrPeptides = MQProteinGroups$Peptides, pint, stringsAsFactors = F)
-                                setProteins(proteinTable)
+                                if(debug){
+                                  return(proteinTable)
+                                }else{
+                                  setProteins(proteinTable)
+                                }
                               },
                               getNrNAs = function(){
                                 'return number of NAs per protein'

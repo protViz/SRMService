@@ -31,10 +31,10 @@ setIntensitiesToNA <- function(data,
                                intensityOld = config_col_map(data)$startIntensity,
                                intensityNew = getConfig(data)$workIntensity){
   config <- getConfig(data)
-
+  print(intensityNew)
   thresholdF <- function(x,y, threshold = 0.05){ ifelse(x < threshold, y, NA)}
   data <- data %>%
-    mutate(!! intensityNew := thresholdF(!!!syms(c(QValueColumn ,intensityOld )),threshold = threshold))
+    dplyr::mutate(!!intensityNew := thresholdF(!!!syms(c(QValueColumn ,intensityOld )),threshold = threshold))
 
 
   data <- setConfig(data, config)
@@ -66,11 +66,11 @@ summariseQValues <- function(data,
   nthbestQValue <-  function(x,minNumberOfQValues){sort(x)[minNumberOfQValues]}
   npass <-  function(x,thresh = maxQValThreshold){sum(x < thresh)}
   qValueSummaries <- data %>%
-    group_by_at(precursorId) %>%
-    summarise_at(  c( QValue ), .funs = funs(!!.QValueMin:=nthbestQValue(.,minNumberOfQValues ),
+    dplyr::group_by_at(precursorId) %>%
+    dplyr::summarise_at(  c( QValue ), .funs = funs(!!.QValueMin:=nthbestQValue(.,minNumberOfQValues ),
                                              !!.QValueNR :=npass(., maxQValThreshold)
     ))
-  data <- inner_join(data, qValueSummaries)
+  data <- dplyr::inner_join(data, qValueSummaries)
 
 
   ## Add config...
@@ -93,9 +93,9 @@ summariseNAs <- function(data,
 
 
   lFG <- data %>%
-    group_by_at(precursorID)
-  naSummaries <- lFG %>% summarise_at( workIntensity, funs(!!.NrNAs := nNAs(.)))
-  data <- inner_join(data, naSummaries )
+    dplyr::group_by_at(precursorID)
+  naSummaries <- lFG %>% dplyr::summarise_at( workIntensity, funs(!!.NrNAs := nNAs(.)))
+  data <- dplyr::inner_join(data, naSummaries )
 
 
   ### add stuff to config.
@@ -113,10 +113,10 @@ nrPrecursors <- function(data,
   .nrPrecursors = ".nrPrecursors"
 
   tmp <- data %>%
-    select_at(c(proteinID, precursorId)) %>%
-    distinct() %>%
-    group_by_at(proteinID) %>%
-    summarise(!!.nrPrecursors:=n())
+    dplyr::select_at(c(proteinID, precursorId)) %>%
+    dplyr::distinct() %>%
+    dplyr::group_by_at(proteinID) %>%
+    dplyr::summarise(!!.nrPrecursors:=n())
   data <- m_inner_join(data, tmp )
 
   ### add stuff to config.
@@ -162,8 +162,8 @@ precursorIntensities2Wide <- function(data,
   config <- getConfig(data)
   required <- config$required
   wide <- data %>%
-    select_at(c(precursorID, proteinID, sampleLabel,  config$workIntensity  )) %>%
-    spread( key= sampleLabel , value =  value )
+    dplyr::select_at(c(precursorID, proteinID, sampleLabel,  config$workIntensity  )) %>%
+    tidyr::spread( key= sampleLabel , value =  value )
   return(wide)
 }
 
@@ -241,11 +241,11 @@ imputeMissing <- function(data){
   intensitiesImputed <- plyr::llply(listProt, imputef ,numericColumn )
   intensitiesImputed <- plyr::ldply(intensitiesImputed, .id = required$ProteinId)
 
-  intensitiesImputedX <- gather(intensitiesImputed, !!sym(config$.SampleLabel),!!sym(imputedIntensityColname),
+  intensitiesImputedX <- tidyr::gather(intensitiesImputed, !!sym(config$.SampleLabel),!!sym(imputedIntensityColname),
                                 -!!sym(config$.PrecursorId), -!!sym(required$ProteinId))
 
   head(intensitiesImputedX)
-  data2 <- inner_join(data,intensitiesImputedX)
+  data2 <- dplyr::inner_join(data,intensitiesImputedX)
   config$.ImputedIntensity <- imputedIntensityColname
   message("Added Column:",imputedIntensityColname )
   data2<-setConfig(data2,config)
@@ -261,11 +261,15 @@ rankProteinPrecursors <- function(data, top = NULL,
                                   rankFunction = function(x){min_rank(desc(x))}
 ){
   configuration <- getConfig(data)
-  summaryPerPrecursor <-data %>% group_by(!!!syms(c( configuration$.PrecursorId, configuration$required$ProteinId))) %>%
-    summarise(!!summaryColumn := fun(!!sym(column)))
+  summaryPerPrecursor <-data %>%
+    dplyr::group_by(!!!syms(c( configuration$.PrecursorId, configuration$required$ProteinId))) %>%
+    dplyr::summarise(!!summaryColumn := fun(!!sym(column)))
 
-  groupedByProtein <- summaryPerPrecursor %>% arrange(!!sym( configuration$required$ProteinId)) %>% group_by(!!sym( configuration$required$ProteinId))
-  rankedBySummary <- groupedByProtein %>% mutate(!!rankColumn := rankFunction(!!sym(summaryColumn)))
+  groupedByProtein <- summaryPerPrecursor %>%
+    dplyr::arrange(!!sym( configuration$required$ProteinId)) %>%
+    dplyr::group_by(!!sym( configuration$required$ProteinId))
+  rankedBySummary <- groupedByProtein %>%
+    dplyr::mutate(!!rankColumn := rankFunction(!!sym(summaryColumn)))
 
   data <- inner_join(data, rankedBySummary)
   return(data)
@@ -317,10 +321,12 @@ aggregateTopNIntensities <- function(data, N = 3){
   config <- getConfig(data)
   required <- config$required
 
-  topInt <- data %>% filter( .meanIntRank <= N) %>%
-    group_by(!!!syms(c( required$ProteinId, config$.SampleLabel)))
+  topInt <- data %>%
+    dplyr::filter( .meanIntRank <= N) %>%
+    dplyr::group_by(!!!syms(c( required$ProteinId, config$.SampleLabel)))
   sumNA <- function(x){sum(x, na.rm=TRUE)}
-  sumTopInt <-topInt %>% summarize( .sumTopInt =sumNA(!!sym(conf$workIntensity))  )
+  sumTopInt <- topInt %>%
+    dplyr::summarize( .sumTopInt =sumNA(!!sym(conf$workIntensity))  )
 
   config$proteinStats$.sumTopInt <- ".sumTopInt"
   data <- inner_join(data, sumTopInt)
