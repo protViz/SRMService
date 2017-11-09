@@ -24,7 +24,7 @@ QCProteinReport <- setRefClass("QCProteinReport",
                                 protein <- as.data.frame(protein)
                                 stopifnot(proteinColumns %in% colnames(protein))
                                 stopifnot(grep("Intensity\\." , colnames(protein)) > 0)
-                                stopifnot(sum(duplicated(protein$TopProteinName))==0)
+                                stopifnot(sum(duplicated(protein$TopProteinName))== 0)
                                 rownames(protein) <- protein$TopProteinName
                                 protein <- protein[ protein$nrPeptides >= .self$nrPeptides, ]
 

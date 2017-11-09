@@ -31,10 +31,8 @@ The protein matrix is filtered like this:
 - Maximum of missing values per protein : `r grp2$maxNA`
 
 
-
 - The total number of proteins in this experiment is: `r nrow(grp2$proteinIntensity)` 
 - Total number without decoys sequences is `r nrow(grp2$proteinIntensity) -  sum(grepl("REV__",grp2$proteinAnnotation$ProteinName))` 
-
 
 
 - Percentage of contaminants : `r round(mean(grepl("CON__",grp2$proteinAnnotation$ProteinName)) * 100, digits=1)` %
@@ -83,8 +81,9 @@ progress(0.1, "Summary")
 ```{r missingPerSample, fig.cap="Percent of missing values in sample."}
 mar <-par()$mar
 par(mar = c(13,3,3,3))
-barplot(quantable::colNAs(grp2$proteinIntensity)/nrow(grp2$proteinIntensity)*100, las=2, ylab="percent missing")
+barplot(quantable::colNAs(grp2$proteinIntensity)/nrow(grp2$proteinIntensity)*100, las=2, ylab="percent missing", cex.names=0.7)
 par(mar= mar)
+
 ```
 
 

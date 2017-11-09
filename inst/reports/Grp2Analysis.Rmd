@@ -242,7 +242,7 @@ res.eb <-grp2$getPValues()
 
 
 ```{r densityOFFoldChanges, fig.width=10, fig.height=8, dpi=300, fig.cap = "Distribution of log2(FC). red dashed line - median fold change."}
-plot(density(res.eb$effectSize), main="")
+plot(density(na.omit(res.eb$effectSize)), main="")
 abline(v=0,col="green")
 abline(v=median(res.eb$effectSize),col=2,lty=2)
 ```
