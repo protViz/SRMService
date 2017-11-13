@@ -279,7 +279,7 @@ quantable::volcano2G(res.eb$log2FC,
 
 ```{r results="markup"}
 tmp <- grp2$getResultTable()
-x <- data.frame(table(tmp$effectSize < grp2$qfoldchange & tmp$q.mod < grp2$qvalue))
+x <- data.frame(table(abs(tmp$effectSize) > grp2$qfoldchange & tmp$q.mod < grp2$qvalue))
 if(length(x$Var1) == 2){
  x$Var1 <- c("Not Significant" , "Significant")
 }
