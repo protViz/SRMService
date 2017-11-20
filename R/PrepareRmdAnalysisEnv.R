@@ -86,4 +86,17 @@ RMD_QC1To1_Old <- function(workdir = getwd()){
                          "/OneToOneAnalysis/images/Sweave.sty"), workdir = workdir)
 }
 
+#' Copies the Rnw file and Run R file for the SRM QC and normalization.
+#'
+#' Please see the Run_1To1_oldStyle.R file in your working directory,
+#' for more details
+#'
+#' @export
+#' @param workdir specify working directory
+#'
+RMD_SRM_QC_Normalization <- function(workdir = getwd()){
+  .scriptCopyHelperVec(c("/reports/SRM_NormalizeByProteins.Rmd",
+                         "/reports/SRM_PeptideProteinQC.Rmd",
+                         "/RunScripts/RUN_SRMPeptideProteinQC.R"), workdir = workdir)
+}
 

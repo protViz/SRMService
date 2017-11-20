@@ -140,7 +140,6 @@ peptides$plot()
 # Protein Intensities
 
 ```{r fig.width=9, fig.height=8}
-
 protquant <- peptides$getProteinIntensities(scale=FALSE)
 fname <- paste("data/outputSRM/",peptides$experimentID,".csv",sep="")
 write.csv(protquant$getProteinMatrix(),file=fname)
