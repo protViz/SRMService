@@ -1,0 +1,217 @@
+---
+title: "SRM"
+author: "FGCZ"
+date: "23 October 2017"
+output: html_document
+---
+
+
+```{r include=FALSE}
+library(quantable)
+library(knitr)
+opts_chunk$set(echo=FALSE, message=FALSE, results = 'hide', warnings=FALSE)
+
+```
+
+
+
+# Distribution of qValues
+
+```{r}
+srms$qValueHist()
+```
+
+Histogram of qValues for all SRM assays. The red line indicates the qValue threshold - we control the False Discovery Rate (fdr) at this level. 
+
+
+
+# Remove all transitions with more than X missing values
+
+Histogram showing the number of missing values for the heavy peptides in all samples.
+The red line indicates the maximum of NA's allowed.
+
+
+```{r fig.cap="Distribution of NA's for heavy peptides"}
+srms$getNrNAs()
+```
+
+Histogram showing the number of missing values for the light peptides in all samples.
+The red line indicates the maximum of NA's allowed.
+
+
+
+```{r fig.cap="Distribution of NA's for light peptides."}
+srms$getNrNAs(light=TRUE)
+
+```
+
+
+# Heatmap of log2(L/H)
+
+```{r fig.cap="Missing values log2(L/H) per Transtion."}
+foldchanges <-srms$getLHLog2FoldChange()
+
+```
+
+```{r fig.height=20, fig.width=10, fig.cap="heatmap of log2 fold changes transtion level"}
+foldchanges$plot()
+```
+
+## Transitions dropped because of to many NA's in log2 fold change.
+
+```{r results='markup'}
+all <-srms$getTransitionIntensities(100)
+
+knitr::kable(quantable::setdiff.data.frame(all$ids[,1:(ncol(all$ids)-1)], foldchanges$ids), row.names=FALSE, caption="removed transitions (to many NA's)")
+
+``` 
+
+
+# Peptide Quantification
+
+The following plots show Log2(H/L) of peptides belonging to the same proteins (y axis) given samples (x axis).
+These fold changes will be used to compute the fold H/L fold change of the protein in a sample.
+
+## Remove all peptides with only one transition.
+
+
+```{r}
+foldchanges <- srms$getLHLog2FoldChange(plot=F)
+foldchanges$dim()
+filteredfc <- (foldchanges$filterData(minNrTransition = 2))
+filteredfc$dim()
+
+
+```
+
+```{r results='markup'}
+knitr::kable(quantable::setdiff.data.frame(foldchanges$ids, filteredfc$ids),row.names = FALSE,
+             caption = "peptides removed since only a single valid transition")
+```
+
+
+\newpage
+
+# Removing decorrelated
+
+```{r}
+
+filteredfc$dim()
+curatedTransitions <- filteredfc$removeDecorrelated(0.5)
+fname <- paste("data/outputSRM/curated_",curatedTransitions$experimentID,".rds",sep="")
+
+saveRDS(curatedTransitions, file = fname)
+
+
+class(curatedTransitions)
+TransitionTable$fields()
+TransitionTable$methods()
+
+```
+
+\newpage
+
+# List of peptides removed
+
+Peptides might have been removed since there were no quantified transtions, only a single transition was quantified or  the transition were uncorrelated.
+
+```{r results="markdown"}
+knitr::kable(setdiff.data.frame(all$getPeptideIDs() ,  curatedTransitions$getPeptideIDs() ), row.names = FALSE, caption= "All removed peptides. ")
+
+```
+
+\newpage
+
+# List of peptides used for quantification
+
+```{r results='markup'}
+knitr::kable(table(curatedTransitions$getPeptideIDs()[,2:3]),row.names = TRUE,
+             caption = "Peptides Still available and Nr of transitions per peptide. Columns charge state.")
+```
+
+# Peptide Intensities
+
+```{r fig.width=9, fig.height=8}
+
+peptides <- curatedTransitions$getPeptideIntensities()
+peptides$plot()
+```
+
+# Protein Intensities
+
+```{r fig.width=9, fig.height=8}
+
+protquant <- peptides$getProteinIntensities(scale=FALSE)
+fname <- paste("data/outputSRM/",peptides$experimentID,".csv",sep="")
+write.csv(protquant$getProteinMatrix(),file=fname)
+proteinslist <- peptides$getProteinsAsList()
+fname <- paste("data/outputSRM/",peptides$experimentID,".rds",sep="")
+saveRDS(protquant, fname)
+
+```
+
+\newpage
+
+# List of quantified proteins
+
+```{r  results="markup"}
+
+proteins <- data.frame( Portein = names(proteinslist), NrPeptides=  sapply(proteinslist, nrow))
+
+knitr::kable(proteins,caption="Quantified proteins with number of peptides used for quantification", row.names = FALSE)
+
+
+```
+
+\newpage
+
+# List of proteins not quantified
+
+```{r results="markup"}
+remprot <- t(t(setdiff(unique(all$ids$Protein.Name),rownames(proteins))))
+colnames(remprot) <- "proteins"
+knitr::kable(remprot,caption="removed proteins")
+
+```
+
+
+\newpage
+
+# Peptide profiles per Protein
+
+```{r fig.width=8, fig.height=5,dpi=300}
+
+xl <-peptides$getProteinsAsList()
+for(i in 1:length(xl)){
+  plotNicely(xl[[i]],main=names(xl)[i])
+}
+```
+
+\newpage
+
+
+# Peptides used for quantification and their transitions
+
+
+```{r fig.width=8, fig.height=5}
+peplist <- curatedTransitions$getPeptidesAsList()
+
+for(i in 1:length(peplist)){
+  SRMService::plotNicely(peplist[[i]],main = names(peplist)[i] )  
+}
+
+
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
