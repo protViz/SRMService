@@ -1,0 +1,49 @@
+---
+title: "Normalize By proteins"
+author: "Witold Wolski"
+date: "18 August 2016"
+output: html_document
+---
+
+## normalize using all housekeepers
+
+```{r fig.width=8, fig.height=8, eval=TRUE}
+prtable$heatmap()
+prtable$conditionColors()
+boxplot(prtable$data,las=2, main="normalized",pch="*")
+
+```
+
+```{r}
+
+normall <- prtable$normalize()
+prtable$housekeeper
+normall$housekeeper
+
+normall$heatmap()
+normall$normalized
+boxplot(normall$data,las=2, main="normalized",pch="*")
+write.csv(normall$getProteinMatrix(), file = paste("data/outputSRM/",normall$experimentID,"All.tsv",sep="" ))
+saveRDS(normall,paste("data/outputSRM/",normall$experimentID,"All.rds",sep="" ))
+
+
+```
+
+
+```{r fig.width=12, fig.height=12}
+
+for( i in 1:length(prtable$housekeeper) ){
+  name <- prtable$housekeeper[i]
+  if(sum(is.na(prtable$getProtein(name)))==0){
+    norm <- prtable$normalize(name)
+    norm$heatmap(name)
+    boxplot(norm$data,las=2, main=name,pch="*")
+    norm$data <- norm$data[!grepl(name,rownames(norm$data) ),]
+    filename <- paste("data/outputSRM/",norm$experimentID,name,".tsv",sep="")
+    write.csv(norm$getProteinMatrix(), filename )
+    filename <- paste("data/outputSRM/",norm$experimentID,name,".rds",sep="")
+    saveRDS(norm, file=filename)
+  }
+}
+
+```
