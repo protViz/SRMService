@@ -3,6 +3,7 @@
 export(Annotation)
 export(Grp2Analysis)
 export(MQtoMSstatsFormat)
+export(MSstatsMapping)
 export(PeptideTable)
 export(ProteinTable)
 export(ProteinTableR6)

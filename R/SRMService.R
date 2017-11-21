@@ -267,21 +267,6 @@ TransitionTable <- setRefClass("TransitionTable",
                                    dd <- base::dim(.self$data)
                                    return(dd)
                                  },
-                                 getCorrelatedPeptides = function(is = TRUE, minCorrelation = 0.8){
-                                   ' returns peptides with well correlated transitions'
-                                   prottab <- .self$getPeptidesAsList()
-                                   res<-vector(mode = "list", length(prottab))
-                                   for(i in 1:length(prottab)){
-
-                                     res[[i]] <- SRMService::transitionCorrelations(dataX)
-                                   }
-                                   if(is){
-                                     idx <-which(sapply(res, min) >= 0.8)
-                                   }else{
-                                     idx <-which(sapply(res, min) < 0.8)
-                                   }
-                                   return(prottab[idx])
-                                 },
                                  getPeptidesAsList = function(){
                                    ' returns list of matrices each matrix representing single peptide'
 
@@ -310,7 +295,7 @@ TransitionTable <- setRefClass("TransitionTable",
                                    .self$ids[,c("Protein.Name","Peptide.Sequence","Precursor.Charge")]
                                  },
                                  getPeptideIntensities = function(plot=TRUE, FUN = median){
-                                   peptides <- (aggregate(.self$data, .self$getPeptideIDs(),FUN, na.rm=TRUE))
+                                   peptides <- aggregate(.self$data, .self$getPeptideIDs(),FUN, na.rm=TRUE)
                                    rownames(peptides) <- do.call(paste, c(peptides[,1:ncol(.self$getPeptideIDs())], sep="_"))
 
 

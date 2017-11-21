@@ -49,7 +49,7 @@ srms$getNrNAs(light=TRUE)
 # Heatmap of log2(L/H)
 
 ```{r fig.cap="Missing values log2(L/H) per Transtion."}
-foldchanges <-srms$getLHLog2FoldChange()
+foldchanges <- srms$getLHLog2FoldChange()
 
 ```
 
@@ -97,15 +97,13 @@ knitr::kable(quantable::setdiff.data.frame(foldchanges$ids, filteredfc$ids),row.
 ```{r}
 
 filteredfc$dim()
-curatedTransitions <- filteredfc$removeDecorrelated(0.5)
-fname <- paste("data/outputSRM/curated_",curatedTransitions$experimentID,".rds",sep="")
+curatedTransitions <- filteredfc$removeDecorrelated(CorrelationThresh)
+#fname <- paste("data/outputSRM/curated_",curatedTransitions$experimentID,".rds",sep="")
+#saveRDS(curatedTransitions, file = fname)
 
-saveRDS(curatedTransitions, file = fname)
 
-
-class(curatedTransitions)
-TransitionTable$fields()
-TransitionTable$methods()
+#TransitionTable$fields()
+#TransitionTable$methods()
 
 ```
 
@@ -131,7 +129,7 @@ knitr::kable(table(curatedTransitions$getPeptideIDs()[,2:3]),row.names = TRUE,
 
 # Peptide Intensities
 
-```{r fig.width=9, fig.height=8}
+```{r plotPeptides, fig.width=9, fig.height=8}
 
 peptides <- curatedTransitions$getPeptideIntensities()
 peptides$plot()
@@ -139,13 +137,8 @@ peptides$plot()
 
 # Protein Intensities
 
-```{r fig.width=9, fig.height=8}
-protquant <- peptides$getProteinIntensities(scale=FALSE)
-fname <- paste("data/outputSRM/",peptides$experimentID,".csv",sep="")
-write.csv(protquant$getProteinMatrix(),file=fname)
-proteinslist <- peptides$getProteinsAsList()
-fname <- paste("data/outputSRM/",peptides$experimentID,".rds",sep="")
-saveRDS(protquant, fname)
+```{r writeprotein, fig.width=9, fig.height=8}
+peptides$getProteinIntensities(scale=FALSE)
 
 ```
 
@@ -153,9 +146,10 @@ saveRDS(protquant, fname)
 
 # List of quantified proteins
 
-```{r  results="markup"}
-
+```{r listQuantified, results="markup"}
+proteinslist <- peptides$getProteinsAsList()
 proteins <- data.frame( Portein = names(proteinslist), NrPeptides=  sapply(proteinslist, nrow))
+
 
 knitr::kable(proteins,caption="Quantified proteins with number of peptides used for quantification", row.names = FALSE)
 
@@ -178,7 +172,7 @@ knitr::kable(remprot,caption="removed proteins")
 
 # Peptide profiles per Protein
 
-```{r fig.width=8, fig.height=5,dpi=300}
+```{r fig.width=8, fig.height=7,dpi=300}
 
 xl <-peptides$getProteinsAsList()
 for(i in 1:length(xl)){
@@ -192,7 +186,7 @@ for(i in 1:length(xl)){
 # Peptides used for quantification and their transitions
 
 
-```{r fig.width=8, fig.height=5}
+```{r fig.width=8, fig.height=7}
 peplist <- curatedTransitions$getPeptidesAsList()
 
 for(i in 1:length(peplist)){
