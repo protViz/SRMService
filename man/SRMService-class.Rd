@@ -79,6 +79,9 @@ tmpH <- srms$getTransitionIntensities()$data
 tmpL <- srms$getTransitionIntensities(light=TRUE)$data
 
 dim(tmpL)
+transitionTable<-srms$getLHLog2FoldChange()
+trans2 <- transitionTable$removeDecorrelated()
+
 }
 
 }

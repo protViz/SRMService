@@ -11,8 +11,6 @@ Transition table
 \section{Methods}{
 
 \describe{
-\item{\code{getCorrelatedPeptides(is = TRUE, minCorrelation = 0.8)}}{returns peptides with well correlated transitions}
-
 \item{\code{getLongFormat()}}{return data in long format (can easily be converted to msstats input)}
 
 \item{\code{getPeptidesAsList()}}{returns list of matrices each matrix representing single peptide}

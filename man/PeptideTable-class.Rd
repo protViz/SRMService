@@ -8,4 +8,9 @@
 \description{
 Peptide table
 }
+\section{Methods}{
+
+\describe{
+\item{\code{removeDecorrelated(minCorrelation = 0.8)}}{removes decorrelated peptides}
+}}
 

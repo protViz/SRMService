@@ -18,8 +18,6 @@
     message( basename(script) )
   }
 }
-
-
 #' copies the RMD and Run files for 2 grp analysis in your working directory.
 #'
 #' Please see the Run_QuantTwoGroupAnalysis.R for more details

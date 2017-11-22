@@ -15,7 +15,7 @@ getRequiredColumns <- function(){
             "Retention.Time", # optional
             "Area",
             "Background" # optional
-            )
+  )
   return(cols)
 }
 #' get required columns for analysis
@@ -193,6 +193,17 @@ PeptideTable <- setRefClass("PeptideTable",
                                 peptab <- by(.self$data ,INDICES=xx,function(x){x})
                                 return(peptab)
                               },
+                              removeDecorrelated = function(minCorrelation = 0.8){
+                                "removes decorrelated peptides"
+                                prottab <- .self$getProteinsAsList()
+                                res <- lapply(prottab, SRMService::transitionCorrelations)
+                                toremove <- unlist(lapply(res, .findDecorrelated, threshold=minCorrelation))
+                                xx<-PeptideTable(.self$data[setdiff(rownames(filteredfc$data),toremove),],
+                                                 .self$ids[setdiff(rownames(filteredfc$data),toremove),],
+                                                 .self$conditionmap,
+                                                 .self$experimentID)
+                                return(xx)
+                              },
                               getProteinIntensities = function(plot=TRUE, FUN = median, scale=TRUE){
                                 proteins <- (aggregate(.self$data,
                                                        list(Protein.Name=.self$ids$Protein.Name),
@@ -280,7 +291,7 @@ TransitionTable <- setRefClass("TransitionTable",
                                    prottab <- .self$getPeptidesAsList()
                                    res <- lapply(prottab, SRMService::transitionCorrelations)
                                    toremove <- unlist(lapply(res, .findDecorrelated, threshold=minCorrelation))
-                                   xx<-TransitionTable(filteredfc$data[setdiff(rownames(filteredfc$data),toremove),],
+                                   xx<-TransitionTable(.self$data[setdiff(rownames(filteredfc$data),toremove),],
                                                        .self$conditionmap,
                                                        .self$experimentID)
                                    return(xx)
@@ -374,6 +385,9 @@ TransitionTable <- setRefClass("TransitionTable",
 #' tmpL <- srms$getTransitionIntensities(light=TRUE)$data
 #'
 #' dim(tmpL)
+#' transitionTable<-srms$getLHLog2FoldChange()
+#' trans2 <- transitionTable$removeDecorrelated()
+#'
 #' }
 #'
 SRMService <- setRefClass("SRMService",
