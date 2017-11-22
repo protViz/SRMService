@@ -44,4 +44,5 @@ Collate:
     'hello.R'
     'limmaHelpers.R'
     'readMaxQuant.R'
+    'transitionCorrelations.R'
     'zzz.R'
