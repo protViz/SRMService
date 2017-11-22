@@ -197,12 +197,15 @@ PeptideTable <- setRefClass("PeptideTable",
                                 "removes decorrelated peptides"
                                 prottab <- .self$getProteinsAsList()
                                 res <- lapply(prottab, SRMService::transitionCorrelations)
-                                toremove <- unlist(lapply(res, .findDecorrelated, threshold=minCorrelation))
-                                xx<-PeptideTable(.self$data[setdiff(rownames(filteredfc$data),toremove),],
-                                                 .self$ids[setdiff(rownames(filteredfc$data),toremove),],
+                                toremove <- unlist(lapply(res, .findDecorrelated, threshold=minCorrelation ))
+                                xx<-PeptideTable(.self$data[setdiff(rownames(.self$data),toremove),],
+                                                 .self$ids[setdiff(rownames(.self$data),toremove),],
                                                  .self$conditionmap,
                                                  .self$experimentID)
                                 return(xx)
+                              },
+                              getPeptideIDs = function(){
+                                .self$ids[,c("Protein.Name","Peptide.Sequence","Precursor.Charge")]
                               },
                               getProteinIntensities = function(plot=TRUE, FUN = median, scale=TRUE){
                                 proteins <- (aggregate(.self$data,
@@ -291,7 +294,7 @@ TransitionTable <- setRefClass("TransitionTable",
                                    prottab <- .self$getPeptidesAsList()
                                    res <- lapply(prottab, SRMService::transitionCorrelations)
                                    toremove <- unlist(lapply(res, .findDecorrelated, threshold=minCorrelation))
-                                   xx<-TransitionTable(.self$data[setdiff(rownames(filteredfc$data),toremove),],
+                                   xx<-TransitionTable(.self$data[setdiff(rownames(.self$data),toremove),],
                                                        .self$conditionmap,
                                                        .self$experimentID)
                                    return(xx)
