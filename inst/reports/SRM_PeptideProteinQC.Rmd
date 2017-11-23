@@ -50,7 +50,6 @@ srms$getNrNAs(light=TRUE)
 
 ```{r fig.cap="Missing values log2(L/H) per Transtion."}
 foldchanges <- srms$getLHLog2FoldChange()
-
 ```
 
 ```{r fig.height=20, fig.width=10, fig.cap="heatmap of log2 fold changes transtion level"}
@@ -61,7 +60,6 @@ foldchanges$plot()
 
 ```{r results='markup'}
 all <-srms$getTransitionIntensities(100)
-
 knitr::kable(quantable::setdiff.data.frame(all$ids[,1:(ncol(all$ids)-1)], foldchanges$ids), row.names=FALSE, caption="removed transitions (to many NA's)")
 
 ``` 
@@ -81,7 +79,6 @@ foldchanges$dim()
 filteredfc <- (foldchanges$filterData(minNrTransition = 2))
 filteredfc$dim()
 
-
 ```
 
 ```{r results='markup'}
@@ -92,19 +89,11 @@ knitr::kable(quantable::setdiff.data.frame(foldchanges$ids, filteredfc$ids),row.
 
 \newpage
 
-# Removing decorrelated
+# Removing decorrelated transitions
 
 ```{r}
 
-filteredfc$dim()
-curatedTransitions <- filteredfc$removeDecorrelated(CorrelationThresh)
-#fname <- paste("data/outputSRM/curated_",curatedTransitions$experimentID,".rds",sep="")
-#saveRDS(curatedTransitions, file = fname)
-
-
-#TransitionTable$fields()
-#TransitionTable$methods()
-
+curatedTransitions <- filteredfc$removeDecorrelated(TransitionCorrelationThreshold)
 ```
 
 \newpage
@@ -120,7 +109,7 @@ knitr::kable(setdiff.data.frame(all$getPeptideIDs() ,  curatedTransitions$getPep
 
 \newpage
 
-# List of peptides used for quantification
+# List of peptides available after transition processing
 
 ```{r results='markup'}
 knitr::kable(table(curatedTransitions$getPeptideIDs()[,2:3]),row.names = TRUE,
@@ -129,30 +118,58 @@ knitr::kable(table(curatedTransitions$getPeptideIDs()[,2:3]),row.names = TRUE,
 
 # Peptide Intensities
 
-```{r plotPeptides, fig.width=9, fig.height=8}
-
+```{r plotPeptides, fig.width=9, fig.height=8, fig.cap="Traces of all peptides"}
 peptides <- curatedTransitions$getPeptideIntensities()
 peptides$plot()
+```
+
+Correlation filtering of peptide intensities
+
+```{r, fig.width=9, fig.height=8, fig.cap="Traces of correlated peptides"}
+correlatedPeptides <- peptides$removeDecorrelated(PeptideCorrelationThreshold)
+correlatedPeptides$plot()
+```
+
+```{r fig.cap="Change in peptide numbers due to filtering. X-axis unfiltered, Y-axis filtered data."}
+countrows <- function(x){if(is.null(x)){return(0)}else{nrow(x)}}
+nrPepUnfiltered<-sapply(peptides$getProteinsAsList(),nrow)
+nrPepFiltered <-sapply(correlatedPeptides$getProteinsAsList(),countrows)
+plot(jitter(nrPepUnfiltered),jitter(nrPepFiltered))
+
+```
+
+
+```{r results="markdown"}
+knitr::kable(setdiff.data.frame(all$getPeptideIDs() ,
+                                correlatedPeptides$getPeptideIDs() ),
+             row.names = FALSE,
+             caption= "All removed peptides because of decorrelation. ")
+```
+
+# Peptides available for quantification after peptide correlation filtering
+
+```{r results='markup'}
+knitr::kable(table(correlatedPeptides$getPeptideIDs()[,2:3]),row.names = TRUE,
+             caption = "Peptides Still available for Quantification. Columns charge state.")
 ```
 
 # Protein Intensities
 
 ```{r writeprotein, fig.width=9, fig.height=8}
-peptides$getProteinIntensities(scale=FALSE)
-
+correlatedPeptides$getProteinIntensities(scale=FALSE)
 ```
+
 
 \newpage
 
 # List of quantified proteins
 
 ```{r listQuantified, results="markup"}
-proteinslist <- peptides$getProteinsAsList()
-proteins <- data.frame( Portein = names(proteinslist), NrPeptides=  sapply(proteinslist, nrow))
-
+proteinslist <- correlatedPeptides$getProteinsAsList()
+proteins <- data.frame( Portein = names(proteinslist), NrPeptides=  sapply(proteinslist, countrows))
+proteins <- subset(proteins, NrPeptides > 0)
 
 knitr::kable(proteins,caption="Quantified proteins with number of peptides used for quantification", row.names = FALSE)
-
 
 ```
 
@@ -170,7 +187,7 @@ knitr::kable(remprot,caption="removed proteins")
 
 \newpage
 
-# Peptide profiles per Protein
+# Proteins and their Peptides
 
 ```{r fig.width=8, fig.height=7,dpi=300}
 
@@ -183,7 +200,7 @@ for(i in 1:length(xl)){
 \newpage
 
 
-# Peptides used for quantification and their transitions
+# Peptides and their transitions
 
 
 ```{r fig.width=8, fig.height=7}
@@ -195,16 +212,6 @@ for(i in 1:length(peplist)){
 
 
 ```
-
-
-
-
-
-
-
-
-
-
 
 
 
