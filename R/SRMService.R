@@ -458,7 +458,7 @@ SRMService <- setRefClass("SRMService",
                               .self$piw <- SRMService::piwotPiw(.self$dataq)
                               .self$dataq <- .mergeHL(.self$piw)
                               print(colnames(.self$dataq))
-                              print("mergeDone!")
+                              message("mergeDone!")
                               .self$piw <- SRMService::piwotPiw(.self$dataq)
                               .self$int <- SRMService::getIntensities(.self$piw)
                               rownames(.self$piw) <-rownames(.self$int)
