@@ -1,0 +1,200 @@
+---
+title: "Selecting best binomial models"
+author: "Witold Wolski @ Functional Genomics Center Zurich."
+date: "`r format(Sys.time(), '%d %B, %Y')`"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE, warnings=FALSE, fig.width = 8, fig.height = 8, message = FALSE)
+```
+
+## R Markdown
+
+
+```{r}
+library(dplyr)
+library(ggplot2)
+library(ggrepel)
+
+wprot <- protData$getWideNoMissing()
+
+wprot <- scale(wprot)
+tmp <- unique(subset(protData$data, select = c("Condition","Run")))
+wprot <- merge(tmp, wprot, by.x="Run", by.y="row.names")
+
+#p2grp <- subset(wprot, wprot$Condition == "Aggressive" | wprot$Condition == "Chronic")
+p2grp <- wprot
+
+iprotV <- data.frame(p2grp[,3:ncol(p2grp)], Condition = as.numeric(grepl( Condition2Compare, p2grp$Condition)))
+
+
+Variables <- t(combn(as.character(unique(protData$data$Protein)) , nvariables , FUN = NULL, simplify = TRUE ))
+colnames(Variables) <- paste("v",1:ncol(Variables),sep="")
+
+library(plyr)
+
+
+modelData <- alply(Variables, 1, function(x, iprotV){
+    tmp <- data.frame(Condition = as.factor(iprotV$Condition), iprotV[,x])
+    tmp
+  }, iprotV
+)
+
+resModels <- llply(modelData, function(x){
+    x <- glm(Condition ~ ., data= x , family = "binomial")
+    x
+  } )
+
+coefficientsExtrat <- function(x){c( coefficients = coefficients(x), deviance = deviance(x) )}
+
+
+resCoefficients <- ldply(resModels,coefficientsExtrat)
+colnames(resCoefficients) <- c("mID", "c.intercept", paste("c", 1:ncol(Variables), sep=""), "deviance")
+
+
+makeAUC <- function(x){
+  x <- predict(x, type="response")
+  pROC::auc(controls = x[iprotV$Condition == 0 ] , cases = x[iprotV$Condition == 1])
+}
+
+resAUC <- rep(NA, length(resModels))
+for(i in 1:length(resModels)){
+  resAUC[i] <- makeAUC(resModels[[i]])
+}
+
+resultsCoeff <-data.frame(var = Variables, resCoefficients, AUC= resAUC )
+
+resultsCoeff <- arrange(resultsCoeff, desc(AUC))
+```
+
+
+# TOP ROC curves
+
+Histogram of AUC for models using 3 variables
+
+
+## Top 1
+
+```{r fig.cap="Left panel: density of predictions values black - category 1; red - category 2 , Right panel : ROC curve"}
+
+model <- resModels[[resultsCoeff$mID[1]]]
+tmp <- melt(model$data)
+library(ggplot2)
+
+x <- predict(resModels[[resultsCoeff$mID[1]]], type="response")
+quantable::makeROCplot(x[iprotV$Condition == 0 ] , x[iprotV$Condition == 1])
+
+```
+
+```{r, fig.cap="normalized intensities of the best predictors"}
+p <- ggplot(tmp , aes(variable, value)) + geom_boxplot(aes(colour = Condition)) + geom_jitter(width = 0.2,aes(colour = Condition))
+p
+```
+
+
+## Top 2
+
+```{r}
+
+x <- predict(resModels[[resultsCoeff$mID[2]]], type="response")
+quantable::makeROCplot(x[iprotV$Condition == 0 ] , x[iprotV$Condition == 1])
+
+```
+
+## Top 3
+
+
+```{r}
+x <- predict(resModels[[resultsCoeff$mID[3]]], type="response")
+quantable::makeROCplot(x[iprotV$Condition == 0 ] , x[iprotV$Condition == 1])
+
+```
+
+# Distribution of AUC
+
+```{r}
+hist(resultsCoeff$AUC, breaks=20, xlab="AUC", main="AUC distribution")
+abline(v= quantile(resultsCoeff$AUC,0.9),col=2)
+
+```
+
+# TOP 20 models and variables used.
+
+
+```{r}
+knitr::kable(resultsCoeff[1:20, ], digits=2)
+
+```
+
+## Which variables were used most frequently in top 10% of models
+
+Range of AUC values for top models:
+
+```{r ,fig.cap="top 20 models."}
+top10pcModels <- resultsCoeff[1:(nrow(resCoefficients)/10),]
+range(top10pcModels$AUC)
+```
+
+```{r}
+plot(sort(table(as.character(unlist(top10pcModels[,1:nvariables]))),decreasing = T)[1:25],las=2,ylab="# of models")
+
+coefCounts <- data.frame(sort(table(as.character(unlist(top10pcModels[,1:nvariables]))),decreasing = T))
+colnames(coefCounts) <- c("proteinID", "coefCounts")
+
+cofw <- data.frame(names = unlist(top10pcModels[,1:nvariables]) , coef = unlist(top10pcModels[,(nvariables+3):(nvariables+2+nvariables)]))
+cofw$abscoef<- abs(cofw$coef)
+coefMean <- aggregate(cofw$coef, list(proteinID=cofw$names), median)
+colnames(coefMean)[2] = "meanCoef"
+
+xd <- merge(coefMean, coefCounts, by="proteinID")
+```
+
+```{r}
+knitr::kable(arrange(xd, desc(abs(meanCoef))), caption = "Coefficients sorted by absolute size in top 10% of models.")
+```
+
+
+
+```{r, fig.cap="Significance of variables", fig.width=6, fig.height=6}
+coefThreshold <- 0.5
+ggplot(xd, aes(x=meanCoef, y=coefCounts)) +
+    geom_point(shape=1) + geom_text_repel(data=dplyr::filter(xd, xd$meanCoef > coefThreshold | xd$meanCoef  < -coefThreshold ), aes(label=proteinID))
+
+xt <- xd[xd$meanCoef > coefThreshold| xd$meanCoef < -coefThreshold,]
+
+```
+
+
+# Analyse best pairs in top 10% models
+
+```{r}
+top10pcModels <- resultsCoeff[1:(nrow(resultsCoeff)/10),]
+
+#x <- with(top10pcModels,unique(c(var.v1, var.v2, var.v3)))
+
+res <- plyr::ddply(top10pcModels,
+                   .(mID) ,
+                   function(x){y <- t(combn(x[1:3],2)); y <- data.frame(a = unlist(y[,1]), b=unlist(y[,2]));y } )
+
+x <- dplyr::left_join(res, top10pcModels)
+```
+
+
+```{r}
+xxAUC <- x %>% group_by(a,b) %>% summarise(mean(AUC))
+xxLength <- x %>% group_by(a,b) %>% summarise(length(AUC))
+xxmin <- x %>% group_by(a,b) %>% summarise(min(AUC))
+xxmax <- x %>% group_by(a,b) %>% summarise(max(AUC))
+
+rrA <- inner_join(inner_join(inner_join(xxAUC, xxLength),xxmin),xxmax)
+xxB <- arrange(rrA,desc(`length(AUC)`),desc(`mean(AUC)`))
+knitr::kable(head(xxB))
+
+
+```
+
+
+
+
+

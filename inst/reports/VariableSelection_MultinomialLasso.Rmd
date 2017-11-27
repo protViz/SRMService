@@ -29,6 +29,12 @@ library(latticeExtra)
 library(reshape2)
 library(RColorBrewer)
 library(quantable)
+library(ggplot2)
+library(reshape2)
+library(glmnet)
+library(lattice)
+library(plyr)
+
 
 
 xx<-melt(datam)
@@ -125,8 +131,6 @@ simpleheatmap(mat,RowSideColors=colors, xlab="patient", ylab="patient", main="R^
 ## Bioreplicate
 
 ```{r violinSamples}
-library(ggplot2)
-library(reshape2)
 tmp <- longm
 p <- qplot( Run , Intensity , data=tmp , geom="violin" , xlab="" , ylab="log10(I)")
 p + stat_summary(fun.y=median,geom='point') +theme(axis.text.x = element_text(angle = 90, hjust = 1))
@@ -171,7 +175,6 @@ legend("topleft",legend=Ucond,col=c(mypalette),pch=1:length(Ucond))
 
 
 ```{r}
-library(glmnet)
 
 disease <- as.factor(datam$Condition)
 mylambda <- 1/(1:25)^1.7
@@ -220,7 +223,6 @@ for(i in 1:length(co)){
 }
 resCoeff <- do.call("rbind",resCoeff)
 
-library(lattice)
 barchart(Coefficients ~ features | Condition , data=resCoeff ,origin=0,scales=list(x=list(rot=90)))
 
 predictors <- list()
@@ -390,7 +392,6 @@ gridExtra::marrangeGrob(plots, ncol=2,nrow=3)
 
 
 ```{r}
-library(plyr)
 significant<-lapply(significant,function(x){if(class(x) == "data.frame"){x}})
 
 res <- do.call("rbind",res)

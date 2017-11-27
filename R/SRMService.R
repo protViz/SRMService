@@ -410,6 +410,7 @@ SRMService <- setRefClass("SRMService",
                             initialize = function(data,experimentID="",
                                                   qvalue = 0.05
                             ){
+                              data$Protein.Name <- gsub("_","~",data$Protein.Name)
                               .self$experimentID = experimentID
                               .self$lightLabel = "light"
                               .self$heavyLabel = "heavy"
@@ -447,7 +448,6 @@ SRMService <- setRefClass("SRMService",
 
                               colnames(dl)[colnames(dl) == "Area"] <- .self$lightLabel
                               colnames(dh)[colnames(dh) == "Area"] <- .self$heavyLabel
-
 
                               fixedData <- merge(dl,dh)
                               tmp <-melt(fixedData, id.vars = colnames(fixedData)[1:6],variable.name = "Isotope.Label",value.name = "Area" )
@@ -561,13 +561,9 @@ SRMService <- setRefClass("SRMService",
                                 plot(table(quantable::rowNAs(logfc)), main="log2(L/H)")
                                 abline(v=maxNA,col=2)
                               }
-
                               logfc <- subset(logfc , maxNA >= quantable::rowNAs(logfc))
-
                               invisible(TransitionTable(logfc,.self$conditionmap ,.self$experimentID))
-
                             },
-
                             plotTransitions = function(light = FALSE){
                               int_ <- .self$getTransitionIntensities(light=light)$data
                               quantable::imageWithLabels( t(as.matrix(log2( int_ ) )) ,

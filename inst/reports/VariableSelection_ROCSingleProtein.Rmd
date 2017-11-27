@@ -1,0 +1,81 @@
+---
+title: "ROC2 Group for `r comparisonName`"
+author: "Witold Wolski (FGCZ)"
+date: "`r format(Sys.time(), '%d %B, %Y')`"
+output: html_document
+params:
+  protdata: NA
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE, fig.width = 10, fig.height = 10)
+```
+
+# R Markdown
+
+```{r}
+library(pROC)
+library(plyr)
+
+
+
+tdatalog2<-t( protdata$getIntensities() )
+Ucond <- unique(protdata$getWideFormat()$Condition)
+iidx <- grep(Ucond[1], protdata$getWideFormat()$Condition)
+jidx <- grep(Ucond[2], protdata$getWideFormat()$Condition)
+
+
+tvals <- getTValuesForVolcano(tdatalog2[,iidx], tdatalog2[,jidx] )
+
+res <- data.frame(comparison = paste(Ucond[1],"_", Ucond[2],sep=""),
+                                   label = rownames(tdatalog2),
+                                   pvals=tvals$pval ,
+                                   foldchange=tvals$fchange,
+                                   pvals.adj = tvals$pvaladj )
+
+protdata$results$pValues <- res
+```
+
+
+```{r fig.cap="Volcano plot of adjusted p-values"}
+p <- volcano2G( tvals$fchange, tvals$pvaladj,labels = rownames(tdatalog2), log2FCThresh = 1 , pthresh=0.05,
+              xlab=paste( Ucond[1], "-", Ucond[2],sep=""), ylab="-log10(P.adjusted)",size = 4)
+p
+
+```
+
+
+
+
+```{r}
+library(pROC)
+library(plyr)
+
+lDat <- dlply(data2Conditions, .(Protein))
+lROC <- dlply(data2Conditions, .(Protein) , function(x){roc <- pROC::roc(Condition ~ Intensity,x); roc})
+
+AUC <- ldply(lROC, function(x){c("AUC"= pROC::auc(x))})
+
+topAUC <- plyr::arrange(AUC, AUC , decreasing=TRUE)[1:12,]
+
+protdata$results$AUC <- AUC
+
+lROCTOP <- lROC[c(as.character(topAUC$Protein))]
+lDatTop <- lDat[c(as.character(topAUC$Protein))]
+
+
+par(mfrow=c(4,3))
+for(i in 1:length(lROCTOP)){
+  plot(lROCTOP[[i]],main=names(lROCTOP)[i])
+  plot(smooth(lROCTOP[[i]]), add=T ,col="gray")
+  legend("bottomright", legend=paste("AUC = ",round(pROC::auc(lROCTOP[[i]]),digits=2)), bty="n")
+}
+
+par(mfrow=c(4,3))
+for(i in 1:length(lDatTop)){
+  boxplot(Intensity ~ Condition, lDatTop[[i]],main=names(lDatTop)[i])
+  stripchart(Intensity ~ Condition, lDatTop[[i]], add=T, vertical = TRUE, method = "jitter",col = "maroon", bg = "bisque")
+}
+
+```
+
