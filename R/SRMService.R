@@ -410,12 +410,13 @@ SRMService <- setRefClass("SRMService",
                             initialize = function(data,experimentID="",
                                                   qvalue = 0.05
                             ){
-                              data$Protein.Name <- gsub("_","~",data$Protein.Name)
                               .self$experimentID = experimentID
                               .self$lightLabel = "light"
                               .self$heavyLabel = "heavy"
                               stopifnot(getRequiredColumns() %in% colnames(data))
                               .self$data <- data[,getRequiredColumns()]
+                              .self$data$Protein.Name <- gsub("_","~",.self$data$Protein.Name)
+
                               .self$MaxNAHeavy <- length(unique(.self$data$Replicate.Name))
                               .self$MaxNALight <- .self$MaxNAHeavy
                               .self$MaxNAFC <- .self$MaxNAHeavy
