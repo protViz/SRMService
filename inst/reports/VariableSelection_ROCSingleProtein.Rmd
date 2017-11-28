@@ -3,8 +3,6 @@ title: "ROC2 Group for `r comparisonName`"
 author: "Witold Wolski (FGCZ)"
 date: "`r format(Sys.time(), '%d %B, %Y')`"
 output: html_document
-params:
-  protdata: NA
 ---
 
 ```{r setup, include=FALSE}
@@ -19,10 +17,10 @@ library(plyr)
 
 
 
-tdatalog2<-t( protdata$getIntensities() )
-Ucond <- unique(protdata$getWideFormat()$Condition)
-iidx <- grep(Ucond[1], protdata$getWideFormat()$Condition)
-jidx <- grep(Ucond[2], protdata$getWideFormat()$Condition)
+tdatalog2<-t( protData$getIntensities() )
+Ucond <- unique(protData$getWideFormat()$Condition)
+iidx <- grep(Ucond[1], protData$getWideFormat()$Condition)
+jidx <- grep(Ucond[2], protData$getWideFormat()$Condition)
 
 
 tvals <- getTValuesForVolcano(tdatalog2[,iidx], tdatalog2[,jidx] )
@@ -33,7 +31,7 @@ res <- data.frame(comparison = paste(Ucond[1],"_", Ucond[2],sep=""),
                                    foldchange=tvals$fchange,
                                    pvals.adj = tvals$pvaladj )
 
-protdata$results$pValues <- res
+protData$results$pValues <- res
 ```
 
 
@@ -58,7 +56,7 @@ AUC <- ldply(lROC, function(x){c("AUC"= pROC::auc(x))})
 
 topAUC <- plyr::arrange(AUC, AUC , decreasing=TRUE)[1:12,]
 
-protdata$results$AUC <- AUC
+protData$results$AUC <- AUC
 
 lROCTOP <- lROC[c(as.character(topAUC$Protein))]
 lDatTop <- lDat[c(as.character(topAUC$Protein))]

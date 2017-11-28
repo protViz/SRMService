@@ -18,12 +18,10 @@ library(ggplot2)
 library(ggrepel)
 
 wprot <- protData$getWideNoMissing()
-
 wprot <- scale(wprot)
 tmp <- unique(subset(protData$data, select = c("Condition","Run")))
 wprot <- merge(tmp, wprot, by.x="Run", by.y="row.names")
 
-#p2grp <- subset(wprot, wprot$Condition == "Aggressive" | wprot$Condition == "Chronic")
 p2grp <- wprot
 
 iprotV <- data.frame(p2grp[,3:ncol(p2grp)], Condition = as.numeric(grepl( Condition2Compare, p2grp$Condition)))
@@ -64,14 +62,15 @@ for(i in 1:length(resModels)){
 }
 
 resultsCoeff <-data.frame(var = Variables, resCoefficients, AUC= resAUC )
-
 resultsCoeff <- arrange(resultsCoeff, desc(AUC))
+
 ```
 
+The total number of models is `r choose(length(unique(protData$data$Protein)), nvariables)`.
 
 # TOP ROC curves
 
-Histogram of AUC for models using 3 variables
+Histogram of AUC for models using 3 variables.
 
 
 ## Top 1
