@@ -140,7 +140,7 @@ precursorIntensities2Wide <- function(data,
   return(wide)
 }
 
-
+#' @include transitionCorrelations.R
 whichDecorellated <- function(data, minCorrelation = 0.65){
   config <- getConfig(data)
   required <- config$required
@@ -151,7 +151,7 @@ whichDecorellated <- function(data, minCorrelation = 0.65){
 
   listProt <- plyr::dlply(tmp, required$ProteinId)
 
-  intensitiesCorrelated <- plyr::llply(listProt, .removeDecorrelated,numericColumn , minCorrelation )
+  intensitiesCorrelated <- plyr::llply(listProt, SRMService:::.removeDecorrelated, numericColumn , minCorrelation )
   intensitiesD <- plyr::ldply(intensitiesCorrelated, .id = required$ProteinId)
 
   data <- inner_join(data, intensitiesD)

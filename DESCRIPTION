@@ -31,7 +31,6 @@ Repository: CRAN
 RoxygenNote: 6.0.1
 Collate: 
     'RequiredColumns.R'
-    'transitionCorrelations.R'
     'eb.fit.R'
     'Grp2Analysis.R'
     'MSStatsMappings.R'
@@ -40,6 +39,7 @@ Collate:
     'QCReport.R'
     'SRMService.R'
     'ScaffoldHelpers.R'
+    'transitionCorrelations.R'
     'TidyMS.R'
     'fgcz.R'
     'hello.R'
