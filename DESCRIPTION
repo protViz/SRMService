@@ -31,6 +31,7 @@ Repository: CRAN
 RoxygenNote: 6.0.1
 Collate: 
     'RequiredColumns.R'
+    'transitionCorrelations.R'
     'eb.fit.R'
     'Grp2Analysis.R'
     'MSStatsMappings.R'
@@ -44,5 +45,4 @@ Collate:
     'hello.R'
     'limmaHelpers.R'
     'readMaxQuant.R'
-    'transitionCorrelations.R'
     'zzz.R'
