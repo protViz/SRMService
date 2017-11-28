@@ -15,9 +15,7 @@ knitr::opts_chunk$set(echo = FALSE, fig.width = 10, fig.height = 10)
 library(pROC)
 library(plyr)
 
-
-
-tdatalog2<-t( protData$getIntensities() )
+tdatalog2 <- t( protData$getIntensities() )
 Ucond <- unique(protData$getWideFormat()$Condition)
 iidx <- grep(Ucond[1], protData$getWideFormat()$Condition)
 jidx <- grep(Ucond[2], protData$getWideFormat()$Condition)
@@ -27,11 +25,12 @@ tvals <- getTValuesForVolcano(tdatalog2[,iidx], tdatalog2[,jidx] )
 
 res <- data.frame(comparison = paste(Ucond[1],"_", Ucond[2],sep=""),
                                    label = rownames(tdatalog2),
-                                   pvals=tvals$pval ,
+                                   pvals=tvals$pval,
                                    foldchange=tvals$fchange,
                                    pvals.adj = tvals$pvaladj )
 
 protData$results$pValues <- res
+
 ```
 
 
