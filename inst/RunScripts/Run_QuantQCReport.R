@@ -9,7 +9,6 @@
 
 rm(list=ls())
 library(limma)
-library(qvalue)
 library(SRMService)
 
 

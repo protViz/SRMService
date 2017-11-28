@@ -4,7 +4,6 @@
 #' @return list with results
 #' @export
 #' @importFrom limma lmFit
-#' @importFrom qvalue qvalue
 #'
 multigroupEBaysQvalue <- function(intMatrix, designMatrix){
   fit2 <- lmFit(intMatrix, designMatrix)
@@ -16,8 +15,8 @@ multigroupEBaysQvalue <- function(intMatrix, designMatrix){
   p.ord <- 2 * stats::pt(-abs(t.ord), fit2.eb$df.residual)
   p.mod <- fit2.eb$p.value
 
-  q.ord <- qvalue::qvalue(p.ord)$q
-  q.mod <- qvalue::qvalue(p.mod)$q
+  q.ord <- p.adjust(p.ord, method="BH")
+  q.mod <- p.adjust(p.mod, method="BH")
 
   coef <- (fit2.eb$coefficients)
 

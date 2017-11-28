@@ -1,7 +1,6 @@
 #' fit limma
 #' @param dat data matrix
 #' @param design design matrix
-#' @import qvalue
 #' @import limma
 #' @export
 #' @examples
@@ -31,8 +30,8 @@ eb.fit <- function(dat, design){
   p.ord <- 2*stats::pt(-abs(t.ord), fit.eb$df.residual)
   p.mod <- fit.eb$p.value[, 2]
 
-  q.ord <- qvalue::qvalue(p.ord)$q
-  q.mod <- qvalue::qvalue(p.mod)$q
+  q.ord <- p.adjust(p.ord, method="BH")
+  q.mod <- p.adjust(p.mod, method="BH")
 
   results.eb <- data.frame(effectSize, t.ord, t.mod, p.ord, p.mod, q.ord, q.mod, df.r, df.0, s2.0, s2, s2.post)
   results.eb <- results.eb[order(results.eb$p.mod), ]

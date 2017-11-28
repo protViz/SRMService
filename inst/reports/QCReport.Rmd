@@ -44,7 +44,6 @@ The protein matrix is filtered like this:
 ```{r}
 
 library(knitr)
-library(qvalue)
 library(limma)
 
 ```

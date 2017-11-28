@@ -45,7 +45,6 @@ The protein matrix is filtered like this:
 ```{r}
 
 library(knitr)
-library(qvalue)
 library(limma)
 
 tab <- data.frame(table(grp2$getAnnotation()$Condition))
@@ -261,7 +260,6 @@ Significant calls are made with q-value smaller than `r grp2$qvalue` (false disc
 
 
 ```{r volcanoplot, fig.width=10, fig.height=8, dpi=300, fig.cap="VolcanoPlot : x axis log2 fold change of normalized data, y axis -log10(Q-value)."}
-
 quantable::volcano2G(res.eb$log2FC,
                      res.eb$q.mod,
                      rownames(res.eb),
@@ -309,7 +307,7 @@ knitr::kable(data.frame(columns=colnames(grp2$getResultTable())[1:11]))
 
 # References
 
-This report was generated using the package [SRMService](http://github.com/protViz/SRMService) and [quantable](http://github.com/protViz/quantable). The q-values and p-values were computed using the bioconductor package [limma](https://bioconductor.org/packages/release/bioc/html/limma.html) and [qvalue](https://bioconductor.org/packages/release/bioc/html/qvalue.html).
+This report was generated using the package [SRMService](http://github.com/protViz/SRMService) and [quantable](http://github.com/protViz/quantable). The q-values and p-values were computed using the bioconductor package and [limma](https://bioconductor.org/packages/release/bioc/html/limma.html).
 
 For questions and improvements please do contact the authors of the package [_SRMService_](https://github.com/protViz/SRMService/graphs/contributors).
 
