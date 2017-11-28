@@ -19,7 +19,12 @@
   names(which((nrtrans-1)== ids))
 }
 
-.removeDecorrelated <- function(ff, ValueCol , corThreshold = 0.7, tr = log2, .PrecursorId = ".PrecursorId" , .Decorrelated = ".Decorrelated"){
+.removeDecorrelated <- function(ff,
+                                ValueCol ,
+                                corThreshold = 0.7,
+                                tr = log2,
+                                .PrecursorId = ".PrecursorId" ,
+                                .Decorrelated = ".Decorrelated"){
   fx <-tr(ff[,ValueCol:ncol(ff)])
   idcolumns <- ff[,1:(ValueCol-1)]
   rownames(fx) <- ff[,.PrecursorId]
