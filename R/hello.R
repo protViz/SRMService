@@ -71,7 +71,7 @@ transitionCorrelations <- function(dataX){
 
 .corSpearmanJack <- function(x,xdata){
   tmp <-xdata[x,]
-  stats::cor(tmp , use="pairwise.complete.obs", method = "spearman")
+  stats::cor(tmp , use="pairwise.complete.obs", method = "pearson")
 }
 
 .my_jackknife <- function ( x, theta, ...) {
