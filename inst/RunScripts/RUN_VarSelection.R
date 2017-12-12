@@ -9,8 +9,6 @@ longm$Protein <- longm$Variable
 
 data2Conditions <- longm
 
-tmplong <- longm
-nvariables <-3
 
 data2Conditions <- longm
 source("ProteinData.R")
@@ -28,6 +26,8 @@ rmarkdown::render("ROC2Group.Rmd", output_format = "pdf_document",
                   output_file = paste("ROC2GroupPeriodontitisVSNon.pdf",sep=""))
 
 
+tmplong <- longm
+nvariables <-3
 
 Condition2Compare <- "Healthy|Gingivitis"
 rmarkdown::render("SelectVars.Rmd",

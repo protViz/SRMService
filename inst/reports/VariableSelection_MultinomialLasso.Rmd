@@ -107,8 +107,6 @@ simpleheatmap( scale(datalog2) , palette = getBlueWhiteRed(21), main="",RowSideC
 # How do the variables correlate
 
 
-
-
 ```{r correlationHeatmap,fig.width=7,fig.height=7}
 
 

@@ -43,12 +43,6 @@ getConditionColumns <- function(){
   }
 }
 
-.findDecorrelated <- function(res, threshold = 0.8){
-  nrtrans <- ncol(res)
-  ids <- rowSums(res < threshold)
-  names(which((nrtrans-1)== ids))
-}
-
 .fixConditionMapping <- function(conditionmap){
   conditionmap <- conditionmap[,getConditionColumns()]
   conditionmap$Colnames <- do.call(paste,c(conditionmap, sep="_"))
@@ -196,7 +190,7 @@ PeptideTable <- setRefClass("PeptideTable",
                               removeDecorrelated = function(minCorrelation = 0.8){
                                 "removes decorrelated peptides"
                                 prottab <- .self$getProteinsAsList()
-                                res <- lapply(prottab, SRMService::transitionCorrelations)
+                                res <- lapply(prottab, SRMService::transitionCorrelationsJack)
                                 toremove <- unlist(lapply(res, .findDecorrelated, threshold=minCorrelation ))
                                 xx<-PeptideTable(.self$data[setdiff(rownames(.self$data),toremove),],
                                                  .self$ids[setdiff(rownames(.self$data),toremove),],
@@ -292,7 +286,7 @@ TransitionTable <- setRefClass("TransitionTable",
                                  removeDecorrelated = function(minCorrelation = 0.8){
                                    "removes decorrelated peptides"
                                    prottab <- .self$getPeptidesAsList()
-                                   res <- lapply(prottab, SRMService::transitionCorrelations)
+                                   res <- lapply(prottab, SRMService::transitionCorrelationsJack)
                                    toremove <- unlist(lapply(res, .findDecorrelated, threshold=minCorrelation))
                                    xx<-TransitionTable(.self$data[setdiff(rownames(.self$data),toremove),],
                                                        .self$conditionmap,
@@ -429,7 +423,6 @@ SRMService <- setRefClass("SRMService",
                               .self$qValueThreshold <- qvalue
                               message( "Setting intensities to NA for qvalues larger than: ", .self$qValueThreshold )
                               .self$dataq$Area[.self$dataq$annotation_QValue > .self$qValueThreshold] <- NA
-
                             },
                             qValueHist=function(){
                               hist(.self$data$annotation_QValue, main="q Values")

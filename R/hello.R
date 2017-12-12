@@ -66,8 +66,49 @@ transitionCorrelations <- function(dataX){
   }else{
     message("Could not compute correlation, nr rows : " , nrow(dataX) )
   }
-
 }
+
+
+.corSpearmanJack <- function(x,xdata){
+  tmp <-xdata[x,]
+  stats::cor(tmp , use="pairwise.complete.obs", method = "spearman")
+}
+
+.my_jackknife <- function ( x, theta, ...) {
+  call <- match.call()
+  n <- length(x)
+  u <- vector( "list", length = n )
+  for (i in 1:n) {
+    u[[i]] <- theta(x[-i], ...)
+  }
+  names(u) <- 1:n
+  thetahat <- theta(x, ...)
+  return(list(thetahat = thetahat, jack.values = u ))
+}
+
+#' Compute correlation matrix
+#' @param dataX data.frame with transition intensities per peptide
+#' @export
+transitionCorrelationsJack <- function(dataX){
+  if(nrow(dataX) > 1){
+    xpep <- t(dataX)
+    tmp <- .my_jackknife(1:nrow(xpep), .corSpearmanJack, xpep)
+    ## get the maximum
+    x <- plyr::ldply(tmp$jack.values, quantable::matrix_to_tibble)
+    dd <- tidyr::gather(x, "proteinID" , "correlation" , 3:ncol(x))
+    ddd <- dd %>% group_by(row.names, proteinID) %>% summarize(jcor = max(correlation))
+    dddd <- tidyr::spread(ddd, proteinID, jcor  )
+    dddd <- as.data.frame(dddd)
+    rownames(dddd) <-dddd$row.names
+    dddd <- dddd[,-1]
+    return(dddd)
+  }else{
+    message("Could not compute correlation, nr rows : " , nrow(dataX) )
+  }
+}
+
+
+
 
 
 

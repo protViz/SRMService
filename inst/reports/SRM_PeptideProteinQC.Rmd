@@ -127,7 +127,10 @@ Correlation filtering of peptide intensities
 
 ```{r, fig.width=9, fig.height=8, fig.cap="Traces of correlated peptides"}
 correlatedPeptides <- peptides$removeDecorrelated(PeptideCorrelationThreshold)
+
+
 correlatedPeptides$plot()
+
 ```
 
 ```{r fig.cap="Change in peptide numbers due to filtering. X-axis unfiltered, Y-axis filtered data."}
@@ -140,10 +143,13 @@ plot(jitter(nrPepUnfiltered),jitter(nrPepFiltered))
 
 
 ```{r results="markdown"}
+length(all$getPeptideIDs())
+
+                   
 knitr::kable(setdiff.data.frame(all$getPeptideIDs() ,
                                 correlatedPeptides$getPeptideIDs() ),
              row.names = FALSE,
-             caption= "All removed peptides because of decorrelation. ")
+             caption= "All removed peptides because of decorrelation on peptide level. ")
 ```
 
 # Peptides available for quantification after peptide correlation filtering
@@ -192,6 +198,10 @@ knitr::kable(remprot,caption="removed proteins")
 ```{r fig.width=8, fig.height=7,dpi=300}
 
 xl <-peptides$getProteinsAsList()
+length(xl)
+x2 <-correlatedPeptides$getProteinsAsList()
+x2<-x2[!sapply(x2,is.null)]
+
 for(i in 1:length(xl)){
   plotNicely(xl[[i]],main=names(xl)[i])
 }
