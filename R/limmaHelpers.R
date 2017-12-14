@@ -76,7 +76,7 @@ contrasts.fit.NA <- function(fit, cont){
     x <- colnames(fit)[i]
     idx <- !grepl(x, colnames(cont))
     if(sum(idx) > 0){
-      lmfit.cont <- contrasts.fit(fit[,-i], cont[-i,idx])
+      lmfit.cont <- contrasts.fit(fit[,-i], cont[-i,idx, drop=FALSE])
       lmfitebayes <- eBayes(lmfit.cont)
       resl[[i]] <- getPVals(lmfitebayes)
     }
@@ -85,7 +85,6 @@ contrasts.fit.NA <- function(fit, cont){
   lmfitebayes <- eBayes(lmfit.cont)
 
   resl <- c(resl, list(getPVals(lmfitebayes)))
-  #return(resl)
 
   tmp <- rbind.fill(resl)
   nrNA <- apply(tmp,1,function(x){sum(is.na(x))})
@@ -94,6 +93,7 @@ contrasts.fit.NA <- function(fit, cont){
 
   return(dplyr::select(tmp, -adj.P.Val, -B))
 }
+
 
 
 

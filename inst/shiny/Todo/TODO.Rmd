@@ -206,6 +206,13 @@ An (not necessarily the best) example how to integrate different software and be
 
 ## Compare results for fold change obtained by:
 
+Protein intensity modelling using aggregation:
+$$
+Protein_{aggr} = p^1_a+p^2_a + \dots + p^n_a
+$$
+
+
+
 $$
 FC_{aggr} = \log(\frac{p^1_a+p^2_a + \dots + p^n_a }{p^1_b+p^2_b + \dots + p^n_b})
 $$
@@ -213,7 +220,7 @@ $$
 FC_{transitions} = f(\log(\frac{p^1_a}{p^1_b}), \log(\frac{p^1_a}{p^1_b}),\dots, \log(\frac{p^n_a}{p^n_b}))
 $$
 
-$f$ - could be median, mean, robust mean etc.
+$f$ - could be median, mean, robust mean etc (See ROPECA).
 $a,b$ is the the sample
 $1,2, \dots ,n$ is the precursor belonging to protein $p$.
 
@@ -558,6 +565,8 @@ Are computed based on a single factor e.g. condition. Which can be a composition
 [MSStats](http://msstats.org/)
 
 [MSqRob Summarization vs Peptide-Based Models in Label-Free Quantitative Proteomics: Performance, Pitfalls, and Data Analysis Guidelines](http://pubs.acs.org/doi/abs/10.1021/pr501223t)
+
+[Peptide-level Robust Ridge Regression Improves Estimation, Sensitivity, and Specificity in Data-dependent Quantitative Label-free Shotgun Proteomics](http://www.mcponline.org/content/15/2/657.long)
 
 [MSqRob github](https://github.com/statOmics/MSqRob)
 
