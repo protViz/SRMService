@@ -3,6 +3,7 @@
 #' @exportClass Grp2Analysis
 #' @include eb.fit.R
 #' @include RequiredColumns.R
+#' @include MQProteinGroups.R
 #' @field proteinIntensity data.frame where colnames are Raw.File names, row.names are protein ID's and cells are protein abundances.
 #' @field annotation_ annotations data.frame with columns such as Raw.File, Condition, Run etc.
 #' @field proteinAnnotation information about the proteins, nr of peptides etc.
@@ -100,13 +101,7 @@ Grp2Analysis <- setRefClass("Grp2Analysis",
                               },
                               setMQProteinGroups = function(MQProteinGroups){
                                 "set MQ protein groups table"
-                                pint <- MQProteinGroups[,grep("Intensity\\.",colnames(MQProteinGroups))]
-                                proteinTable <- data.frame(ProteinName = MQProteinGroups$Majority.protein.IDs,
-                                                           TopProteinName = sapply(strsplit(MQProteinGroups$Majority.protein.IDs, split=";"),
-                                                                                   function(x){x[1]}),
-                                                           nrPeptides = MQProteinGroups$Peptides,
-                                                           Fasta.headers = MQProteinGroups$Fasta.headers,
-                                                           pint, stringsAsFactors = F)
+                                proteinTable <- MQProteinGroups(MQProteinGroups)
                                 setProteins(proteinTable)
                               },
                               getNrNAs = function(){

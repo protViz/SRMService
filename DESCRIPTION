@@ -32,6 +32,7 @@ Collate:
     'RequiredColumns.R'
     'eb.fit.R'
     'Grp2Analysis.R'
+    'MQProteinGroups.R'
     'MSStatsMappings.R'
     'PrepareRmdAnalysisEnv.R'
     'ProteinTable.R'
