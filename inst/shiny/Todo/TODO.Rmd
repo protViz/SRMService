@@ -2,8 +2,8 @@
 title: "TODO - Multigroup analysis"
 author: "Witold Wolski"
 output:
-  html_document: default
   pdf_document: default
+  html_document: default
 mailto: wew@fgcz.ethz.ch
 toc: yes
 ---
@@ -36,7 +36,20 @@ The Aims are:
 
 # Comparable concepts {.tabset}
 
-## MSqRob 
+## DEP
+
+Definitely worth a close look. Uses tidy concepts.
+
+[DEP Vignette](https://www.bioconductor.org/packages/devel/bioc/vignettes/DEP/inst/doc/DEP.html)
+[DEP Project site](https://bioconductor.org/packages/release/bioc/html/DEP.html)
+
+Includes Enrichment analysis based on:
+
+[EnrichR](http://amp.pharm.mssm.edu/Enrichr/)
+which can be accessed from R with:
+[EnbrichR](https://cran.r-project.org/web/packages/enrichR/index.html)
+
+## MSqRob
 
 ![ms QRob Benchmarking](../../../inst/figures/msQRobBenchmark.gif)
 
@@ -52,7 +65,7 @@ The Aims are:
 
 ## LFQBench
 
-An (not necessarily the best) example how to integrate different software and benchmark results.
+Not necessarily the best, example how to integrate different software and benchmark results.
 
 [LFQBench](https://github.com/IFIproteomics/LFQbench)
 
