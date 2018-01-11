@@ -28,7 +28,7 @@
 #' @param workdir specify working directory
 #'
 RMD_Quant_2GrpAnalysis <- function(workdir= getwd()){
-  .scriptCopyHelperVec(c("/RunScript/Run_QuantTwoGroupAnalysis.R","/reports/Grp2Analysis.Rmd"), workdir =workdir )
+  .scriptCopyHelperVec(c("/RunScripts/Run_QuantTwoGroupAnalysis.R","/reports/Grp2Analysis.Rmd"), workdir =workdir )
 }
 
 #' copies the RMD and Run files for the QuantQCReport in your working directory.
@@ -41,7 +41,7 @@ RMD_Quant_2GrpAnalysis <- function(workdir= getwd()){
 #' @param workdir specify working directory
 #'
 RMD_Quant_QCReport <- function(workdir = getwd()){
-  .scriptCopyHelperVec(c("/RunScript/Run_QuantQCReport.R","/reports/QCReport.Rmd"), workdir = workdir )
+  .scriptCopyHelperVec(c("/RunScripts/Run_QuantQCReport.R","/reports/QCReport.Rmd"), workdir = workdir )
 }
 
 #' Copies the RMD and Run files for variable selection into your working directory.
@@ -53,7 +53,7 @@ RMD_Quant_QCReport <- function(workdir = getwd()){
 #' @param workdir specify working directory
 #'
 RMD_VarSelection <- function(workdir = getwd()){
-  .scriptCopyHelperVec(c("/RunScript/Run_QuantQCReport.R","/reports/QCReport.Rmd"), workdir =workdir )
+  .scriptCopyHelperVec(c("/RunScripts/Run_QuantQCReport.R","/reports/QCReport.Rmd"), workdir =workdir )
 }
 
 #' Copies the RMD and Run R file for Library generation your working directory.
@@ -65,7 +65,7 @@ RMD_VarSelection <- function(workdir = getwd()){
 #' @param workdir specify working directory
 #'
 RMD_LibraryGen_specLProzor <- function(workdir = getwd()){
-  .scriptCopyHelperVec(c("/RunScript/Run_specLWithProzor.R","/reports/specLWithProzor.Rmd"), workdir = workdir )
+  .scriptCopyHelperVec(c("/RunScripts/Run_specLWithProzor.R","/reports/specLWithProzor.Rmd"), workdir = workdir )
 }
 
 #' Copies the Rnw file and Run R file for old 1To1 QC into your working directory.

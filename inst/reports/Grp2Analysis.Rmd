@@ -305,11 +305,14 @@ knitr::kable(data.frame(columns=colnames(grp2$getResultTable())[1:11]))
 ```
 
 
+
 # References
 
-This report was generated using the package [SRMService](http://github.com/protViz/SRMService) and [quantable](http://github.com/protViz/quantable). The q-values and p-values were computed using the bioconductor package and [limma](https://bioconductor.org/packages/release/bioc/html/limma.html).
+If you are going to use results produced by the scripts please do cite the SRMSerivce R package by providing the following URL  www.github.com/protViz/SRMService by W.E. Wolski, J. Grossmann, C. Panse
 
 For questions and improvements please do contact the authors of the package [_SRMService_](https://github.com/protViz/SRMService/graphs/contributors).
+
+This report was generated using the package [SRMService](http://github.com/protViz/SRMService) and [quantable](http://github.com/protViz/quantable). The q-values and p-values were computed using the bioconductor package and [limma](https://bioconductor.org/packages/release/bioc/html/limma.html).
 
 
 ## Disclaimer

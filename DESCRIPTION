@@ -29,10 +29,10 @@ BugReports: https://github.com/protViz/SRMService/issues
 Repository: CRAN
 RoxygenNote: 6.0.1
 Collate: 
+    'MQProteinGroups.R'
     'RequiredColumns.R'
     'eb.fit.R'
     'Grp2Analysis.R'
-    'MQProteinGroups.R'
     'MSStatsMappings.R'
     'PrepareRmdAnalysisEnv.R'
     'ProteinTable.R'

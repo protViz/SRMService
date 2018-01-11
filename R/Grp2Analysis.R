@@ -101,7 +101,13 @@ Grp2Analysis <- setRefClass("Grp2Analysis",
                               },
                               setMQProteinGroups = function(MQProteinGroups){
                                 "set MQ protein groups table"
-                                proteinTable <- MQProteinGroups(MQProteinGroups)
+                                pint <- MQProteinGroups[,grep("Intensity\\.",colnames(MQProteinGroups))]
+                                proteinTable <- data.frame(ProteinName = MQProteinGroups$Majority.protein.IDs,
+                                                           TopProteinName = sapply(strsplit(MQProteinGroups$Majority.protein.IDs, split=";"),
+                                                                                   function(x){x[1]}),
+                                                           nrPeptides = MQProteinGroups$Peptides,
+                                                           Fasta.headers = MQProteinGroups$Fasta.headers,
+                                                           pint, stringsAsFactors = F)
                                 setProteins(proteinTable)
                               },
                               getNrNAs = function(){

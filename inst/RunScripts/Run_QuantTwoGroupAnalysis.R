@@ -8,10 +8,10 @@ rm(list=ls())
 library(limma)
 library(SRMService)
 
-protein <- read.table(("proteinGroups.txt"),
-                      sep="\t",
-                      stringsAsFactors = F,
-                      header=T)
+
+protein <- readr::read_tsv("proteinGroups.txt")
+colnames(protein) <- make.names(colnames(protein))
+
 
 rawF <- gsub("Intensity\\.", "", grep("Intensity\\.",colnames(protein),value=T) )
 condition <- quantable::split2table(rawF)[,3]
