@@ -1,0 +1,52 @@
+---
+title: "Missing In one Condition"
+author: "Witold Wolski"
+date: "30 January 2018"
+output: html_document
+---
+
+
+## Proteins Quantified in only one condition
+
+Some proteins were quantified only in one condition. In such a case no p-values nor a fold change can be computed. Nevertheless, proteins with relatively high intensity in one condition but not present in the other condition can have biological relevance. The following figures show how many proteins were quantified only in one condition and which of these proteins had highest intensities.
+
+
+
+
+```{r plotPresentInOnlyOneCondition, fig.cap="Nr of NAs in conditions."}
+library(ggplot2)
+ggplot(NAinfo , aes(x= name, y=nrProteins)) +
+  geom_bar(stat="identity")+
+  geom_text(aes(label=nrProteins), vjust=1.6, color="white", size=3.5)+
+  theme_minimal()
+
+```
+
+
+```{r IntensitiesSingle}
+tmp1 <- results %>%
+  select(TopProteinName,grp2$getConditions()$reference , grp2$getConditions()$condition,effectSize) %>%
+  filter(is.na(effectSize)) %>%
+  arrange( desc(!!sym(grp2$getConditions()$reference)) ,desc(!!sym(grp2$getConditions()$condition)) ) 
+
+```
+
+
+```{r barplotIntensitiesSingle, fig.with=12, fig.height=8, fig.cap="Proteins having a high normalized intensity in one condition not quantified in the second condition."}
+
+par(mfrow=c(1,2))
+par(mar=c(8,4,4,1))
+
+tmp2 <- filter(tmp1, !is.na(!!sym(grp2$getConditions()$reference)))
+tmp3 <- tmp2 %>%
+  select(TopProteinName, grp2$getConditions()$reference)
+x <- setNames(tmp3[,2],tmp3[,1])[1:min(20,nrow(tmp3))]
+barplot(x, las = 2, ylab="Normalized intensity", main= grp2$getConditions()$reference,cex.names=0.7, border="lightblue")
+
+tmp2 <- filter(tmp1, !is.na(!!sym(grp2$getConditions()$condition)))
+tmp3 <- tmp2 %>%
+  select(TopProteinName, grp2$getConditions()$condition)
+x <- setNames(tmp3[,2],tmp3[,1])[1:min(20,nrow(tmp3))]
+barplot(x, las = 2, ylab="Normalized intensity", main= grp2$getConditions()$condition,cex.names=0.7, border="lightblue")
+
+```

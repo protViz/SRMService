@@ -123,6 +123,10 @@ Grp2Analysis <- setRefClass("Grp2Analysis",
                               getNormalized = function(center=TRUE, scale=TRUE){
                                 quantable::robustscale(log2(.self$proteinIntensity))
                               },
+                              getNormalizedVSN = function(){
+                                "perform variance stabilizing normalizaiton."
+
+                              },
                               getNormalizedConditionData = function(condition){
                                 normalized <- .self$getNormalized()$data
                                 stopifnot(condition %in% .self$conditions)
@@ -150,19 +154,52 @@ Grp2Analysis <- setRefClass("Grp2Analysis",
                               getResultTable = function(){
                                 pvalues <- .self$getPValues()
                                 pvalues <- subset(pvalues, select = c("effectSize","p.ord","p.mod","q.ord","q.mod","log2FC"))
+
                                 intensityWithNA <- merge(data.frame(nrNAs = .self$getNrNAs()),.self$proteinIntensity, by="row.names" )
                                 rownames(intensityWithNA) <- intensityWithNA$Row.names
-                                intensityWithNA <- intensityWithNA[,-1]
+                                intensityWithNA$Row.names <- NULL
+
                                 intensityWithNA <- merge(intensityWithNA, .self$getNormalized()$data, by="row.names", suffix = c(".raw", ".transformed"))
                                 rownames(intensityWithNA) <- intensityWithNA$Row.names
-                                intensityWithNA <- intensityWithNA[,-1]
+                                intensityWithNA$Row.names <- NULL
+
                                 intensityWithNA <- merge(pvalues,intensityWithNA, by="row.names")
                                 rownames(intensityWithNA) <- intensityWithNA$Row.names
-                                intensityWithNA <- intensityWithNA[,-1]
+                                intensityWithNA$Row.names <-NULL
+
+                                grpAvg <- .self$getNormalizedGrpAverages()
+                                #rownames(intensityWithNA) <- intensityWithNA$TopProteinName
+                                #intensityWithNA <- merge( grpAvg, intensityWithNA, by="row.names")
+                                #rownames(intensityWithNA) <- intensityWithNA$Row.names
+                                #intensityWithNA <- intensityWithNA[,-1]
+
                                 prots <- .self$proteinAnnotation
-                                intensityWithNA<-merge(prots, intensityWithNA, by="row.names")
-                                intensityWithNA <- intensityWithNA[,-1]
-                                return(intensityWithNA)
+                                #intensityWithNA<-merge(prots, intensityWithNA, by="row.names")
+                                #intensityWithNA <- intensityWithNA[,-1]
+                                mm <- merge(grpAvg, intensityWithNA , by="row.names")
+                                rownames(mm) <- mm$Row.names
+                                mm$Row.names <-NULL
+                                mm <- merge(prots, mm, by="row.names")
+                                mm$Row.names <-NULL
+
+
+                                return(mm)
+                              },
+                              getNormalizedGrpAverages = function(){
+                                "computes grp averages per protein"
+                                nrdata <-.self$getNormalizedConditionData(.self$getConditions()[1])
+                                rowNas <- rowNAs(nrdata)
+                                grpAverage1 <- rowSums(nrdata, na.rm = TRUE)/ncol(nrdata)
+                                grpAverage1[rowNas == ncol(nrdata)] <- NA
+
+                                nrdata <-.self$getNormalizedConditionData(.self$getConditions()[2])
+                                rowNas <- rowNAs(nrdata)
+                                grpAverage2 <- rowSums(nrdata, na.rm = TRUE)/ncol(nrdata)
+                                grpAverage2[rowNas == ncol(nrdata)] <- NA
+
+                                grpAverage<-cbind(grpAverage1,grpAverage2)
+                                colnames(grpAverage) <- grp2$getConditions()
+                                return(grpAverage)
                               }
                             )
 )

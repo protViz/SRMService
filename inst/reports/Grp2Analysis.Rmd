@@ -62,6 +62,12 @@ knitr::kable(tab)
 
 ```
 
+```{r}
+x <- data.frame(name = unlist(grp2$getConditions()))
+knitr::kable(x)
+```
+
+
 \pagebreak
 
 
@@ -202,9 +208,9 @@ col <- c("red","blue")
 simpleheatmap(cor(grp2$getNormalized()$data, 
                   use="pairwise.complete.obs", 
                   method="spearman")^2,
-                  palette = getGreensScale(21),
-                  ColSideColors = col[as.factor(grp2$getAnnotation()$Condition)], 
-                  margins = c(10,3))
+              palette = getGreensScale(21),
+              ColSideColors = col[as.factor(grp2$getAnnotation()$Condition)], 
+              margins = c(10,3))
 ```
 
 In Figure \@ref(fig:correlation) and Figure \@ref(fig:heatmapData) we show how samples are clustering depending on their correlation and on the protein expression profiles.
@@ -266,8 +272,7 @@ quantable::volcano2G(res.eb$log2FC,
                      ylab="-log10(Q Value)",
                      log2FCThresh=grp2$qfoldchange,
                      pthresh=grp2$qvalue
-                     ,ylim=c(0,-log10(min(res.eb$q.mod))),size=2)
-
+                     ,ylim=c(0,-log10(min(res.eb$q.mod,na.rm = TRUE))),size=2)
 
 ```
 
@@ -279,9 +284,9 @@ quantable::volcano2G(res.eb$log2FC,
 tmp <- grp2$getResultTable()
 x <- data.frame(table(abs(tmp$effectSize) > grp2$qfoldchange & tmp$q.mod < grp2$qvalue))
 if(length(x$Var1) == 2){
- x$Var1 <- c("Not Significant" , "Significant")
+  x$Var1 <- c("Not Significant" , "Significant")
 }
-knitr::kable(x, caption = "Nr of not significant and significant proteins.")
+knitr::kable(x, caption = "Number of not significant and significant proteins.")
 ```
 
 
@@ -289,22 +294,42 @@ knitr::kable(x, caption = "Nr of not significant and significant proteins.")
 ```{r top20table}
 library(dplyr)
 top20 <- tmp %>% dplyr::select( TopProteinName,effectSize, q.mod ) %>% arrange((q.mod) ) %>% head(20)
-knitr::kable(top20, caption = "Top 20 proteins by smallest Q Value.")
+knitr::kable(top20, caption = "Top 20 proteins sorted by smallest Q Value (q.mod). The effectSize column is the log2 FC of condition - reference.")
 ```
-
 
 
 \newpage
 
 
-## Output Data Description
+```{r presentInOnlyOneCondition}
+library(dplyr)
+library(rlang)
+results <- grp2$getResultTable()
+NAinfo <- c(sum(is.na(results[, grp2$getConditions()$reference])) , 
+            sum(is.na(results[, grp2$getConditions()$condition])) )
+NAinfo<-data.frame(name = unlist(grp2$getConditions()), nrProteins= NAinfo)
 
-```{r}
-knitr::kable(data.frame(columns=colnames(grp2$getResultTable())[1:11]))
+if(sum(NAinfo$nrProteins > 0) > 0)
+{
+  child_docs <- "Grp2Analysis_MissingInOneCondtion.Rmd"
+} else{
+  child_docs <- "Grp2Analysis_Empty.Rmd"
+}
 
 ```
 
 
+
+```{r includeMissingInOne, child = child_docs}
+```
+
+\pagebreak
+
+## Output Data Description
+
+```{r outputdatacolumns}
+knitr::kable(data.frame(columns=colnames(grp2$getResultTable())[1:11]))
+```
 
 # References
 
