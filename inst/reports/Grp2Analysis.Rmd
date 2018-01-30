@@ -271,8 +271,10 @@ quantable::volcano2G(res.eb$log2FC,
                      rownames(res.eb),
                      ylab="-log10(Q Value)",
                      log2FCThresh=grp2$qfoldchange,
-                     pthresh=grp2$qvalue
-                     ,ylim=c(0,-log10(min(res.eb$q.mod,na.rm = TRUE))),size=2)
+                     pthresh=grp2$qvalue,
+                     xlim=range(res.eb$log2FC),
+                     ylim=c(0,-log10(min(res.eb$q.mod,na.rm = TRUE))),size=2)
+
 
 ```
 
