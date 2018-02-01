@@ -168,22 +168,33 @@ Grp2Analysis <- setRefClass("Grp2Analysis",
                                 intensityWithNA$Row.names <-NULL
 
                                 grpAvg <- .self$getNormalizedGrpAverages()
-                                #rownames(intensityWithNA) <- intensityWithNA$TopProteinName
-                                #intensityWithNA <- merge( grpAvg, intensityWithNA, by="row.names")
-                                #rownames(intensityWithNA) <- intensityWithNA$Row.names
-                                #intensityWithNA <- intensityWithNA[,-1]
 
                                 prots <- .self$proteinAnnotation
-                                #intensityWithNA<-merge(prots, intensityWithNA, by="row.names")
-                                #intensityWithNA <- intensityWithNA[,-1]
                                 mm <- merge(grpAvg, intensityWithNA , by="row.names")
                                 rownames(mm) <- mm$Row.names
                                 mm$Row.names <-NULL
                                 mm <- merge(prots, mm, by="row.names")
                                 mm$Row.names <-NULL
 
-
                                 return(mm)
+                              },
+                              getResultTableWithPseudo = function(){
+                                "add pseudo p-values and pseudo fold changes"
+                                ### compute pseudo p-values
+                                results <- .self$getResultTable()
+                                c2name <- setdiff(.self$conditions, .self$reference)
+                                r <-results[,.self$reference]
+                                minr <- min(r,na.rm=TRUE)
+                                r[is.na(r)] <- minr
+
+                                c2 <- results[,c2name]
+                                minc2 <- min(c2,na.rm=TRUE)
+                                c2[is.na(c2)] <- minc2
+                                results$pseudo.effectSize <- c2 - r
+
+                                results <- mutate(results, pseudo.q.mod = ifelse(is.na(q.mod), 0, q.mod))
+
+                                return(results)
                               },
                               getNormalizedGrpAverages = function(){
                                 "computes grp averages per protein"
