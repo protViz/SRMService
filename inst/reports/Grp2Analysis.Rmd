@@ -327,10 +327,10 @@ if(sum(NAinfo$nrProteins > 0) > 0)
 
 \pagebreak
 
-## Output Data Description
+## List of Columns in the output table
 
 ```{r outputdatacolumns}
-knitr::kable(data.frame(columns=colnames(grp2$getResultTable())[1:11]))
+knitr::kable(data.frame(columns=colnames(grp2$getResultTableWithPseudo())))
 ```
 
 # References

@@ -8,8 +8,7 @@ output: html_document
 
 ## Proteins Quantified in only one condition
 
-Some proteins were quantified only in one condition. In such a case no p-values nor a fold change can be computed. Nevertheless, proteins with relatively high intensity in one condition but not present in the other condition can have biological relevance. The following figures show how many proteins were quantified only in one condition and which of these proteins had highest intensities.
-
+Some proteins were quantified only in one condition. In such a case no p-values or fold change can be computed. Nevertheless, proteins with relatively high intensity in one condition but not present in the other condition can have biological relevance. Figure \@ref(fig:plotPresentInOnlyOneCondition) shows how many protein were not quantified in a condition. The Figure \@ref(fig:barplotIntensitiesSingle) visualizes the most intensive proteins not quantified in the other condition. Finally, in the Volcano plot Figure \@ref(fig:pseudoVolcanoplot) we show all the proteins quantified including those identified only in one of the samples (green). The reported fold change is computed by subtracting from the quantification value the average of the 10% smallest protein averages of the other condition. The p-value for those proteins was set to 0.
 
 
 ```{r plotPresentInOnlyOneCondition, fig.cap="Nr of NAs in conditions."}
@@ -54,13 +53,16 @@ barplot(x, las = 2, ylab="Normalized intensity", main= grp2$getConditions()$cond
 
 
 
-```{r pseudoVolcanoplot, fig.width=10, fig.height=8, dpi=300, fig.cap="VolcanoPlot : x axis log2 fold change including pseudo log2 foldchanges of normalized data, y axis -log10(Q-value)."}
+```{r pseudoVolcanoplot, fig.width=10, fig.height=8, dpi=300, fig.cap="VolcanoPlot: x axis log2 fold change including pseudo log2 foldchanges of normalized data, y axis -log10(Q-value)."}
+source("volcano2G.R")
+library(ggrepel)
 pseudoData <- grp2$getResultTableWithPseudo()
+
 quantable::volcano2G( pseudoData$pseudo.effectSize,
                      pseudoData$pseudo.q.mod,
                      pseudoData$TopProteinName,
                      ylab="-log10(Q Value)",
-                     log2FCThresh = 5,
+                     log2FCThresh = grp2$qfoldchange,
                      pthresh = grp2$qvalue,
                      xlim = range(res.eb$log2FC),
                      ylim = c(0,-log10(min(res.eb$q.mod,na.rm = TRUE))),
