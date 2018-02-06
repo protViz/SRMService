@@ -353,7 +353,7 @@ The obtained results should be validated orthogonal as well (e.g. with Western b
 # Session Info
 
 ```{r}
-sessionInfo()
+pander::pander(sessionInfo())
 ```
 
 
