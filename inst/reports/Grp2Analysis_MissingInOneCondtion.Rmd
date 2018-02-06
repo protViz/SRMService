@@ -8,7 +8,8 @@ output: html_document
 
 ## Proteins Quantified in only one condition
 
-Some proteins were quantified only in one condition. In such a case no p-values or fold change can be computed. Nevertheless, proteins with relatively high intensity in one condition but not present in the other condition can have biological relevance. Figure \@ref(fig:plotPresentInOnlyOneCondition) shows how many protein were not quantified in a condition. The Figure \@ref(fig:barplotIntensitiesSingle) visualizes the most intensive proteins not quantified in the other condition. Finally, in the Volcano plot Figure \@ref(fig:pseudoVolcanoplot) we show all the proteins quantified including those identified only in one of the samples (green). The reported fold change is computed by subtracting from the quantification value the average of the 10% smallest protein averages of the other condition. The p-value for those proteins was set to 0.
+Some proteins were quantified only in one condition. In such a case no p-values or fold change can be computed. Nevertheless, proteins with relatively high intensity in one condition but not present in the other condition can have biological relevance. Figure @ref(fig:plotPresentInOnlyOneCondition) shows how many protein were not quantified in a condition. The Figure @ref(fig:barplotIntensitiesSingle) visualizes the most intensive proteins not quantified in the other condition.
+
 
 
 ```{r plotPresentInOnlyOneCondition, fig.cap="Nr of NAs in conditions."}
@@ -51,11 +52,12 @@ barplot(x, las = 2, ylab="Normalized intensity", main= grp2$getConditions()$cond
 ```
 
 
+Furthermore, in order to integrate those proteins with proteins which do have a fold change and a q.value, we also provide and a fold change estimate and q.value for those proteins. To emphasize that these values were not obtained by means of fitting a statistical model we call the columns in the output file which do contain them `pseudo.effectSize` and `pseudo.q.mod`. The reported pseudo fold change is computed by subtracting from the quantification value the average of the 10% smallest protein averages of the other condition while the q-value for those proteins was set to 0. The Volcano plot in Figure @ref(fig:pseudoVolcanoplot) envisages all the proteins quantified including those identified only in one of the samples (green). 
 
 
-```{r pseudoVolcanoplot, fig.width=10, fig.height=8, dpi=300, fig.cap="VolcanoPlot: x axis log2 fold change including pseudo log2 foldchanges of normalized data, y axis -log10(Q-value)."}
-source("volcano2G.R")
-library(ggrepel)
+
+
+```{r pseudoVolcanoplot, fig.width=10, fig.height=8, dpi=300, fig.cap="VolcanoPlot: x axis log2 fold change including pseudo log2 foldchanges of normalized data, y axis -log10(Q-value) inluding pseudo q-values."}
 pseudoData <- grp2$getResultTableWithPseudo()
 
 quantable::volcano2G( pseudoData$pseudo.effectSize,
