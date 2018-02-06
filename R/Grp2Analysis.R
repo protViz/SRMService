@@ -4,6 +4,7 @@
 #' @include eb.fit.R
 #' @include RequiredColumns.R
 #' @include MQProteinGroups.R
+#' @importFrom dplyr mutate
 #' @field proteinIntensity data.frame where colnames are Raw.File names, row.names are protein ID's and cells are protein abundances.
 #' @field annotation_ annotations data.frame with columns such as Raw.File, Condition, Run etc.
 #' @field proteinAnnotation information about the proteins, nr of peptides etc.
@@ -175,7 +176,6 @@ Grp2Analysis <- setRefClass("Grp2Analysis",
                                 mm$Row.names <-NULL
                                 mm <- merge(prots, mm, by="row.names")
                                 mm$Row.names <-NULL
-
                                 return(mm)
                               },
                               getResultTableWithPseudo = function(){
@@ -183,16 +183,28 @@ Grp2Analysis <- setRefClass("Grp2Analysis",
                                 ### compute pseudo p-values
                                 results <- .self$getResultTable()
                                 c2name <- setdiff(.self$conditions, .self$reference)
+
+
+                                # fix references
                                 r <-results[,.self$reference]
-                                minr <- min(r,na.rm=TRUE)
+                                romit <- na.omit(r)
+                                minr <- mean( sort(romit)[1:ceiling(length(romit)/10)] )
+
                                 r[is.na(r)] <- minr
+                                results[, paste("pseudo.", .self$reference, sep="")] <- r
 
+
+                                # fix condition
                                 c2 <- results[,c2name]
-                                minc2 <- min(c2,na.rm=TRUE)
-                                c2[is.na(c2)] <- minc2
-                                results$pseudo.effectSize <- c2 - r
+                                c2omit <- na.omit(c2)
+                                minc2 <-  mean( sort(c2omit)[1:ceiling(length(c2omit)/10)])
 
-                                results <- mutate(results, pseudo.q.mod = ifelse(is.na(q.mod), 0, q.mod))
+                                c2[is.na(c2)] <- minc2
+                                results[, paste("pseudo.", c2name, sep="")]<- c2
+
+
+                                results$pseudo.effectSize <- c2 - r
+                                results <- dplyr::mutate(results, pseudo.q.mod = ifelse(is.na(q.mod), 0, q.mod))
 
                                 return(results)
                               },

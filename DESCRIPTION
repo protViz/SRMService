@@ -9,17 +9,18 @@ Description: Analysing and LFQ and SRM experiments in service mode.
 Imports:
     bibliospec,
     bookdown,
+    dplyr,
     limma,
     methods,
     missForest,
     plyr,
-    shiny,
     quantable (>= 0.3.1),
-    qvalue,
     R6,
     reshape2,
     rmarkdown,
+    shiny,
     scales,
+    tidyverse,
     tools,
     yaml
 License: GPL
