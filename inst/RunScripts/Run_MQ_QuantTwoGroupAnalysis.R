@@ -8,9 +8,15 @@ rm(list=ls())
 library(limma)
 library(SRMService)
 
+### Protein groups file
+proteinGroupsFile <- "proteinGroups.txt"
+###
 
-protein <- readr::read_tsv("proteinGroups.txt")
+
+protein <- readr::read_tsv(proteinGroupsFile)
 colnames(protein) <- make.names(colnames(protein))
+tmp <- cumsum(rev(table(protein$Peptides)))
+barplot(tmp[(length(tmp)-5):length(tmp)],ylim=c(0, length(protein$Peptides)),xlab='nr of proteins with at least # peptides')
 
 
 rawF <- gsub("Intensity\\.", "", grep("Intensity\\.",colnames(protein),value=T) )
@@ -22,16 +28,13 @@ annotation <- data.frame(Raw.file = rawF,
                          IsotopeLabelType = rep("L",length(condition)),
                          stringsAsFactors = F)
 
-resultdir <- "output"
-dir.create(resultdir)
-
-
-tmp <- cumsum(rev(table(protein$Peptides)))
-barplot(tmp[(length(tmp)-5):length(tmp)],ylim=c(0, length(protein$Peptides)),xlab='nr of proteins with at least # peptides')
 
 
 ###################################
 ### Configuration section
+resultdir <- "output"
+dir.create(resultdir)
+
 fix(annotation)
 
 

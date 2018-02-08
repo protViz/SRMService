@@ -3,10 +3,14 @@ library(dplyr)
 library(quantable)
 library(SRMService)
 
+## specify file names
+inputFilesFile <- "20161115_02_G3_InputFiles.txt"
+proteinsFile <- "20161115_02_G3_Proteins.txt"
+##
+
 
 rm(list=ls())
-inputFiles <- read_tsv("20161115_02_G3_InputFiles.txt")
-
+inputFiles <- read_tsv( inputFilesFile )
 inputFileFix <- fix_PD_inputFiles(inputFiles)
 
 annotation <- data.frame(Raw.file = inputFileFix$Raw.File,
@@ -18,7 +22,7 @@ annotation <- data.frame(Raw.file = inputFileFix$Raw.File,
 
 
 
-proteins <- read_tsv("20161115_02_G3_Proteins.txt")
+proteins <- read_tsv( proteinsFile )
 proteinsFIX <- remap_PD_ProteinTable(proteins,inputFiles)
 
 
