@@ -22,30 +22,36 @@ annotation <- data.frame(Raw.file = rawF,
                          IsotopeLabelType = rep("L",length(condition)),
                          stringsAsFactors = F)
 
-workdir <- "output"
-dir.create(workdir)
+resultdir <- "output"
+dir.create(resultdir)
+
 
 tmp <- cumsum(rev(table(protein$Peptides)))
 barplot(tmp[(length(tmp)-5):length(tmp)],ylim=c(0, length(protein$Peptides)),xlab='nr of proteins with at least # peptides')
 
+
 ###################################
 ### Configuration section
-
-Experimentname = ""
-nrNas = 3
-nrPeptides = 2
-reference=unique(annotation$Condition)[1]
 fix(annotation)
 
-write.table(annotation, file="output/annotationused.txt")
+
+Experimentname = ""
+nrNas = sum(!is.na(annotatoin$Condition)) - 1
+nrPeptides = 2
+reference=unique(annotation$Condition)[1]
+qvalueThreshold = 0.01
+qfoldchange =2
+
+write.table(annotation, file=file.path(resultdir, "annotationused.txt"))
 
 ####### END of user configuration ##
 
 
 grp2 <- Grp2Analysis(annotation, "Experimentname", maxNA=nrNas  , nrPeptides=nrPeptides, reference=reference)
 grp2$setMQProteinGroups(protein)
+grp2$setQValueThresholds(qvalue = qvalueThreshold,qfoldchange = qfoldchange)
 
-write.table(grp2$getResultTable(), file=file.path(workdir,"pValues.csv"), quote=FALSE, sep = "\t", col.names=NA)
+readr::write_tsv(grp2$getResultTable(), file=file.path(resultdir,"pValues.csv"))
 
 rmarkdown::render("Grp2Analysis.Rmd",bookdown::pdf_document2())
 

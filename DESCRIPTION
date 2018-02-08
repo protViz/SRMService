@@ -1,7 +1,7 @@
 Package: SRMService
 Type: Package
 Title: Performs Service SRM and LFQ analysis
-Version: 0.1.4
+Version: 0.1.5
 Author: Witold Wolski and Christian Panse and Jonas Grossmann
 Maintainer: Witold Wolski <wewolski@gmail.com>
 Description: Analysing and LFQ and SRM experiments in service mode.
@@ -35,6 +35,7 @@ Collate:
     'eb.fit.R'
     'Grp2Analysis.R'
     'MSStatsMappings.R'
+    'PDProteins.R'
     'PrepareRmdAnalysisEnv.R'
     'ProteinTable.R'
     'QCReport.R'

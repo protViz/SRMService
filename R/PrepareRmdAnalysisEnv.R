@@ -18,7 +18,8 @@
     message( basename(script) )
   }
 }
-#' copies the RMD and Run files for 2 grp analysis in your working directory.
+#' copies the RMD and Run files for 2 grp analysis based on MQ (MaxQuant) in your working directory
+#' - ideally the txt directory of your MQ session.
 #'
 #' Please see the Run_QuantTwoGroupAnalysis.R for more details
 #'
@@ -27,12 +28,26 @@
 #' SRMService::RMD_Quant_2GrpAnalysis()
 #' @param workdir specify working directory
 #'
-RMD_Quant_2GrpAnalysis <- function(workdir= getwd()){
-  .scriptCopyHelperVec(c("/RunScripts/Run_QuantTwoGroupAnalysis.R","/reports/Grp2Analysis.Rmd",
+RMD_MQ_Quant_2GrpAnalysis <- function(workdir= getwd()){
+  .scriptCopyHelperVec(c("/RunScripts/Run_MQ_QuantTwoGroupAnalysis.R","/reports/Grp2Analysis.Rmd",
                          "/reports/Grp2Analysis_Empty.Rmd",
                          "/reports/Grp2Analysis_MissingInOneCondtion.Rmd"), workdir = workdir )
 }
 
+#' copies the RMD and Run files for 2 grp analysis based on a PD (protein discoverer) in your working directory.
+#'
+#' Please see the Run_QuantTwoGroupAnalysis.R for more details
+#'
+#' @export
+#' @examples
+#' SRMService::RMD_Quant_2GrpAnalysis()
+#' @param workdir specify working directory
+#'
+RMD_PD_Quant_2GrpAnalysis <- function(workdir= getwd()){
+  .scriptCopyHelperVec(c("/RunScripts/Run_PD_QuantTwoGroupAnalysis.R","/reports/Grp2Analysis.Rmd",
+                         "/reports/Grp2Analysis_Empty.Rmd",
+                         "/reports/Grp2Analysis_MissingInOneCondtion.Rmd"), workdir = workdir )
+}
 #' copies the RMD and Run files for the QuantQCReport in your working directory.
 #'
 #' Please see the Run_QuantQCReport.R for more details
@@ -42,7 +57,7 @@ RMD_Quant_2GrpAnalysis <- function(workdir= getwd()){
 #' SRMService::RMD_Quant_QCReport()
 #' @param workdir specify working directory
 #'
-RMD_Quant_QCReport <- function(workdir = getwd()){
+RMD_MQ_Quant_QCReport <- function(workdir = getwd()){
   .scriptCopyHelperVec(c("/RunScripts/Run_QuantQCReport.R","/reports/QCReport.Rmd"), workdir = workdir )
 }
 

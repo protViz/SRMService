@@ -3,9 +3,6 @@ setConfig <- function(x, config){ attributes(x)$configuration <- config; return(
 config_col_map <- function(x){ attr(x,"configuration")$required }
 config_parameters <- function(x){ attr(x,"configuration")$parameters }
 
-#'
-#' @import tidyverse
-#'
 setupDataFrame <- function(data, configuration){
   required <- unique(unlist(configuration$required))
   longF <- select(data,  required)
