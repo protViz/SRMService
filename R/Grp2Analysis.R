@@ -34,8 +34,10 @@ Grp2Analysis <- setRefClass("Grp2Analysis",
                                            pfoldchange = "numeric",
                                            qfoldchange = "numeric",
                                            reference = "character",
-                                           removeDates= "logical"
-                                           )
+                                           removeDates= "logical",
+                                           normalizationMethod = "character",
+                                           housekeeper = "character"
+                            )
                             , methods = list(
                               setProteins = function(protein){
                                 "used to verify proteingroups structure and set members"
@@ -77,7 +79,9 @@ Grp2Analysis <- setRefClass("Grp2Analysis",
                                 nrPeptides = 2,
                                 reference = "Control",
                                 annotationCol = annotationColumns,
-                                removeDates = TRUE
+                                removeDates = TRUE,
+                                housekeeper = "",
+                                normalizationMethod = "robustscale"
                               ){
                                 .self$projectName <- projectName
                                 .self$experimentName <- experimentName
@@ -89,6 +93,8 @@ Grp2Analysis <- setRefClass("Grp2Analysis",
                                 .self$maxNA <- maxNA
                                 .self$reference <- reference
                                 .self$removeDates <- removeDates
+                                .self$housekeeper <- housekeeper
+                                .self$normalizationMethod <- normalizationMethod
                                 setQValueThresholds()
                                 setPValueThresholds()
                               },
@@ -121,8 +127,29 @@ Grp2Analysis <- setRefClass("Grp2Analysis",
                                 fileID <- as.character(subset(.self$annotation_, Condition == condition)$Raw.file)
                                 .self$proteinIntensity[, fileID]
                               },
-                              getNormalized = function(center=TRUE, scale=TRUE){
-                                quantable::robustscale(log2(.self$proteinIntensity))
+                              setNormalizationMethod = function(normalizationMethod = "robustscale", housekeeper = ""){
+                                'set the normalization parameters'
+
+                                .self$housekeeper <- housekeeper
+
+                                .self$normalizationMethod <- normalizationMethod
+                              },
+                              getNormalized = function(){
+                                'return normalized data'
+                                normMethod <- .self$normalizationMethod
+                                if(normMethod == "robustscale"){
+                                  quantable::robustscale(log2(.self$proteinIntensity))
+                                }else if(normMethod == "vsn"){
+                                  message("not implemented")
+                                }else if(normMethod == "none"){
+                                  dumm <-quantable::robustscale(log2(.self$proteinIntensity))
+                                  list(data=log2(.self$proteinIntensity), medians=dumm$medians, mads=dumm$mads)
+                                }else if(normMethod == "housekeeper"){
+                                  message("not implemented")
+                                }else{
+                                  stop(normMethod, "is not a valid normalizaiton method")
+                                }
+
                               },
                               getNormalizedVSN = function(){
                                 "perform variance stabilizing normalizaiton."
@@ -137,7 +164,7 @@ Grp2Analysis <- setRefClass("Grp2Analysis",
                               getDesignMatrix = function(){
                                 # hack for putting reference into denomintor.
                                 design <- gsub(reference, paste("A_", reference, sep=""),
-                                                                    .self$annotation_$Condition)
+                                               .self$annotation_$Condition)
                                 design <- model.matrix(~design)
                                 return(design)
                               },
@@ -211,13 +238,13 @@ Grp2Analysis <- setRefClass("Grp2Analysis",
                               getNormalizedGrpAverages = function(){
                                 "computes grp averages per protein"
                                 nrdata <-.self$getNormalizedConditionData(.self$getConditions()[1])
-                                rowNas <- rowNAs(nrdata)
-                                grpAverage1 <- rowSums(nrdata, na.rm = TRUE)/ncol(nrdata)
+                                rowNas <- quantable::rowNAs(nrdata)
+                                grpAverage1 <- apply(nrdata, 1, mean, na.rm = TRUE)
                                 grpAverage1[rowNas == ncol(nrdata)] <- NA
 
                                 nrdata <-.self$getNormalizedConditionData(.self$getConditions()[2])
-                                rowNas <- rowNAs(nrdata)
-                                grpAverage2 <- rowSums(nrdata, na.rm = TRUE)/ncol(nrdata)
+                                rowNas <- quantable::rowNAs(nrdata)
+                                grpAverage2 <- apply(nrdata, 1, mean, na.rm = TRUE)
                                 grpAverage2[rowNas == ncol(nrdata)] <- NA
 
                                 grpAverage<-cbind(grpAverage1,grpAverage2)
