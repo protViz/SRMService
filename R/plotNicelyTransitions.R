@@ -36,10 +36,11 @@ getIntensities <- function(data ){
 #' @param ylab label for y axes
 #' @export
 #' @examples
+#' library(SRMService)
+#' library(quantable)
 #' data(correlatedPeptideList)
 #' plotNicely(correlatedPeptideList[[1]])
 plotNicely <- function(dataX, main="", log="", ylab="log(intensity)"){
-
   mat <- matrix(c(1,1,1,0,2,3), byrow=T, ncol=3)
   graphics::layout(mat, widths=c(5,2,2), heights=c(2,1))
   dataXt <- t(dataX)
