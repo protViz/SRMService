@@ -35,7 +35,9 @@ getIntensities <- function(data ){
 #' @param log log transform y axes
 #' @param ylab label for y axes
 #' @export
-#'
+#' @examples
+#' data(correlatedPeptideList)
+#' plotNicely(correlatedPeptideList[[1]])
 plotNicely <- function(dataX, main="", log="", ylab="log(intensity)"){
 
   mat <- matrix(c(1,1,1,0,2,3), byrow=T, ncol=3)
@@ -52,7 +54,6 @@ plotNicely <- function(dataX, main="", log="", ylab="log(intensity)"){
     imageColorscale(dd,col=getBlueWhiteRed(), zlim=c(-1,1))
     invisible(dd)
   }
-
 }
 
 #' Compute correlation matrix
