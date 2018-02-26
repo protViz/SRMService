@@ -41,8 +41,8 @@ getIntensities <- function(data ){
 #' data(correlatedPeptideList)
 #' plotNicely(correlatedPeptideList[[1]])
 plotNicely <- function(dataX, main="", log="", ylab="log(intensity)"){
-  mat <- matrix(c(1,1,1,0,2,3), byrow=T, ncol=3)
-  graphics::layout(mat, widths=c(5,2,2), heights=c(2,1))
+  mat <- matrix(c(1,1,1,1,0,2,2,3), byrow=T, ncol=4)
+  graphics::layout(mat, widths=c(2,1,1,1), heights=c(2,1))
   dataXt <- t(dataX)
   graphics::matplot(dataXt,type="b", main=main,lwd=1,lty=1, ylab="log(intensity)",las=2, xaxt = "n", log=log)
   graphics::axis(1, at = 1:nrow(dataXt), labels = rownames(dataXt), cex.axis = 0.7, las=2)
@@ -70,12 +70,12 @@ transitionCorrelations <- function(dataX){
   }
 }
 
-
 .corSpearmanJack <- function(x,xdata){
   tmp <-xdata[x,]
   stats::cor(tmp , use="pairwise.complete.obs", method = "pearson")
 }
 
+# @TODO think of making it public.
 .my_jackknife <- function ( x, theta, ...) {
   call <- match.call()
   n <- length(x)
@@ -88,7 +88,7 @@ transitionCorrelations <- function(dataX){
   return(list(thetahat = thetahat, jack.values = u ))
 }
 
-#' Compute correlation matrix
+#' Compute correlation matrix with jack
 #' @param dataX data.frame with transition intensities per peptide
 #' @export
 transitionCorrelationsJack <- function(dataX){
