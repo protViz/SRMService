@@ -52,10 +52,10 @@ RMD_PD_Quant_2GrpAnalysis <- function(workdir= getwd()){
 #'
 #' Please see the Run_QuantQCReport.R for more details
 #'
+#' @param workdir specify working directory
 #' @export
 #' @examples
-#' SRMService::RMD_Quant_QCReport()
-#' @param workdir specify working directory
+#' SRMService::RMD_MQ_Quant_QCReport()
 #'
 RMD_MQ_Quant_QCReport <- function(workdir = getwd()){
   .scriptCopyHelperVec(c("/RunScripts/Run_QuantQCReport.R","/reports/QCReport.Rmd"), workdir = workdir )

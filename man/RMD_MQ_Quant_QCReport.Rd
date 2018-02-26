@@ -13,5 +13,6 @@ RMD_MQ_Quant_QCReport(workdir = getwd())
 Please see the Run_QuantQCReport.R for more details
 }
 \examples{
-SRMService::RMD_Quant_QCReport()
+SRMService::RMD_MQ_Quant_QCReport()
+
 }
