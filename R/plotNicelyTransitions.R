@@ -37,9 +37,11 @@ getIntensities <- function(data ){
 #' @export
 #' @examples
 #' library(SRMService)
+#' library(tidyverse)
 #' library(quantable)
 #' data(correlatedPeptideList)
 #' plotNicely(correlatedPeptideList[[1]])
+#'
 plotNicely <- function(dataX, main="", log="", ylab="log(intensity)"){
   mat <- matrix(c(1,1,1,1,0,2,2,3), byrow=T, ncol=4)
   graphics::layout(mat, widths=c(2,1,1,1), heights=c(2,1))
@@ -50,8 +52,8 @@ plotNicely <- function(dataX, main="", log="", ylab="log(intensity)"){
   nrow(dataX)
   if(nrow(dataX)>1){
     ordt <- (dataX)[order(apply(dataX,1,mean)),]
-    dd <- stats::cor(t(ordt),use="pairwise.complete.obs", method = "spearman")
-    imageWithLabelsNoLayout(dd,col=getBlueWhiteRed(),zlim=c(-1,1))
+    dd <- transitionCorrelationsJack(ordt)
+    imageWithLabelsNoLayout(dd,col=getBlueWhiteRed(),zlim=c(-1,1), textB=2)
     imageColorscale(dd,col=getBlueWhiteRed(), zlim=c(-1,1))
     invisible(dd)
   }

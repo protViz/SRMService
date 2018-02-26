@@ -44,7 +44,7 @@ Collate:
     'transitionCorrelations.R'
     'TidyMS.R'
     'fgcz.R'
-    'hello.R'
     'limmaHelpers.R'
+    'plotNicelyTransitions.R'
     'readMaxQuant.R'
     'zzz.R'

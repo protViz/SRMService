@@ -25,7 +25,7 @@
 #'
 #' @export
 #' @examples
-#' SRMService::RMD_Quant_2GrpAnalysis()
+#' SRMService::RMD_MQ_Quant_2GrpAnalysis()
 #' @param workdir specify working directory
 #'
 RMD_MQ_Quant_2GrpAnalysis <- function(workdir= getwd()){
@@ -40,7 +40,7 @@ RMD_MQ_Quant_2GrpAnalysis <- function(workdir= getwd()){
 #'
 #' @export
 #' @examples
-#' SRMService::RMD_Quant_2GrpAnalysis()
+#' SRMService::RMD_PD_Quant_2GrpAnalysis()
 #' @param workdir specify working directory
 #'
 RMD_PD_Quant_2GrpAnalysis <- function(workdir= getwd()){

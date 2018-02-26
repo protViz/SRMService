@@ -56,7 +56,7 @@ Perform 2 group analysis with visualization
 \item{\code{setMQProteinGroups(MQProteinGroups)}}{set MQ protein groups table}
 
 \item{\code{setNormalizationMethod(normalizationMethod = "robustscale",
-  housekeeper = NULL)}}{set the normalization parameters}
+  housekeeper = "")}}{set the normalization parameters}
 
 \item{\code{setProteins(protein)}}{used to verify proteingroups structure and set members}
 }}
