@@ -1,6 +1,5 @@
 #R
 # by WEW
-
 # this are some function to copy RMD files and preprare envs.
 .scriptCopyHelperVec <- function(runscripts, workdir = getwd() ){
   for(scripts in runscripts){
