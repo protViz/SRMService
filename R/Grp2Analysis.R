@@ -248,7 +248,7 @@ Grp2Analysis <- setRefClass("Grp2Analysis",
                                 grpAverage2[rowNas == ncol(nrdata)] <- NA
 
                                 grpAverage<-cbind(grpAverage1,grpAverage2)
-                                colnames(grpAverage) <- grp2$getConditions()
+                                colnames(grpAverage) <- .self$getConditions()
                                 return(grpAverage)
                               }
                             )
