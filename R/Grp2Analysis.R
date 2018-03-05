@@ -129,9 +129,7 @@ Grp2Analysis <- setRefClass("Grp2Analysis",
                               },
                               setNormalizationMethod = function(normalizationMethod = "robustscale", housekeeper = ""){
                                 'set the normalization parameters'
-
                                 .self$housekeeper <- housekeeper
-
                                 .self$normalizationMethod <- normalizationMethod
                               },
                               getNormalized = function(){

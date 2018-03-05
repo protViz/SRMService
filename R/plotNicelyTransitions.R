@@ -46,7 +46,7 @@ plotNicely <- function(dataX, main="", log="", ylab="log(intensity)"){
   mat <- matrix(c(1,1,1,1,0,2,2,3), byrow=T, ncol=4)
   graphics::layout(mat, widths=c(2,1,1,1), heights=c(2,1))
   dataXt <- t(dataX)
-  graphics::matplot(dataXt,type="b", main=main,lwd=1,lty=1, ylab="log(intensity)",las=2, xaxt = "n", log=log)
+  graphics::matplot(dataXt,type="l", main=main,lwd=1,lty=1, ylab="log(intensity)",las=2, xaxt = "n", log=log)
   graphics::axis(1, at = 1:nrow(dataXt), labels = rownames(dataXt), cex.axis = 0.7, las=2)
   graphics::legend("bottomleft", legend=rownames(dataX),col=1:5,lty=1 )
   nrow(dataX)
@@ -62,9 +62,13 @@ plotNicely <- function(dataX, main="", log="", ylab="log(intensity)"){
 #' Compute correlation matrix
 #' @param dataX data.frame with transition intensities per peptide
 #' @export
+#' @examples
+#' data(correlatedPeptideList)
+#' transitionCorrelations(correlatedPeptideList[[1]])
 transitionCorrelations <- function(dataX){
   if(nrow(dataX) > 1){
     ordt <- (dataX)[order(apply(dataX,1,mean)),]
+    xpep <- t(ordt)
     dd <- stats::cor(t(ordt),use="pairwise.complete.obs", method = "spearman")
     return(dd)
   }else{
@@ -72,40 +76,17 @@ transitionCorrelations <- function(dataX){
   }
 }
 
-.corSpearmanJack <- function(x,xdata){
-  tmp <-xdata[x,]
-  stats::cor(tmp , use="pairwise.complete.obs", method = "pearson")
-}
-
-# @TODO think of making it public.
-.my_jackknife <- function ( x, theta, ...) {
-  call <- match.call()
-  n <- length(x)
-  u <- vector( "list", length = n )
-  for (i in 1:n) {
-    u[[i]] <- theta(x[-i], ...)
-  }
-  names(u) <- 1:n
-  thetahat <- theta(x, ...)
-  return(list(thetahat = thetahat, jack.values = u ))
-}
-
 #' Compute correlation matrix with jack
 #' @param dataX data.frame with transition intensities per peptide
 #' @export
-transitionCorrelationsJack <- function(dataX){
+#' @examples
+#' data(correlatedPeptideList)
+#' transitionCorrelationsJack(correlatedPeptideList[[1]])
+transitionCorrelationsJack <- function(dataX, distmethod = function(x){cor(x, use="pairwise.complete.obs", method="pearson")}){
   if(nrow(dataX) > 1){
-    xpep <- t(dataX)
-    tmp <- .my_jackknife(1:nrow(xpep), .corSpearmanJack, xpep)
-    ## get the maximum
-    x <- plyr::ldply(tmp$jack.values, quantable::matrix_to_tibble)
-    dd <- tidyr::gather(x, "proteinID" , "correlation" , 3:ncol(x))
-    ddd <- dd %>% group_by(row.names, proteinID) %>% summarize(jcor = max(correlation))
-    dddd <- tidyr::spread(ddd, proteinID, jcor  )
-    dddd <- as.data.frame(dddd)
-    rownames(dddd) <-dddd$row.names
-    dddd <- dddd[,-1]
-    return(dddd)
+    ordt <- (dataX)[order(apply(dataX,1,mean)),]
+    xpep <- t(ordt)
+    quantable::jackknifeMatrix(xpep, distmethod)
   }else{
     message("Could not compute correlation, nr rows : " , nrow(dataX) )
   }

@@ -12,3 +12,7 @@ transitionCorrelations(dataX)
 \description{
 Compute correlation matrix
 }
+\examples{
+data(correlatedPeptideList)
+transitionCorrelations(correlatedPeptideList[[1]])
+}
