@@ -14,8 +14,7 @@ maxquanttxtdirectory <- ""
 msmsName<- "msms.txt"
 summary <- "summary.txt"
 evidence <- "evidence.txt"
-#proteinGroups <- "proteinGroups.txt"
-proteinGroups <- "proteinGroups_withTicksFaked.txt"
+proteinGroups <- "proteinGroups.txt"
 parameters <- "parameters.txt"
 
 
