@@ -14,7 +14,8 @@ maxquanttxtdirectory <- ""
 msmsName<- "msms.txt"
 summary <- "summary.txt"
 evidence <- "evidence.txt"
-proteinGroups <- "proteinGroups.txt"
+#proteinGroups <- "proteinGroups.txt"
+proteinGroups <- "proteinGroups_withTicksFaked.txt"
 parameters <- "parameters.txt"
 
 
@@ -40,7 +41,6 @@ pepts <- read.table(peptides, header=T, sep="\t")
 #dat <- read.table(fixedProteingroups, header=T, sep="\t",row.names=1)
 
 
-# get it committed
 
 # get Sample QC running
 Stangle('MQ_sampleQC_overview.Rnw')

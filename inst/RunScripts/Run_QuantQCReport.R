@@ -8,6 +8,7 @@
 #
 
 rm(list=ls())
+library(reshape2)
 library(limma)
 library(SRMService)
 
@@ -17,7 +18,7 @@ maxNA <- 3
 # min number of peptides per protein
 nrPeptides <-2
 # Experiment name (will appear as title in the pdf)
-experimentName <- "p2244_MilenaS_PN_HvsR"
+experimentName <- "myTesting"
 
 
 
@@ -35,6 +36,7 @@ grp2 <- QCProteinReport(experimentName, maxNA=maxNA  , nrPeptides=nrPeptides)
 grp2$setMQProteinGroups(protein)
 
 
-rmarkdown::render("QCReport.Rmd","pdf_document")
+#rmarkdown::render("QCReport.Rmd","pdf_document")
+rmarkdown::render("QCReport.Rmd",bookdown::pdf_document2())
 
 
