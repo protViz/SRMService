@@ -59,17 +59,23 @@ Furthermore, in order to integrate those proteins with proteins which do have a 
 
 ```{r pseudoVolcanoplot, fig.width=10, fig.height=8, dpi=300, fig.cap="VolcanoPlot: x axis log2 fold change including pseudo log2 foldchanges of normalized data, y axis -log10(Q-value) inluding pseudo q-values."}
 pseudoData <- grp2$getResultTableWithPseudo()
+p <- quantable::volcano2GB(pseudoData,
+                foldchange ="pseudo.effectSize",
+                pvalue = "pseudo.q.mod",
+                labels = "TopProteinName", 
+                ylab="-log10(Q Value)",
+                log2FCThresh=grp2$qfoldchange,
+                pthresh=grp2$qvalue,
+                pseudo = pseudoData$q.mod)
 
-quantable::volcano2G( pseudoData$pseudo.effectSize,
-                     pseudoData$pseudo.q.mod,
-                     pseudoData$TopProteinName,
-                     ylab="-log10(Q Value)",
-                     log2FCThresh = grp2$qfoldchange,
-                     pthresh = grp2$qvalue,
-                     xlim = range(res.eb$log2FC),
-                     ylim = c(0,-log10(min(res.eb$q.mod,na.rm = TRUE))),
-                     size=2,
-                     pseudo = pseudoData$q.mod )
+if(length(grp2$special)>0)
+{
+  quantable::addSpecialProteins(p,pseudoData,special=  grp2$special,
+                     foldchange ="pseudo.effectSize",
+                     pvalue = "pseudo.q.mod",
+                     labels = "TopProteinName"
+  )
+}
 
 ```
 

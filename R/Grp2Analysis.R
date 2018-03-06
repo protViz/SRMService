@@ -36,7 +36,8 @@ Grp2Analysis <- setRefClass("Grp2Analysis",
                                            reference = "character",
                                            removeDates= "logical",
                                            normalizationMethod = "character",
-                                           housekeeper = "character"
+                                           housekeeper = "character",
+                                           special = "character"
                             )
                             , methods = list(
                               setProteins = function(protein){

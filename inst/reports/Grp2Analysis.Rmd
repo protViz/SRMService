@@ -266,15 +266,16 @@ Significant calls are made with q-value smaller than `r grp2$qvalue` (false disc
 
 
 ```{r volcanoplot, fig.width=10, fig.height=8, dpi=300, fig.cap="VolcanoPlot : x axis log2 fold change of normalized data, y axis -log10(Q-value)."}
-quantable::volcano2G(res.eb$log2FC,
-                     res.eb$q.mod,
-                     rownames(res.eb),
+res.eb$names <- rownames(res.eb)
+
+p <- quantable::volcano2GB(res.eb,
                      ylab="-log10(Q Value)",
                      log2FCThresh=grp2$qfoldchange,
-                     pthresh=grp2$qvalue,
-                     xlim=range(res.eb$log2FC),
-                     ylim=c(0,-log10(min(res.eb$q.mod,na.rm = TRUE))),size=2)
-
+                     pthresh=grp2$qvalue)
+if(length(grp2$special)>0)
+{
+  quantable::addSpecialProteins(p, res.eb, grp2$special)
+}
 
 ```
 
