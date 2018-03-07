@@ -37,7 +37,6 @@ colnames(protein) <- newHeaders
 
 
 # all raw files in protein groups (select here for proper 2grp)
-#rawF <- gsub("Intensity\\.", "", grep("Intensity\\.",colnames(protein),value=T) )
 rawF <- gsub("Intensity\\.", "", grep("Intensity\\.",colnames(protein),value=T) )
 
 # how to parse condition from the filenames (separator in fn _ )
@@ -53,19 +52,19 @@ annotation <- data.frame(Raw.file = rawF,
 
 ###################################
 ### Configuration section
-resultdir <- "p2482_output_TreatedVSUntreated"
+resultdir <- "GenericTwoGroup"
 dir.create(resultdir)
 
 # calls up data editor
 fix(annotation)
 
 # default settings
-Experimentname = "p2482 allTNFTreated vs TNFuntreated"
+Experimentname = "pXXX_compareDifferentTissues"
 nrNas = sum(!is.na(annotation$Condition)) - 3
 nrPeptides = 2
 reference=unique(annotation$Condition)[1]
 qvalueThreshold = 0.01
-qfoldchange =2
+qfoldchange =1
 
 write.table(annotation, file=file.path(resultdir, "annotationused.txt"))
 
@@ -73,8 +72,6 @@ write.table(annotation, file=file.path(resultdir, "annotationused.txt"))
 
 
 # important structure for protein matrix
-#colnames(protein)
-# "Majority.protein.IDs"   "Intensity.dnmt3b_15_s1" "Intensity.dnmt3b_15_s2" "Intensity.dnmt3l_11_s1" "Intensity.dnmt3l_11_s2" "Intensity.IP_lsh_s1"    "Intensity.IP_lsh_s2"    "Intensity.WT"           "Peptides"               "Fasta.headers"   
 
 # Do the analysis
 grp2 <- Grp2Analysis(annotation, Experimentname, maxNA=nrNas  , nrPeptides=nrPeptides, reference=reference)
