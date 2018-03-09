@@ -75,6 +75,8 @@ if(length(grp2$special)>0)
                      pvalue = "pseudo.q.mod",
                      labels = "TopProteinName"
   )
+}else{
+  p
 }
 
 ```

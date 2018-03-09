@@ -275,6 +275,8 @@ p <- quantable::volcano2GB(res.eb,
 if(length(grp2$special)>0)
 {
   quantable::addSpecialProteins(p, res.eb, grp2$special)
+}else{
+  p
 }
 
 ```
