@@ -26,9 +26,15 @@ tidyMQ_ProteinGroups <- function(MQProteinGroups){
 
 
 tidyMQ_Peptides <- function(MQPeptides){
-  pint <- select(MQPeptides,Peptides.Id= id, starts_with("Intensity."))
-  idtype <- select(MQPeptides, Peptides.Id=id, starts_with("Identification.type."))
-  meta <- select(MQPeptides, Peptides.Id = id, Sequence,  Proteins, Leading.razor.protein, Protein.group.IDs , Score,  Missed.cleavages)
+  pint <- select(MQPeptides,"Peptides.Id"= "id", starts_with("Intensity."))
+  idtype <- select(MQPeptides, "Peptides.Id"="id", starts_with("Identification.type."))
+  meta <- select(MQPeptides, "Peptides.Id" = "id",
+                 "Sequence",
+                 "Proteins",
+                 "Leading.razor.protein",
+                 "Protein.group.IDs",
+                 "Score",
+                 "Missed.cleavages")
 
   PepIntensities <- pint %>%
     gather(key="Raw.file", value="Peptide.Intensity", starts_with("Intensity.")) %>%
@@ -51,15 +57,15 @@ tidyMQ_Peptides <- function(MQPeptides){
 
 tidyMQ_Evidence <- function(Evidence){
   tmp <- select(Evidence,
-                Evidence.Id = id,
-                Peptide.Id = Peptide.ID,
-                Raw.file,
-                Protein.group.IDs,
-                Score,
-                Delta.score,
-                Calibrated.retention.time,
-                Charge,
-                MS.MS.count,
-                MS.MS.scan.number,
-                Evidence.Intensity = Intensity)
+                "Evidence.Id" = "id",
+                "Peptide.Id" = "Peptide.ID",
+                "Raw.file",
+                "Protein.group.IDs",
+                "Score",
+                "Delta.score",
+                "Calibrated.retention.time",
+                "Charge",
+                "MS.MS.count",
+                "MS.MS.scan.number",
+                "Evidence.Intensity" = "Intensity")
 }
