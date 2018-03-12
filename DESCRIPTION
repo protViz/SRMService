@@ -33,6 +33,7 @@ BugReports: https://github.com/protViz/SRMService/issues
 Repository: CRAN
 RoxygenNote: 6.0.1
 Collate: 
+    'A_dataset_docu.R'
     'MQProteinGroups.R'
     'RequiredColumns.R'
     'eb.fit.R'

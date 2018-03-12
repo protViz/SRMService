@@ -15,7 +15,8 @@
 		file.copy(rnw, wd)
 	}
 }
-
+#' perform rendering
+#' @importFrom utils Stangle Sweave head packageVersion read.csv read.table write.table
 .fgcz_perform_rendering <- function(maxquanttxtdirectory = '.', reportFileBaseName = 'MQ_sampleQC_overview'){
 
    # RMD_QC1To1_Old(maxquanttxtdirectory)

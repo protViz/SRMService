@@ -12,9 +12,13 @@ summariseQValues(data, precursorId = getConfig(data)$.PrecursorId,
 \arguments{
 \item{data}{1}
 
+\item{precursorId}{2}
+
 \item{QValue}{3}
 
-\item{.PrecursorId}{2}
+\item{maxQValThreshold}{4}
+
+\item{minNumberOfQValues}{5}
 }
 \description{
 Compute QValue summaries for each precursor

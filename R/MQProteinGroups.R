@@ -2,8 +2,8 @@
 #' @export
 #'
 tidyMQ_ProteinGroups <- function(MQProteinGroups){
-  pint <- select(MQProteinGroups, Protein.group.Id = id, starts_with("Intensity."))
-  pintLFQ <- select(MQProteinGroups, Protein.group.Id = id, starts_with("LFQ.Intensity."))
+  pint <- select(MQProteinGroups, "Protein.group.Id" = "id", starts_with("Intensity."))
+  pintLFQ <- select(MQProteinGroups, "Protein.group.Id" = "id", starts_with("LFQ.Intensity."))
   meta <- data.frame(ProteinName = MQProteinGroups$Majority.protein.IDs,
                      TopProteinName = sapply(strsplit(MQProteinGroups$Majority.protein.IDs, split=";"),
                                              function(x){x[1]}),

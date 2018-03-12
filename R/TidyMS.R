@@ -50,8 +50,10 @@ m_inner_join <- function(x,y){
 
 #' Compute QValue summaries for each precursor
 #' @param data 1
-#' @param .PrecursorId 2
+#' @param precursorId 2
 #' @param QValue 3
+#' @param maxQValThreshold 4
+#' @param minNumberOfQValues 5
 summariseQValues <- function(data,
                              precursorId = getConfig(data)$.PrecursorId,
                              QValue = config_col_map(data)$QValue,
@@ -295,7 +297,7 @@ aggregateTopNIntensities <- function(data, N = 3){
   required <- config$required
 
   topInt <- data %>%
-    dplyr::filter( .meanIntRank <= N) %>%
+    dplyr::filter(.meanIntRank <= N) %>%
     dplyr::group_by(!!!syms(c( required$ProteinId, config$.SampleLabel)))
   sumNA <- function(x){sum(x, na.rm=TRUE)}
   sumTopInt <- topInt %>%
