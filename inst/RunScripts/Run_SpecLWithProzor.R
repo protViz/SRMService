@@ -5,6 +5,8 @@
 # by W.E. Wolski, J. Grossmann, C. Panse
 #
 
+# IMPORTANT: This runscript will only work on Windows or Linux computers because the bibliospec executable file which ships with the bibliospec packages cannot be executed on a mac
+
 library(prozor)
 library(specL)
 library(bibliospec)
