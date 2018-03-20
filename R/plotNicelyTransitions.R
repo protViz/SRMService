@@ -79,6 +79,7 @@ transitionCorrelations <- function(dataX){
 #' Compute correlation matrix with jack
 #' @param dataX data.frame with transition intensities per peptide
 #' @export
+#' @importFrom stats cor
 #' @examples
 #' data(correlatedPeptideList)
 #' transitionCorrelationsJack(correlatedPeptideList[[1]])
