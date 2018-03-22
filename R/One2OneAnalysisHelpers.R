@@ -1,4 +1,65 @@
 #R
+#
+# If you are going to use results produced by the scripts please do cite the
+# SRMSerivce R package by providing the following URL
+# www.github.com/protViz/SRMService
+#
+
+
+#' perform rendering
+#' @importFrom utils Stangle Sweave head packageVersion read.csv read.table write.table
+.fgcz_perform_rendering <- function(maxquanttxtdirectory = '.', reportFileBaseName = 'MQ_sampleQC_overview'){
+
+   RMD_QC1To1_Old(maxquanttxtdirectory)
+
+   msmsName <- "msms.txt"
+   summary <- "summary.txt"
+   evidence <- "evidence.txt"
+   proteinGroups <- "proteinGroups.txt"
+   parameters <- "parameters.txt"
+   peptides <- "peptides.txt"
+
+   texFile <- paste(reportFileBaseName, "tex", sep='.')
+
+   msms_d <<- read.table(msmsName, header = T, sep="\t")
+   summ <<- read.table(summary, header = F, sep="\t")
+   evi_d <<- read.table(evidence, header = T, sep="\t")
+
+   Fulldat <<- read.csv(proteinGroups, sep="\t", stringsAsFactors = FALSE, header = TRUE)
+
+   dat <<- Fulldat[,grep("^Intensity\\.", colnames(Fulldat))]
+
+   rownames(dat) <- Fulldat$Majority.protein.IDs
+
+   bool_moreThanOnePeptide <<- Fulldat$Razor...unique.peptides > 1
+
+   params <<- read.table(parameters, header = TRUE, sep = "\t")
+
+   # peptides
+   #pepts <<- read.table(peptides, header = TRUE, sep = "\t")
+   pepts <<- read.csv(peptides, sep="\t", stringsAsFactors = FALSE, header = TRUE)
+
+   # this is for witold to be replaced
+   #fixedProteingroups <- "proteinGroups_FGCZ2grp_Intensity.txt"
+   #dat <- read.table(fixedProteingroups, header=T, sep="\t",row.names=1)
+
+   # get it committed
+
+   # get Sample QC running
+   Stangle(RnwFile)
+   Sweave(RnwFile)
+   tools::texi2dvi(texFile, pdf = TRUE)
+}
+
+
+####
+
+# January 2014
+# some changes along 2015
+# around Feb 2015Hubis smart test
+# August 2015 .. more options for some functions
+# Nov 2015 .. paired t-test
+# Dez 2015 .. Multi-group analysis
 # January 2014
 # some changes along 2015
 # around Feb 2015Hubis smart test
@@ -15,12 +76,12 @@
 ###################################################
 
 #library(affy)
-library(missForest)
+#library(missForest)
 #library(gplots)
 #library(limma)
 #library(genefilter)
 #library(beeswarm)
-library(quantable)
+#library(quantable)
 
 
 #RobustTtest
@@ -75,9 +136,6 @@ Do2grpTtestOnMatrixAndBHcorrReturnAllInternalTrafo = function(ProtQuantMatrix_rn
   proteinNamesPValFCs <- cbind(row.names(ProtQuantMatrix_rn), pValueVector, fdrValues, log2FCvector)
   return(proteinNamesPValFCs)
 }
-
-
-
 
 
 #ProtQuantMatrix_rn <- i_dat
@@ -166,8 +224,8 @@ ImputeValuesInProtMatrixForRowsWithZeros = function(ProtQuantMatrix_rn){
   #replace zeros with NA
   ProtQuantMatrix_rn[ProtQuantMatrix_rn==0] <- NA
   #  library(missForest)
-  dataimpute <- missForest(ProtQuantMatrix_rn)$ximp
-  ProtQuantMatrix_rn_imputed<-dataimpute
+  dataimpute <- missForest::missForest(ProtQuantMatrix_rn)$ximp
+  ProtQuantMatrix_rn_imputed <- dataimpute
   colnames(ProtQuantMatrix_rn_imputed) = colnames(ProtQuantMatrix_rn)
   return(ProtQuantMatrix_rn_imputed)
 }
@@ -185,9 +243,4 @@ NormalizeWithMedianPQMatrix = function(ProtQuantMatrix_rn){
   }
   return(nPQmatrix)
 }
-
-
-
-
-
 
