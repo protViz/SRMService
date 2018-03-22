@@ -150,15 +150,11 @@ shinyServer(function(input, output) {
       tmpdir <- tempdir()
       workdir <- file.path(tmpdir, gsub(" |:","_",date()))
       rmdfile <- file.path( path.package("SRMService") , "/reports/Grp2Analysis.Rmd" )
-
       if(!dir.create(workdir)){
         stopApp(7)
       }
+      SRMService::RMD_MQ_Quant_2GrpAnalysis(workdir=workdir)
       rmdfile2run <- file.path(workdir ,"Grp2Analysis.Rmd")
-      print(rmdfile2run)
-      if(!file.copy(rmdfile , rmdfile2run)){
-        stopApp(7)
-      }
 
       rmarkdown::render(rmdfile2run,
                         bookdown::pdf_document2())
@@ -209,6 +205,7 @@ shinyServer(function(input, output) {
     # This function should write data to a file given to it by
     # the argument 'file'.
     content = function(file) {
+      print("stuffHappeningHERE~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
       print(v_download_links$pdfReport)
       # Write to a file specified by the 'file' argument
       file.copy(v_download_links$pdfReport, file)

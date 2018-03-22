@@ -4,7 +4,7 @@
 \alias{RMD_QC1To1_Old}
 \title{Copies the Rnw file and Run R file for old 1To1 QC into your working directory.}
 \usage{
-RMD_QC1To1_Old(workdir = getwd())
+RMD_QC1To1_Old(workdir = getwd(), minimal = TRUE)
 }
 \arguments{
 \item{workdir}{specify working directory}

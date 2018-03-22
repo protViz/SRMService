@@ -1,14 +1,7 @@
-#R
-#
-# If you are going to use results produced by the scripts please do cite the
-# SRMSerivce R package by providing the following URL
-# www.github.com/protViz/SRMService
-#
-
-
 #' perform rendering
 #' @importFrom utils Stangle Sweave head packageVersion read.csv read.table write.table
-.fgcz_perform_rendering <- function(maxquanttxtdirectory = '.', reportFileBaseName = 'MQ_sampleQC_overview'){
+#' @export
+fgcz_render_One2OneReport <- function(maxquanttxtdirectory = '.', reportFileBaseName = 'MQ_sampleQC_overview'){
 
    RMD_QC1To1_Old(maxquanttxtdirectory)
 
@@ -20,6 +13,8 @@
    peptides <- "peptides.txt"
 
    texFile <- paste(reportFileBaseName, "tex", sep='.')
+   RnwFile <- paste(reportFileBaseName, "Rnw", sep=".")
+
 
    msms_d <<- read.table(msmsName, header = T, sep="\t")
    summ <<- read.table(summary, header = F, sep="\t")

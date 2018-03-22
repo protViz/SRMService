@@ -13,8 +13,10 @@
     }
   }
   message(paste("your working directory now should contain ", length(runscripts) , "new files :\n",sep=" "))
+  res <- NULL
   for(script in runscripts){
     message( basename(script) )
+    res <- c(res, basename(script) )
   }
 }
 #' copies the RMD and Run files for 2 grp analysis based on MQ (MaxQuant) in your working directory
@@ -92,12 +94,18 @@ RMD_LibraryGen_specLProzor <- function(workdir = getwd()){
 #' @export
 #' @param workdir specify working directory
 #'
-RMD_QC1To1_Old <- function(workdir = getwd()){
+RMD_QC1To1_Old <- function(workdir = getwd(), minimal = TRUE){
+  if(!minimal){
   .scriptCopyHelperVec(c("/OneToOneAnalysis/Run_1To1_oldStyle.R",
                          "/OneToOneAnalysis/MQ_sampleQC_overview.Rnw",
-                         "/OneToOneAnalysis/helpers/QprotMatrixFunctions_rn_V3.R",
                          "/OneToOneAnalysis/images/LFQ_QC_workflow.pdf",
                          "/OneToOneAnalysis/images/Sweave.sty"), workdir = workdir)
+  }else{
+    .scriptCopyHelperVec(c("/OneToOneAnalysis/MQ_sampleQC_overview.Rnw",
+                           "/OneToOneAnalysis/images/LFQ_QC_workflow.pdf",
+                           "/OneToOneAnalysis/images/Sweave.sty"), workdir = workdir)
+
+  }
 }
 
 #' Copies the Rnw file and Run R file for the SRM QC and normalization.
