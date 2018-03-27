@@ -34,20 +34,30 @@ tmp1 <- results %>%
 
 ```{r barplotIntensitiesSingle, fig.with=12, fig.height=8, fig.cap="Proteins having a high normalized intensity in one condition not quantified in the second condition."}
 
-par(mfrow=c(1,2))
-par(mar=c(8,4,4,1))
+plotBaR<-function(tmp2, name){
+  if(nrow(tmp2) > 0){
+    tmp3 <- tmp2 %>%
+      select(TopProteinName,name)
+    x <- setNames(tmp3[,2],tmp3[,1])[1:min(20,nrow(tmp3))]
+    barplot(x, las = 2, ylab="Normalized intensity", main= name,cex.names=0.7, border="lightblue")
+  }
+}
 
-tmp2 <- filter(tmp1, !is.na(!!sym(grp2$getConditions()$reference)))
-tmp3 <- tmp2 %>%
-  select(TopProteinName, grp2$getConditions()$reference)
-x <- setNames(tmp3[,2],tmp3[,1])[1:min(20,nrow(tmp3))]
-barplot(x, las = 2, ylab="Normalized intensity", main= grp2$getConditions()$reference,cex.names=0.7, border="lightblue")
 
-tmp2 <- filter(tmp1, !is.na(!!sym(grp2$getConditions()$condition)))
-tmp3 <- tmp2 %>%
-  select(TopProteinName, grp2$getConditions()$condition)
-x <- setNames(tmp3[,2],tmp3[,1])[1:min(20,nrow(tmp3))]
-barplot(x, las = 2, ylab="Normalized intensity", main= grp2$getConditions()$condition,cex.names=0.7, border="lightblue")
+tmp2R <- filter(tmp1, !is.na(!!sym(grp2$getConditions()$reference)))
+tmp2C <- filter(tmp1, !is.na(!!sym(grp2$getConditions()$condition)))
+
+
+if(nrow(tmp2R) >0 & nrow(tmp2C)> 0){
+  par(mfrow=c(1,2))
+  par(mar=c(8,4,4,1))
+  plotBaR(tmp2R , name= grp2$getConditions()$reference)
+  plotBaR(tmp2C, name=  grp2$getConditions()$condition)
+}else if(nrow(tmp2R) >0 | nrow(tmp2C)> 0){
+  par(mar=c(8,4,4,1))
+  plotBaR(tmp2R , name= grp2$getConditions()$reference)
+  plotBaR(tmp2C, name=  grp2$getConditions()$condition)
+}
 
 ```
 

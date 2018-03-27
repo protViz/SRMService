@@ -14,6 +14,7 @@ Condition Map
 \examples{
 
 library(SRMService)
+library(dplyr)
 x <- data.frame(Raw.file = c("A","B","C"),"MeasurementOrder" = c(1,2,3) , Gender = c("F","F","M"))
 cm <- Annotation$new(x, experimentID = "E1 with random Effect", fixed = "Gender", random="MeasurementOrder")
 cm$exists("Gender")
