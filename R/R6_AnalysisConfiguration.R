@@ -18,23 +18,28 @@ AnalysisTableAnnotation <- R6Class("AnalysisTableAnnotation",
                                      fileName = NULL,
                                      factors = character(), # ordering is important - first is considered the main
                                      startIntensity = NULL,
+
                                      retentionTime = NULL,
-                                     fragmentId = character(),
-                                     precursorId = character(),
-                                     peptideId = character(),
-                                     proteinId = character(),
                                      qValue = character(),
+
+                                     # measurement levels
+                                     hierarchy = list(),
+                                     .hierarchy = list(),
+
+                                     #h_fragmentId = character(),
+                                     #h_precursorId = character(),
+                                     #h_peptideId = character(),
+                                     #h_proteinId = character(),
+
+
                                      isotopeLabel = character(),
-                                     .SampleLabel = character(),
-                                     .fragmentId = character(),
-                                     .precursorId = character(),
                                      initialize = function(fileName="tmp"){
                                        self$fileName = fileName
                                      }
                                    )
 )
 
-#ac <- AnalysisTableAnnotation$new()
+ac <- AnalysisTableAnnotation$new()
 
 AnalysisConfiguration <- R6Class("AnalysisConfiguration",
                                  public = list(
@@ -47,12 +52,17 @@ AnalysisConfiguration <- R6Class("AnalysisConfiguration",
                                  )
 )
 
+
 R6extractValues <- function(r6class){
   tmp <- sapply(r6class, class)
   slots <- tmp[! tmp %in% c("environment", "function")]
   res <- list()
   for(i in names(slots)){
-    res[[i]] <- r6class[[i]]
+    if("R6" %in% class(r6class[[i]])){
+      res[[i]]  <- R6extractValues(r6class[[i]])
+    }else{
+      res[[i]] <- r6class[[i]]
+    }
   }
   return(res)
 }
@@ -61,10 +71,15 @@ R6extractValues <- function(r6class){
 craeteSkylineConfiguration <- function(isotopeLabel="Isotope.Label", qValue="annotation_QValue"){
   atable <- AnalysisTableAnnotation$new()
   atable$fileName = "Replicate.Name"
-  atable$proteinId = "Protein.Name"
-  atable$peptideId = "Peptide.Sequence"
-  atable$precursorId = c("Peptide.Sequence","Precursor.Charge")
-  atable$fragmentId = c("Peptide.Sequence","Precursor.Charge","Fragment.Ion", "Product.Charge")
+
+  # measurement levels.
+  atable$hierarchy[["protein_Id"]] <- "Protein.Name"
+  atable$hierarchy[["peptide_Id"]] <- "Peptide.Sequence"
+  atable$hierarchy[["precursor_Id"]] <-  c("Peptide.Sequence","Precursor.Charge")
+  atable$hierarchy[["fragment_Id"]] <- c("Peptide.Sequence","Precursor.Charge","Fragment.Ion", "Product.Charge")
+
+
+  #
   atable$qValue = qValue
   atable$startIntensity = "Area"
   atable$isotopeLabel = isotopeLabel
@@ -72,24 +87,39 @@ craeteSkylineConfiguration <- function(isotopeLabel="Isotope.Label", qValue="ann
   configuration <- AnalysisConfiguration$new(atable, anaparam)
 }
 
+setupDataFrame <- function(data, configuration){
+  required <- unlist(R6extractValues(configuration$table))
+  required <- required[!grepl("^\\.", required)]
+  longF <- dplyr::select(data,  required)
+
+  for(i in 1:length(configuration$table$hierarchy))
+  {
+    longF <- unite(longF, UQ(sym(names(configuration$table$hierarchy)[i])), configuration$table$hierarchy[[i]],remove = FALSE)
+  }
+
+  attributes(longF)$configuration <- configuration
+  return(longF)
+}
+
 
 #' Plot peptide and fragments
 plotPeptides <- function(data,
                          proteinName,
-                         x,
-                         y,
-                         group,
-                         color,
+                         sample,
+                         intensity,
+                         peptide,
+                         fragment,
                          factor,
                          isotopeLabel
 ){
+  print(as.list(match.call()))
   if(length(isotopeLabel)){
     formula <- paste(paste( isotopeLabel, collapse="+"), "~", paste(factor , collapse = "+"))
   }else{
-    formula <- paste("~",factor, sep = "")
+    formula <- sprintf("~%s",factor)
   }
 
-  p <- ggplot(data, aes_string(x = x, y = y, group=".fragmentId", color="Peptide.Sequence" ))
+  p <- ggplot(data, aes_string(x = sample, y = intensity, group=fragment,  color= peptide))
   p <- p +  geom_point() + geom_line()
   p <- p + facet_grid(as.formula(formula), scales = "free_x"   )
   p <- p + scale_y_continuous(trans='log10')
@@ -100,11 +130,12 @@ plotPeptides <- function(data,
 
 #' extracts the relevant information from the configuration to make the plot.
 configurationPlotPeptides <- function(res, proteinName, configuration){
+  hnames <- names(configuration$table$hierarchy)
   res <- plotPeptides(res, proteinName = proteinName,
-                      x = configuration$table$fileName,
-                      y = configuration$table$startIntensity,
-                      group = configuration$table$.fragmentId,
-                      color = configuration$table$peptideId,
+                      sample = configuration$table$fileName,
+                      intensity = configuration$table$startIntensity,
+                      peptide = rev(hnames)[2],
+                      fragment = rev(hnames)[1],
                       factor = configuration$table$factors[1],
                       isotopeLabel = configuration$table$isotopeLabel
   )
@@ -112,65 +143,58 @@ configurationPlotPeptides <- function(res, proteinName, configuration){
 }
 
 
-setupDataFrame <- function(data, configuration){
-  required <- unlist(R6extractValues(configuration$table))
-  required <- required[!grepl("^\\.", required)]
-  print(required)
-  longF <- dplyr::select(data,  required)
-
-  longF <- longF %>% tidyr::unite(".fragmentId", configuration$table$fragmentId, remove = FALSE, sep=".")
-  longF <- longF %>% tidyr::unite(".precursorId", configuration$table$precursorId, remove = FALSE, sep=".")
-  longF <- longF %>% tidyr::unite(".SampleLabel", configuration$table$factors, remove = FALSE, sep="_")
-  configuration$table$.SampleLabel = ".SampleLabel"
-  configuration$table$.fragmentId = ".fragmentId"
-  configuration$table$.precursorId = ".precursorId"
-  attributes(longF)$configuration <- configuration
-  return(longF)
-}
 
 
 
 summarizeProtPepPrecursorFragCounts <- function(x, configuration){
   table <- configuration$table
-  fragment <- x %>% select(table$fragmentId) %>%
-    distinct() %>% nrow()
-  precursor <- x %>% select(table$precursorId) %>%
-    distinct() %>% nrow()
-  peptides <- x%>% select(table$peptideId) %>%
-    distinct() %>% nrow()
-  protein <- x %>% select(table$proteinId) %>%
-    distinct() %>% nrow()
-  c( nrproteins = protein , nrPeptides = peptides, nrPrecursor = precursor, nrFragments = fragment)
+
+  res <- list()
+  for(i in 1:length(table$hierarchy)){
+    name <- names(table$hierarchy)[i]
+    values <- table$hierarchy[[i]]
+    print(values)
+    res[[name]] <- x %>% select(values) %>% distinct() %>% nrow()
+  }
+  res
 }
 
 
 #' Light only version.
 summarizeProteins <- function(x, configuration ){
-  table <- configuration$table
-  precursorSum <- x %>% select(table$proteinId, table$precursorId, table$fragmentId) %>% distinct() %>%
-    group_by(!!!(syms(c(table$proteinId, table$peptideId, table$precursorId)))) %>%
+  hierarchy <- configuration$table$hierarchy
+
+  precursorSum <- x %>% select(hierarchy$h_proteinId, hierarchy$h_precursorId, hierarchy$h_fragmentId) %>% distinct() %>%
+    group_by(!!!(syms(c(hierarchy$h_proteinId, hierarchy$h_peptideId, hierarchy$h_precursorId)))) %>%
     summarize(nrFragments = n())
 
 
-  peptideSum <- precursorSum %>% group_by(!!!(syms(c(table$proteinId,table$peptideId)))) %>%
+  peptideSum <- precursorSum %>% group_by(!!!(syms(c(hierarchy$h_proteinId,hierarchy$h_peptideId)))) %>%
     summarize(nrPrecursors = n(),
               minNrFragments = min(nrFragments),
               maxNrFragments = max(nrFragments))
 
 
-  proteinSum <- peptideSum %>% group_by(!!!(syms(table$proteinId)))  %>%
+  proteinSum <- peptideSum %>% group_by(!!!(syms(hierarchy$h_proteinId)))  %>%
     summarize(nrpeptides = n(),
               minNrPrecursors = min(nrPrecursors),
               maxNrPrecursors = max(nrPrecursors),
               maxNRFragments = max(maxNrFragments),
               minNrFragments= min(minNrFragments))
 
-  proteinPeptide <- proteinPeptide %>% tidyr::unite(Precursors ,minNrPrecursors , maxNrPrecursors, sep="-", remove=FALSE)
+  proteinPeptide <- proteinSum %>% tidyr::unite(Precursors ,minNrPrecursors , maxNrPrecursors, sep="-", remove=FALSE)
   proteinPeptide <- proteinPeptide %>% tidyr::unite(Fragments ,minNrFragments , maxNRFragments, sep="-", remove=FALSE)
   return(proteinPeptide)
 }
 
+summarizeProteinsCounts <- function(x, configuration){
+  hierarchy <- configuration$table$hierarchy
 
+  precursor <- x %>% select(hierarchy$h_proteinId, hierarchy$h_precursorId, hierarchy$h_fragmentId) %>% distinct()
+  x3<-precursor %>% group_by(!!!(syms(hierarchy$h_proteinId))) %>% summarize( nrPeptides =  n_distinct(!!!syms(hierarchy$h_peptideId)),
+                                                                        nrPrecursors =  n_distinct(!!!syms(hierarchy$h_precursorId)),
+                                                                        nrFragments =  n_distinct(!!!syms(hierarchy$h_fragmentId)))
+}
 
 
 
