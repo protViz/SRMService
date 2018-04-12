@@ -92,29 +92,35 @@ setupDataFrame <- function(data, configuration ,sep="~"){
 
   for(i in 1:length(table$hierarchy))
   {
-    longF <- unite(longF, UQ(sym(names(table$hierarchy)[i])), table$hierarchy[[i]],remove = FALSE)
+    print(names(table$hierarchy)[i])
+    data <- unite(data, UQ(sym(names(table$hierarchy)[i])), table$hierarchy[[i]],remove = FALSE)
+  }
+
+  for(i in 1:length(table$factors))
+  {
+    print(names(table$factors)[i])
+    data <- unite(data, UQ(sym(names(table$factors)[i])), table$factors[[i]],remove = FALSE)
   }
 
   sampleName <- table$sampleName
-
-  if(!sampleName  %in% names(longF)){
-      longF <- longF %>%  unite( UQ(sym( sampleName)) , unique(unlist(table$factors)) ) %>%
+  if(!sampleName  %in% names(data)){
+    data <- data %>%  unite( UQ(sym( sampleName)) , unique(unlist(table$factors)) ) %>%
       select(sampleName, table$fileName) %>% distinct() %>%
       mutate_at(sampleName, function(x){ x<- make.unique( x, sep=sep )}) %>%
-      inner_join(longF, by=table$fileName)
-    return(longF)
+      inner_join(data, by=table$fileName)
   } else{
     warning(sampleName, " already exists")
   }
 
-  required <- unlist(R6extractValues(table))
-  required <- required[!grepl("^\\.", required)]
-  longF <- dplyr::select(data,  required)
+  #required <- unlist(R6extractValues(table))
+  #required <- required[!grepl("^\\.", required)]
+  #longF <- dplyr::select(data,  required)
 
-  attributes(longF)$configuration <- configuration
+  # Make implicit NA's explicit
+  data <- complete(data, nesting(!!!syms(c(names(table$hierarchy), table$isotopeLabel))), nesting(!!!syms(names(table$factors))))
 
-
-  return(longF)
+  attributes(data)$configuration <- configuration
+  return(data)
 }
 
 
@@ -178,7 +184,7 @@ configurationPlotPeptides <- function(res, proteinName, configuration, separate=
                       intensity = configuration$table$workIntensity,
                       peptide = rev(hnames)[2],
                       fragment = rev(hnames)[1],
-                      factor = configuration$table$factors[1],
+                      factor = names(configuration$table$factors)[1],
                       isotopeLabel = configuration$table$isotopeLabel,
                       separate = separate,
                       log_y = (configuration$parameter$workingIntensityTransform != "log")
@@ -191,7 +197,7 @@ configurationPlotPeptides <- function(res, proteinName, configuration, separate=
 
 
 summarizeProtPepPrecursorFragCounts <- function(x, configuration){
-  hierarchy <- ( names( configuration$table$hierarchy ))
+  hierarchy <- names( configuration$table$hierarchy )
   res <- x %>% group_by_at(configuration$table$isotopeLabel) %>% summarise_at( hierarchy, n_distinct )
 }
 
@@ -235,34 +241,40 @@ summarizeProteinsCounts <- function(x, configuration)
 
 getMissingStats <- function(x, configuration, nrfactors = 1){
   table <- configuration$table
-  factors <- head(table$factors, nrfactors)
+  factors <- head(names(table$factors), nrfactors)
   missingPrec <- x %>% group_by_at(c(factors,
                                           names(table$hierarchy)[1],
                                           tail(names(table$hierarchy),1),
                                           table$isotopeLabel
                                           )) %>%
-    summarize(nrReplicates = n(), nrNAs = sum(is.na(!!sym(table$workIntensity))) , meanArea = mean(!!sym(table$workIntensity), na.rm=TRUE)) %>%
+    summarize(nrReplicates = n(), nrNAs = sum(is.na(!!sym(table$workIntensity))) ,
+              meanArea = mean(!!sym(table$workIntensity), na.rm=TRUE)) %>%
     arrange(desc(nrNAs))
   missingPrec
 }
 
 
-missignessHistogram <- function(x, configuration, showempty = TRUE,nrfactors = 1){
+missignessHistogram <- function(x, configuration, showempty = TRUE, nrfactors = 1){
   table <- configuration$table
   missingPrec <- getMissingStats(x, configuration,nrfactors)
 
   missingPrec <- missingPrec %>% ungroup()%>% mutate(nrNAs = as.factor(nrNAs))
   if(showempty){
-    missingPrec <- missingPrec %>% mutate(meanArea = ifelse(is.na(meanArea),1,meanArea))
+    if(configuration$parameter$workingIntensityTransform != "log")
+    {
+      missingPrec <- missingPrec %>% mutate(meanArea = ifelse(is.na(meanArea),1,meanArea))
+    }else{
+      missingPrec <- missingPrec %>% mutate(meanArea = ifelse(is.na(meanArea),-20,meanArea))
+    }
+
   }
 
-  factors <- head(table$factors, nrfactors)
+  factors <- head(names(table$factors), nrfactors)
 
   formula <- paste(table$isotopeLabel, "~", paste(factors, collapse = "+"))
   message(formula)
 
   p <- ggplot(missingPrec, aes(x = meanArea, fill = nrNAs, colour = nrNAs)) +
-    scale_x_log10() +
     geom_histogram(alpha = 0.2,position = "identity") +
     facet_grid(as.formula(formula)) +
     theme(axis.text.x = element_text(angle = 90, hjust = 1))
@@ -279,7 +291,7 @@ missignessHistogram <- function(x, configuration, showempty = TRUE,nrfactors = 1
 missingPerConditionCumsum <- function(x,configuration,nrfactors = 1){
   table <- configuration$table
   missingPrec <- getMissingStats(x, configuration,nrfactors)
-  factors <- head(table$factors, nrfactors)
+  factors <- head(names(table$factors), nrfactors)
 
   xx <-missingPrec %>% group_by_at(c(table$isotopeLabel, factors,"nrNAs","nrReplicates")) %>%
     summarize(nrTransitions =n())
@@ -300,7 +312,7 @@ missingPerConditionCumsum <- function(x,configuration,nrfactors = 1){
 missingPerCondition <- function(x, configuration, nrfactors = 1){
   table <- configuration$table
   missingPrec <- getMissingStats(x, configuration, nrfactors)
-  factors <- head(table$factors, nrfactors)
+  factors <- head(names(table$factors), nrfactors)
 
   xx <-missingPrec %>% group_by_at(c(table$isotopeLabel,
                                           factors,"nrNAs","nrReplicates")) %>%

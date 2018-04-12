@@ -4,7 +4,7 @@
 \alias{configurationPlotPeptides}
 \title{extracts the relevant information from the configuration to make the plot.}
 \usage{
-configurationPlotPeptides(res, proteinName, configuration)
+configurationPlotPeptides(res, proteinName, configuration, separate = FALSE)
 }
 \description{
 extracts the relevant information from the configuration to make the plot.

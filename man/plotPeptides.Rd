@@ -4,7 +4,8 @@
 \alias{plotPeptides}
 \title{Plot peptide and fragments}
 \usage{
-plotPeptides(data, proteinName, x, y, group, color, factor, isotopeLabel)
+plotPeptides(data, proteinName, sample, intensity, peptide, fragment, factor,
+  isotopeLabel, separate = FALSE, log_y = FALSE)
 }
 \description{
 Plot peptide and fragments
