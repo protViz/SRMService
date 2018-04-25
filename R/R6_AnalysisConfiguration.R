@@ -34,6 +34,20 @@ AnalysisTableAnnotation <- R6Class("AnalysisTableAnnotation",
                                      isotopeLabel = character(),
                                      initialize = function(fileName="tmp"){
                                        self$fileName = fileName
+                                     },
+                                     idVars = function(){
+                                       idVars <- c(
+                                         self$fileName,
+                                         names(self$factors),
+                                         unlist(self$factors),
+                                         names(self$hierarchy),
+                                         unlist(self$hierarchy),
+                                         self$isotopeLabel,
+                                         self$sampleName)
+                                       return(idVars)
+                                     },
+                                     valueVars = function(){
+                                       c(self$startIntensity, self$workIntensity, self$qValue)
                                      }
                                    )
 )
@@ -92,13 +106,11 @@ setupDataFrame <- function(data, configuration ,sep="~"){
 
   for(i in 1:length(table$hierarchy))
   {
-    print(names(table$hierarchy)[i])
     data <- unite(data, UQ(sym(names(table$hierarchy)[i])), table$hierarchy[[i]],remove = FALSE)
   }
 
   for(i in 1:length(table$factors))
   {
-    print(names(table$factors)[i])
     data <- unite(data, UQ(sym(names(table$factors)[i])), table$factors[[i]],remove = FALSE)
   }
 
@@ -125,7 +137,7 @@ setupDataFrame <- function(data, configuration ,sep="~"){
 
 
 #' Plot peptide and fragments
-plotPeptides <- function(data,
+linePlotHierarchy_default <- function(data,
                          proteinName,
                          sample,
                          intensity,
@@ -136,7 +148,6 @@ plotPeptides <- function(data,
                          separate = FALSE,
                          log_y=FALSE
 ){
-  print(as.list(match.call()))
   if(length(isotopeLabel)){
     if(separate){
       formula <- paste(paste( isotopeLabel, collapse="+"), "~", paste(factor , collapse = "+"))
@@ -144,7 +155,7 @@ plotPeptides <- function(data,
                                    y = intensity,
                                    group=fragment,
                                    color= peptide
-                                   ))
+      ))
     }else{
       formula <- sprintf("~%s",factor)
       data <- unite(data, "fragment_label", fragment, isotopeLabel, remove = FALSE)
@@ -152,7 +163,7 @@ plotPeptides <- function(data,
                                    y = intensity,
                                    group="fragment_label",
                                    color= peptide
-                                   ))
+      ))
     }
     p <- p +  geom_point(aes_string(shape= isotopeLabel)) + geom_line(aes_string(linetype = isotopeLabel))
   }else{
@@ -174,16 +185,14 @@ plotPeptides <- function(data,
   return(p)
 }
 
-
-
 #' extracts the relevant information from the configuration to make the plot.
-configurationPlotPeptides <- function(res, proteinName, configuration, separate=FALSE){
-  hnames <- names(configuration$table$hierarchy)
-  res <- plotPeptides(res, proteinName = proteinName,
+linePlotHierarchy_configuration <- function(res, proteinName, configuration, separate=FALSE){
+  rev_hnames <- rev(names(configuration$table$hierarchy))
+  res <- linePlotHierarchy_default(res, proteinName = proteinName,
                       sample = configuration$table$sampleName,
                       intensity = configuration$table$workIntensity,
-                      peptide = rev(hnames)[2],
-                      fragment = rev(hnames)[1],
+                      peptide = rev_hnames[2],
+                      fragment = rev_hnames[1],
                       factor = names(configuration$table$factors)[1],
                       isotopeLabel = configuration$table$isotopeLabel,
                       separate = separate,
@@ -193,7 +202,13 @@ configurationPlotPeptides <- function(res, proteinName, configuration, separate=
 }
 
 
-
+linePlotHierarchy_QuantLine <- function(p, data, aes_y,  configuration){
+  table <- configuration$table
+  p + geom_line(data=data,
+                aes_string(x = table$sampleName , y = aes_y, group=1),
+                size=1.3,
+                color="black")
+}
 
 
 summarizeProtPepPrecursorFragCounts <- function(x, configuration){
@@ -243,10 +258,10 @@ getMissingStats <- function(x, configuration, nrfactors = 1){
   table <- configuration$table
   factors <- head(names(table$factors), nrfactors)
   missingPrec <- x %>% group_by_at(c(factors,
-                                          names(table$hierarchy)[1],
-                                          tail(names(table$hierarchy),1),
-                                          table$isotopeLabel
-                                          )) %>%
+                                     names(table$hierarchy)[1],
+                                     tail(names(table$hierarchy),1),
+                                     table$isotopeLabel
+  )) %>%
     summarize(nrReplicates = n(), nrNAs = sum(is.na(!!sym(table$workIntensity))) ,
               meanArea = mean(!!sym(table$workIntensity), na.rm=TRUE)) %>%
     arrange(desc(nrNAs))
@@ -281,7 +296,6 @@ missignessHistogram <- function(x, configuration, showempty = TRUE, nrfactors = 
 
   if(configuration$parameter$workingIntensityTransform != "log")
   {
-    print("logging")
     p <- p + scale_x_log10()
   }
   p
@@ -315,7 +329,7 @@ missingPerCondition <- function(x, configuration, nrfactors = 1){
   factors <- head(names(table$factors), nrfactors)
 
   xx <-missingPrec %>% group_by_at(c(table$isotopeLabel,
-                                          factors,"nrNAs","nrReplicates")) %>%
+                                     factors,"nrNAs","nrReplicates")) %>%
     summarize(nrTransitions =n())
 
   formula <- paste(table$isotopeLabel, "~", paste(factors, collapse = "+"))
@@ -326,6 +340,57 @@ missingPerCondition <- function(x, configuration, nrfactors = 1){
 
   xx <- xx %>% spread("nrNAs","nrTransitions")
   return(list(data = xx ,figure = p))
+}
+
+
+spreadValueVarsIsotopeLabel <- function(resData, configuration){
+  table <- configuration$table
+   idVars <- table$idVars()
+  resData2 <- resData %>% select(c(table$idVars(), table$valueVars()) ) #%>%
+  resData2 <- resData2 %>% gather(variable, value, - idVars  )
+  resData2 <- resData2 %>%  unite(temp, table$isotopeLabel, variable )
+  HLData <- resData2 %>% spread(temp,value)
+  invisible(HLData)
+}
+
+
+
+ExtractMatrix <- function(x){
+  idx <- sapply(x,is.numeric)
+  xmat <- as.matrix(x[,idx])
+  rownames(xmat) <- x %>% select(which(!idx==TRUE)) %>% unite(x, sep="~") %>% pull(x)
+  xmat
+}
+
+
+extractIntensities <- function(x, configuration){
+  table <- configuration$table
+  x <- x %>%
+    select( c( table$sampleName,
+               rev(names(table$hierarchy))[1],
+               table$workIntensity) ) %>%
+    spread(table$sampleName, table$workIntensity) %>% ExtractMatrix()
+  return(x)
+}
+
+
+medpolishPly <- function(x, params){
+  X <- medpolish(x,na.rm=TRUE, trace.iter=FALSE, maxiter = 10);
+  res <- tibble("sampleName" = names(X$col) , medpolish = X$col + X$overall)
+  res
+}
+
+
+reestablishCondition <- function(data,
+                                 medpolishRes,
+                                 configuration
+){
+  table <- configuration$table
+  xx <- data %>%  select(c(table$sampleName,
+                           names(table$factors), unlist(table$factors), table$fileName)) %>% distinct()
+
+  res <- inner_join(xx,medpolishRes, by=table$sampleName)
+  res
 }
 
 
