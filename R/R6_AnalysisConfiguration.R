@@ -138,15 +138,15 @@ setupDataFrame <- function(data, configuration ,sep="~"){
 
 #' Plot peptide and fragments
 linePlotHierarchy_default <- function(data,
-                         proteinName,
-                         sample,
-                         intensity,
-                         peptide,
-                         fragment,
-                         factor,
-                         isotopeLabel,
-                         separate = FALSE,
-                         log_y=FALSE
+                                      proteinName,
+                                      sample,
+                                      intensity,
+                                      peptide,
+                                      fragment,
+                                      factor,
+                                      isotopeLabel,
+                                      separate = FALSE,
+                                      log_y=FALSE
 ){
   if(length(isotopeLabel)){
     if(separate){
@@ -189,14 +189,14 @@ linePlotHierarchy_default <- function(data,
 linePlotHierarchy_configuration <- function(res, proteinName, configuration, separate=FALSE){
   rev_hnames <- rev(names(configuration$table$hierarchy))
   res <- linePlotHierarchy_default(res, proteinName = proteinName,
-                      sample = configuration$table$sampleName,
-                      intensity = configuration$table$workIntensity,
-                      peptide = rev_hnames[2],
-                      fragment = rev_hnames[1],
-                      factor = names(configuration$table$factors)[1],
-                      isotopeLabel = configuration$table$isotopeLabel,
-                      separate = separate,
-                      log_y = (configuration$parameter$workingIntensityTransform != "log")
+                                   sample = configuration$table$sampleName,
+                                   intensity = configuration$table$workIntensity,
+                                   peptide = rev_hnames[2],
+                                   fragment = rev_hnames[1],
+                                   factor = names(configuration$table$factors)[1],
+                                   isotopeLabel = configuration$table$isotopeLabel,
+                                   separate = separate,
+                                   log_y = (configuration$parameter$workingIntensityTransform != "log")
   )
   return(res)
 }
@@ -207,7 +207,10 @@ linePlotHierarchy_QuantLine <- function(p, data, aes_y,  configuration){
   p + geom_line(data=data,
                 aes_string(x = table$sampleName , y = aes_y, group=1),
                 size=1.3,
-                color="black")
+                color="black",
+                linetype="dashed") +
+    geom_point(data=data,
+               aes_string(x = table$sampleName , y = aes_y, group=1), color="black", shape=10)
 }
 
 
@@ -217,14 +220,16 @@ summarizeProtPepPrecursorFragCounts <- function(x, configuration){
 }
 
 
+
+
 #' Light only version.
 summarizeProteins <- function(x, configuration ){
   rev_hierarchy <- rev(names(configuration$table$hierarchy))
+  print(rev_hierarchy)
 
   precursorSum <- x %>% select(rev_hierarchy) %>% distinct() %>%
     group_by_at(rev_hierarchy[-1]) %>%
     summarize(nrFragments = n())
-
 
   peptideSum <- precursorSum %>% group_by_at(rev_hierarchy[-(1:2)]) %>%
     summarize(nrPrecursors = n(),
@@ -238,7 +243,6 @@ summarizeProteins <- function(x, configuration ){
               maxNrPrecursors = max(nrPrecursors),
               maxNRFragments = max(maxNrFragments),
               minNrFragments= min(minNrFragments))
-
   proteinPeptide <- proteinSum %>% tidyr::unite(Precursors ,minNrPrecursors , maxNrPrecursors, sep="-", remove=FALSE)
   proteinPeptide <- proteinPeptide %>% tidyr::unite(Fragments ,minNrFragments , maxNRFragments, sep="-", remove=FALSE)
   return(proteinPeptide)
@@ -345,7 +349,7 @@ missingPerCondition <- function(x, configuration, nrfactors = 1){
 
 spreadValueVarsIsotopeLabel <- function(resData, configuration){
   table <- configuration$table
-   idVars <- table$idVars()
+  idVars <- table$idVars()
   resData2 <- resData %>% select(c(table$idVars(), table$valueVars()) ) #%>%
   resData2 <- resData2 %>% gather(variable, value, - idVars  )
   resData2 <- resData2 %>%  unite(temp, table$isotopeLabel, variable )
