@@ -164,8 +164,6 @@ multigroupVolcano(res,
                      type="adj.P.Val" ,
                      Condition = "Condition",label=NULL,
                      xintercept = c(-2,2),pvalue = 0.01, size=1.3)
-
-
 ```
 
 # Meta analysis of p-values and foldchanges
