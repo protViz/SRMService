@@ -6,6 +6,9 @@
 \usage{
 tidyMQ_ProteinGroups(MQProteinGroups)
 }
+\arguments{
+\item{MQProteinGroups}{data.frame generated with read.csv("peptide.txt",sep="\t", stringsAsFactors=FALSE)}
+}
 \description{
 extract intensities and annotations from MQ proteinGroups.txt
 }

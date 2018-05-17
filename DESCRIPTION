@@ -44,7 +44,6 @@ Collate:
     'PDProteins.R'
     'PrepareRmdAnalysisEnv.R'
     'QCReport.R'
-    'R6_AnalysisConfiguration.R'
     'R6_ProteinTable.R'
     'SRMService.R'
     'ScaffoldHelpers.R'
@@ -53,5 +52,6 @@ Collate:
     'limmaHelpers.R'
     'plotNicelyTransitions.R'
     'readMaxQuant.R'
+    'tidyMS_R6_AnalysisConfiguration.R'
     'zzz.R'
 Suggests: testthat

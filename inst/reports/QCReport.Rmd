@@ -30,15 +30,12 @@ The protein matrix is filtered like this:
 - Minimum number of peptides / protein: `r grp2$nrPeptides`
 - Maximum of missing values per protein : `r grp2$maxNA`
 
-
-- The total number of proteins in this experiment is: `r nrow(grp2$proteinIntensity)` 
+- The number of samples in this experiment is: `r ncol(grp2$proteinIntensity)` 
+- The number of proteins in this experiment is: `r nrow(grp2$proteinIntensity)` 
 - Total number without decoys sequences is `r nrow(grp2$proteinIntensity) -  sum(grepl("REV__",grp2$proteinAnnotation$ProteinName))` 
-
 
 - Percentage of contaminants : `r round(mean(grepl("CON__",grp2$proteinAnnotation$ProteinName)) * 100, digits=1)` %
 - Percentage of false postivies : `r round(mean(grepl("REV__",grp2$proteinAnnotation$ProteinName)) * 100, digits=1)` %
-
-
 
 
 ```{r}
@@ -106,13 +103,18 @@ p + stat_summary(fun.y=median,geom='point') +theme(axis.text.x = element_text(an
 Figure \@ref{fig:scaling} shows the median and standard deviations of the log2 transformed intensities. Large differences in these values are critical. These values are used to scale the samples.
 
 
-```{r  scaling,dpi=300, fig.height=6, fig.cap="Sample median and standard deviation of log2(Intensities)."}
-par(mfrow=c(2,1))
-par(mar=c(3,10,3,3))
+```{r  scaling,dpi=300, fig.height=6, fig.cap="Average intensity in sample vs average intensity in all samples. red line - critical fold change."}
+bb <- grp2$getNormalized()$medians
 
-barplot(grp2$getNormalized()$medians,horiz=T,las=2, main="median", cex.names = 0.6)
-barplot(grp2$getNormalized()$mads,horiz=T, las=2 , main="standard deviation", cex.names = 0.6)
+par(mar=c(15,6,3,6))
+barplot(sort(abs(bb))  - mean(bb) ,horiz=F,las=2, main="median", cex.names = 0.6, ylab="log2(sample average) - log2(total average)", ylim=c(-log2(8),log2(8)))
+abline(h=c(-log2(5),log2(5)),col=2)
+x<-seq(-3,3,by=1)
+axis(4,x,round(2^abs(x),digits=1))
+mtext("linear scale", side=4, line=2)
+```
 
+```{r progress2}
 progress(0.2, "Normalization")
 
 ```
@@ -221,10 +223,12 @@ This document was generated using Rmarkdown and processes text files which are g
 The obtained results should be validated orthogonally as well (e.g. with Western blots). The Functional Genomics Center Zurich does not provide any kind of guarantee of the validity of these results.
 
 \newpage
+
 # Session Info
 
+
 ```{r}
-sessionInfo()
+pander::pander(sessionInfo())
 ```
 
 
