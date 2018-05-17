@@ -1,5 +1,6 @@
 #' extract intensities and annotations from MQ proteinGroups.txt
 #' @export
+#' @param MQProteinGroups data.frame generated with read.csv("peptide.txt",sep="\t", stringsAsFactors=FALSE)
 #'
 tidyMQ_ProteinGroups <- function(MQProteinGroups){
   pint <- select(MQProteinGroups, "Protein.group.Id" = "id", starts_with("Intensity."))
@@ -9,22 +10,26 @@ tidyMQ_ProteinGroups <- function(MQProteinGroups){
                                              function(x){x[1]}),
                      nrPeptides = MQProteinGroups$Peptides,
                      Fasta.headers = MQProteinGroups$Fasta.headers,
-                     Protein.group.IDs = MQProteinGroups$id,
+                     Protein.group.Id = MQProteinGroups$id,
                      stringsAsFactors = F
   )
   pint <- pint %>%
     gather(key="Raw.file", value="MQ.Protein.Intensity", starts_with("Intensity.")) %>%
     mutate(Raw.file = gsub("Intensity.","",Raw.file))
+
   pintLFQ <- pintLFQ %>%
     gather(key="Raw.file", value="MQ.Protein.LFQ.intensity", starts_with("LFQ.intensity.")) %>%
     mutate(Raw.file = gsub("LFQ.intensity.","",Raw.file))
 
-  pint <- inner_join(pint, pintLFQ , by=c("Protein.group.IDs","Raw.file"))
-  res <- inner_join(meta, pint , by="Protein.group.IDs")
+  pint <- inner_join(pint, pintLFQ , by=c("Protein.group.Id","Raw.file"))
+  res <- inner_join(meta, pint , by="Protein.group.Id")
   return(res)
 }
 
-
+#' parse MQ peptides.txt
+#' @export
+#' @param MQPeptides data.frame generated with read.csv("peptide.txt",sep="\t", stringsAsFactors=FALSE)
+#'
 tidyMQ_Peptides <- function(MQPeptides){
   pint <- select(MQPeptides,"Peptides.Id"= "id", starts_with("Intensity."))
   idtype <- select(MQPeptides, "Peptides.Id"="id", starts_with("Identification.type."))
