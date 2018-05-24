@@ -13,6 +13,7 @@ knitr::opts_chunk$set(echo = FALSE, warnings=FALSE, fig.width = 8, fig.height = 
 
 
 ```{r}
+library(plyr)
 library(dplyr)
 library(ggplot2)
 library(ggrepel)
@@ -30,7 +31,6 @@ iprotV <- data.frame(p2grp[,3:ncol(p2grp)], Condition = as.numeric(grepl( Condit
 Variables <- t(combn(as.character(unique(protData$data$Protein)) , nvariables , FUN = NULL, simplify = TRUE ))
 colnames(Variables) <- paste("v",1:ncol(Variables),sep="")
 
-library(plyr)
 
 
 modelData <- alply(Variables, 1, function(x, iprotV){
@@ -75,7 +75,7 @@ Histogram of AUC for models using 3 variables.
 
 ## Top 1
 
-```{r fig.cap="Left panel: density of predictions values black - category 1; red - category 2 , Right panel : ROC curve"}
+```{r ROCmodel1, fig.cap="Left panel: density of predictions values black - category 1; red - category 2 , Right panel : ROC curve"}
 
 model <- resModels[[resultsCoeff$mID[1]]]
 tmp <- melt(model$data)
@@ -86,7 +86,7 @@ quantable::makeROCplot(x[iprotV$Condition == 0 ] , x[iprotV$Condition == 1])
 
 ```
 
-```{r, fig.cap="normalized intensities of the best predictors"}
+```{r Barplotmodel1, fig.cap="normalized intensities of the best predictors"}
 p <- ggplot(tmp , aes(variable, value)) + geom_boxplot(aes(colour = Condition)) + geom_jitter(width = 0.2,aes(colour = Condition))
 p
 ```
@@ -94,7 +94,7 @@ p
 
 ## Top 2
 
-```{r}
+```{r ROCmodel2}
 
 x <- predict(resModels[[resultsCoeff$mID[2]]], type="response")
 quantable::makeROCplot(x[iprotV$Condition == 0 ] , x[iprotV$Condition == 1])
@@ -104,7 +104,7 @@ quantable::makeROCplot(x[iprotV$Condition == 0 ] , x[iprotV$Condition == 1])
 ## Top 3
 
 
-```{r}
+```{r ROCmodel3}
 x <- predict(resModels[[resultsCoeff$mID[3]]], type="response")
 quantable::makeROCplot(x[iprotV$Condition == 0 ] , x[iprotV$Condition == 1])
 
@@ -112,7 +112,7 @@ quantable::makeROCplot(x[iprotV$Condition == 0 ] , x[iprotV$Condition == 1])
 
 # Distribution of AUC
 
-```{r}
+```{r distributionOfAUCs}
 hist(resultsCoeff$AUC, breaks=20, xlab="AUC", main="AUC distribution")
 abline(v= quantile(resultsCoeff$AUC,0.9),col=2)
 
@@ -121,7 +121,7 @@ abline(v= quantile(resultsCoeff$AUC,0.9),col=2)
 # TOP 20 models and variables used.
 
 
-```{r}
+```{r top20ModelsTable}
 knitr::kable(resultsCoeff[1:20, ], digits=2)
 
 ```
@@ -130,12 +130,12 @@ knitr::kable(resultsCoeff[1:20, ], digits=2)
 
 Range of AUC values for top models:
 
-```{r ,fig.cap="top 20 models."}
+```{r}
 top10pcModels <- resultsCoeff[1:(nrow(resCoefficients)/10),]
 range(top10pcModels$AUC)
 ```
 
-```{r}
+```{r VariableCalls,fig.cap="top 20 models."}
 plot(sort(table(as.character(unlist(top10pcModels[,1:nvariables]))),decreasing = T)[1:25],las=2,ylab="# of models")
 
 coefCounts <- data.frame(sort(table(as.character(unlist(top10pcModels[,1:nvariables]))),decreasing = T))
@@ -149,13 +149,13 @@ colnames(coefMean)[2] = "meanCoef"
 xd <- merge(coefMean, coefCounts, by="proteinID")
 ```
 
-```{r}
+```{r SignificantVariablesTable}
 knitr::kable(arrange(xd, desc(abs(meanCoef))), caption = "Coefficients sorted by absolute size in top 10% of models.")
 ```
 
 
 
-```{r, fig.cap="Significance of variables", fig.width=6, fig.height=6}
+```{r SignificantVariablesPlot, fig.cap="Significance of variables", fig.width=6, fig.height=6}
 coefThreshold <- 0.5
 ggplot(xd, aes(x=meanCoef, y=coefCounts)) +
     geom_point(shape=1) + geom_text_repel(data=dplyr::filter(xd, xd$meanCoef > coefThreshold | xd$meanCoef  < -coefThreshold ), aes(label=proteinID))
@@ -167,7 +167,7 @@ xt <- xd[xd$meanCoef > coefThreshold| xd$meanCoef < -coefThreshold,]
 
 # Analyse best pairs in top 10% models
 
-```{r}
+```{r bestPairs}
 top10pcModels <- resultsCoeff[1:(nrow(resultsCoeff)/10),]
 
 #x <- with(top10pcModels,unique(c(var.v1, var.v2, var.v3)))
@@ -180,11 +180,11 @@ x <- dplyr::left_join(res, top10pcModels)
 ```
 
 
-```{r}
-xxAUC <- x %>% group_by(a,b) %>% summarise(mean(AUC))
-xxLength <- x %>% group_by(a,b) %>% summarise(length(AUC))
-xxmin <- x %>% group_by(a,b) %>% summarise(min(AUC))
-xxmax <- x %>% group_by(a,b) %>% summarise(max(AUC))
+```{r make_summarytableBestPairs}
+xxAUC <- x %>% group_by(a,b) %>% dplyr::summarise(mean(AUC))
+xxLength <- x %>% group_by(a,b) %>% dplyr::summarise(length(AUC))
+xxmin <- x %>% group_by(a,b) %>% dplyr::summarise(min(AUC))
+xxmax <- x %>% group_by(a,b) %>% dplyr::summarise(max(AUC))
 
 rrA <- inner_join(inner_join(inner_join(xxAUC, xxLength),xxmin),xxmax)
 xxB <- arrange(rrA,desc(`length(AUC)`),desc(`mean(AUC)`))
