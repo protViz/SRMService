@@ -10,6 +10,9 @@ params:
   OUTPUT_DIR: "outdir"
 ---
 
+
+<!-- used in project 1841 - 28 May -->
+
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = FALSE, fig.width = 10, fig.height = 10, message = FALSE)
 ```
@@ -153,8 +156,7 @@ p
 ```{r}
 
 respVals <- merge(adjPValMap, logFCMap, by="row.names", suffixes = c(".adjPVal", ".log2FC"))
-dim(respVals)
-write_tsv(respVals, path=paste(params$OUTPUT_DIR,"_pValFC_WideFormat.txt", sep=""))
+write_tsv(respVals, path=file.path(params$OUTPUT_DIR,"_pValFC_WideFormat.txt"))
 
 ```
 
@@ -179,7 +181,9 @@ p
 
 # Table of Significant Fold changes
 
+
 ```{r}
+
 colnames(res)
 res2 <- res
 res2$P.Value <- NULL
