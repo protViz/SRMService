@@ -1,10 +1,13 @@
 ---
-title: "p2147 Limma Analysis : `r Sample` "
-author: "FGCZ"
-date: "`r format(Sys.time(), '%d %B, %Y')`"
+title: "p2380 Limma Analysis"
+author: "Witold Wolski"
+date: "26 June 2017"
 output:
-  html_document: default
   pdf_document: default
+  html_document: default
+params:
+  grp2: NULL
+  OUTPUT_DIR: "outdir"
 ---
 
 ```{r setup, include=FALSE}
@@ -20,45 +23,34 @@ library(quantable)
 library(reshape2)
 library(plyr)
 library(limma)
+library(dplyr)
+library(corrplot)
 
 ```
 
-## Summary
 
-There are `r nrow(grp2$getNormalized()$data)` proteins quantified with 2 peptides.
+
+```{r eval=FALSE}
+for(i in params$grp2$getConditions()$condition){
+  quantable::mypairsSmooth(params$grp2$getNormalizedConditionData(i))
+}
+
+```
+
 
 
 ```{r}
-knitr::kable(grp2$annotation_[,c("Raw.file","Condition")], caption = "Condition Raw.file mapping")
-```
-
-
-```{r, fig.with=12, fig.height=12, eval=FALSE, fig.cap="samples within condition."}
-#for(i in grp2$getConditions()$condition){
-#  quantable::mypairsSmooth(grp2$getNormalizedConditionData(i))
-#}
-quantable::mypairsSmooth(grp2$getNormalized()$data)
-```
-
-
-
-```{r , fig.cap="Heatmap - with clustering of samples and proteins."}
-dd <- as.matrix(grp2$getNormalized()$data)
+dd <- as.matrix(params$grp2$getNormalized()$data)
 dd <- dd[complete.cases(dd),]
-library(gplots)
-simpleheatmap(dd, margins = c(15,5),scale="row")
+simpleheatmap(dd, margins = c(10,5))
 
 ```
 
 
 
-```{r, fig.cap="Correlation matrix."}
-library(corrplot)
-
-M <- cor(grp2$getNormalized()$data, use="pairwise.complete.obs")
-#corrplot.mixed(M^2,upper="square", lower="pie",  diag="u", tl.pos="d")
-
-corrplot(M^2, method="square", type="upper",  diag=TRUE, tl.pos="d")
+```{r}
+M <- cor(params$grp2$getNormalized()$data, use="pairwise.complete.obs")
+corrplot.mixed(M^2,upper="square", lower="pie",  diag="u", tl.pos="d")
 
 ```
 
@@ -66,104 +58,62 @@ corrplot(M^2, method="square", type="upper",  diag=TRUE, tl.pos="d")
 # Fit model
 
 ```{r}
-
-intmat <- as.matrix(grp2$getNormalized()$data)
-
-normalizedIntensities <- quantable::matrix_to_tibble(intmat)
-write_tsv(normalizedIntensities , path = paste("output/",Sample,"_NormalizedIntensities.txt",sep=""))
+dir.create(params$OUTPUT_DIR)
+intmat <- as.matrix(params$grp2$getNormalized()$data)
+x<-quantable::matrix_to_tibble(intmat)
+write.table(x , file = file.path( params$OUTPUT_DIR,"NormalizedIntensities.txt") )
 
 fit <- lmFit(intmat , designMatrix)
 
-#class(fit)
-#dim(fit)
-#names(fit)
-
 ```
 
-# Compute Contrasts
+# Compute contrasts
 
 ```{r}
-knitr::kable(data.frame(Contrasts=(contrasts)), caption = "Contrasts")
-```
 
-```{r}
 cont <- limma::makeContrasts(contrasts = contrasts, levels =  levels)
-res <- SRMService::contrasts.fit.NA(fit,cont)
-res$adj.P.Val<-p.adjust(res$P.Value,method = "BH")
+lmfit.cont <- contrasts.fit(fit, cont)
+lmfit.cont.ebayes <- eBayes(lmfit.cont)
 
-#lmfit.cont <- contrasts.fit(fit, cont)
-#lmfit.cont.ebayes <- eBayes(lmfit.cont)
-#res <- getPVals(lmfit.cont.ebayes)
+res <- list()
+for(i in 1:length(colnames(cont)))
+{
+  name <- colnames(cont)[i]
+  print(name)
+  res[[name]] <- data.frame(Condition = name, topTable(lmfit.cont.ebayes, coef=name, number=Inf))
+}
 
-res <- merge(res, grp2$proteinAnnotation, by.x="ProteinID", by.y="TopProteinName")
-write_tsv( res , path=paste("output/",Sample,"_limmaPValuesLong_.txt",sep=""))
-#head(res)
-#(grep("REV_", res$ProteinID, value = T))
 
+res <- lapply(res,tibble::rownames_to_column,var="ProteinID")
+res <- rbind.fill(res)
+res$uprotID <- split2table(res$ProteinID,split="\\|")[,3]
 
+write_tsv(res, path=file.path(params$OUTPUT_DIR,"limmaPValues.txt"))
+          
 ```
 
 
-```{r, eval=FALSE}
 
-res2 <- res
-res2$P.Value <- NULL
-res2$AveExpr <- NULL
-res2$t <- NULL
-res2$B <- NULL
-knitr::kable(subset(res2,adj.P.Val <0.05), row.names=NA)
+```{r}
 
-```
-
-```{r volcanoplot, fig.width=16, fig.height=16, fig.cap="Volcano plots for all comparisons."}
 cc <- data.frame(
-  fc=c(0,0),
+  sl=c(0,0),
   p = c(0.01,0.05), 
   Area = c('p=0.01','p=0.05')
   )
 
 
-res$Name <- res$ProteinID
+res$Name <- split2table(res$ProteinID,split="\\|")[,3]
+res$Name <- split2table(res$Name,split="\\_")[,1]
 
-multigroupVolcano <- function(misspX,
-                              effect = "fc",
-                              type = "p.adjust",
-                              Condition = "condition",
-                              xintercept=c(-2,2),
-                              pvalue=0.05,
-                              label="row.names",
-                              size=1
-                              , segment.size = 0.3,
-                              segment.alpha = 0.3, ablines = cc) {
-  colname = paste("-log10(", type , ")" , sep="")
-  message(colname)
-  p <- ggplot( misspX, aes_string(x = effect , y = colname, color="colour"  )  )  + geom_point(alpha=0.5)
-  p <- p + scale_colour_manual(values=c("black", "green", "blue","red"))
-  p <- p + facet_wrap(as.formula(paste("~",Condition))) + labs(y = colname)
-  
-  p <- p + geom_abline(data = ablines, aes(slope = fc, intercept = -log10(p),colour = Area)) + 
-    geom_vline(xintercept = xintercept,linetype = "dashed", colour = "red")
-  if(!is.null(label)){
-    message("test")
-    effectX <-misspX[,effect]
-    typeX<-misspX[,type]
-    subsetData <- subset(misspX, (effectX < xintercept[1] | xintercept[2] < effectX) & typeX < pvalue )
-    p <- p + geom_text_repel(data=subsetData, aes_string(effect , col , label=label), size=size
-                             , segment.size = segment.size, segment.alpha = segment.alpha)
-  }
-  return(p)
-}
+res$colour <- ifelse( grepl("REV_",res$ProteinID), "REV", "Forward")
+quantable::multigroupVolcano(res, effect = "logFC",
+                       type="adj.P.Val" ,
+                       condition = "Condition", colour="colour",label="Name",
+                       xintercept = c(-1.5,1.5))
 
 
 
-res$colour <- c("forward","rev")[as.numeric(grepl("REV_",res$ProteinID))+1]
-
-library(ggplot2)
-multigroupVolcano(res,
-                   effect = "logFC",
-                     type="adj.P.Val" ,
-                     Condition = "Condition",label=NULL,
-                     xintercept = c(-2,2),pvalue = 0.01, size=1.3)
 ```
 
 # Meta analysis of p-values and foldchanges
@@ -172,22 +122,23 @@ multigroupVolcano(res,
 ## Foldchanges
 
 ```{r fig.cap="Pairs plot of fold changes."}
-logFCMap <- acast(res, ProteinID +  Fasta.headers ~ Condition, value.var = "logFC")
+logFCMap <- acast(res, ProteinID  ~ Condition, value.var = "logFC")
 quantable::mypairsSmooth(logFCMap)
+
 ```
 
 
 ```{r fig.cap="Correlation of fold changes."}
-#corrplot.mixed(cor(logFCMap, use="pairwise.complete.obs"),upper="square", lower="pie",  diag="u", tl.pos="d")
 corrplot(cor(logFCMap, use="pairwise.complete.obs"),method="square", type="upper",  diag=TRUE, tl.pos="d")
 
 ```
+
 
 ## PVals
 
 
 ```{r fig.cap="nr of proteins with qvalue <0.05 per comparison", fig.width = 7, fig.height = 7}
-adjPValMap <- acast(res, ProteinID +  ProteinName ~ Condition, value.var = "adj.P.Val", sep=".")
+adjPValMap <- acast(res, ProteinID  ~ Condition, value.var = "adj.P.Val", sep=".")
 qvalue <- 0.05
 nrSigSample <- adply(adjPValMap,2, function(x){ c( signifQ= sum(!is.na(x) & x <qvalue))},.id="Contrast")
 
@@ -195,22 +146,47 @@ p <- ggplot(nrSigSample, aes(x = Contrast, y= signifQ )) + geom_bar(stat="identi
 p <- p + theme_classic()
 p <- p + theme(axis.text.x = element_text(angle = 90, hjust = 1))
 p
+
 ```
 
-```{r fig.cap="nr of proteins significant in 1.2...N pairwise comparisons.", fig.width = 7, fig.height = 7}
-nrSigProtein <- adply(adjPValMap,1, function(x){c("nrSigComparisons" = sum( !is.na(x) & x <qvalue))}, .id="proteinID")
-x<-table(nrSigProtein$nrSigComparisons[nrSigProtein$nrSigComparisons > 0])
 
-library(dplyr)
-x <- res %>% group_by(ProteinName ) %>% summarise(nrSigComparisons = sum(!is.na(adj.P.Val) & adj.P.Val <qvalue)) 
-x <- x %>% filter( nrSigComparisons > 0) %>% group_by(nrSigComparisons) %>% tally()
+```{r}
+
+respVals <- merge(adjPValMap, logFCMap, by="row.names", suffixes = c(".adjPVal", ".log2FC"))
+dim(respVals)
+write_tsv(respVals, path=paste(params$OUTPUT_DIR,"_pValFC_WideFormat.txt", sep=""))
+
+```
+
+
+```{r fig.cap="nr of proteins significant in 1.2...N pairwise comparisons.", fig.width = 7, fig.height = 7}
+nrSigProtein <- adply(adjPValMap,1, function(x){c("nrSigComparisons" = sum( !is.na(x) & x  < qvalue))}, .id="proteinID")
+x <- table(nrSigProtein$nrSigComparisons[nrSigProtein$nrSigComparisons > 0])
+
+x <- res %>% dplyr::group_by_at( "ProteinID" ) %>% dplyr::summarise(n=n(),nrSigComparisons = sum(!is.na(adj.P.Val) & adj.P.Val <qvalue)) 
+
+x <- x %>% filter( nrSigComparisons > 0) %>% group_by(nrSigComparisons) %>% dplyr::summarize(nr = n())
 class(x$nrSigComparisons) <- "character"
 
-p <- ggplot(x, aes(x = nrSigComparisons, y= n )) + geom_bar(stat="identity") 
+p <- ggplot(x, aes(x = nrSigComparisons, y= nr )) + geom_bar(stat="identity") 
 p <- p + theme_classic()+ theme(axis.text.x = element_text(angle = 90, hjust = 1))
 p
 
-respVals <- merge(adjPValMap, logFCMap, by="row.names", suffixes = c(".adjPVal", ".log2FC"))
-write_tsv(respVals, path=paste("output/",Sample,"_pValFC_WideFormat.txt", sep=""))
+```
+
+
+\newpage
+
+# Table of Significant Fold changes
+
+```{r}
+colnames(res)
+res2 <- res
+res2$P.Value <- NULL
+res2$ProteinID <-NULL
+res2$AveExpr <- NULL
+res2$t <- NULL
+res2$B <- NULL
+knitr::kable(subset(res2,adj.P.Val <0.05))
 
 ```
