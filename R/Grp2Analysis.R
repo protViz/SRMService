@@ -37,9 +37,38 @@ Grp2Analysis <- setRefClass("Grp2Analysis",
                                            removeDates= "logical",
                                            normalizationMethod = "character",
                                            housekeeper = "character",
-                                           special = "character"
+                                           special = "character",
+                                           modelMatrix = "matrix"
                             )
                             , methods = list(
+
+                              initialize = function(
+                                annotation,
+                                projectName,
+                                experimentName="LFQ experiment",
+                                maxNA=3,
+                                nrPeptides = 2,
+                                reference = "Control",
+                                annotationCol = annotationColumns,
+                                removeDates = TRUE,
+                                housekeeper = "",
+                                normalizationMethod = "robustscale"
+                              ){
+                                .self$projectName <- projectName
+                                .self$experimentName <- experimentName
+                                stopifnot(annotationCol %in% colnames(annotation))
+                                annotation <- annotation[!is.na(annotation$Condition),]
+                                .self$annotation_ <- annotation[order(annotation$Condition),]
+                                .self$conditions <- as.character(unique(.self$annotation_$Condition))
+                                .self$nrPeptides <- nrPeptides
+                                .self$maxNA <- maxNA
+                                .self$reference <- reference
+                                .self$removeDates <- removeDates
+                                .self$housekeeper <- housekeeper
+                                .self$normalizationMethod <- normalizationMethod
+                                setQValueThresholds()
+                                setPValueThresholds()
+                              },
                               setProteins = function(protein){
                                 "used to verify proteingroups structure and set members"
                                 protein <- as.data.frame(protein)
@@ -71,33 +100,6 @@ Grp2Analysis <- setRefClass("Grp2Analysis",
                                 .self$proteinIntensity <- .self$proteinIntensity[nas <= maxNA,]
                                 .self$proteinAnnotation <- protein[nas<=maxNA,proteinColumns]
 
-                              },
-                              initialize = function(
-                                annotation,
-                                projectName,
-                                experimentName="LFQ experiment",
-                                maxNA=3,
-                                nrPeptides = 2,
-                                reference = "Control",
-                                annotationCol = annotationColumns,
-                                removeDates = TRUE,
-                                housekeeper = "",
-                                normalizationMethod = "robustscale"
-                              ){
-                                .self$projectName <- projectName
-                                .self$experimentName <- experimentName
-                                stopifnot(annotationCol %in% colnames(annotation))
-                                annotation <- annotation[!is.na(annotation$Condition),]
-                                .self$annotation_ <- annotation[order(annotation$Condition),]
-                                .self$conditions <- as.character(unique(.self$annotation_$Condition))
-                                .self$nrPeptides <- nrPeptides
-                                .self$maxNA <- maxNA
-                                .self$reference <- reference
-                                .self$removeDates <- removeDates
-                                .self$housekeeper <- housekeeper
-                                .self$normalizationMethod <- normalizationMethod
-                                setQValueThresholds()
-                                setPValueThresholds()
                               },
                               setQValueThresholds = function(qvalue = 0.05, qfoldchange=0.1){
                                 .self$qvalue = qvalue
@@ -160,17 +162,29 @@ Grp2Analysis <- setRefClass("Grp2Analysis",
                                 fileID <- as.character(subset(.self$annotation_, Condition == condition)$Raw.file)
                                 normalized[, fileID]
                               },
+                              setModelMatrix = function(modelMatrix){
+                                .self$modelMatrix <- modelMatrix
+                              },
                               getDesignMatrix = function(){
-                                # hack for putting reference into denomintor.
-                                design <- gsub(reference, paste("A_", reference, sep=""),
-                                               .self$annotation_$Condition)
-                                design <- model.matrix(~design)
-                                return(design)
+                                if(isTRUE(all.equal(dim(.self$modelMatrix), c(0,0)))){
+                                  # hack for putting reference into denomintor.
+                                  design <- gsub(reference, paste("A_", reference, sep=""),
+                                                 .self$annotation_$Condition)
+                                  .self$modelMatrix <- model.matrix(~design)
+                                }
+                                return(.self$modelMatrix)
                               },
                               getPValues = function(){
+
                                 tmp <- eb.fit(.self$getNormalized()$data , .self$getDesignMatrix())
                                 tmp$log2FC <- tmp$effectSize
                                 return(tmp)
+                              },
+                              getModPValuesCI = function(){
+                                fit <- limma::lmFit(grp2$getNormalized()$data, grp2$getDesignMatrix())
+                                fit.eb <- limma::eBayes(fit)
+                                res <- topTable(fit.eb, coef=2, number=Inf,confint = TRUE)
+                                return(res)
                               },
                               getAnnotation = function(){
                                 return(.self$annotation_)
