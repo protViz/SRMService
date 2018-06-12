@@ -588,4 +588,13 @@ Are computed based on a single factor e.g. condition. Which can be a composition
 
 [VSN A systematic evaluation of normalization methods in quantitative label-free proteomics.](https://www.ncbi.nlm.nih.gov/pubmed/27694351)
 
+## References Bayes
+
+[Bayesian Methodology for Missing Data, Model Selection and
+Hierarchical Spatial Models with Application to Ecological Data](https://vtechworks.lib.vt.edu/bitstream/handle/10919/26141/Dissertation.pdf)
+
+[STAN for linear mixed models]
+(http://www.maths.bath.ac.uk/~jjf23/stan/)
+
+[Doing Bayesian Data Analysis, Second Edition: A Tutorial with R, JAGS, and Stan 2nd Edition](https://sites.google.com/site/doingbayesiandataanalysis/)
 
