@@ -108,6 +108,7 @@ setupDataFrame <- function(data, configuration ,sep="~"){
   {
     data <- unite(data, UQ(sym(names(table$hierarchy)[i])), table$hierarchy[[i]],remove = FALSE)
   }
+  data <- select(data , -one_of(unlist(table$hierarchy)))
 
   for(i in 1:length(table$factors))
   {
@@ -116,7 +117,7 @@ setupDataFrame <- function(data, configuration ,sep="~"){
 
   sampleName <- table$sampleName
   if(!sampleName  %in% names(data)){
-    data <- data %>%  unite( UQ(sym( sampleName)) , unique(unlist(table$factors)) ) %>%
+    data <- data %>%  unite( UQ(sym( sampleName)) , unique(unlist(table$factors)), remove = TRUE ) %>%
       select(sampleName, table$fileName) %>% distinct() %>%
       mutate_at(sampleName, function(x){ x<- make.unique( x, sep=sep )}) %>%
       inner_join(data, by=table$fileName)
@@ -129,11 +130,13 @@ setupDataFrame <- function(data, configuration ,sep="~"){
   #longF <- dplyr::select(data,  required)
 
   # Make implicit NA's explicit
-  data <- complete(data, nesting(!!!syms(c(names(table$hierarchy), table$isotopeLabel))), nesting(!!!syms(names(table$factors))))
+  data <- complete(data, nesting(!!!syms(c(names(table$hierarchy), table$isotopeLabel))), nesting(!!!syms(c(table$sampleName, names(table$factors)))))
 
   attributes(data)$configuration <- configuration
   return(data)
 }
+
+
 
 
 #' Plot peptide and fragments
