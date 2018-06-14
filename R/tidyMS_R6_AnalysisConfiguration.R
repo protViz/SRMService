@@ -108,7 +108,7 @@ setupDataFrame <- function(data, configuration ,sep="~"){
   {
     data <- unite(data, UQ(sym(names(table$hierarchy)[i])), table$hierarchy[[i]],remove = FALSE)
   }
-  data <- select(data , -one_of(unlist(table$hierarchy)))
+  data <- select(data , -one_of(setdiff(unlist(table$hierarchy), names(table$hierarchy))))
 
   for(i in 1:length(table$factors))
   {
@@ -116,7 +116,10 @@ setupDataFrame <- function(data, configuration ,sep="~"){
   }
 
   sampleName <- table$sampleName
+
   if(!sampleName  %in% names(data)){
+    message("creating sampleName")
+
     data <- data %>%  unite( UQ(sym( sampleName)) , unique(unlist(table$factors)), remove = TRUE ) %>%
       select(sampleName, table$fileName) %>% distinct() %>%
       mutate_at(sampleName, function(x){ x<- make.unique( x, sep=sep )}) %>%
@@ -125,15 +128,15 @@ setupDataFrame <- function(data, configuration ,sep="~"){
     warning(sampleName, " already exists")
   }
 
-  #required <- unlist(R6extractValues(table))
-  #required <- required[!grepl("^\\.", required)]
-  #longF <- dplyr::select(data,  required)
+  data <- data %>% select(-one_of(setdiff(unlist(table$factors), names(table$factors))))
 
   # Make implicit NA's explicit
-  data <- complete(data, nesting(!!!syms(c(names(table$hierarchy), table$isotopeLabel))), nesting(!!!syms(c(table$sampleName, names(table$factors)))))
+
+  data <- complete( data , nesting(!!!syms(c(names(table$hierarchy), table$isotopeLabel))),
+                    nesting(!!!syms(c( table$fileName , table$sampleName, names(table$factors) ))))
 
   attributes(data)$configuration <- configuration
-  return(data)
+  return( data )
 }
 
 
@@ -394,7 +397,7 @@ reestablishCondition <- function(data,
 ){
   table <- configuration$table
   xx <- data %>%  select(c(table$sampleName,
-                           names(table$factors), unlist(table$factors), table$fileName)) %>% distinct()
+                           names(table$factors), table$fileName)) %>% distinct()
 
   res <- inner_join(xx,medpolishRes, by=table$sampleName)
   res
