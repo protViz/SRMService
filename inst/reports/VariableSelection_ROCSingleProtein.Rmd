@@ -30,7 +30,7 @@ res <- data.frame(comparison = paste(Ucond[1],"_", Ucond[2],sep=""),
                                    foldchange=tvals$fchange,
                                    pvals.adj = tvals$pvaladj )
 
-quantable::write.tab(res,file= paste("AFC_",Ucond[1],"_", Ucond[2],".tsv",sep=""))
+#quantable::write.tab(res,file= paste("AFC_",Ucond[1],"_", Ucond[2],".tsv",sep=""))
 
 
 
@@ -44,24 +44,20 @@ log2FCThresh <- 1
 ```
 
 ```{r volcanoNice, fig.width=8, fig.width=8}
-#, fig.retina=10}
-write.tab(paste(results$labels,"_HUMAN",sep="" ), file="string/AllProteins.txt")
+#write.tab(paste(results$labels,"_HUMAN",sep="" ), file="string/AllProteins.txt")
 
-p <-ggplot(results, aes(log2FoldChange, -log10(pvalue))) + geom_point(mapping=aes(x=log2FoldChange, y=-log10(pvalue), shape=isGLM, col=isGLM), size=2)
+p <-ggplot(results, aes(log2FoldChange, -log10(pvalue))) + geom_point(mapping=aes(x=log2FoldChange, y=-log10(pvalue)), size=2)
 
 p <- p + ggplot2::geom_hline(yintercept=-log10(pthresh), col=4, lty=2) 
 p <- p + ggplot2::geom_vline(xintercept=c(-log2FCThresh,log2FCThresh), col=4,lty=2) 
 p <- p + ggplot2::labs(x = expression(log[2](healthy/diseased)))
 
-filtres <- subset(results, (labels %in%  addPlot) |  (pvalue<pthresh & abs(log2FoldChange)>log2FCThresh) )
+filtres <- subset(results, (pvalue<pthresh & abs(log2FoldChange)>log2FCThresh) )
 
 filtreX <- subset(results,  (pvalue<pthresh & abs(log2FoldChange)>log2FCThresh) )
 trash <- data.frame(paste(filtreX$labels,"_HUMAN",sep="" ), color = "#00ff00")
 
-
-quantable::write.tab(trash, file="string/Regulated.txt")
-trash2 <- data.frame(paste(results$labels[results$isGLM], "_HUMAN", sep=""), color="#ff0000")
-write.tab(trash2, file="string/GLMimportant.txt")
+#quantable::write.tab(trash, file="string/Regulated.txt")
 
 p = p + geom_text_repel(data=filtres, aes_string(label='labels'))#, size=size, segment.size = segment.size, segment.alpha = segement.alpha)
 print(p)
@@ -83,7 +79,7 @@ AUC <- ldply(lROC, function(x){c("AUC"= pROC::auc(x))})
 
 topAUC <- plyr::arrange(AUC, AUC , decreasing=TRUE)[1:12,]
 
-quantable::write.tab(AUC,file= paste("AUC_",Ucond[1],"_", Ucond[2],".tsv",sep=""))
+#quantable::write.tab(AUC,file= paste("AUC_",Ucond[1],"_", Ucond[2],".tsv",sep=""))
 
 lROCTOP <- lROC[c(as.character(topAUC$Protein))]
 lDatTop <- lDat[c(as.character(topAUC$Protein))]
