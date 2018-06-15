@@ -45,6 +45,7 @@ Collate:
     'PrepareRmdAnalysisEnv.R'
     'QCReport.R'
     'R6_ProteinTable.R'
+    'R6_ProteinVariableSelect.R'
     'SRMService.R'
     'ScaffoldHelpers.R'
     'transitionCorrelations.R'

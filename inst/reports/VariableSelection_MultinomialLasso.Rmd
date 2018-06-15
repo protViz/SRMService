@@ -2,7 +2,7 @@
 title: "Immunodata vis"
 author: "Witold Wolski"
 date: "30 May 2016"
-output: pdf_document
+output: html_document
 ---
 
 
@@ -13,19 +13,15 @@ knitr::opts_chunk$set(fig.width=8, fig.height=8, fig.path='Figs/',
 ```
 
 
-
 ```{r}
-barplot(table(datam$Condition))
-
+barplot(table(protData$getWideFormat()$Condition))
 ```
-
 
 Number of samples per group.
 
 
 ```{r boxplotBB, fig.height=25, fig.width=25}
 library(lattice)
-library(latticeExtra)
 library(reshape2)
 library(RColorBrewer)
 library(quantable)
@@ -36,44 +32,32 @@ library(lattice)
 library(plyr)
 
 
-
-xx<-melt(datam)
-bwplot(value ~ Condition | variable, data=xx,scales=list(x=list(rot=90),relation="free") ) 
+bwplot(Intensity ~ Condition | Protein, data=protData$data,scales=list(x=list(rot=90),relation="free") ) 
 
 ```
 
 Distribution of protein fold changes per group.
 
-```{r}
-cast2IntensityMatrix <- function( datam ){
-  datamI <- datam[,3:ncol(datam)]
-  rownames(datamI) <- datam$Run
-  datalog2 <- datamI
-}
-
-datalog2 <- cast2IntensityMatrix(datam)
-
-```
-
 ```{r makecolors, fig.width=3, fig.height=3}
 
-colors <- rep("",nrow(datam))
+colors <- rep("", nrow(protData$getWideFormat()))
 
-Ucond <- unique(datam$Condition)
+Ucond <- unique(protData$getWideFormat()$Condition)
 mypalette <- brewer.pal(length(Ucond),"Dark2")
 
 for(i in 1:length(Ucond)){
-  colors[datam$Condition==Ucond[i]]<-mypalette[i]
+  colors[protData$getWideFormat()$Condition==Ucond[i]]<-mypalette[i]
 }
+
 pch <- colors
+
 for(i in 1:length(Ucond)){
-  pch[datam$Condition==Ucond[i]]<-i
+  pch[protData$getWideFormat()$Condition==Ucond[i]]<-i
 }
 
 pch <- as.numeric(pch)
-plot(c(0,3),c(0,3),type="n",axes = FALSE,xlab="",ylab="")
-legend("topleft", legend=Ucond,cex=1,pch=1:length(Ucond),lwd=4,lty=1,col=mypalette)
-
+plot(1,type="n", axes = FALSE,xlab="", ylab="")
+legend(1,1, legend=Ucond,cex=1,pch=1:length(Ucond),lwd=4,lty=1,col=mypalette, xjust=0.5, yjust=0.5)
 
 ```
 
@@ -81,36 +65,26 @@ legend("topleft", legend=Ucond,cex=1,pch=1:length(Ucond),lwd=4,lty=1,col=mypalet
 The variable selection algorithm does not work with missing values therefore we replace them with
 the median fold change of a protein. A possible improvement would be to replace them with the median protein intensity of protein within a group.
 
-```{r}
-medians <- apply(datalog2,2,median)
-for(i in 1:ncol(datalog2)){
-  datalog2[is.na(datalog2[,i]),i]<- medians[1]
-}
-
-```
-
 
 # Overview Heatmap
 
 
 ```{r heatmapDefault,fig.width=7,fig.height=7}
-simpleheatmap( (datalog2) , palette = getBlueWhiteRed(21),ylab="Ig", main="",RowSideColors=colors)
+simpleheatmap( protData$getIntensities() , palette = getBlueWhiteRed(21),ylab="Ig", main="",RowSideColors=colors)
 
 ```
 
 # Overview Heatmap Scaled
 
 ```{r heatmapScaled,fig.width=7,fig.height=7}
-simpleheatmap( scale(datalog2) , palette = getBlueWhiteRed(21), main="",RowSideColors=colors)
+simpleheatmap( scale(protData$getIntensities()) , palette = getBlueWhiteRed(21), main="",RowSideColors=colors)
 ```
 
-# How do the variables correlate
+# How to do the variables correlate
 
 
 ```{r correlationHeatmap,fig.width=7,fig.height=7}
-
-
-simpleheatmap( cor((datalog2), use="pairwise.complete.obs", method="spearman")^2 , palette = getGreensScale(21),xlab="Ig",ylab="Ig", main="R^2")
+simpleheatmap( cor((protData$getIntensities()), use="pairwise.complete.obs", method="spearman")^2 , palette = getGreensScale(21),xlab="Ig",ylab="Ig", main="R^2")
 
 ```
 
@@ -118,7 +92,7 @@ simpleheatmap( cor((datalog2), use="pairwise.complete.obs", method="spearman")^2
 
 
 ```{r,fig.width=7,fig.height=7}
-mat <- (cor(t(datalog2),use="pairwise.complete.obs", method="spearman"))^2
+mat <- (cor(t(protData$getIntensities()),use="pairwise.complete.obs", method="spearman"))^2
 
 simpleheatmap(mat,RowSideColors=colors, xlab="patient", ylab="patient", main="R^2",palette = getGreensScale(21))
 
@@ -126,11 +100,13 @@ simpleheatmap(mat,RowSideColors=colors, xlab="patient", ylab="patient", main="R^
 
 
 # Violin Plot
+
 ## Bioreplicate
 
 ```{r violinSamples}
-tmp <- longm
-p <- qplot( Run , Intensity , data=tmp , geom="violin" , xlab="" , ylab="log10(I)")
+
+
+p <- qplot( Run , Intensity , data=protData$data , geom="violin" , xlab="" , ylab="log10(I)")
 p + stat_summary(fun.y=median,geom='point') +theme(axis.text.x = element_text(angle = 90, hjust = 1))
 
 ```
@@ -138,7 +114,7 @@ p + stat_summary(fun.y=median,geom='point') +theme(axis.text.x = element_text(an
 ## Variables
 
 ```{r violinProteins, fig.width=14, fig.height=8}
-p <- qplot( Variable , Intensity , data=tmp , geom="violin" , xlab="" , ylab="log10(I)")
+p <- qplot( Protein , Intensity , data=protData$data , geom="violin" , xlab="" , ylab="log10(I)")
 p + stat_summary(fun.y=median,geom='point') +theme(axis.text.x = element_text(angle = 90, hjust = 1))
 
 ```
@@ -149,12 +125,12 @@ p + stat_summary(fun.y=median,geom='point') +theme(axis.text.x = element_text(an
 ```{r, fig.width=6, fig.height=10}
 
 #datalog2 <- scale(datalog2)
-sum(is.na(unlist(datalog2)))
+sum(is.na(unlist(protData$getIntensitiesNoMissing())))
 #colnames(datalog2)<-paste("p", colnames(datalog2), sep=".")
 
-fmla <- as.formula(paste(" ~ ", paste(colnames(datalog2), collapse= "+")))
+fmla <- as.formula(paste(" ~ ", paste(colnames(protData$getIntensitiesNoMissing()), collapse= "+")))
 
-ir.pca <- prcomp( fmla, data=data.frame(datalog2), center = TRUE, scale. = TRUE, na.action=na.omit)
+ir.pca <- prcomp( fmla, data=data.frame(protData$getIntensitiesNoMissing()), center = TRUE, scale. = TRUE, na.action=na.omit)
 par(mfrow=c(3,1))
 
 plot(ir.pca$x[,1:2],col=colors,pch=pch)
@@ -174,13 +150,11 @@ legend("topleft",legend=Ucond,col=c(mypalette),pch=1:length(Ucond))
 
 ```{r}
 
-disease <- as.factor(datam$Condition)
+disease <- as.factor(protData$getWideFormat()$Condition)
 mylambda <- 1/(1:25)^1.7
-datalog2 <- as.matrix(datalog2)
+datalog2 <- as.matrix(protData$getIntensitiesNoMissing())
 
-sum(is.na(datalog2))
 glmmod <- glmnet(datalog2,y=disease,family='multinomial', lambda =mylambda,maxit= 1000000)
-
 
 ```
 
@@ -188,7 +162,6 @@ glmmod <- glmnet(datalog2,y=disease,family='multinomial', lambda =mylambda,maxit
 ```{r fig.height=7, fig.width=7}
 
 cv.glmmod <- cv.glmnet(datalog2, y = disease, alpha = 1, family='multinomial', nfolds=20, lambda=mylambda )
-
 plot(cv.glmmod)
 best_lambda <- cv.glmmod$lambda.min
 abline(v=log(best_lambda))
@@ -212,11 +185,11 @@ for(i in 1:length(glmmod$beta)){
 
 
 ```{r}
-co<-coef(glmmod,s=best_lambda)
+co <- coef(glmmod,s=best_lambda)
 
 resCoeff <-list()
 for(i in 1:length(co)){
-  dat<- as.matrix(co[[i]])
+  dat <- as.matrix(co[[i]])
   resCoeff[[length(resCoeff)+1]] <- data.frame(Condition=names(co)[i], features = rownames(dat) , Coefficients = dat[,1])
 }
 resCoeff <- do.call("rbind",resCoeff)
@@ -239,6 +212,7 @@ colnames(bound)[1]<-"Condition"
 
 
 bound <- bound[abs(bound$values) > 0,]
+head(bound)
 
 ```
 
@@ -248,18 +222,19 @@ bound <- bound[abs(bound$values) > 0,]
 
 
 ```{r results="markup"}
-tmp <- dcast(names ~ Condition, data=bound, value.var = "values")
 
-knitr::kable(tmp )
+coefficientTable <- dcast(names ~ Condition, data=bound, value.var = "values")
+knitr::kable(coefficientTable )
 
 ```
 
 Values of coefficients in the model.
 
 ```{r fig.height=8}
-rownames(tmp) <- tmp[,1]
-tmp <- tmp[,2:ncol(tmp)]
-imageWithLabels(t(tmp),col = getBlueWhiteRed(51),zlim=c(-8,8))
+
+rownames(coefficientTable) <- coefficientTable[,1]
+coefficientTable <- coefficientTable[,2:ncol(coefficientTable)]
+imageWithLabels(t(coefficientTable),col = getBlueWhiteRed(51),zlim=c(-8,8))
 
 ```
 
@@ -271,11 +246,12 @@ Same table shown with coefficients color coded for better readability.
 
 
 ```{r fig.width=15, fig.height=15}
-rnam <-rownames(tmp)[2:nrow(tmp)]
 
-variables<-datam[,rnam]
-variables<-cbind(datam[,1:2],variables)
-xx<-melt(variables)
+rnam <- rownames(coefficientTable)[2:nrow(coefficientTable)]
+variables <- protData$getWideFormat()[, rnam]
+
+variables<-cbind(protData$getWideFormat()[,1:2],variables)
+xx <- melt(variables)
 
 bwplot(value ~ Condition | variable, data=xx,scales=list(x=list(rot=90),relation="free") )
 
@@ -286,10 +262,47 @@ bwplot(value ~ Condition | variable, data=xx,scales=list(x=list(rot=90),relation
 
 ## Predict the outcomes
 
-```{r font.adjustmen=0.5}
+```{r, include = FALSE}
 
 classPred <- predict(glmmod, datalog2, s=best_lambda, type="class")
-tab <-cbind(file = rownames(datalog2), truth=as.character(disease) , prediction = classPred)
+
+
+
+check.model.accuracy <- function(predicted.class, actual.class){
+  result.tbl <- as.data.frame(table(predicted.class,actual.class ) ) 
+  colnames(result.tbl)[1:2] <- c("Pred","Act")
+  
+  F.score.row <- vector(length(unique(result.tbl$Pred)), mode = "list")
+  
+  for (cntr in 1:length(unique(result.tbl$Pred)) ){
+    pred.class <- unique(result.tbl$Pred)[cntr]
+    tp <- sum(result.tbl[result.tbl$Pred==pred.class & result.tbl$Act==pred.class, "Freq"])
+    tp.fp <- sum(result.tbl[result.tbl$Pred == pred.class , "Freq" ])
+    tp.fn <- sum(result.tbl[result.tbl$Act == pred.class , "Freq" ])
+    precision <- tp/tp.fp 
+    recovery <- tp/tp.fn
+    F.score <- 2*precision*recovery/(precision+recovery)
+    
+    res <- data.frame("pred.class" = as.character(pred.class),
+                      "precision" = precision,
+                      "recovery" = recovery,
+                      "F.score" = F.score , stringsAsFactors = FALSE)
+    F.score.row[[cntr]] <- res
+  }
+  
+  return(plyr::rbind.fill(F.score.row))
+}
+
+res <- check.model.accuracy(classPred,as.character(disease))
+
+
+```
+
+
+
+```{r font.adjustmen=0.5}
+knitr::kable(res, digits=rep(2,ncol(res)))
+
 ```
 
 
@@ -297,7 +310,8 @@ tab <-cbind(file = rownames(datalog2), truth=as.character(disease) , prediction 
 
 ```{r, results="markup"}
 
-knitr::kable(tab[1:33,])
+tab <-cbind(file = rownames(protData$getIntensitiesNoMissing()), truth=as.character(disease) , prediction = classPred)
+knitr::kable(tab[1:min(33, nrow(tab)),])
 
 ```
 
@@ -307,9 +321,9 @@ knitr::kable(tab[1:33,])
 
 
 ```{r, results="markup"}
-
-knitr::kable(tab[34:nrow(tab),])
-
+if(nrow(tab) > 34){
+  knitr::kable(tab[34:nrow(tab),])
+}
 ```
 
 
@@ -340,7 +354,7 @@ knitr::kable(pred)
 
 ```{r, fig.height=10, fig.width=7}
 
-tdatalog2<-t(datalog2)
+tdatalog2<-t( protData$getIntensities() )
 Ucond <- as.character(Ucond)
 
 nrpics<-sum(1:(length(Ucond)-1))
@@ -355,8 +369,8 @@ for(i in 1:length(Ucond)){
     
     for(j in (i+1):length(Ucond)){
       cat(" i:", Ucond[i], " j:", Ucond[j], "\n")
-      iidx <- grep(Ucond[i], datam$Condition)
-      jidx <- grep(Ucond[j], datam$Condition)
+      iidx <- grep(Ucond[i], protData$getWideFormat()$Condition)
+      jidx <- grep(Ucond[j], protData$getWideFormat()$Condition)
       tvals <- getTValuesForVolcano(tdatalog2[,iidx], tdatalog2[,jidx] )
       res[[length(res)+1]] <- data.frame(comparison = paste(Ucond[i],"-", Ucond[j],sep=""),
                                          label = rownames(tdatalog2),
@@ -366,11 +380,6 @@ for(i in 1:length(Ucond)){
                                          
                                          foldchange=tvals$fchange,
                                          pvals.adj = tvals$pvaladj )
-      p=volcano2G(tvals$fchange, tvals$pvaladj,  labels = rownames(tdatalog2), log2FCThresh = 0.5,
-                  xlab=paste( Ucond[i], "-", Ucond[j],sep=""), ylab="-log10(PAdj)")
-      length(p)
-      plots[[w]] <- p
-      w <- w+1
       tmp <- data.frame(names = rownames(tdatalog2), tvals)
       #tmp <- quantable::filterSignificant(tvals$fchange, tvals$pvaladj,rownames(tdatalog2),foldchangethresh = 0.5)
       
@@ -381,10 +390,23 @@ for(i in 1:length(Ucond)){
   }
 }
 
+all <- plyr::rbind.fill(res)
+head(all)
+cc <- data.frame(
+  fc=c(0),
+  p = c(0.05), 
+  Area = c('q-value=0.05')
+)
+
+
 ```
 
+
 ```{r gridextra, fig.width=8, fig.height=8}
-gridExtra::marrangeGrob(plots, ncol=2,nrow=3)
+head(all)
+quantable::multigroupVolcano(all,effect = "foldchange" ,type="pvals.adj",
+                             condition ="comparison", 
+                             label="label", xintercept=c(-1,1) )
 
 ```
 
@@ -402,7 +424,7 @@ write.table(significant, file="output/significantSRM.txt", quote=FALSE, sep="\t"
 ## p-values
 
 
-```{r, fig.height=10, fig.width=7}
+```{r, fig.height=7, fig.width=7}
 
 par(mfrow=c(ceiling(nrpics/2),2))
 res<-list()
@@ -412,19 +434,19 @@ for(i in 1:length(Ucond)){
   if(i < length(Ucond)){
     for(j in (i+1):length(Ucond)){
       cat(" i:", Ucond[i], " j:", Ucond[j], "\n")
-      iidx <- grep(Ucond[i], datam$Condition)
-      jidx <- grep(Ucond[j], datam$Condition)
+      iidx <- grep(Ucond[i], protData$getWideFormat()$Condition)
+      jidx <- grep(Ucond[j], protData$getWideFormat()$Condition)
       tvals <- getTValuesForVolcano(tdatalog2[,iidx], tdatalog2[,jidx] )
       res[[length(res)+1]] <- data.frame(comparison = paste(Ucond[i],"_", Ucond[j],sep=""),
                                          label = rownames(tdatalog2),
                                          pvals=tvals$pval ,
                                          foldchange=tvals$fchange,
                                          pvals.adj = tvals$pvaladj )
-                                         
+      
       tvaluesRES[[paste( Ucond[i], "-", Ucond[j],sep="")]] <- tvals
       
-      p<-volcano2G( tvals$fchange, tvals$pval,labels = rownames(tdatalog2), log2FCThresh = 1 , pthresh=0.05,
-                 xlab=paste( Ucond[i], "-", Ucond[j],sep=""), ylab="-log10(P)")
+      p<-volcano2G( tvals$fchange, tvals$pvaladj,labels = rownames(tdatalog2), log2FCThresh = 1 , pthresh=0.05,
+                    xlab=paste( Ucond[i], "-", Ucond[j],sep=""), ylab="-log10(P.adjusted)")
       plots[[length(plots)+1]] <- p
       print(p)
     }
@@ -436,6 +458,3 @@ for(i in 1:length(Ucond)){
 
 
 
-```{r gridextra2, fig.width=8, fig.height=8}
-gridExtra::marrangeGrob(plots, ncol=2,nrow=3)
-```
