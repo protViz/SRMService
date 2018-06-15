@@ -6,47 +6,75 @@ output: html_document
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = FALSE, fig.width = 10, fig.height = 10)
+knitr::opts_chunk$set(echo = FALSE, fig.width = 7, fig.height = 7)
 ```
 
 # R Markdown
 
 ```{r}
+
 library(pROC)
 library(plyr)
+library(ggplot2)
+library(ggrepel)
 
-tdatalog2 <- t( protData$getIntensities() )
+tdatalog2<-t( protData$getIntensities() )
 Ucond <- unique(protData$getWideFormat()$Condition)
 iidx <- grep(Ucond[1], protData$getWideFormat()$Condition)
 jidx <- grep(Ucond[2], protData$getWideFormat()$Condition)
-
-
 tvals <- getTValuesForVolcano(tdatalog2[,iidx], tdatalog2[,jidx] )
 
 res <- data.frame(comparison = paste(Ucond[1],"_", Ucond[2],sep=""),
                                    label = rownames(tdatalog2),
-                                   pvals=tvals$pval,
+                                   pvals=tvals$pval ,
                                    foldchange=tvals$fchange,
                                    pvals.adj = tvals$pvaladj )
 
-protData$results$pValues <- res
+quantable::write.tab(res,file= paste("AFC_",Ucond[1],"_", Ucond[2],".tsv",sep=""))
+
+
+
+
+results <- data.frame(log2FoldChange =  tvals$fchange, pvalue= tvals$pvaladj, labels=rownames(tdatalog2) )
+results$isPValue <-  tvals$pvaladj <0.05
+pthresh <- 0.05
+log2FCThresh <- 1
+
+
+```
+
+```{r volcanoNice, fig.width=8, fig.width=8}
+#, fig.retina=10}
+write.tab(paste(results$labels,"_HUMAN",sep="" ), file="string/AllProteins.txt")
+
+p <-ggplot(results, aes(log2FoldChange, -log10(pvalue))) + geom_point(mapping=aes(x=log2FoldChange, y=-log10(pvalue), shape=isGLM, col=isGLM), size=2)
+
+p <- p + ggplot2::geom_hline(yintercept=-log10(pthresh), col=4, lty=2) 
+p <- p + ggplot2::geom_vline(xintercept=c(-log2FCThresh,log2FCThresh), col=4,lty=2) 
+p <- p + ggplot2::labs(x = expression(log[2](healthy/diseased)))
+
+filtres <- subset(results, (labels %in%  addPlot) |  (pvalue<pthresh & abs(log2FoldChange)>log2FCThresh) )
+
+filtreX <- subset(results,  (pvalue<pthresh & abs(log2FoldChange)>log2FCThresh) )
+trash <- data.frame(paste(filtreX$labels,"_HUMAN",sep="" ), color = "#00ff00")
+
+
+quantable::write.tab(trash, file="string/Regulated.txt")
+trash2 <- data.frame(paste(results$labels[results$isGLM], "_HUMAN", sep=""), color="#ff0000")
+write.tab(trash2, file="string/GLMimportant.txt")
+
+p = p + geom_text_repel(data=filtres, aes_string(label='labels'))#, size=size, segment.size = segment.size, segment.alpha = segement.alpha)
+print(p)
 
 ```
 
 
-```{r fig.cap="Volcano plot of adjusted p-values"}
-p <- volcano2G( tvals$fchange, tvals$pvaladj,labels = rownames(tdatalog2), log2FCThresh = 1 , pthresh=0.05,
-              xlab=paste( Ucond[1], "-", Ucond[2],sep=""), ylab="-log10(P.adjusted)",size = 4)
-p
-
-```
 
 
-
-
-```{r}
+```{r Rocs, fig.width=8, fig.height=10}
 library(pROC)
 library(plyr)
+head(data2Conditions)
 
 lDat <- dlply(data2Conditions, .(Protein))
 lROC <- dlply(data2Conditions, .(Protein) , function(x){roc <- pROC::roc(Condition ~ Intensity,x); roc})
@@ -55,11 +83,10 @@ AUC <- ldply(lROC, function(x){c("AUC"= pROC::auc(x))})
 
 topAUC <- plyr::arrange(AUC, AUC , decreasing=TRUE)[1:12,]
 
-protData$results$AUC <- AUC
+quantable::write.tab(AUC,file= paste("AUC_",Ucond[1],"_", Ucond[2],".tsv",sep=""))
 
 lROCTOP <- lROC[c(as.character(topAUC$Protein))]
 lDatTop <- lDat[c(as.character(topAUC$Protein))]
-
 
 par(mfrow=c(4,3))
 for(i in 1:length(lROCTOP)){
@@ -67,12 +94,24 @@ for(i in 1:length(lROCTOP)){
   plot(smooth(lROCTOP[[i]]), add=T ,col="gray")
   legend("bottomright", legend=paste("AUC = ",round(pROC::auc(lROCTOP[[i]]),digits=2)), bty="n")
 }
+```
 
+
+```{r boxplotAAA, fig.width=8, fig.height=10}
+lDatTopAll <- rbind.fill(lDatTop)
+ggplot(lDatTopAll, aes(x = Condition, y = Intensity)) +
+        geom_boxplot() + facet_wrap(~ Protein) + labs(y=expression(log[2](L/H))) + theme_light()
+
+```
+
+
+```{r, fig.width=8, fig.height=10}
 par(mfrow=c(4,3))
 for(i in 1:length(lDatTop)){
-  boxplot(Intensity ~ Condition, lDatTop[[i]],main=names(lDatTop)[i])
+  boxplot(Intensity ~ Condition, lDatTop[[i]],main=names(lDatTop)[i], ylab=expression(log[2](L/H)))
   stripchart(Intensity ~ Condition, lDatTop[[i]], add=T, vertical = TRUE, method = "jitter",col = "maroon", bg = "bisque")
 }
 
 ```
+
 

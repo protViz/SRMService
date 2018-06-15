@@ -71,7 +71,12 @@ RMD_MQ_Quant_QCReport <- function(workdir = getwd()){
 #' @param workdir specify working directory
 #'
 RMD_VarSelection <- function(workdir = getwd()){
-  .scriptCopyHelperVec(c("/RunScripts/RUN_VarSelection.R","/reports/VariableSelection_MultinomialLasso.Rmd"), workdir =workdir )
+  .scriptCopyHelperVec(c("/RunScripts/RUN_VarSelection_Multinomial.R",
+                         "/reports/VariableSelection_MultinomialLasso.Rmd",
+                         "/RunScripts/RUN_VarSelection_GLM.R",
+                         "/reports/VariableSelection_ROCSingleProtein.Rmd",
+                         "/reports/VariableSelection_GLM.Rmd"
+                         ), workdir =workdir )
 }
 
 #' Copies the RMD and Run R file for Library generation your working directory.
