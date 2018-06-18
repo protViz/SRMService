@@ -9,7 +9,10 @@ library(limma)
 library(SRMService)
 
 ### Protein groups file
-proteinGroupsFile <- "proteinGroups.txt"
+packagedir <- path.package("SRMService")
+
+proteinGroupsFile <- file.path(packagedir, "samples/proteinGroups/proteinGroups.txt")
+
 ###
 
 
