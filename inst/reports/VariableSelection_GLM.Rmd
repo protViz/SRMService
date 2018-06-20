@@ -17,24 +17,24 @@ library(plyr)
 library(dplyr)
 library(ggplot2)
 library(ggrepel)
+library(ggplot2)
+
 
 wprot <- protData$getWideNoMissing()
 wprot <- scale(wprot)
+
 tmp <- unique(subset(protData$data, select = c("Condition","Run")))
 wprot <- merge(tmp, wprot, by.x="Run", by.y="row.names")
-
 p2grp <- wprot
 
-iprotV <- data.frame(p2grp[,3:ncol(p2grp)], Condition = as.numeric(grepl( Condition2Compare, p2grp$Condition)))
-
-
-Variables <- t(combn(as.character(unique(protData$data$Protein)) , nvariables , FUN = NULL, simplify = TRUE ))
+iprotV <- data.frame(p2grp[,3:ncol(p2grp)])
+Condition = as.numeric(grepl( Condition2Compare, p2grp$Condition))
+Variables <- t(combn(as.character(colnames(iprotV)) , nvariables , FUN = NULL, simplify = TRUE ))
 colnames(Variables) <- paste("v",1:ncol(Variables),sep="")
 
 
-
-modelData <- alply(Variables, 1, function(x, iprotV){
-    tmp <- data.frame(Condition = as.factor(iprotV$Condition), iprotV[,x])
+modelData <- alply(Variables, 1, function(x, iprotV2 = iprotV, Condition2 = Condition){
+    tmp <- data.frame(Condition = as.factor(Condition2), select(iprotV2, x))
     tmp
   }, iprotV
 )
@@ -46,24 +46,22 @@ resModels <- llply(modelData, function(x){
 
 coefficientsExtrat <- function(x){c( coefficients = coefficients(x), deviance = deviance(x) )}
 
-
 resCoefficients <- ldply(resModels,coefficientsExtrat)
 colnames(resCoefficients) <- c("mID", "c.intercept", paste("c", 1:ncol(Variables), sep=""), "deviance")
 
 
-makeAUC <- function(x){
+makeAUC <- function(x, ConditionX ){
   x <- predict(x, type="response")
-  pROC::auc(controls = x[iprotV$Condition == 0 ] , cases = x[iprotV$Condition == 1])
+  pROC::auc(controls = x[ConditionX == 0 ] , cases = x[ConditionX == 1])
 }
 
 resAUC <- rep(NA, length(resModels))
 for(i in 1:length(resModels)){
-  resAUC[i] <- makeAUC(resModels[[i]])
+  resAUC[i] <- makeAUC(resModels[[i]], ConditionX = Condition)
 }
 
 resultsCoeff <-data.frame(var = Variables, resCoefficients, AUC= resAUC )
 resultsCoeff <- arrange(resultsCoeff, desc(AUC))
-
 ```
 
 The total number of models is `r choose(length(unique(protData$data$Protein)), nvariables)`.
@@ -79,10 +77,9 @@ Histogram of AUC for models using 3 variables.
 
 model <- resModels[[resultsCoeff$mID[1]]]
 tmp <- melt(model$data)
-library(ggplot2)
 
 x <- predict(resModels[[resultsCoeff$mID[1]]], type="response")
-quantable::makeROCplot(x[iprotV$Condition == 0 ] , x[iprotV$Condition == 1])
+quantable::makeROCplot(x[Condition == 0 ] , x[Condition == 1])
 
 ```
 
@@ -97,7 +94,7 @@ p
 ```{r ROCmodel2}
 
 x <- predict(resModels[[resultsCoeff$mID[2]]], type="response")
-quantable::makeROCplot(x[iprotV$Condition == 0 ] , x[iprotV$Condition == 1])
+quantable::makeROCplot(x[Condition == 0 ] , x[Condition == 1])
 
 ```
 
@@ -106,7 +103,7 @@ quantable::makeROCplot(x[iprotV$Condition == 0 ] , x[iprotV$Condition == 1])
 
 ```{r ROCmodel3}
 x <- predict(resModels[[resultsCoeff$mID[3]]], type="response")
-quantable::makeROCplot(x[iprotV$Condition == 0 ] , x[iprotV$Condition == 1])
+quantable::makeROCplot(x[Condition == 0 ] , x[Condition == 1])
 
 ```
 
@@ -190,8 +187,8 @@ rrA <- inner_join(inner_join(inner_join(xxAUC, xxLength),xxmin),xxmax)
 xxB <- arrange(rrA,desc(`length(AUC)`),desc(`mean(AUC)`))
 knitr::kable(head(xxB))
 
-
 ```
+
 
 
 
