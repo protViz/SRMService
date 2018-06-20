@@ -19,7 +19,7 @@ library(ggplot2)
 library(ggrepel)
 library(ggplot2)
 
-nvariables <- 3 # fix number of variables to 3
+nvariables <-2
 
 wprot <- protData$getWideNoMissing()
 wprot <- scale(wprot)
@@ -30,6 +30,7 @@ p2grp <- wprot
 
 iprotV <- data.frame(p2grp[,3:ncol(p2grp)])
 Condition = as.numeric(grepl( Condition2Compare, p2grp$Condition))
+protnames <- as.character(colnames(iprotV))
 Variables <- t(combn(as.character(colnames(iprotV)) , nvariables , FUN = NULL, simplify = TRUE ))
 colnames(Variables) <- paste("v",1:ncol(Variables),sep="")
 
@@ -63,9 +64,16 @@ for(i in 1:length(resModels)){
 
 resultsCoeff <-data.frame(var = Variables, resCoefficients, AUC= resAUC )
 resultsCoeff <- arrange(resultsCoeff, desc(AUC))
+nrmodels <-choose(length(unique(protData$data$Protein)), nvariables)
 ```
 
-The total number of models is `r choose(length(unique(protData$data$Protein)), nvariables)`.
+The total number of models is :
+
+```{r}
+nrmodels
+```
+.
+
 
 # TOP ROC curves
 
@@ -149,6 +157,7 @@ xd <- merge(coefMean, coefCounts, by="proteinID")
 
 ```{r SignificantVariablesTable}
 knitr::kable(arrange(xd, desc(abs(meanCoef))), caption = "Coefficients sorted by absolute size in top 10% of models.")
+res$coefficients <- arrange(xd, desc(abs(meanCoef)))
 ```
 
 
@@ -161,36 +170,6 @@ ggplot(xd, aes(x=meanCoef, y=coefCounts)) +
 xt <- xd[xd$meanCoef > coefThreshold| xd$meanCoef < -coefThreshold,]
 
 ```
-
-
-# Analyse best pairs in top 10% models
-
-```{r bestPairs}
-top10pcModels <- resultsCoeff[1:(nrow(resultsCoeff)/10),]
-
-#x <- with(top10pcModels,unique(c(var.v1, var.v2, var.v3)))
-
-res <- plyr::ddply(top10pcModels,
-                   .(mID) ,
-                   function(x){y <- t(combn(x[1:3],2)); y <- data.frame(a = unlist(y[,1]), b=unlist(y[,2]));y } )
-
-x <- dplyr::left_join(res, top10pcModels)
-```
-
-
-```{r make_summarytableBestPairs}
-xxAUC <- x %>% group_by(a,b) %>% dplyr::summarise(mean(AUC))
-xxLength <- x %>% group_by(a,b) %>% dplyr::summarise(length(AUC))
-xxmin <- x %>% group_by(a,b) %>% dplyr::summarise(min(AUC))
-xxmax <- x %>% group_by(a,b) %>% dplyr::summarise(max(AUC))
-
-rrA <- inner_join(inner_join(inner_join(xxAUC, xxLength),xxmin),xxmax)
-xxB <- arrange(rrA,desc(`length(AUC)`),desc(`mean(AUC)`))
-knitr::kable(head(xxB))
-
-```
-
-
 
 
 
