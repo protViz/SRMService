@@ -154,26 +154,35 @@ The Figure \@ref(fig:CViolin) show the coefficient of variations for all protein
 
 
 ```{r CViolin, fig.cap="Distribution of protein CV within condition and overall"}
-cond1 <- grp2$getConditionData(grp2$conditions[1])
-cond2 <- grp2$getConditionData(grp2$conditions[2])
-
+cond1 <- grp2$getConditionData(grp2$conditions[1],top= round(nrow(grp2$proteinIntensity)/20))
+cond2 <- grp2$getConditionData(grp2$conditions[2],top= round(nrow(grp2$proteinIntensity)/20))
 
 cond1 <- quantable::CV(cond1)
 cond2 <- quantable::CV(cond2)
-all <- quantable::CV(grp2$proteinIntensity)
-CVs <- rbind(data.frame(condition=grp2$conditions[1], cv=cond1),
-             data.frame(condition=grp2$conditions[2],cv=cond2 ),
-             data.frame(condition="all", cv=all))
 
-p <- qplot( condition , cv , data=CVs , geom="violin" , xlab="" , ylab="Coefficient of Variation (%)")
-p + stat_summary(fun.y=median,geom='point') + theme(axis.text.x = element_text(angle = 90, hjust = 1))
+all <- quantable::CV(grp2$proteinIntensity,top= round(nrow(grp2$proteinIntensity)/20))
+
+arethereCVS <-(length(cond1) > 0 & length(cond2) > 0) & length(all) >0
+if( arethereCVS)
+{
+  
+  CVs <- rbind(data.frame(condition=grp2$conditions[1], cv=cond1),
+               data.frame(condition=grp2$conditions[2],cv=cond2 ),
+               data.frame(condition="all", cv=all))
+  
+  p <- qplot( condition , cv , data=CVs , geom="violin" , xlab="" , ylab="Coefficient of Variation (%)")
+  p + stat_summary(fun.y=median,geom='point') + theme(axis.text.x = element_text(angle = 90, hjust = 1))
+  
+}
 
 ```
 
 
 ```{r}
-cvSummary <- aggregate(cv ~ condition , data=CVs , median, na.rm=TRUE)
-knitr::kable(cvSummary,caption = 'median of cv')
+if(arethereCVS){
+  cvSummary <- aggregate(cv ~ condition , data=CVs , median, na.rm=TRUE)
+  knitr::kable(cvSummary,caption = 'median of cv')
+}
 ```
 
 \pagebreak
@@ -273,9 +282,9 @@ Significant calls are made with q-value smaller than `r grp2$qvalue` (false disc
 res.eb$names <- rownames(res.eb)
 
 p <- quantable::volcano2GB(res.eb,
-                     ylab="-log10(Q Value)",
-                     log2FCThresh=grp2$qfoldchange,
-                     pthresh=grp2$qvalue)
+                           ylab="-log10(Q Value)",
+                           log2FCThresh=grp2$qfoldchange,
+                           pthresh=grp2$qvalue)
 if(length(grp2$special)>0)
 {
   quantable::addSpecialProteins(p, res.eb, grp2$special)
