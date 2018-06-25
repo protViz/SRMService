@@ -154,11 +154,11 @@ The Figure \@ref(fig:CViolin) show the coefficient of variations for all protein
 
 
 ```{r CViolin, fig.cap="Distribution of protein CV within condition and overall"}
-cond1 <- grp2$getConditionData(grp2$conditions[1],top= round(nrow(grp2$proteinIntensity)/20))
-cond2 <- grp2$getConditionData(grp2$conditions[2],top= round(nrow(grp2$proteinIntensity)/20))
+cond1 <- grp2$getConditionData(grp2$conditions[1])
+cond2 <- grp2$getConditionData(grp2$conditions[2])
 
-cond1 <- quantable::CV(cond1)
-cond2 <- quantable::CV(cond2)
+cond1 <- quantable::CV(cond1,top= round(nrow(grp2$proteinIntensity)/20))
+cond2 <- quantable::CV(cond2,top= round(nrow(grp2$proteinIntensity)/20))
 
 all <- quantable::CV(grp2$proteinIntensity,top= round(nrow(grp2$proteinIntensity)/20))
 
