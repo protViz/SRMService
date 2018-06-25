@@ -54,6 +54,9 @@ Grp2Analysis <- setRefClass("Grp2Analysis",
                                 housekeeper = "",
                                 normalizationMethod = "robustscale"
                               ){
+                                if(!reference %in% unique(annotation$Condition)){
+                                  stop("wrong reference :" , reference, " in conditions: ", paste(unique(annotation$Condition), collapse=","))
+                                }
                                 .self$projectName <- projectName
                                 .self$experimentName <- experimentName
                                 stopifnot(annotationCol %in% colnames(annotation))
