@@ -19,8 +19,6 @@ AnalysisTableAnnotation <- R6Class("AnalysisTableAnnotation",
                                      factors = list(), # ordering is important - first is considered the main
                                      sampleName = "sampleName",
 
-
-
                                      startIntensity = NULL,
                                      workIntensity = NULL, # could be list with names and functions
 
@@ -46,6 +44,15 @@ AnalysisTableAnnotation <- R6Class("AnalysisTableAnnotation",
                                          self$sampleName)
                                        return(idVars)
                                      },
+                                     idVars2 = function(){
+                                       idVars <- c(
+                                         self$fileName,
+                                         names(self$factors),
+                                         names(self$hierarchy),
+                                         self$isotopeLabel,
+                                         self$sampleName)
+                                       return(idVars)
+                                     },
                                      valueVars = function(){
                                        c(self$startIntensity, self$workIntensity, self$qValue)
                                      }
@@ -64,6 +71,8 @@ AnalysisConfiguration <- R6Class("AnalysisConfiguration",
                                    }
                                  )
 )
+
+
 
 
 R6extractValues <- function(r6class){
@@ -101,6 +110,9 @@ craeteSkylineConfiguration <- function(isotopeLabel="Isotope.Label", qValue="ann
   configuration <- AnalysisConfiguration$new(atable, anaparam)
 }
 
+#'
+#'@export
+#'
 setupDataFrame <- function(data, configuration ,sep="~"){
   table <- configuration$table
 
@@ -135,6 +147,7 @@ setupDataFrame <- function(data, configuration ,sep="~"){
   data <- complete( data , nesting(!!!syms(c(names(table$hierarchy), table$isotopeLabel))),
                     nesting(!!!syms(c( table$fileName , table$sampleName, names(table$factors) ))))
 
+  data <- data %>% select(c(config$table$idVars2(),config$table$valueVars()))
   attributes(data)$configuration <- configuration
   return( data )
 }
@@ -356,7 +369,7 @@ missingPerCondition <- function(x, configuration, nrfactors = 1){
 spreadValueVarsIsotopeLabel <- function(resData, configuration){
   table <- configuration$table
   idVars <- table$idVars()
-  resData2 <- resData %>% select(c(table$idVars(), table$valueVars()) ) #%>%
+  resData2 <- resData %>% select(c(table$idVars(), table$valueVars()) )
   resData2 <- resData2 %>% gather(variable, value, - idVars  )
   resData2 <- resData2 %>%  unite(temp, table$isotopeLabel, variable )
   HLData <- resData2 %>% spread(temp,value)
