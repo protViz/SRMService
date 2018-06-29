@@ -10,8 +10,11 @@ setup_analysis(data, configuration, sep = "~")
 Extracts columns relevant for a configuration from a data frame
 }
 \examples{
+
 skylineconfig <- craeteSkylineConfiguration(isotopeLabel="Isotope.Label.Type", qValue="Detection.Q.Value")
 skylineconfig$table$factors[["Time"]] = "Sampling.Time.Point"
-resData <- setupDataFrame(skylineData, skylineconfig)
+data(skylinePRMSampleData)
+
+resData <- setup_analysis(skylinePRMSampleData, skylineconfig)
 
 }

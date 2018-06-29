@@ -89,7 +89,8 @@ R6extractValues <- function(r6class){
   return(res)
 }
 
-
+#' This function sets up an example configuration
+#' @export
 craeteSkylineConfiguration <- function(isotopeLabel="Isotope.Label", qValue="annotation_QValue"){
   atable <- AnalysisTableAnnotation$new()
   atable$fileName = "Replicate.Name"
@@ -121,9 +122,12 @@ setupDataFrame <- function(data, configuration ,sep="~"){
 #' Extracts columns relevant for a configuration from a data frame
 #' @export
 #' @examples
+#'
 #' skylineconfig <- craeteSkylineConfiguration(isotopeLabel="Isotope.Label.Type", qValue="Detection.Q.Value")
 #' skylineconfig$table$factors[["Time"]] = "Sampling.Time.Point"
-#' resData <- setupDataFrame(skylineData, skylineconfig)
+#' data(skylinePRMSampleData)
+#'
+#' resData <- setup_analysis(skylinePRMSampleData, skylineconfig)
 #'
 setup_analysis <- function(data, configuration ,sep="~"){
   table <- configuration$table
