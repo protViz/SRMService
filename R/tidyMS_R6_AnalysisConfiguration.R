@@ -127,7 +127,7 @@ setupDataFrame <- function(data, configuration ,sep="~"){
 #' skylineconfig$table$factors[["Time"]] = "Sampling.Time.Point"
 #' data(skylinePRMSampleData)
 #'
-#' resData <- setup_analysis(skylinePRMSampleData, skylineconfig)
+#' sample_config <- setup_analysis(skylinePRMSampleData, skylineconfig)
 #'
 setup_analysis <- function(data, configuration ,sep="~"){
   table <- configuration$table
@@ -219,6 +219,10 @@ linePlotHierarchy_default <- function(data,
 }
 
 #' extracts the relevant information from the configuration to make the plot.
+#' @export
+#' @examples
+#' data(sample_config)
+#' linePlotHierarchy_configuration(sample_config)
 linePlotHierarchy_configuration <- function(res, proteinName, configuration, separate=FALSE){
   rev_hnames <- rev(names(configuration$table$hierarchy))
   res <- linePlotHierarchy_default(res, proteinName = proteinName,

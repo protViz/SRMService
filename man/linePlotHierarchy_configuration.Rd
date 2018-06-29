@@ -10,3 +10,7 @@ linePlotHierarchy_configuration(res, proteinName, configuration,
 \description{
 extracts the relevant information from the configuration to make the plot.
 }
+\examples{
+data(sample_config)
+
+}
