@@ -110,9 +110,22 @@ craeteSkylineConfiguration <- function(isotopeLabel="Isotope.Label", qValue="ann
   configuration <- AnalysisConfiguration$new(atable, anaparam)
 }
 
-#' Extracts columns relevant for a configuration from a data frame
-#'@export
+#' Deprecated
+#' @export
 setupDataFrame <- function(data, configuration ,sep="~"){
+  warning("DEPRECATED replace with setup_analysis")
+  res <- setup_analysis(data, configuration, sep)
+  return(res)
+}
+
+#' Extracts columns relevant for a configuration from a data frame
+#' @export
+#' @examples
+#' skylineconfig <- craeteSkylineConfiguration(isotopeLabel="Isotope.Label.Type", qValue="Detection.Q.Value")
+#' skylineconfig$table$factors[["Time"]] = "Sampling.Time.Point"
+#' resData <- setupDataFrame(skylineData, skylineconfig)
+#'
+setup_analysis <- function(data, configuration ,sep="~"){
   table <- configuration$table
 
   for(i in 1:length(table$hierarchy))
