@@ -59,7 +59,6 @@ AnalysisTableAnnotation <- R6Class("AnalysisTableAnnotation",
                                    )
 )
 
-ac <- AnalysisTableAnnotation$new()
 
 AnalysisConfiguration <- R6Class("AnalysisConfiguration",
                                  public = list(
@@ -74,7 +73,8 @@ AnalysisConfiguration <- R6Class("AnalysisConfiguration",
 
 
 
-
+#' helper function to extract all value slots in an R6 object
+#' @export
 R6extractValues <- function(r6class){
   tmp <- sapply(r6class, class)
   slots <- tmp[! tmp %in% c("environment", "function")]
@@ -110,9 +110,8 @@ craeteSkylineConfiguration <- function(isotopeLabel="Isotope.Label", qValue="ann
   configuration <- AnalysisConfiguration$new(atable, anaparam)
 }
 
-#'
+#' Extracts columns relevant for a configuration from a data frame
 #'@export
-#'
 setupDataFrame <- function(data, configuration ,sep="~"){
   table <- configuration$table
 
@@ -144,15 +143,13 @@ setupDataFrame <- function(data, configuration ,sep="~"){
 
   # Make implicit NA's explicit
 
+  data <- data %>% select(c(configuration$table$idVars2(),configuration$table$valueVars()))
   data <- complete( data , nesting(!!!syms(c(names(table$hierarchy), table$isotopeLabel))),
                     nesting(!!!syms(c( table$fileName , table$sampleName, names(table$factors) ))))
 
-  data <- data %>% select(c(config$table$idVars2(),config$table$valueVars()))
   attributes(data)$configuration <- configuration
   return( data )
 }
-
-
 
 
 #' Plot peptide and fragments
