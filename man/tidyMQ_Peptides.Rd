@@ -7,7 +7,7 @@
 tidyMQ_Peptides(MQPeptides)
 }
 \arguments{
-\item{MQPeptides}{data.frame generated with read.csv("peptide.txt",sep="\t", stringsAsFactors=FALSE)}
+\item{MQPeptides}{data.frame generated with read.csv("peptide.txt",sep="\\t", stringsAsFactors=FALSE)}
 }
 \description{
 parse MQ peptides.txt

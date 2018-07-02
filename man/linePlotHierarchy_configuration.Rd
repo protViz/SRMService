@@ -12,5 +12,5 @@ extracts the relevant information from the configuration to make the plot.
 }
 \examples{
 data(sample_config)
-
+linePlotHierarchy_configuration(sample_config)
 }

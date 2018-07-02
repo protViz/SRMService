@@ -2,10 +2,10 @@
 % Please edit documentation in R/tidyMS_R6_AnalysisConfiguration.R
 \name{R6extractValues}
 \alias{R6extractValues}
-\title{helper function to extract all value slots in an R6 object}
+\title{Helper function to extract all value slots in an R6 object}
 \usage{
 R6extractValues(r6class)
 }
 \description{
-helper function to extract all value slots in an R6 object
+Helper function to extract all value slots in an R6 object
 }

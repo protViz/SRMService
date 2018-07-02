@@ -1,0 +1,55 @@
+---
+title: "SRMReport"
+author: "FGCZ"
+date: "`r Sys.Date()`"
+output:
+  pdf_document: default
+  html_document: default
+params:
+  configuration: 0
+  data: 0
+---
+
+```{r setup, include=FALSE}
+library(tidyverse)
+library(SRMService)
+
+knitr::opts_chunk$set(echo = FALSE, message=FALSE)
+```
+
+## Summarize levels
+
+```{r hierarchyCounts}
+
+x <- hierarchyCounts( params$data , params$configuration )
+knitr::kable(data.frame(NR = x), caption="summary")
+
+```
+
+
+```{r proteinSummaries}
+x2 <- summarizeProteins(params$data, params$configuration)
+x3 <- summarizeHierarchy(params$data, params$configuration)
+tmp <- inner_join(x3, x2)
+tmp <- tmp %>% select(-c(starts_with("min"), starts_with("max")))
+knitr::kable(tmp, caption="Protein Summaries")
+
+```
+
+
+```{r missingFigIntensityHistorgram, fig.cap="histogram of mean condition intensities per transition"}
+missignessHistogram(params$data, params$configuration)
+```
+
+
+```{r missingFigBarplot, fig.cap = "nr of missing"}
+xx <- missingPerCondition(params$data, params$configuration)
+xx$figure
+```
+
+
+
+```{r missingFigBarplotCumsum, fig.cap="cumulative sum of missing"}
+xx <- missingPerConditionCumsum(params$data, params$configuration)
+xx$figure
+```

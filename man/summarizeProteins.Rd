@@ -2,10 +2,12 @@
 % Please edit documentation in R/tidyMS_R6_AnalysisConfiguration.R
 \name{summarizeProteins}
 \alias{summarizeProteins}
-\title{Light only version.}
+\title{Light only version.
+Summarize Protein counts}
 \usage{
 summarizeProteins(x, configuration)
 }
 \description{
 Light only version.
+Summarize Protein counts
 }

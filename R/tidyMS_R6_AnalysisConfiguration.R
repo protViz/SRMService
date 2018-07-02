@@ -10,41 +10,35 @@ AnalysisParameters <- R6::R6Class("AnalysisParameters",
                                   )
 )
 
-#anaparam <- AnalysisParameters$new()
-#anaparam$maxQValue_Threshold <- "tmp"
 
+#' Create Annotation
+#' @export
 AnalysisTableAnnotation <- R6Class("AnalysisTableAnnotation",
                                    public = list(
                                      fileName = NULL,
                                      factors = list(), # ordering is important - first is considered the main
                                      sampleName = "sampleName",
-
                                      startIntensity = NULL,
                                      workIntensity = NULL, # could be list with names and functions
-
-
                                      retentionTime = NULL,
                                      qValue = character(),
-
                                      # measurement levels
                                      hierarchy = list(),
-
                                      isotopeLabel = character(),
-                                     initialize = function(fileName="tmp"){
-                                       self$fileName = fileName
+                                     initialize = function(){
                                      },
-                                     idVars = function(){
+                                     idRequired = function(){
+                                       "Id Columns which must be in the input data frame"
                                        idVars <- c(
                                          self$fileName,
-                                         names(self$factors),
                                          unlist(self$factors),
-                                         names(self$hierarchy),
                                          unlist(self$hierarchy),
-                                         self$isotopeLabel,
-                                         self$sampleName)
+                                         self$isotopeLabel
+                                         )
                                        return(idVars)
                                      },
-                                     idVars2 = function(){
+                                     idVars = function(){
+                                       "Id Columns which must be in the output data frame"
                                        idVars <- c(
                                          self$fileName,
                                          names(self$factors),
@@ -54,6 +48,7 @@ AnalysisTableAnnotation <- R6Class("AnalysisTableAnnotation",
                                        return(idVars)
                                      },
                                      valueVars = function(){
+                                       "Columns containing values"
                                        c(self$startIntensity, self$workIntensity, self$qValue)
                                      }
                                    )
@@ -73,7 +68,7 @@ AnalysisConfiguration <- R6Class("AnalysisConfiguration",
 
 
 
-#' helper function to extract all value slots in an R6 object
+#' Helper function to extract all value slots in an R6 object
 #' @export
 R6extractValues <- function(r6class){
   tmp <- sapply(r6class, class)
@@ -91,6 +86,9 @@ R6extractValues <- function(r6class){
 
 #' This function sets up an example configuration
 #' @export
+#' @examples
+#' config <- craeteSkylineConfiguration()
+#' skylineconfig$table$factors[["Time"]] = "Sampling.Time.Point"
 craeteSkylineConfiguration <- function(isotopeLabel="Isotope.Label", qValue="annotation_QValue"){
   atable <- AnalysisTableAnnotation$new()
   atable$fileName = "Replicate.Name"
@@ -127,7 +125,7 @@ setupDataFrame <- function(data, configuration ,sep="~"){
 #' skylineconfig$table$factors[["Time"]] = "Sampling.Time.Point"
 #' data(skylinePRMSampleData)
 #'
-#' sample_config <- setup_analysis(skylinePRMSampleData, skylineconfig)
+#' sample_analysis <- setup_analysis(skylinePRMSampleData, skylineconfig)
 #'
 setup_analysis <- function(data, configuration ,sep="~"){
   table <- configuration$table
@@ -160,7 +158,7 @@ setup_analysis <- function(data, configuration ,sep="~"){
 
   # Make implicit NA's explicit
 
-  data <- data %>% select(c(configuration$table$idVars2(),configuration$table$valueVars()))
+  data <- data %>% select(c(configuration$table$idVars(),configuration$table$valueVars()))
   data <- complete( data , nesting(!!!syms(c(names(table$hierarchy), table$isotopeLabel))),
                     nesting(!!!syms(c( table$fileName , table$sampleName, names(table$factors) ))))
 
@@ -250,19 +248,28 @@ linePlotHierarchy_QuantLine <- function(p, data, aes_y,  configuration){
                aes_string(x = table$sampleName , y = aes_y, group=1), color="black", shape=10)
 }
 
-
-summarizeProtPepPrecursorFragCounts <- function(x, configuration){
+#' Count distinct elements for each level of hierarchy
+#'
+#' @export
+#' @examples
+#' library(SRMService)
+#' skylineconfig <- craeteSkylineConfiguration(isotopeLabel="Isotope.Label.Type", qValue="Detection.Q.Value")
+#' skylineconfig$table$factors[["Time"]] = "Sampling.Time.Point"
+#' data(skylinePRMSampleData)
+#'
+#' sample_analysis <- setup_analysis(skylinePRMSampleData, skylineconfig)
+#' summarizeProtPepPrecursorFragCounts(sample_analysis, skylineconfig)
+hierarchyCounts <- function(x, configuration){
   hierarchy <- names( configuration$table$hierarchy )
   res <- x %>% group_by_at(configuration$table$isotopeLabel) %>% summarise_at( hierarchy, n_distinct )
 }
 
 
-
-
 #' Light only version.
+#' Summarize Protein counts
+#' @export
 summarizeProteins <- function(x, configuration ){
   rev_hierarchy <- rev(names(configuration$table$hierarchy))
-  print(rev_hierarchy)
 
   precursorSum <- x %>% select(rev_hierarchy) %>% distinct() %>%
     group_by_at(rev_hierarchy[-1]) %>%
@@ -278,22 +285,40 @@ summarizeProteins <- function(x, configuration ){
     summarize(nrpeptides = n(),
               minNrPrecursors = min(nrPrecursors),
               maxNrPrecursors = max(nrPrecursors),
-              maxNRFragments = max(maxNrFragments),
-              minNrFragments= min(minNrFragments))
+              minNrFragments= min(minNrFragments),
+              maxNrFragments = max(maxNrFragments)
+              )
   proteinPeptide <- proteinSum %>% tidyr::unite(Precursors ,minNrPrecursors , maxNrPrecursors, sep="-", remove=FALSE)
-  proteinPeptide <- proteinPeptide %>% tidyr::unite(Fragments ,minNrFragments , maxNRFragments, sep="-", remove=FALSE)
+  proteinPeptide <- proteinPeptide %>% tidyr::unite(Fragments ,minNrFragments , maxNrFragments, sep="-", remove=FALSE)
   return(proteinPeptide)
 }
-
-summarizeProteinsCounts <- function(x, configuration)
+#' Summarize peptide Counts
+#' @export
+#' @examples
+#' library(SRMService)
+#' skylineconfig <- craeteSkylineConfiguration(isotopeLabel="Isotope.Label.Type", qValue="Detection.Q.Value")
+#' skylineconfig$table$factors[["Time"]] = "Sampling.Time.Point"
+#' data(skylinePRMSampleData)
+#'
+#' sample_analysis <- setup_analysis(skylinePRMSampleData, skylineconfig)
+#' summarizeHierarchy(sample_analysis, skylineconfig)
+#' summarizeHierarchy(sample_analysis, skylineconfig, level =2 )
+#' summarizeHierarchy(sample_analysis, skylineconfig, level =3 )
+#' summarizeHierarchy(sample_analysis, skylineconfig, level =4 )
+summarizeHierarchy <- function(x, configuration, level = 1)
 {
-  rev_hierarchy <- rev( names( configuration$table$hierarchy ))
   hierarchy <- names(configuration$table$hierarchy)
-  precursor <- x %>% select(rev_hierarchy) %>% distinct()
-  x3<-precursor %>% group_by_at(hierarchy[1]) %>% summarize_at( hierarchy[-1], n_distinct)
+  print(length(hierarchy))
+  if(length(hierarchy) <= level){
+    warning("There is less hierarchy levels than : ", level)
+    return(NULL)
+  }
+
+  hierarchy <- hierarchy[level:length(hierarchy)]
+  precursor <- x %>% select(hierarchy) %>% distinct()
+  x3 <- precursor %>% group_by_at(hierarchy[1]) %>% summarize_at( hierarchy[-1], n_distinct)
   return(x3)
 }
-
 
 getMissingStats <- function(x, configuration, nrfactors = 1){
   table <- configuration$table
@@ -309,7 +334,9 @@ getMissingStats <- function(x, configuration, nrfactors = 1){
   missingPrec
 }
 
-
+#' Histogram summarizing missigness
+#' @export
+#'
 missignessHistogram <- function(x, configuration, showempty = TRUE, nrfactors = 1){
   table <- configuration$table
   missingPrec <- getMissingStats(x, configuration,nrfactors)
@@ -342,7 +369,9 @@ missignessHistogram <- function(x, configuration, showempty = TRUE, nrfactors = 
   p
 }
 
-
+#' cumulative sums of missing
+#' @export
+#'
 missingPerConditionCumsum <- function(x,configuration,nrfactors = 1){
   table <- configuration$table
   missingPrec <- getMissingStats(x, configuration,nrfactors)
@@ -363,7 +392,8 @@ missingPerConditionCumsum <- function(x,configuration,nrfactors = 1){
   return(list(data =res, figure=p))
 }
 
-
+#' Summarize missing in condtion as barplot
+#' @export
 missingPerCondition <- function(x, configuration, nrfactors = 1){
   table <- configuration$table
   missingPrec <- getMissingStats(x, configuration, nrfactors)

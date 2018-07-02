@@ -10,3 +10,7 @@ craeteSkylineConfiguration(isotopeLabel = "Isotope.Label",
 \description{
 This function sets up an example configuration
 }
+\examples{
+config <- craeteSkylineConfiguration()
+skylineconfig$table$factors[["Time"]] = "Sampling.Time.Point"
+}

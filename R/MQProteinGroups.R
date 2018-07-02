@@ -1,6 +1,6 @@
 #' extract intensities and annotations from MQ proteinGroups.txt
 #' @export
-#' @param MQProteinGroups data.frame generated with read.csv("peptide.txt",sep="\t", stringsAsFactors=FALSE)
+#' @param MQProteinGroups data.frame generated with read.csv("peptide.txt",sep="\\t", stringsAsFactors=FALSE)
 #'
 tidyMQ_ProteinGroups <- function(MQProteinGroups){
   pint <- select(MQProteinGroups, "Protein.group.Id" = "id", starts_with("Intensity."))
@@ -28,7 +28,7 @@ tidyMQ_ProteinGroups <- function(MQProteinGroups){
 
 #' parse MQ peptides.txt
 #' @export
-#' @param MQPeptides data.frame generated with read.csv("peptide.txt",sep="\t", stringsAsFactors=FALSE)
+#' @param MQPeptides data.frame generated with read.csv("peptide.txt",sep="\\t", stringsAsFactors=FALSE)
 #'
 tidyMQ_Peptides <- function(MQPeptides){
   pint <- select(MQPeptides,"Peptides.Id"= "id", starts_with("Intensity."))
