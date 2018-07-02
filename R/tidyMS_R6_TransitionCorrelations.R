@@ -1,30 +1,3 @@
-getConfig <- function(x){ attr(x,"configuration") }
-setConfig <- function(x, config){ attributes(x)$configuration <- config; return(x) }
-config_col_map <- function(x){ attr(x,"configuration")$required }
-config_parameters <- function(x){ attr(x,"configuration")$parameters }
-
-setupDataFrame <- function(data, configuration){
-  required <- unique(unlist(configuration$required))
-  longF <- select(data,  required)
-  longF <- longF %>% unite(".PrecursorId", configuration$required$PrecursorId, remove = FALSE, sep=".")
-  longF <- longF %>% unite(".SampleLabel", configuration$required$Factors, remove = FALSE, sep="_")
-  configuration$.SampleLabel <- ".SampleLabel"
-  configuration$.PrecursorId <- ".PrecursorId"
-
-  message("Added Columns : .SampleLabel, .PrecursorId")
-  attributes(longF)$configuration <- configuration
-  return(longF)
-}
-
-summarizeCounts <- function(data){
-  required <- getConfig(data)$required
-  precursor <- unique(subset(data, select = required$PrecursorId))
-  peptide <- unique(subset(data, select = required$PeptideId))
-  protein <- unique(subset(data, select = required$ProteinId))
-  list(nrprecursor = nrow(precursor), nrpeptide = nrow(peptide), nrproteins= nrow(protein ))
-}
-
-
 setIntensitiesToNA <- function(data,
                                threshold = config_parameters(data)$maxQValue_Threshold,
                                QValueColumn = config_col_map(data)$QValue,

@@ -4,50 +4,15 @@ library(readxl)
 library(rlang)
 library(yaml)
 
-data = 2
-if(data == 0){
-  annotation <- read_excel(path="3DLiver_Isoniazid_Annotation.xlsx")
-  colnames(annotation) <- make.names(colnames(annotation))
-  skylineDataX <- read.csv("QuantificationPRM_3DLiver_Isoniazid_20180320_NSK.csv", stringsAsFactors = FALSE)
-  outdir = "outdir_3DLiver_Isoniazid"
-}else if(data == 1){
-  annotation <- read_excel(path="3DLiver_Cyclosporin_Annotation.xlsx")
-  colnames(annotation) <- make.names(colnames(annotation))
-  skylineDataX <- read.csv("QuantificationPRM_3DLiver_Cyclosporin_20180417_NSK.csv", stringsAsFactors = FALSE)
-  outdir = "outdir_3DLiver_Cyclosporin"
-}else if(data == 2){
-  annotation <- read_excel(path="3DLiver_ValproicAcid_Annotation.xlsx")
-  colnames(annotation) <- make.names(colnames(annotation))
-  skylineDataX <- read.csv("QuantificationPRM_3DLiver_ValproicAcid_20180618_NSK.csv", stringsAsFactors = FALSE)
-  outdir = "outdir_3DLiver_ValproicAcid"
-}
 
-if(!dir.exists(outdir)){
-  dir.create(outdir)
-}
+outdir <- tempdir()
 
-skylineData <- inner_join(skylineDataX, annotation, by = c("Replicate.Name"= "Raw.file_PRM"))
-
-length(unique(annotation$Raw.file_PRM))
-length(unique(skylineDataX$Replicate.Name))
-length(unique(skylineData$Replicate.Name))
-skylineData %>% select(Sampling.Time.Point, Replicate.Name) %>% distinct() %>% arrange(Sampling.Time.Point)
-
-source("c:/Users/wolski/prog/SRMService/R/tidyMS_R6_AnalysisConfiguration.R")
+data(skylinePRMSampleData)
 
 skylineconfig <- craeteSkylineConfiguration(isotopeLabel="Isotope.Label.Type", qValue="Detection.Q.Value")
 skylineconfig$table$factors[["Time"]] = "Sampling.Time.Point"
 
-table <- skylineconfig$table
-
-tt <- R6extractValues(skylineconfig)
-write_yaml(tt, file="testSkyline.yml")
-
-library(usethis)
-
-saveRDS(skylineData,file = "c:/Users/wolski/prog/SRMService/inst/skylineData.rda")
-head(skylineData)
-resData <- setupDataFrame(skylineData, skylineconfig)
+resData <- setup_analysis(skylinePRMSampleData, skylineconfig)
 
 xx <- unique(resData$Time)
 xxord <- order(as.numeric(gsub("T","",xx)))
@@ -68,13 +33,6 @@ if(1){
   invisible(lapply(figs$plot, print))
   dev.off()
 }
-
-rmarkdown::render("SRMReport.Rmd", output_format = "html_document", params = list(data = resData, configuration = skylineconfig),envir = new.env())
-file.copy("SRMReport.html",outdir )
-file.remove("SRMReport.html")
-rmarkdown::render("SRMReport.Rmd", output_format = "pdf_document", params = list(data = resData, configuration = skylineconfig),envir = new.env())
-file.copy("SRMReport.pdf",outdir )
-file.remove("SRMReport.pdf")
 
 resDataLog <- resData %>% mutate(log2Area = log2(Area))
 skylineconfig$table$workIntensity = "log2Area"

@@ -10,7 +10,6 @@ AnalysisParameters <- R6::R6Class("AnalysisParameters",
                                   )
 )
 
-
 #' Create Annotation
 #' @export
 AnalysisTableAnnotation <- R6Class("AnalysisTableAnnotation",
