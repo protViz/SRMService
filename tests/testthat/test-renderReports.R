@@ -24,11 +24,10 @@ test_that("render TR_SRM_Summary", {
   }
 })
 
+test_that("source Run Tidy analysis", {
 
-test_that("check config", {
-  config <- craeteSkylineConfiguration()
-  config$table$factors[["Time"]] = "Sampling.Time.Point"
-  config$table$factorKeys()
-  config$table$hierarchyKeys()
-}
-})
+  reportFile <- file.path(packagedir, "inst" , "RunScripts" , "Run_TidyAnalysis_Skyline_PRM.R")
+  source(reportFile)
+  expect_known_output(file.path(outdir,"allProteinsOnePlot.pdf"))
+  })
+
