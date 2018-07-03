@@ -1,0 +1,30 @@
+---
+title: "Introduction to SRM Service"
+author: "Witold Wolski @ FGCZ"
+date: "`r Sys.Date()`"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Introduction to SRM Service}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+
+
+```{r eval=FALSE}
+rm(list=ls())
+data("sample_analysis")
+data("skylineconfig")
+pp<-path.package("SRMService")
+to_render <-file.path(path.package("SRMService"),"doc","tr_srm_summary.Rmd")
+file.exists(to_render)
+params = list(data=sample_analysis, configuration=skylineconfig)
+rmarkdown::render(to_render, params = list(data=sample_analysis, configuration=skylineconfig))
+```

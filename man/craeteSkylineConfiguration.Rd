@@ -11,6 +11,11 @@ craeteSkylineConfiguration(isotopeLabel = "Isotope.Label",
 This function sets up an example configuration
 }
 \examples{
-config <- craeteSkylineConfiguration()
+skylineconfig <- craeteSkylineConfiguration()
 skylineconfig$table$factors[["Time"]] = "Sampling.Time.Point"
+skylineconfig$table$factorKeys()
+skylineconfig$table$hierarchyKeys()
+# ACHTUNG ##
+# when making changes to this object you need to regenerate the data.
+# usethis::use_data(skylineconfig, overwrite = TRUE)
 }

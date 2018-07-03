@@ -37,11 +37,11 @@ AnalysisTableAnnotation <- R6Class("AnalysisTableAnnotation",
                                        return(idVars)
                                      },
                                      hierarchyKeys = function(){
-                                        names(self$hierarchy)
+                                       return(names(self$hierarchy))
                                      },
                                      factorKeys = function(){
-                                       names(self$factors)
-                                     }
+                                       return(names(self$factors))
+                                     },
                                      idVars = function(){
                                        "Id Columns which must be in the output data frame"
                                        idVars <- c(
@@ -92,8 +92,13 @@ R6extractValues <- function(r6class){
 #' This function sets up an example configuration
 #' @export
 #' @examples
-#' config <- craeteSkylineConfiguration()
+#' skylineconfig <- craeteSkylineConfiguration()
 #' skylineconfig$table$factors[["Time"]] = "Sampling.Time.Point"
+#' skylineconfig$table$factorKeys()
+#' skylineconfig$table$hierarchyKeys()
+#' # ACHTUNG ##
+#' # when making changes to this object you need to regenerate the data.
+#' # usethis::use_data(skylineconfig, overwrite = TRUE)
 craeteSkylineConfiguration <- function(isotopeLabel="Isotope.Label", qValue="annotation_QValue"){
   atable <- AnalysisTableAnnotation$new()
   atable$fileName = "Replicate.Name"
@@ -143,7 +148,7 @@ setup_analysis <- function(data, configuration ,sep="~"){
 
   for(i in 1:length(table$factors))
   {
-    data <- unite(data, UQ(sym(names(table$factors)[i])), table$factors[[i]],remove = FALSE)
+    data <- unite(data, UQ(sym(table$factorKeys()[i])), table$factors[[i]],remove = FALSE)
   }
 
   sampleName <- table$sampleName
@@ -159,13 +164,13 @@ setup_analysis <- function(data, configuration ,sep="~"){
     warning(sampleName, " already exists")
   }
 
-  data <- data %>% select(-one_of(setdiff(unlist(table$factors), names(table$factors))))
+  data <- data %>% select(-one_of(setdiff(unlist(table$factors), table$factorKeys())))
 
   # Make implicit NA's explicit
 
   data <- data %>% select(c(configuration$table$idVars(),configuration$table$valueVars()))
   data <- complete( data , nesting(!!!syms(c(table$hierarchyKeys(), table$isotopeLabel))),
-                    nesting(!!!syms(c( table$fileName , table$sampleName, names(table$factors) ))))
+                    nesting(!!!syms(c( table$fileName , table$sampleName, table$factorKeys() ))))
 
   attributes(data)$configuration <- configuration
   return( data )
@@ -327,7 +332,7 @@ summarizeHierarchy <- function(x, configuration, level = 1)
 
 getMissingStats <- function(x, configuration, nrfactors = 1){
   table <- configuration$table
-  factors <- head(names(table$factors), nrfactors)
+  factors <- head(table$factorKeys(), nrfactors)
   missingPrec <- x %>% group_by_at(c(factors,
                                      table$hierarchyKeys()[1],
                                      tail(table$hierarchyKeys(),1),
@@ -357,7 +362,7 @@ missignessHistogram <- function(x, configuration, showempty = TRUE, nrfactors = 
 
   }
 
-  factors <- head(names(table$factors), nrfactors)
+  factors <- head(table$factorKeys(), nrfactors)
 
   formula <- paste(table$isotopeLabel, "~", paste(factors, collapse = "+"))
   message(formula)
@@ -380,7 +385,7 @@ missignessHistogram <- function(x, configuration, showempty = TRUE, nrfactors = 
 missingPerConditionCumsum <- function(x,configuration,nrfactors = 1){
   table <- configuration$table
   missingPrec <- getMissingStats(x, configuration,nrfactors)
-  factors <- head(names(table$factors), nrfactors)
+  factors <- head(table$factorKeys(), nrfactors)
 
   xx <-missingPrec %>% group_by_at(c(table$isotopeLabel, factors,"nrNAs","nrReplicates")) %>%
     summarize(nrTransitions =n())
@@ -402,7 +407,7 @@ missingPerConditionCumsum <- function(x,configuration,nrfactors = 1){
 missingPerCondition <- function(x, configuration, nrfactors = 1){
   table <- configuration$table
   missingPrec <- getMissingStats(x, configuration, nrfactors)
-  factors <- head(names(table$factors), nrfactors)
+  factors <- head(table$factorKeys(), nrfactors)
 
   xx <-missingPrec %>% group_by_at(c(table$isotopeLabel,
                                      factors,"nrNAs","nrReplicates")) %>%
@@ -467,7 +472,7 @@ reestablishCondition <- function(data,
 ){
   table <- configuration$table
   xx <- data %>%  select(c(table$sampleName,
-                           names(table$factors), table$fileName)) %>% distinct()
+                           table$factorKeys(), table$fileName)) %>% distinct()
 
   res <- inner_join(xx,medpolishRes, by=table$sampleName)
   res

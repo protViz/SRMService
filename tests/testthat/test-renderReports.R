@@ -23,3 +23,12 @@ test_that("render TR_SRM_Summary", {
 
   }
 })
+
+
+test_that("check config", {
+  config <- craeteSkylineConfiguration()
+  config$table$factors[["Time"]] = "Sampling.Time.Point"
+  config$table$factorKeys()
+  config$table$hierarchyKeys()
+}
+})
