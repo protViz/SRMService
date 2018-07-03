@@ -1,19 +1,20 @@
 ---
-title: "Vignette Title"
+title: "Summarize Peptide Level Measurements"
 author: "WEW@FGCZ.ETHZ.CH"
 date: "`r Sys.Date()`"
 output:
-  rmarkdown::html_vignette:
-    fig_caption: yes
-vignette: >
-  %\VignetteIndexEntry{Vignette Title}
-  %\VignetteEngine{knitr::rmarkdown}
-  %\VignetteEncoding{UTF-8}
+  pdf_document: default
+  html_document: default
 params:
   configuration:  !r get(data(skylineconfig))
   data: !r get(data(sample_analysis))
-
+vignette: >
+  %\VignetteIndexEntry{Summarize Peptide Level Measurements}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
 ---
+
+
 
 ```{r setup, include=FALSE}
 library(tidyverse)
