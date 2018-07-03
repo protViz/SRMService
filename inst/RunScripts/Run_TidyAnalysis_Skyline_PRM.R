@@ -18,7 +18,6 @@ xx <- unique(resData$Time)
 xxord <- order(as.numeric(gsub("T","",xx)))
 
 resData$Time <- parse_factor(resData$Time, unique(resData$Time)[xxord])
-
 resData$Area[resData$Area == 0] <- NA
 
 

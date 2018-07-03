@@ -1,13 +1,18 @@
 ---
-title: "SRMReport"
-author: "FGCZ"
+title: "Vignette Title"
+author: "WEW@FGCZ.ETHZ.CH"
 date: "`r Sys.Date()`"
 output:
-  pdf_document: default
-  html_document: default
+  rmarkdown::html_vignette:
+    fig_caption: yes
+vignette: >
+  %\VignetteIndexEntry{Vignette Title}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
 params:
   configuration:  !r get(data(skylineconfig))
   data: !r get(data(sample_analysis))
+
 ---
 
 ```{r setup, include=FALSE}

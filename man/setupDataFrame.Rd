@@ -4,7 +4,7 @@
 \alias{setupDataFrame}
 \title{Deprecated}
 \usage{
-setupDataFrame(data, configuration)
+setupDataFrame(data, configuration, sep = "~")
 }
 \description{
 Deprecated

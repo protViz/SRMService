@@ -56,4 +56,7 @@ Collate:
     'tidyMS_R6_AnalysisConfiguration.R'
     'tidyMS_R6_TransitionCorrelations.R'
     'zzz.R'
-Suggests: testthat
+Suggests: 
+    testthat,
+    knitr
+VignetteBuilder: knitr

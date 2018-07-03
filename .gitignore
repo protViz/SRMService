@@ -1,3 +1,4 @@
+inst/doc
 .Rproj.user/
 .Rproj.user
 .Rhistory
@@ -12,6 +13,4 @@ inst/samples/maxquant_txt/MSQC1/*.aux
 inst/samples/maxquant_txt/MSQC1/*.Rnw
 inst/samples/maxquant_txt/MSQC1/Sweave.sty
 inst/samples/maxquant_txt/MSQC1/appliedScaleFactors_Median.txt
-
-
 
