@@ -36,6 +36,12 @@ AnalysisTableAnnotation <- R6Class("AnalysisTableAnnotation",
                                          )
                                        return(idVars)
                                      },
+                                     hierarchyKeys = function(){
+                                        names(self$hierarchy)
+                                     },
+                                     factorKeys = function(){
+                                       names(self$factors)
+                                     }
                                      idVars = function(){
                                        "Id Columns which must be in the output data frame"
                                        idVars <- c(
@@ -131,9 +137,9 @@ setup_analysis <- function(data, configuration ,sep="~"){
 
   for(i in 1:length(table$hierarchy))
   {
-    data <- unite(data, UQ(sym(names(table$hierarchy)[i])), table$hierarchy[[i]],remove = FALSE)
+    data <- unite(data, UQ(sym(table$hierarchyKeys()[i])), table$hierarchy[[i]],remove = FALSE)
   }
-  data <- select(data , -one_of(setdiff(unlist(table$hierarchy), names(table$hierarchy))))
+  data <- select(data , -one_of(setdiff(unlist(table$hierarchy), table$hierarchyKeys() )))
 
   for(i in 1:length(table$factors))
   {
@@ -158,7 +164,7 @@ setup_analysis <- function(data, configuration ,sep="~"){
   # Make implicit NA's explicit
 
   data <- data %>% select(c(configuration$table$idVars(),configuration$table$valueVars()))
-  data <- complete( data , nesting(!!!syms(c(names(table$hierarchy), table$isotopeLabel))),
+  data <- complete( data , nesting(!!!syms(c(table$hierarchyKeys(), table$isotopeLabel))),
                     nesting(!!!syms(c( table$fileName , table$sampleName, names(table$factors) ))))
 
   attributes(data)$configuration <- configuration
@@ -323,8 +329,8 @@ getMissingStats <- function(x, configuration, nrfactors = 1){
   table <- configuration$table
   factors <- head(names(table$factors), nrfactors)
   missingPrec <- x %>% group_by_at(c(factors,
-                                     names(table$hierarchy)[1],
-                                     tail(names(table$hierarchy),1),
+                                     table$hierarchyKeys()[1],
+                                     tail(table$hierarchyKeys(),1),
                                      table$isotopeLabel
   )) %>%
     summarize(nrReplicates = n(), nrNAs = sum(is.na(!!sym(table$workIntensity))) ,
@@ -424,22 +430,26 @@ spreadValueVarsIsotopeLabel <- function(resData, configuration){
 }
 
 
-
-ExtractMatrix <- function(x){
+.ExtractMatrix <- function(x){
   idx <- sapply(x,is.numeric)
   xmat <- as.matrix(x[,idx])
   rownames(xmat) <- x %>% select(which(!idx==TRUE)) %>% unite(x, sep="~") %>% pull(x)
   xmat
 }
 
-
+#' Extract intensity column
+#' @export
+#' @examples
+#' rm(skylineconfig)
+#' xx <- extractIntensities(sample_analysis,skylineconfig)
+#' head(xx)
 extractIntensities <- function(x, configuration){
   table <- configuration$table
   x <- x %>%
     select( c( table$sampleName,
-               rev(names(table$hierarchy))[1],
+               rev(table$hierarchyKeys())[1],
                table$workIntensity) ) %>%
-    spread(table$sampleName, table$workIntensity) %>% ExtractMatrix()
+    spread(table$sampleName, table$workIntensity) %>% .ExtractMatrix()
   return(x)
 }
 
