@@ -26,7 +26,8 @@
 #' #usethis::use_data( skylineconfig_HL , overwrite = TRUE )
 "skylineconfig"
 
-#' A data frame wich goes along with the \link{skylineconfig}.
+#' A data frame wich goes along with the \link{skylineconfig}
+#' and was generate from \link{skylinePRMSampleData}
 #'
 #'
 #' @format A data frame with 53940 rows and 10 variables:
@@ -37,6 +38,7 @@
 #' }
 #' @source \url{http://www.fgcz.ch/}
 #' @examples
+#'
 #' skylineconfig <- craeteSkylineConfiguration(isotopeLabel="Isotope.Label.Type", qValue="Detection.Q.Value")
 #' skylineconfig$table$factors[["Time"]] = "Sampling.Time.Point"
 #' data(skylinePRMSampleData)
