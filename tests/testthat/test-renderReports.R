@@ -28,6 +28,5 @@ test_that("source Run Tidy analysis", {
 
   reportFile <- file.path(packagedir, "inst" , "RunScripts" , "Run_TidyAnalysis_Skyline_PRM.R")
   source(reportFile)
-  expect_known_output(file.path(outdir,"allProteinsOnePlot.pdf"))
   })
 

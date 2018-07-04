@@ -88,8 +88,6 @@ tmp <- function(x){ anova(lm(log2Med_log2MedCiRT ~ Time, data=x)) }
 
 protRez3 <- protRez3 %>% mutate(anova = map( data, tmp))
 protRez3 <- protRez3 %>% mutate(ba = map(anova, broom::tidy))
-#protRez3 %>% select( Protein.Name, ba) %>% unnest()
-#broom::tidy(protRez3$anova)
 
 plotProt <- function(data, title){
   ggplot(data, aes(x = Time, y=log2Med_log2MedCiRT )) +

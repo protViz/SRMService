@@ -144,7 +144,7 @@ setup_analysis <- function(data, configuration ,sep="~"){
   {
     data <- unite(data, UQ(sym(table$hierarchyKeys()[i])), table$hierarchy[[i]],remove = FALSE)
   }
-  data <- select(data , -one_of(setdiff(unlist(table$hierarchy), table$hierarchyKeys() )))
+  data <- select(data , -one_of(dplyr::setdiff(unlist(table$hierarchy), table$hierarchyKeys() )))
 
   for(i in 1:length(table$factors))
   {
@@ -164,7 +164,7 @@ setup_analysis <- function(data, configuration ,sep="~"){
     warning(sampleName, " already exists")
   }
 
-  data <- data %>% select(-one_of(setdiff(unlist(table$factors), table$factorKeys())))
+  data <- data %>% select(-one_of(dplyr::setdiff(unlist(table$factors), table$factorKeys())))
 
   # Make implicit NA's explicit
 
@@ -346,7 +346,11 @@ getMissingStats <- function(x, configuration, nrfactors = 1){
 
 #' Histogram summarizing missigness
 #' @export
-#'
+#' @examples
+#' missignessHistogram(sample_analysis,skylineconfig)
+#' setNa <- function(x){ifelse(x < 100, NA, x)}
+#' sample_analysis %>% mutate(Area = setNa(Area)) -> sample_analysis
+#' missignessHistogram(sample_analysis,skylineconfig)
 missignessHistogram <- function(x, configuration, showempty = TRUE, nrfactors = 1){
   table <- configuration$table
   missingPrec <- getMissingStats(x, configuration,nrfactors)
@@ -381,7 +385,12 @@ missignessHistogram <- function(x, configuration, showempty = TRUE, nrfactors = 
 
 #' cumulative sums of missing
 #' @export
-#'
+#' @examples
+#' setNa <- function(x){ifelse(x < 100, NA, x)}
+#' sample_analysis %>% mutate(Area = setNa(Area)) -> sample_analysis
+#' res <- missingPerConditionCumsum(sample_analysis,skylineconfig)
+#' names(res)
+#' print(res$figure)
 missingPerConditionCumsum <- function(x,configuration,nrfactors = 1){
   table <- configuration$table
   missingPrec <- getMissingStats(x, configuration,nrfactors)
@@ -404,6 +413,12 @@ missingPerConditionCumsum <- function(x,configuration,nrfactors = 1){
 
 #' Summarize missing in condtion as barplot
 #' @export
+#' @example
+#' setNa <- function(x){ifelse(x < 100, NA, x)}
+#' sample_analysis %>% mutate(Area = setNa(Area)) -> sample_analysis
+#' res <- missingPerCondition(sample_analysis,skylineconfig)
+#' names(res)
+#' print(res$figure)
 missingPerCondition <- function(x, configuration, nrfactors = 1){
   table <- configuration$table
   missingPrec <- getMissingStats(x, configuration, nrfactors)
@@ -423,7 +438,12 @@ missingPerCondition <- function(x, configuration, nrfactors = 1){
   return(list(data = xx ,figure = p))
 }
 
-
+#'
+#' @examples
+#' setNa <- function(x){ifelse(x < 100, NA, x)}
+#' sample_analysis %>% mutate(Area = setNa(Area)) -> sample_analysis
+#' x<-spreadValueVarsIsotopeLabel(sample_analysis,skylineconfig)
+#' head(x)
 spreadValueVarsIsotopeLabel <- function(resData, configuration){
   table <- configuration$table
   idVars <- table$idVars()

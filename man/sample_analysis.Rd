@@ -19,4 +19,11 @@ sample_analysis
 \description{
 A data frame wich goes along with the \link{skylineconfig}.
 }
+\examples{
+skylineconfig <- craeteSkylineConfiguration(isotopeLabel="Isotope.Label.Type", qValue="Detection.Q.Value")
+skylineconfig$table$factors[["Time"]] = "Sampling.Time.Point"
+data(skylinePRMSampleData)
+sample_analysis <- setup_analysis(skylinePRMSampleData, skylineconfig)
+usethis::use_data( sample_analysis , overwrite = TRUE )
+}
 \keyword{datasets}

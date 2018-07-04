@@ -9,3 +9,10 @@ missingPerConditionCumsum(x, configuration, nrfactors = 1)
 \description{
 cumulative sums of missing
 }
+\examples{
+setNa <- function(x){ifelse(x < 100, NA, x)}
+sample_analysis \%>\% mutate(Area = setNa(Area)) -> sample_analysis
+res <- missingPerConditionCumsum(sample_analysis,skylineconfig)
+names(res)
+print(res$figure)
+}

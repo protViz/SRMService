@@ -3,23 +3,6 @@
 #' @format A list of data frames
 "correlatedPeptideList"
 
-#' A data frame wich goes along with the \link{skylineconfig}.
-#'
-#'
-#' @format A data frame with 53940 rows and 10 variables:
-#' \describe{
-#'   \item{protein_Id}{protein id}
-#'   \item{peptide_Id}{peptide id - stripped sequence}
-#'   ...
-#' }
-#' @source \url{http://www.fgcz.ch/}
-"sample_analysis"
-
-#' A configuration which matches the \link{sample_analysis} data.
-#'
-#'
-#' @format A AnalysisConfiguration R6 class
-"skylineconfig"
 
 #' Data frame which can be transformed into \link{sample_analysis}
 #' by applying the \link{skylineconfig} using the function \link{setup_analysis}.
@@ -32,3 +15,67 @@
 #'
 #' @format A AnalysisConfiguration R6 class
 "skylinePRMSampleData"
+
+#' A configuration which matches the \link{sample_analysis} data.
+#'
+#'
+#' @format A AnalysisConfiguration R6 class
+#' @examples
+#' skylineconfig <- craeteSkylineConfiguration(isotopeLabel="Isotope.Label.Type", qValue="Detection.Q.Value")
+#' skylineconfig$table$factors[["Time"]] = "Sampling.Time.Point"
+#' #usethis::use_data( skylineconfig_HL , overwrite = TRUE )
+"skylineconfig"
+
+#' A data frame wich goes along with the \link{skylineconfig}.
+#'
+#'
+#' @format A data frame with 53940 rows and 10 variables:
+#' \describe{
+#'   \item{protein_Id}{protein id}
+#'   \item{peptide_Id}{peptide id - stripped sequence}
+#'   ...
+#' }
+#' @source \url{http://www.fgcz.ch/}
+#' @examples
+#' skylineconfig <- craeteSkylineConfiguration(isotopeLabel="Isotope.Label.Type", qValue="Detection.Q.Value")
+#' skylineconfig$table$factors[["Time"]] = "Sampling.Time.Point"
+#' data(skylinePRMSampleData)
+#' sample_analysis <- setup_analysis(skylinePRMSampleData, skylineconfig)
+#' usethis::use_data( sample_analysis , overwrite = TRUE )
+"sample_analysis"
+
+
+#' Data frame with a skyline export for an heavy to light experiment
+#'
+#'
+#' @format a data frame
+"skylineSRM_HL_data"
+
+#' A configuration which matches the \link{sample_analysis} data.
+#'
+#'
+#' @format A AnalysisConfiguration R6 class
+#' @examples
+#' skylineconfig_HL <- craeteSkylineConfiguration(isotopeLabel="Isotope.Label", qValue="annotation_QValue")
+#' skylineconfig_HL$table$factors[["treatment_c"]] <- "Condition2"
+#' skylineconfig_HL$table$factors[["time_c"]] <- "time"
+#' skylineconfig_HL$parameter$workingIntensityTransform = ""
+#' #usethis::use_data( skylineconfig_HL , overwrite = TRUE )
+"skylineconfig_HL"
+
+#' A data frame wich goes along with the \link{skylineconfig_HL}.
+#'
+#'
+#' @source \url{http://www.fgcz.ch/}
+#' @examples
+#'
+#' skylineconfig_HL <- craeteSkylineConfiguration(isotopeLabel="Isotope.Label", qValue="annotation_QValue")
+#' skylineconfig_HL$table$factors[["treatment_c"]] <- "Condition2"
+#' skylineconfig_HL$table$factors[["time_c"]] <- "time"
+#' skylineconfig_HL$parameter$workingIntensityTransform = ""
+#' data(skylineSRM_HL_data)
+#'
+#' sample_analysis_HL <- setup_analysis(skylineSRM_HL_data, skylineconfig)
+#' # usethis::use_data( sample_analysis_HL , overwrite = TRUE )
+"sample_analysis_HL"
+
