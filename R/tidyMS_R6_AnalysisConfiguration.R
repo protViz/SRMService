@@ -61,7 +61,8 @@ AnalysisTableAnnotation <- R6Class("AnalysisTableAnnotation",
                                    )
 )
 
-
+#' Analysis Configuration
+#' @export
 AnalysisConfiguration <- R6Class("AnalysisConfiguration",
                                  public = list(
                                    table = NULL,
