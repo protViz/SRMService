@@ -30,6 +30,6 @@ test_that("source Run Tidy analysis", {
   })
 
 test_that("source Run Tidy Heavy Light analysis", {
-  reportFile <- file.path(packagedir, "inst" , "RunScripts" , "NewSRM_HL_AnalysisMarkdown.R")
+  reportFile <- file.path(packagedir, "inst" , "RunScripts" , "Run_TidyAnalysis_HL_Skyline.R")
   source(reportFile)
 })

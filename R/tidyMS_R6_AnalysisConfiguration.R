@@ -1,5 +1,7 @@
 library(R6)
 
+#' Analysis parameters
+#' @export
 AnalysisParameters <- R6::R6Class("AnalysisParameters",
                                   public = list(
                                     maxQValue_Threshold  = 0.05,
