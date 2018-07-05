@@ -1,18 +1,28 @@
-setIntensitiesToNA <- function(data,
-                               threshold = config_parameters(data)$maxQValue_Threshold,
-                               QValueColumn = config_col_map(data)$QValue,
-                               intensityOld = config_col_map(data)$startIntensity,
-                               intensityNew = getConfig(data)$workIntensity){
-  config <- getConfig(data)
-  print(intensityNew)
+.setIntensitiesToNA <- function(data,
+                                QValueColumn,
+                                intensityOld,
+                                thresholdQValue = 0.05,
+                                intensityNew = "IntensitiesWithNA"){
   thresholdF <- function(x,y, threshold = 0.05){ ifelse(x < threshold, y, NA)}
   data <- data %>%
     dplyr::mutate(!!intensityNew := thresholdF(!!!syms(c(QValueColumn ,intensityOld )),threshold = threshold))
-
-
-  data <- setConfig(data, config)
   return(data)
 }
+
+#' sets intensities to NA if maxQValue_Threshold exceeded
+#' @export
+#' @return list with augmented data and updated config
+setIntensitiesToNA <- function(data, config, newcolname="IntensitiesWithNA"){
+  data <- .setIntensitiesToNA(data,
+    threshold = config$parameter$maxQValue_Threshold,
+    QValueColumn = config$table$qValue,
+    intensityOld = config$table$getWorkIntensity(),
+    intensityNew = newcolname
+  )
+  config$table$setWorkIntensity(newcolname)
+  return(list(data = data, configuration=config))
+}
+
 
 m_inner_join <- function(x,y){
   config <- getConfig(x)

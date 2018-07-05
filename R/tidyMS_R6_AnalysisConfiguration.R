@@ -28,6 +28,12 @@ AnalysisTableAnnotation <- R6Class("AnalysisTableAnnotation",
                                      isotopeLabel = character(),
                                      initialize = function(){
                                      },
+                                     setWorkIntensity = function(colName){
+                                       self$workIntensity <- c(self$workIntensity, colName)
+                                     },
+                                     getWorkIntensity = function(){
+                                       return(tail(self$workIntensity, n=1))
+                                     },
                                      idRequired = function(){
                                        "Id Columns which must be in the input data frame"
                                        idVars <- c(
@@ -56,7 +62,7 @@ AnalysisTableAnnotation <- R6Class("AnalysisTableAnnotation",
                                      },
                                      valueVars = function(){
                                        "Columns containing values"
-                                       c(self$startIntensity, self$workIntensity, self$qValue)
+                                       c(self$startIntensity, self$getWorkIntensity(), self$qValue)
                                      }
                                    )
 )
@@ -116,7 +122,7 @@ craeteSkylineConfiguration <- function(isotopeLabel="Isotope.Label", qValue="ann
   #
   atable$qValue = qValue
   atable$startIntensity = "Area"
-  atable$workIntensity = "Area"
+  atable$setWorkIntensity("Area")
   atable$isotopeLabel = isotopeLabel
   anaparam <- AnalysisParameters$new()
   configuration <- AnalysisConfiguration$new(atable, anaparam)
@@ -238,7 +244,7 @@ linePlotHierarchy_configuration <- function(res, proteinName, configuration, sep
   rev_hnames <- rev(names(configuration$table$hierarchy))
   res <- linePlotHierarchy_default(res, proteinName = proteinName,
                                    sample = configuration$table$sampleName,
-                                   intensity = configuration$table$workIntensity,
+                                   intensity = configuration$table$getWorkIntensity(),
                                    peptide = rev_hnames[2],
                                    fragment = rev_hnames[1],
                                    factor = names(configuration$table$factors)[1],
@@ -341,8 +347,8 @@ getMissingStats <- function(x, configuration, nrfactors = 1){
                                      tail(table$hierarchyKeys(),1),
                                      table$isotopeLabel
   )) %>%
-    summarize(nrReplicates = n(), nrNAs = sum(is.na(!!sym(table$workIntensity))) ,
-              meanArea = mean(!!sym(table$workIntensity), na.rm=TRUE)) %>%
+    summarize(nrReplicates = n(), nrNAs = sum(is.na(!!sym(table$getWorkIntensity()))) ,
+              meanArea = mean(!!sym(table$getWorkIntensity()), na.rm=TRUE)) %>%
     arrange(desc(nrNAs))
   missingPrec
 }
@@ -483,8 +489,8 @@ extractIntensities <- function(x, configuration){
   x <- x %>%
     select( c( table$sampleName,
                rev(table$hierarchyKeys())[1],
-               table$workIntensity) ) %>%
-    spread(table$sampleName, table$workIntensity) %>% .ExtractMatrix()
+               table$getWorkIntensity()) ) %>%
+    spread(table$sampleName, table$getWorkIntensity()) %>% .ExtractMatrix()
   return(x)
 }
 
