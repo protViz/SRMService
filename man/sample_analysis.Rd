@@ -3,7 +3,8 @@
 \docType{data}
 \name{sample_analysis}
 \alias{sample_analysis}
-\title{A data frame wich goes along with the \link{skylineconfig}.}
+\title{A data frame wich goes along with the \link{skylineconfig}
+and was generate from \link{skylinePRMSampleData}}
 \format{A data frame with 53940 rows and 10 variables:
 \describe{
   \item{protein_Id}{protein id}
@@ -17,9 +18,11 @@
 sample_analysis
 }
 \description{
-A data frame wich goes along with the \link{skylineconfig}.
+A data frame wich goes along with the \link{skylineconfig}
+and was generate from \link{skylinePRMSampleData}
 }
 \examples{
+
 skylineconfig <- craeteSkylineConfiguration(isotopeLabel="Isotope.Label.Type", qValue="Detection.Q.Value")
 skylineconfig$table$factors[["Time"]] = "Sampling.Time.Point"
 data(skylinePRMSampleData)

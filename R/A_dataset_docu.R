@@ -46,7 +46,6 @@
 #' usethis::use_data( sample_analysis , overwrite = TRUE )
 "sample_analysis"
 
-
 #' Data frame with a skyline export for an heavy to light experiment
 #'
 #'

@@ -413,7 +413,7 @@ missingPerConditionCumsum <- function(x,configuration,nrfactors = 1){
 
 #' Summarize missing in condtion as barplot
 #' @export
-#' @example
+#' @examples
 #' setNa <- function(x){ifelse(x < 100, NA, x)}
 #' sample_analysis %>% mutate(Area = setNa(Area)) -> sample_analysis
 #' res <- missingPerCondition(sample_analysis,skylineconfig)
@@ -441,9 +441,16 @@ missingPerCondition <- function(x, configuration, nrfactors = 1){
 #'
 #' @examples
 #' setNa <- function(x){ifelse(x < 100, NA, x)}
+#' data(sample_analysis)
+#' data(skylineconfig)
 #' sample_analysis %>% mutate(Area = setNa(Area)) -> sample_analysis
 #' x<-spreadValueVarsIsotopeLabel(sample_analysis,skylineconfig)
 #' head(x)
+#'
+#' data(sample_analysis_HL)
+#' data(skylineconfigHL)
+#' x<-spreadValueVarsIsotopeLabel(sample_analysis_HL,skylineconfigHL)
+#' head(x[,5:ncol(x)])
 spreadValueVarsIsotopeLabel <- function(resData, configuration){
   table <- configuration$table
   idVars <- table$idVars()

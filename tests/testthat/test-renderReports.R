@@ -25,8 +25,11 @@ test_that("render TR_SRM_Summary", {
 })
 
 test_that("source Run Tidy analysis", {
-
   reportFile <- file.path(packagedir, "inst" , "RunScripts" , "Run_TidyAnalysis_Skyline_PRM.R")
   source(reportFile)
   })
 
+test_that("source Run Tidy Heavy Light analysis", {
+  reportFile <- file.path(packagedir, "inst" , "RunScripts" , "NewSRM_HL_AnalysisMarkdown.R")
+  source(reportFile)
+})

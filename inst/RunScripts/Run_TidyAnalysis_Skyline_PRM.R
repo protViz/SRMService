@@ -3,10 +3,9 @@ library(tidyverse)
 library(readxl)
 library(rlang)
 library(yaml)
-
+library(conflicted)
 
 outdir <- tempdir()
-
 data(skylinePRMSampleData)
 
 skylineconfig <- craeteSkylineConfiguration(isotopeLabel="Isotope.Label.Type", qValue="Detection.Q.Value")
@@ -39,7 +38,7 @@ resDataLog <- resData %>% mutate(log2Area = log2(Area))
 skylineconfig$table$workIntensity = "log2Area"
 skylineconfig$parameter$workingIntensityTransform = "log"
 
-source("c:/Users/wolski/prog/SRMService/R/tidyMS_R6_AnalysisConfiguration.R")
+#source("c:/Users/wolski/prog/SRMService/R/tidyMS_R6_AnalysisConfiguration.R")
 
 xnested <- resDataLog %>% group_by(UQ(proteinIDsymbol)) %>% nest()
 figs <- xnested %>% mutate(plotlog = map2(data, UQ(proteinIDsymbol) , linePlotHierarchy_configuration, skylineconfig))
@@ -62,11 +61,11 @@ dev.off()
 
 table <- skylineconfig$table
 protIntensity <- figs3 %>% select(names(table$hierarchy)[1], medpolishRes) %>% unnest()
-CiRT <- protIntensity %>% filter(protein_Id == "CiRT standards")
+CiRT <- protIntensity %>% dplyr::filter(protein_Id == "CiRT standards")
 dim(protIntensity)
 
 proteinIntensity <- protIntensity %>%
-  inner_join(CiRT, by= setdiff(names(protIntensity), c("protein_Id","medpolish")), suffix = c("",".CiRT")) %>%
+  inner_join(CiRT, by= dplyr::setdiff(names(protIntensity), c("protein_Id","medpolish")), suffix = c("",".CiRT")) %>%
   mutate(log2Med_log2MedCiRT = medpolish - medpolish.CiRT)
 
 
