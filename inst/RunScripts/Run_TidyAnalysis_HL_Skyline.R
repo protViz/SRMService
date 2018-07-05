@@ -25,7 +25,7 @@ resData <- setup_analysis(allDataM, skylineconfig)
 resData$Area[resData$Area == 0] <- NA
 
 tt <- R6extractValues(skylineconfig)
-yaml::write_yaml(tt, file="testSkyline.yml")
+yaml::write_yaml(tt, file=file.path(outdir,"testSkyline.yml"))
 
 proteinIDsymbol <- sym(skylineconfig$table$hierarchyKeys()[1])
 xnested <- resData %>% group_by(UQ(proteinIDsymbol)) %>% nest()
@@ -94,7 +94,7 @@ ggplot(prots, aes(x=time_c, y=medpolish, group=treatment_c, color=treatment_c ))
 dev.off()
 
 
-pdf(file.path("vsTimeYfree.pdf"), width = 10, height = 10)
+pdf(file.path(outdir,"vsTimeYfree.pdf"), width = 10, height = 10)
 ggplot(prots, aes(x=time_c, y=medpolish, group=treatment_c, color=treatment_c )) +
   geom_point() +
   geom_line() +
