@@ -48,13 +48,11 @@ Collate:
     'R6_ProteinVariableSelect.R'
     'SRMService.R'
     'ScaffoldHelpers.R'
-    'transitionCorrelations.R'
-    'TidyMS.R'
     'limmaHelpers.R'
     'plotNicelyTransitions.R'
     'readMaxQuant.R'
     'tidyMS_R6_AnalysisConfiguration.R'
-    'tidyMS_R6_TransitionCorrelations.R'
+    'transitionCorrelations.R'
     'zzz.R'
 Suggests: 
     testthat,

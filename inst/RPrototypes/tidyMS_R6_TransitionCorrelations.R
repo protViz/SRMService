@@ -3,9 +3,10 @@
                                 intensityOld,
                                 thresholdQValue = 0.05,
                                 intensityNew = "IntensitiesWithNA"){
+
   thresholdF <- function(x,y, threshold = 0.05){ ifelse(x < threshold, y, NA)}
   data <- data %>%
-    dplyr::mutate(!!intensityNew := thresholdF(!!!syms(c(QValueColumn ,intensityOld )),threshold = threshold))
+    dplyr::mutate(!!intensityNew := thresholdF(!!!syms(c(QValueColumn ,intensityOld )),threshold = thresholdQValue))
   return(data)
 }
 
@@ -14,13 +15,13 @@
 #' @return list with augmented data and updated config
 setIntensitiesToNA <- function(data, config, newcolname="IntensitiesWithNA"){
   data <- .setIntensitiesToNA(data,
-    threshold = config$parameter$maxQValue_Threshold,
-    QValueColumn = config$table$qValue,
-    intensityOld = config$table$getWorkIntensity(),
-    intensityNew = newcolname
+                              QValueColumn = config$table$qValue,
+                              intensityOld = config$table$getWorkIntensity(),
+                              thresholdQValue = config$parameter$maxQValue_Threshold,
+                              intensityNew = newcolname
   )
   config$table$setWorkIntensity(newcolname)
-  return(list(data = data, configuration=config))
+  return(data)
 }
 
 
@@ -38,13 +39,11 @@ m_inner_join <- function(x,y){
 #' @param maxQValThreshold 4
 #' @param minNumberOfQValues 5
 summariseQValues <- function(data,
-                             precursorId = getConfig(data)$.PrecursorId,
-                             QValue = config_col_map(data)$QValue,
-                             maxQValThreshold = config_parameters(data)$maxQValue_Threshold,
-                             minNumberOfQValues = config_parameters(data)$minNumberOfQValues
+                             precursorId,
+                             QValue,
+                             maxQValThreshold = 0.05,
+                             minNumberOfQValues = 3
 ){
-  config <- getConfig(data)
-
   .QValueMin <- ".QValueMin"
   .QValueNR <- ".QValueNR"
 
@@ -55,7 +54,7 @@ summariseQValues <- function(data,
     dplyr::summarise_at(  c( QValue ), .funs = funs(!!.QValueMin:=nthbestQValue(.,minNumberOfQValues ),
                                                     !!.QValueNR :=npass(., maxQValThreshold)
     ))
-  data <- dplyr::inner_join(data, qValueSummaries)
+}
 
 
   ## Add config...
@@ -65,6 +64,17 @@ summariseQValues <- function(data,
   data <- setConfig(data, config)
 
   return(data)
+}
+
+summariseQValues <- function(data, config){
+  precursorId = getConfig(data)$.PrecursorId,
+  QValue = config_col_map(data)$QValue,
+  maxQValThreshold = config_parameters(data)$maxQValue_Threshold,
+  minNumberOfQValues = config_parameters(data)$minNumberOfQValues
+
+  data <- dplyr::inner_join(data, qValueSummaries)
+
+
 }
 
 
