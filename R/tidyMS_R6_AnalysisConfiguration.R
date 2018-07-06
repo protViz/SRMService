@@ -285,6 +285,7 @@ linePlotHierarchy_QuantLine <- function(p, data, aes_y,  configuration){
 hierarchyCounts <- function(x, configuration){
   hierarchy <- names( configuration$table$hierarchy )
   res <- x %>% group_by_at(configuration$table$isotopeLabel) %>% summarise_at( hierarchy, n_distinct )
+  return(res)
 }
 
 
