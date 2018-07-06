@@ -44,8 +44,12 @@ AnalysisTableAnnotation <- R6Class("AnalysisTableAnnotation",
                                          )
                                        return(idVars)
                                      },
-                                     hierarchyKeys = function(){
-                                       return(names(self$hierarchy))
+                                     hierarchyKeys = function(rev = FALSE){
+                                       if(rev){
+                                         return(rev(names(self$hierarchy)))
+                                       }else{
+                                         return(rev(names(self$hierarchy)))
+                                       }
                                      },
                                      factorKeys = function(){
                                        return(names(self$factors))
@@ -339,6 +343,8 @@ summarizeHierarchy <- function(x, configuration, level = 1)
   return(x3)
 }
 
+#' compute missing statistics
+#' @export
 getMissingStats <- function(x, configuration, nrfactors = 1){
   table <- configuration$table
   factors <- head(table$factorKeys(), nrfactors)
