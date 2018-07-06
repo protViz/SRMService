@@ -33,48 +33,31 @@ m_inner_join <- function(x,y){
 
 
 #' Compute QValue summaries for each precursor
-#' @param data 1
-#' @param precursorId 2
-#' @param QValue 3
-#' @param maxQValThreshold 4
-#' @param minNumberOfQValues 5
+#' @param data data
+#' @param config configuration
 summariseQValues <- function(data,
-                             precursorId,
-                             QValue,
-                             maxQValThreshold = 0.05,
-                             minNumberOfQValues = 3
-){
-  .QValueMin <- ".QValueMin"
-  .QValueNR <- ".QValueNR"
+                             config
+                             ){
+  .QValueMin <- "QValueMin"
+  .QValueNR <- "QValueNR"
+
+  precursorID <- config$table$hierarchyKeys(TRUE)[1]
+  fileName <- config$table$fileName
+  QValue  <- config$table$qValue
+  minNumberOfQValues <- config$parameter$minNumberOfQValues
+  maxQValThreshold <- config$parameter$maxQValue_Threshold
 
   nthbestQValue <-  function(x,minNumberOfQValues){sort(x)[minNumberOfQValues]}
   npass <-  function(x,thresh = maxQValThreshold){sum(x < thresh)}
+
   qValueSummaries <- data %>%
-    dplyr::group_by_at(precursorId) %>%
-    dplyr::summarise_at(  c( QValue ), .funs = funs(!!.QValueMin:=nthbestQValue(.,minNumberOfQValues ),
-                                                    !!.QValueNR :=npass(., maxQValThreshold)
+    dplyr::select(fileName, precursorID, config$table$qValue) %>%
+    dplyr::group_by_at(precursorID) %>%
+    dplyr::summarise_at(  c( QValue ), .funs = funs(!!.QValueMin := nthbestQValue(.,minNumberOfQValues ),
+                                                    !!.QValueNR  := npass(., maxQValThreshold)
     ))
-}
-
-
-  ## Add config...
-  config$precursorStats[[.QValueMin]] <- .QValueMin
-  config$precursorStats[[.QValueNR]] <- .QValueNR
-  message("Added Columns:",.QValueMin,.QValueNR )
-  data <- setConfig(data, config)
-
+  data <- dplyr::inner_join(data, qValueSummaries, by=c(precursorID))
   return(data)
-}
-
-summariseQValues <- function(data, config){
-  precursorId = getConfig(data)$.PrecursorId,
-  QValue = config_col_map(data)$QValue,
-  maxQValThreshold = config_parameters(data)$maxQValue_Threshold,
-  minNumberOfQValues = config_parameters(data)$minNumberOfQValues
-
-  data <- dplyr::inner_join(data, qValueSummaries)
-
-
 }
 
 
