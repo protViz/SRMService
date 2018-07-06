@@ -33,6 +33,7 @@ m_inner_join <- function(x,y){
 
 
 #' Compute QValue summaries for each precursor
+#' @export
 #' @param data data
 #' @param config configuration
 summariseQValues <- function(data,
@@ -60,25 +61,18 @@ summariseQValues <- function(data,
   return(data)
 }
 
-
+#' add number of NA's per lowest hierarchy to data
+#' @export
 summariseNAs <- function(data,
-                         precursorID = config_col_map(data)$PrecursorId,
-                         workIntensity = getConfig(data)$workIntensity){
-  config <- getConfig(data)
-
-  .NrNAs = ".NrNAs"
+                         config){
+  NrNAs = "NrNAs"
   nNAs <- function(x){sum(is.na(x))}
+  precursorID <- config$table$hierarchyKeys(TRUE)[1]
+  workIntensity <- config$table$getWorkIntensity()
 
-
-  lFG <- data %>%
-    dplyr::group_by_at(precursorID)
-  naSummaries <- lFG %>% dplyr::summarise_at( workIntensity, funs(!!.NrNAs := nNAs(.)))
-  data <- dplyr::inner_join(data, naSummaries )
-
-
-  ### add stuff to config.
-  config$precursorStats[[.NrNAs]]=.NrNAs
-  data <- setConfig(data, config)
+  lFG <- data %>% dplyr::group_by_at(precursorID)
+  naSummaries <- lFG %>% dplyr::summarise_at( workIntensity, funs(!!NrNAs := nNAs(.)))
+  data <- dplyr::inner_join(data, naSummaries , by=precursorID)
   return(data)
 }
 
