@@ -48,7 +48,7 @@ AnalysisTableAnnotation <- R6Class("AnalysisTableAnnotation",
                                        if(rev){
                                          return(rev(names(self$hierarchy)))
                                        }else{
-                                         return(rev(names(self$hierarchy)))
+                                         return(names(self$hierarchy))
                                        }
                                      },
                                      factorKeys = function(){
