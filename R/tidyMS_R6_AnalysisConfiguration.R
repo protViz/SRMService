@@ -302,16 +302,16 @@ summarizeProteins <- function(x, configuration ){
 
   precursorSum <- x %>% select(rev_hierarchy) %>% distinct() %>%
     group_by_at(rev_hierarchy[-1]) %>%
-    summarize(nrFragments = n())
+    dplyr::summarize(nrFragments = n())
 
   peptideSum <- precursorSum %>% group_by_at(rev_hierarchy[-(1:2)]) %>%
-    summarize(nrPrecursors = n(),
+    dplyr::summarize(nrPrecursors = n(),
               minNrFragments = min(nrFragments),
               maxNrFragments = max(nrFragments))
 
 
   proteinSum <- peptideSum %>% group_by_at(rev_hierarchy[-(1:3)])  %>%
-    summarize(nrpeptides = n(),
+    dplyr::summarize(nrpeptides = n(),
               minNrPrecursors = min(nrPrecursors),
               maxNrPrecursors = max(nrPrecursors),
               minNrFragments= min(minNrFragments),
@@ -345,7 +345,8 @@ summarizeHierarchy <- function(x, configuration, level = 1)
 
   hierarchy <- hierarchy[level:length(hierarchy)]
   precursor <- x %>% select(hierarchy) %>% distinct()
-  x3 <- precursor %>% group_by_at(hierarchy[1]) %>% summarize_at( hierarchy[-1], n_distinct)
+  x3 <- precursor %>% group_by_at(hierarchy[1]) %>%
+    dplyr::summarize_at( hierarchy[-1], n_distinct)
   return(x3)
 }
 
@@ -359,7 +360,7 @@ getMissingStats <- function(x, configuration, nrfactors = 1){
                                      tail(table$hierarchyKeys(),1),
                                      table$isotopeLabel
   )) %>%
-    summarize(nrReplicates = n(), nrNAs = sum(is.na(!!sym(table$getWorkIntensity()))) ,
+    dplyr::summarize(nrReplicates = n(), nrNAs = sum(is.na(!!sym(table$getWorkIntensity()))) ,
               meanArea = mean(!!sym(table$getWorkIntensity()), na.rm=TRUE)) %>%
     arrange(desc(nrNAs))
   missingPrec
@@ -376,13 +377,13 @@ missignessHistogram <- function(x, configuration, showempty = TRUE, nrfactors = 
   table <- configuration$table
   missingPrec <- getMissingStats(x, configuration,nrfactors)
 
-  missingPrec <- missingPrec %>% ungroup()%>% mutate(nrNAs = as.factor(nrNAs))
+  missingPrec <- missingPrec %>% ungroup()%>% dplyr::mutate(nrNAs = as.factor(nrNAs))
   if(showempty){
     if(configuration$parameter$workingIntensityTransform != "log")
     {
-      missingPrec <- missingPrec %>% mutate(meanArea = ifelse(is.na(meanArea),1,meanArea))
+      missingPrec <- missingPrec %>% dplyr::mutate(meanArea = ifelse(is.na(meanArea),1,meanArea))
     }else{
-      missingPrec <- missingPrec %>% mutate(meanArea = ifelse(is.na(meanArea),-20,meanArea))
+      missingPrec <- missingPrec %>% dplyr::mutate(meanArea = ifelse(is.na(meanArea),-20,meanArea))
     }
 
   }
@@ -408,7 +409,7 @@ missignessHistogram <- function(x, configuration, showempty = TRUE, nrfactors = 
 #' @export
 #' @examples
 #' setNa <- function(x){ifelse(x < 100, NA, x)}
-#' sample_analysis %>% mutate(Area = setNa(Area)) -> sample_analysis
+#' sample_analysis %>% dplyr::mutate(Area = setNa(Area)) -> sample_analysis
 #' res <- missingPerConditionCumsum(sample_analysis,skylineconfig)
 #' names(res)
 #' print(res$figure)
@@ -418,9 +419,10 @@ missingPerConditionCumsum <- function(x,configuration,nrfactors = 1){
   factors <- head(table$factorKeys(), nrfactors)
 
   xx <-missingPrec %>% group_by_at(c(table$isotopeLabel, factors,"nrNAs","nrReplicates")) %>%
-    summarize(nrTransitions =n())
+    dplyr::summarize(nrTransitions =n())
 
-  xxcs <-xx %>% group_by_at( c(table$isotopeLabel,factors)) %>% arrange(nrNAs) %>% mutate(cs = cumsum(nrTransitions))
+  xxcs <-xx %>% group_by_at( c(table$isotopeLabel,factors)) %>% arrange(nrNAs) %>%
+    dplyr::mutate(cs = cumsum(nrTransitions))
   res <- xxcs  %>% select(-nrTransitions)
 
   formula <- paste(table$isotopeLabel, "~", paste(factors, collapse = "+"))
@@ -436,7 +438,7 @@ missingPerConditionCumsum <- function(x,configuration,nrfactors = 1){
 #' @export
 #' @examples
 #' setNa <- function(x){ifelse(x < 100, NA, x)}
-#' sample_analysis %>% mutate(Area = setNa(Area)) -> sample_analysis
+#' sample_analysis %>% dplyr::mutate(Area = setNa(Area)) -> sample_analysis
 #' res <- missingPerCondition(sample_analysis,skylineconfig)
 #' names(res)
 #' print(res$figure)
@@ -447,7 +449,7 @@ missingPerCondition <- function(x, configuration, nrfactors = 1){
 
   xx <-missingPrec %>% group_by_at(c(table$isotopeLabel,
                                      factors,"nrNAs","nrReplicates")) %>%
-    summarize(nrTransitions =n())
+    dplyr::summarize(nrTransitions =n())
 
   formula <- paste(table$isotopeLabel, "~", paste(factors, collapse = "+"))
   message(formula)
@@ -464,7 +466,7 @@ missingPerCondition <- function(x, configuration, nrfactors = 1){
 #' setNa <- function(x){ifelse(x < 100, NA, x)}
 #' data(sample_analysis)
 #' data(skylineconfig)
-#' sample_analysis %>% mutate(Area = setNa(Area)) -> sample_analysis
+#' sample_analysis %>% dplyr::mutate(Area = setNa(Area)) -> sample_analysis
 #' x<-spreadValueVarsIsotopeLabel(sample_analysis,skylineconfig)
 #' head(x)
 #'

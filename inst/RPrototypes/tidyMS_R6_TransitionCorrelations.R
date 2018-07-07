@@ -132,9 +132,12 @@ decorelatedPly <- function(x, corThreshold = 0.7){
 markDecorrelated <- function(x , config, minCorrelation = 0.7){
   x<-qvalFiltV
   qvalFiltX <- x %>%  group_by_at(config$table$hierarchyKeys()[1]) %>% nest()
-  qvalFiltX <- qvalFiltX %>% mutate(spreadMatrix = map(data, extractIntensities, config))
-  HLfigs2 <- qvalFiltX %>% mutate(srmDecor = map(spreadMatrix, decorelatedPly, minCorrelation))
-  unnest_res <- HLfigs2 %>% select(protein_Id, srmDecor) %>% unnest()
+  qvalFiltX <- qvalFiltX %>%
+    dplyr::mutate(spreadMatrix = map(data, extractIntensities, config))
+  HLfigs2 <- qvalFiltX %>%
+    dplyr::mutate(srmDecor = map(spreadMatrix, decorelatedPly, minCorrelation))
+  unnest_res <- HLfigs2 %>%
+    select(protein_Id, srmDecor) %>% unnest()
   qvalFiltX <- inner_join(qvalFiltV, unnest_res, by=c(config$table$hierarchyKeys()[1], config$table$hierarchyKeys(TRUE)[1]) )
   return(qvalFiltX)
 }
@@ -157,7 +160,7 @@ simpleImpute <- function(data){
 #' @export
 impute_correlationBased <- function(x , config){
   nestedX <- x %>%  group_by_at(config$table$hierarchyKeys()[1]) %>% nest()
-  nestedX <- nestedX %>% mutate(spreadMatrix = map(data, extractIntensities, config))
+  nestedX <- nestedX %>% dplyr::mutate(spreadMatrix = map(data, extractIntensities, config))
 
   spreadItback <- function(x,config){
     x <- dplyr::bind_cols(
@@ -167,8 +170,8 @@ impute_correlationBased <- function(x , config){
     gather(x,key= !!config$table$sampleName, value = "srm_ImputedIntensity", 2:ncol(x))
   }
 
-  nestedX <- nestedX %>% mutate(imputed = map(spreadMatrix, simpleImpute)) %>%
-    mutate(imputed = map(imputed, spreadItback, config))
+  nestedX <- nestedX %>% dplyr::mutate(imputed = map(spreadMatrix, simpleImpute)) %>%
+    dplyr::mutate(imputed = map(imputed, spreadItback, config))
 
   unnest_res <- nestedX %>% select(protein_Id, imputed) %>% unnest()
   qvalFiltX <- inner_join(x, unnest_res,
