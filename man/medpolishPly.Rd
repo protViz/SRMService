@@ -4,7 +4,7 @@
 \alias{medpolishPly}
 \title{compute tukeys median polish from peptide or precursor intensities}
 \usage{
-medpolishPly(x, params)
+medpolishPly(x)
 }
 \description{
 compute tukeys median polish from peptide or precursor intensities
