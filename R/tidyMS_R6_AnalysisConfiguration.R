@@ -509,7 +509,7 @@ extractIntensities <- function(x, configuration){
 
 #' compute tukeys median polish from peptide or precursor intensities
 #' @export
-medpolishPly <- function(x, params){
+medpolishPly <- function(x){
   X <- medpolish(x,na.rm=TRUE, trace.iter=FALSE, maxiter = 10);
   res <- tibble("sampleName" = names(X$col) , medpolish = X$col + X$overall)
   res
