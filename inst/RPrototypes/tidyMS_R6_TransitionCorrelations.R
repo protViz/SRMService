@@ -38,9 +38,9 @@ m_inner_join <- function(x,y){
 #' @param config configuration
 summariseQValues <- function(data,
                              config
-                             ){
-  .QValueMin <- "QValueMin"
-  .QValueNR <- "QValueNR"
+){
+  QValueMin <- "srm_QValueMin"
+  QValueNR <- "srm_QValueNR"
 
   precursorID <- config$table$hierarchyKeys(TRUE)[1]
   fileName <- config$table$fileName
@@ -54,8 +54,8 @@ summariseQValues <- function(data,
   qValueSummaries <- data %>%
     dplyr::select(fileName, precursorID, config$table$qValue) %>%
     dplyr::group_by_at(precursorID) %>%
-    dplyr::summarise_at(  c( QValue ), .funs = funs(!!.QValueMin := nthbestQValue(.,minNumberOfQValues ),
-                                                    !!.QValueNR  := npass(., maxQValThreshold)
+    dplyr::summarise_at(  c( QValue ), .funs = funs(!!QValueMin := nthbestQValue(.,minNumberOfQValues ),
+                                                    !!QValueNR  := npass(., maxQValThreshold)
     ))
   data <- dplyr::inner_join(data, qValueSummaries, by=c(precursorID))
   return(data)
@@ -65,7 +65,7 @@ summariseQValues <- function(data,
 #' @export
 summariseNAs <- function(data,
                          config){
-  NrNAs = "NrNAs"
+  NrNAs = "srm_NrNAs"
   nNAs <- function(x){sum(is.na(x))}
   precursorID <- config$table$hierarchyKeys(TRUE)[1]
   workIntensity <- config$table$getWorkIntensity()
@@ -76,66 +76,71 @@ summariseNAs <- function(data,
   return(data)
 }
 
-### Filter using number of precursors
-nrPrecursors <- function(data,
-                         proteinID = getConfig(data)$required$ProteinId ,
-                         precursorId = getConfig(data)$required$PrecursorId ){
-  config <- getConfig(data)
-
-  .nrPrecursors = ".nrPrecursors"
-
+#' Compute nr of B per A
+#' @export
+nr_B_in_A <- function(data,
+                     levelA,
+                     levelB){
+  c_name <- paste("nr_",levelB,"_by_",levelA,sep="")
   tmp <- data %>%
-    dplyr::select_at(c(proteinID, precursorId)) %>%
+    dplyr::select_at(c(levelA, levelB)) %>%
     dplyr::distinct() %>%
-    dplyr::group_by_at(proteinID) %>%
-    dplyr::summarise(!!.nrPrecursors:=n())
-  data <- m_inner_join(data, tmp )
-
-  ### add stuff to config.
-  config$proteinStats[[.nrPrecursors]] <- .nrPrecursors
-  data <- setConfig(data, config)
+    dplyr::group_by_at(levelA) %>%
+    dplyr::summarise(!!c_name:=n())
+  data <- dplyr::inner_join(data, tmp, by=levelA )
   return(data)
 }
 
-
-precursorIntensities2Wide <- function(data,
-                                      precursorID = getConfig(data)$.PrecursorId,
-                                      proteinID = config_col_map(data)$ProteinId,
-                                      sampleLabel = getConfig(data)$.SampleLabel,
-                                      value = config$workIntensity
+#' transform long to wide
+#' @export
+toWide <- function(data,
+                   rowIDs ,
+                   columnLabels ,
+                   value
 ){
-  config <- getConfig(data)
-  required <- config$required
   wide <- data %>%
-    dplyr::select_at(c(precursorID, proteinID, sampleLabel,  config$workIntensity  )) %>%
-    tidyr::spread( key= sampleLabel , value =  value )
+    dplyr::select_at(c(rowIDs, columnLabels, value  ))
+  wide <- wide %>%
+    tidyr::spread( key= columnLabels , value =  value )
   return(wide)
 }
 
-#' @include transitionCorrelations.R
-whichDecorellated <- function(data, minCorrelation = 0.65){
-  config <- getConfig(data)
-  required <- config$required
-  newColumn <- ".Decorrelated"
+#' transform long to wide
+#' @export
+toWideConfig <- function(data, config){
+  return(toWide( data, config$table$hierarchyKeys(), config$table$sampleName , value = config$table$getWorkIntensity() ))
+}
 
-  tmp <- precursorIntensities2Wide(data)
-  numericColumn <- length( c(config$.PrecursorId, required$ProteinId) ) + 1
+.findDecorrelated <- function(res, threshold = 0.65){
+  if(is.null(res))
+    return(NULL)
+  nrtrans <- ncol(res)
+  ids <- rowSums(res < threshold, na.rm = TRUE)
+  names(which((nrtrans-1)== ids))
+}
 
-  listProt <- plyr::dlply(tmp, required$ProteinId)
+#' finds decorrelated measues
+#' @export
+decorelatedPly <- function(x, corThreshold = 0.7){
+  res <- SRMService::transitionCorrelationsJack(x)
+  decorelated <- .findDecorrelated(res,threshold = corThreshold)
+  tibble(!!config$table$hierarchyKeys(TRUE)[1] := rownames(res), srm_decorelated = rownames(res) %in% decorelated)
+}
 
-  intensitiesCorrelated <- plyr::llply(listProt, .removeDecorrelated, numericColumn , minCorrelation )
-  intensitiesD <- plyr::ldply(intensitiesCorrelated, .id = required$ProteinId)
-
-  data <- inner_join(data, intensitiesD)
-  config[[newColumn]]= newColumn
-  data <- setConfig(data, config)
-  message("Added Column: ", newColumn)
-  return(data)
+#' marks decorrelated elements
+#' @export
+markDecorrelated <- function(x , config, minCorrelation = 0.7){
+  x<-qvalFiltV
+  qvalFiltX <- x %>%  group_by_at(config$table$hierarchyKeys()[1]) %>% nest()
+  qvalFiltX <- qvalFiltX %>% mutate(spreadMatrix = map(data, extractIntensities, config))
+  HLfigs2 <- qvalFiltX %>% mutate(srmDecor = map(spreadMatrix, decorelatedPly, minCorrelation))
+  unnest_res <- HLfigs2 %>% select(protein_Id, srmDecor) %>% unnest()
+  qvalFiltX <- inner_join(qvalFiltV, unnest_res, by=c(config$table$hierarchyKeys()[1], config$table$hierarchyKeys(TRUE)[1]) )
+  return(qvalFiltX)
 }
 
 
 ## Missing Value imputation
-
 
 simpleImpute <- function(data){
   m <-apply(data,2, mean, na.rm=TRUE )
@@ -148,71 +153,48 @@ simpleImpute <- function(data){
   return(res)
 }
 
+#' imputation based on correlation assumption
+#' @export
+impute_correlationBased <- function(x , config){
+  nestedX <- x %>%  group_by_at(config$table$hierarchyKeys()[1]) %>% nest()
+  nestedX <- nestedX %>% mutate(spreadMatrix = map(data, extractIntensities, config))
 
-imputef <- function(xx,ValueCol){
-  if(sum(is.na(xx)) == 0)
-  {
-    return(xx)
+  spreadItback <- function(x,config){
+    x <- dplyr::bind_cols(
+      tibble::tibble(!!config$table$hierarchyKeys(TRUE)[1] := rownames(x)),
+      tibble::as_tibble(x)
+    )
+    gather(x,key= !!config$table$sampleName, value = "srm_ImputedIntensity", 2:ncol(x))
   }
-  data <- data.frame(t(xx[,ValueCol:ncol(xx)]))
-  # Why log transforming first
-  data <- log2(data)
 
-  c1<-simpleImpute(data)
-  x <- data.frame(t(c1))
+  nestedX <- nestedX %>% mutate(imputed = map(spreadMatrix, simpleImpute)) %>%
+    mutate(imputed = map(imputed, spreadItback, config))
 
-  x <- 2^x
-  xx[,ValueCol:ncol(xx)] <- x
-  if(sum(is.na(xx)) !=0){
-    print("Still NA present")
-  }
-  return(xx)
+  unnest_res <- nestedX %>% select(protein_Id, imputed) %>% unnest()
+  qvalFiltX <- inner_join(x, unnest_res,
+                          by=c(config$table$hierarchyKeys()[1], config$table$hierarchyKeys(TRUE)[1], config$table$sampleName) )
+  config$table$setWorkIntensity("srm_ImputedIntensity")
+  return(qvalFiltX)
 }
 
 
-# impute missing
-imputeMissing <- function(data){
-  imputedIntensityColname <- ".ImputedIntensity"
-  config <- getConfig(data)
-  required <- config$required
-
-  tmp <- precursorIntensities2Wide(data)
-
-
-  numericColumn <- length( c(config$.PrecursorId, required$ProteinId) ) + 1
-
-  listProt <- plyr::dlply(tmp, required$ProteinId)
-
-  intensitiesImputed <- plyr::llply(listProt, imputef ,numericColumn )
-  intensitiesImputed <- plyr::ldply(intensitiesImputed, .id = required$ProteinId)
-
-  intensitiesImputedX <- tidyr::gather(intensitiesImputed, !!sym(config$.SampleLabel),!!sym(imputedIntensityColname),
-                                       -!!sym(config$.PrecursorId), -!!sym(required$ProteinId))
-
-  head(intensitiesImputedX)
-  data2 <- dplyr::inner_join(data,intensitiesImputedX)
-  config$.ImputedIntensity <- imputedIntensityColname
-  message("Added Column:",imputedIntensityColname )
-  data2<-setConfig(data2,config)
-  return(data2)
-}
-
-
-rankProteinPrecursors <- function(data, top = NULL,
-                                  column = configuration$workIntensity,
+rankProteinPrecursors <- function(data,
+                                  config,
+                                  column = config$table$getWorkIntensity(),
                                   fun = function(x){ mean(x, na.rm=TRUE)},
-                                  summaryColumn = ".meanInt",
-                                  rankColumn = ".meanIntRank",
+                                  summaryColumn = "srm_meanInt",
+                                  rankColumn = "srm_meanIntRank",
                                   rankFunction = function(x){min_rank(desc(x))}
 ){
-  configuration <- getConfig(data)
+  table <- config$table
+
   summaryPerPrecursor <-data %>%
-    dplyr::group_by(!!!syms(c( configuration$.PrecursorId, configuration$required$ProteinId))) %>%
+    dplyr::group_by(!!!syms(table$hierarchyKeys())) %>%
     dplyr::summarise(!!summaryColumn := fun(!!sym(column)))
 
   groupedByProtein <- summaryPerPrecursor %>%
-    dplyr::arrange(!!sym( configuration$required$ProteinId)) %>%
-    dplyr::group_by(!!sym( configuration$required$ProteinId))
+    dplyr::arrange(!!sym( table$hierarchyKeys()[1])) %>%
+    dplyr::group_by(!!sym( table$hierarchyKeys()[1]))
   rankedBySummary <- groupedByProtein %>%
     dplyr::mutate(!!rankColumn := rankFunction(!!sym(summaryColumn)))
 
@@ -221,62 +203,48 @@ rankProteinPrecursors <- function(data, top = NULL,
 }
 
 
-## Ranks precursors by NAs (adds new column .NARank)
-rankPrecursorsPerProteinByNAs <- function(data){
-  configuration <- getConfig(data)
-  summaryColumn <- ".NrNAs"
-  rankColumn <- ".NrNARank"
-
-  data<- rankProteinPrecursors(data, column = configuration$precursorStats$.NrNAs,
-                               fun = min,
-                               summaryColumn = summaryColumn,
-                               rankColumn = rankColumn,
-                               rankFunction = function(x){min_rank(x)}
-  )
-  configuration[[summaryColumn]] <- summaryColumn
-  configuration[[rankColumn]] <- rankColumn
-  message("Added Columns :", summaryColumn,  rankColumn)
-  data <- setConfig(data, configuration)
-  return(data)
-}
-
-
-rankPrecursorsByIntensity <- function(data){
-  configuration <- getConfig(data)
-  summaryColumn <- ".meanInt"
-  rankColumn <- ".meanIntRank"
-
-  data<- rankProteinPrecursors(data, column = configuration$workIntensity,
+rankPrecursorsByIntensity <- function(data, config){
+  summaryColumn <- "srm_meanInt"
+  rankColumn <- "srm_meanIntRank"
+  data<- rankProteinPrecursors(data, config, column = config$table$getWorkIntensity(),
                                fun = function(x){ mean(x, na.rm=TRUE)},
                                summaryColumn = summaryColumn,
                                rankColumn = rankColumn,
                                rankFunction = function(x){min_rank(desc(x))}
   )
 
-  configuration[[summaryColumn]] <- summaryColumn
-  configuration[[rankColumn]] <- rankColumn
   message("Added Columns :", summaryColumn, " ",  rankColumn)
-  data <- setConfig(data, configuration)
+  return(data)
+}
+
+
+## Ranks precursors by NAs (adds new column .NARank)
+rankPrecursorsByNAs <- function(data, config){
+  summaryColumn <- "srm_NrNAs"
+  rankColumn <- "srm_NrNARank"
+
+  data<- rankProteinPrecursors(data, config,
+                               column = config$table$getWorkIntensity(),
+                               fun = function(x){sum(is.na(x))},
+                               summaryColumn = summaryColumn,
+                               rankColumn = rankColumn,
+                               rankFunction = function(x){min_rank(x)}
+  )
+  message("Added Columns :", summaryColumn, " ",  rankColumn)
   return(data)
 }
 
 
 
-aggregateTopNIntensities <- function(data, N = 3){
-  config <- getConfig(data)
-  required <- config$required
-
+aggregateTopNIntensities <- function(data,config, N = 3){
   topInt <- data %>%
-    dplyr::filter(.meanIntRank <= N) %>%
-    dplyr::group_by(!!!syms(c( required$ProteinId, config$.SampleLabel)))
+    dplyr::filter_at( "srm_meanIntRank", any_vars(. <= N)) %>%
+    dplyr::group_by(!!!syms(c( config$table$hierarchyKeys()[1], config$table$sampleName)))
   sumNA <- function(x){sum(x, na.rm=TRUE)}
   sumTopInt <- topInt %>%
-    dplyr::summarize( .sumTopInt =sumNA(!!sym(conf$workIntensity))  )
-
-  config$proteinStats$.sumTopInt <- ".sumTopInt"
-  data <- inner_join(data, sumTopInt)
-  data <- setConfig(data, config)
-  return(data)
+    dplyr::summarize( srm_sumTopInt = sumNA(!!sym(config$table$getWorkIntensity()))  )
+  #data <- inner_join(data, sumTopInt)
+  return(sumTopInt)
 }
 
 
