@@ -186,12 +186,11 @@ setup_analysis <- function(data, configuration ,sep="~"){
   data <- data %>% select(-one_of(dplyr::setdiff(unlist(table$factors), table$factorKeys())))
 
   # Make implicit NA's explicit
-
   data <- data %>% select(c(configuration$table$idVars(),configuration$table$valueVars()))
+
   data <- complete( data , nesting(!!!syms(c(table$hierarchyKeys(), table$isotopeLabel))),
                     nesting(!!!syms(c( table$fileName , table$sampleName, table$factorKeys() ))))
 
-  attributes(data)$configuration <- configuration
   return( data )
 }
 
@@ -501,7 +500,7 @@ extractIntensities <- function(x, configuration){
   table <- configuration$table
   x <- x %>%
     select( c( table$sampleName,
-               rev(table$hierarchyKeys())[1],
+               table$hierarchyKeys(TRUE)[1],
                table$getWorkIntensity()) ) %>%
     spread(table$sampleName, table$getWorkIntensity()) %>% .ExtractMatrix()
   return(x)
