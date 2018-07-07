@@ -1,4 +1,4 @@
-
+# mark for deletion
 ### Correlation Filtering
 .transitionCorrelations <- function(dataX , method="spearman"){
   if(nrow(dataX) > 1){
@@ -11,13 +11,9 @@
   }
 }
 
-.findDecorrelated <- function(res, threshold = 0.65){
-  if(is.null(res))
-    return(NULL)
-  nrtrans <- ncol(res)
-  ids <- rowSums(res < threshold, na.rm = TRUE)
-  names(which((nrtrans-1)== ids))
-}
+
+
+
 
 .removeDecorrelated <- function(ff,
                                 ValueCol ,

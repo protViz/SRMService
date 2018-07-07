@@ -137,7 +137,7 @@ precursorIntensities2Wide <- function(data,
   config <- getConfig(data)
   required <- config$required
   wide <- data %>%
-    dplyr::select_at(c(precursorID, proteinID, sampleLabel,  config$workIntensity  )) %>%
+    dplyr::select_at(c(precursorID, proteinID, sampleLabel,  value  )) %>%
     tidyr::spread( key= sampleLabel , value =  value )
   return(wide)
 }
