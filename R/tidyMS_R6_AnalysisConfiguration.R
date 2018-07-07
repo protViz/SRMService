@@ -16,16 +16,22 @@ AnalysisParameters <- R6::R6Class("AnalysisParameters",
 #' @export
 AnalysisTableAnnotation <- R6Class("AnalysisTableAnnotation",
                                    public = list(
+
                                      fileName = NULL,
                                      factors = list(), # ordering is important - first is considered the main
+
                                      sampleName = "sampleName",
-                                     startIntensity = NULL,
-                                     workIntensity = NULL, # could be list with names and functions
-                                     retentionTime = NULL,
-                                     qValue = character(),
                                      # measurement levels
                                      hierarchy = list(),
+                                     retentionTime = NULL,
                                      isotopeLabel = character(),
+                                     # do you want to model charge sequence etc?
+
+
+                                     qValue = character(), # rename to score
+                                     workIntensity = NULL, # could be list with names and functions
+                                     startIntensity = NULL, # think of simplifying (use only workIntensity)
+
                                      initialize = function(){
                                      },
                                      setWorkIntensity = function(colName){
@@ -501,7 +507,8 @@ extractIntensities <- function(x, configuration){
   return(x)
 }
 
-
+#' compute tukeys median polish from peptide or precursor intensities
+#' @export
 medpolishPly <- function(x, params){
   X <- medpolish(x,na.rm=TRUE, trace.iter=FALSE, maxiter = 10);
   res <- tibble("sampleName" = names(X$col) , medpolish = X$col + X$overall)
