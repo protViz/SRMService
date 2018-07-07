@@ -2,6 +2,8 @@ rm(list=ls())
 library(tidyverse)
 library(rlang)
 library(conflicted)
+library(SRMService)
+
 outdir <- tempdir()
 
 #allDataM <- read.csv(file="d:\\projects\\p2342_JonasZaugg\\order4041\\output/allData.txt", stringsAsFactors = FALSE)
@@ -11,7 +13,7 @@ outdir <- tempdir()
 allDataM <- get(data(skylineSRM_HL_data))
 head(allDataM)
 
-source("c:/Users/wolski/prog/SRMService/R/tidyMS_R6_AnalysisConfiguration.R")
+#source("c:/Users/wolski/prog/SRMService/R/tidyMS_R6_AnalysisConfiguration.R")
 
 skylineconfig <- craeteSkylineConfiguration(isotopeLabel="Isotope.Label", qValue="annotation_QValue")
 skylineconfig$table$factors[["treatment_c"]] <- "Condition2"
@@ -74,6 +76,7 @@ HLfigs2 <- HLfigs2 %>% mutate(medpolishRes = map(spreadMatrix, medpolishPly))
 #reestablishCondition(HLfigs2$data[[2]], HLfigs2$medpolishRes[[2]], skylineconfig )
 
 HLfigs3 <- HLfigs2 %>% mutate(medpolishRes = map2(data,medpolishRes,reestablishCondition , skylineconfig))
+
 HLfigs3 <- HLfigs3 %>% mutate(figsMed = map2(plot, medpolishRes, linePlotHierarchy_QuantLine, "medpolish", skylineconfig))
 
 
