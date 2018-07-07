@@ -80,3 +80,8 @@
 #' # usethis::use_data( sample_analysis_HL , overwrite = TRUE )
 "sample_analysis_HL"
 
+#' Data frame of a Spectronaut export with DIA datat
+#'
+#'
+#' @format a data frame
+"spectronautDIAData250"
