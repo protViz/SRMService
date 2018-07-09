@@ -6,7 +6,8 @@ output:
   pdf_document: default
   html_document: default
 params:
-  grp: !r quote(get(data(genericQuantMatrixGRP2, package="SRMService")))
+  grp: !r quote(SRMService::genericQuantMatrixGRP2)
+  #  grp: !r quote(get(data(genericQuantMatrixGRP2, package="SRMService")))
 vignette: >
   %\VignetteIndexEntry{Summarize Peptide Level Measurements}
   %\VignetteEngine{knitr::rmarkdown}
