@@ -34,8 +34,3 @@ test_that("source Run Tidy Heavy Light analysis", {
   source(reportFile)
 })
 
-
-test_that("source Run DIA correlation analysis", {
-  reportFile <- file.path(packagedir, "inst" , "RunScripts" , "Run_TidyCorrelationAnalysis.R")
-  source(reportFile)
-})
