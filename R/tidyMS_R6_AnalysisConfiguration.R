@@ -42,6 +42,10 @@ AnalysisTableAnnotation <- R6Class("AnalysisTableAnnotation",
                                      getWorkIntensity = function(){
                                        return(tail(self$workIntensity, n=1))
                                      },
+                                     popWorkIntensity=function(){
+                                        res <- self$workIntensity[length(self$workIntensity)]
+                                        self$workIntensity <- self$workIntensity[-length(self$workIntensity)]
+                                     },
                                      idRequired = function(){
                                        "Id Columns which must be in the input data frame"
                                        idVars <- c(

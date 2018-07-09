@@ -4,8 +4,14 @@
 \alias{toWideConfig}
 \title{transform long to wide}
 \usage{
-toWideConfig(data, config)
+toWideConfig(data, config, as.matrix = FALSE)
 }
 \description{
 transform long to wide
+}
+\examples{
+res <- toWideConfig(sample_analysis, skylineconfig)
+res <- toWideConfig(sample_analysis, skylineconfig, as.matrix = TRUE)
+res <- scale(res)
+
 }

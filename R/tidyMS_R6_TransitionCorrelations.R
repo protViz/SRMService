@@ -107,9 +107,50 @@ toWide <- function(data,
 
 #' transform long to wide
 #' @export
-toWideConfig <- function(data, config){
-  return(toWide( data, config$table$hierarchyKeys(), config$table$sampleName , value = config$table$getWorkIntensity() ))
+#' @examples
+#' res <- toWideConfig(sample_analysis, skylineconfig)
+#' res <- toWideConfig(sample_analysis, skylineconfig, as.matrix = TRUE)
+#' res <- scale(res)
+#'
+toWideConfig <- function(data, config , as.matrix = FALSE){
+  res <- toWide( data, c(config$table$hierarchyKeys()[1],config$table$hierarchyKeys(TRUE)[1]) ,
+                 config$table$sampleName ,
+                 value = config$table$getWorkIntensity() )
+  if(as.matrix){
+    resMat <- as.matrix(select(res,-(1:2)))
+    head(resMat)
+    names <- res %>% select(1:2) %>% unite(precursor_id, 1,2, sep="~") %>% pull()
+    rownames(resMat) <- names
+    res <- resMat
+  }
+  return(res)
 }
+
+#' make it long
+#' @export
+#' @examples
+#' res <- toWideConfig(sample_analysis, skylineconfig, as.matrix = TRUE)
+#' res <- scale(res)
+#' xx <- gatherItBack(res,"srm_intensityScaled",skylineconfig)
+#' xx <- gatherItBack(res,"srm_intensityScaled",skylineconfig,sample_analysis)
+gatherItBack <- function(x,value,config,data = NULL){
+  x <- dplyr::bind_cols(
+    tibble::tibble("row.names" := rownames(x)),
+    tibble::as_tibble(x)
+  )
+  x <- gather(x,key= !!config$table$sampleName, value = !!value, 2:ncol(x))
+  x <- tidyr::separate(x, "row.names",  c(config$table$hierarchyKeys()[1],config$table$hierarchyKeys(TRUE)[1]), sep="~")
+  if(!is.null(data)){
+
+    x <- inner_join(data, x)
+    config$table$setWorkIntensity(value)
+
+  }
+  return(x)
+}
+
+
+# Decorrelation analysis ----
 
 .findDecorrelated <- function(res, threshold = 0.65){
   if(is.null(res))
@@ -145,7 +186,7 @@ markDecorrelated <- function(x , config, minCorrelation = 0.7){
 }
 
 
-## Missing Value imputation
+# Missing Value imputation ----
 
 simpleImpute <- function(data){
   m <-apply(data,2, mean, na.rm=TRUE )
@@ -164,7 +205,7 @@ impute_correlationBased <- function(x , config){
   nestedX <- x %>%  group_by_at(config$table$hierarchyKeys()[1]) %>% nest()
   nestedX <- nestedX %>% dplyr::mutate(spreadMatrix = map(data, extractIntensities, config))
 
-  spreadItback <- function(x,config){
+  gatherItback <- function(x,config){
     x <- dplyr::bind_cols(
       tibble::tibble(!!config$table$hierarchyKeys(TRUE)[1] := rownames(x)),
       tibble::as_tibble(x)
@@ -173,7 +214,7 @@ impute_correlationBased <- function(x , config){
   }
 
   nestedX <- nestedX %>% dplyr::mutate(imputed = map(spreadMatrix, simpleImpute)) %>%
-    dplyr::mutate(imputed = map(imputed, spreadItback, config))
+    dplyr::mutate(imputed = map(imputed, gatherItback, config))
 
   unnest_res <- nestedX %>% select(protein_Id, imputed) %>% unnest()
   qvalFiltX <- inner_join(x, unnest_res,
