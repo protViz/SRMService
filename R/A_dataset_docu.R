@@ -85,3 +85,7 @@
 #'
 #' @format a data frame
 "spectronautDIAData250"
+
+#' Grp2Analysis reference class for running 2 grp analysis
+#' @format reference class
+"genericQuantMatrixGRP2"

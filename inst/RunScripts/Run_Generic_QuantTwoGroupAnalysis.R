@@ -96,7 +96,6 @@ file.copy(file.path(packagePath,"inst/reports/Grp2Analysis_MissingInOneCondtion.
 genericQuantMatrixGRP2 <- grp2
 class(genericQuantMatrixGRP2)
 
-rmarkdown::render("vignettes/Grp2Analysis.Rmd", params = list(grp = genericQuantMatrixGRP2), envir = new.env())
-
+rmarkdown::render("inst/reports/Grp2Analysis.Rmd", params = list(grp2 = genericQuantMatrixGRP2), envir = new.env())
 
 

@@ -347,8 +347,6 @@ if(sum(NAinfo$nrProteins > 0) > 0)
 
 ```
 
-
-
 ```{r includeMissingInOne, child = child_docs}
 ```
 

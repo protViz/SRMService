@@ -1,5 +1,6 @@
 library(R6)
 
+# AnalysisParameters ----
 #' Analysis parameters
 #' @export
 AnalysisParameters <- R6::R6Class("AnalysisParameters",
@@ -12,6 +13,7 @@ AnalysisParameters <- R6::R6Class("AnalysisParameters",
                                   )
 )
 
+# AnalysisTableAnnotation ----
 #' Create Annotation
 #' @export
 AnalysisTableAnnotation <- R6Class("AnalysisTableAnnotation",
@@ -76,7 +78,7 @@ AnalysisTableAnnotation <- R6Class("AnalysisTableAnnotation",
                                      }
                                    )
 )
-
+# AnalysisConfiguration ----
 #' Analysis Configuration
 #' @export
 AnalysisConfiguration <- R6Class("AnalysisConfiguration",
@@ -90,8 +92,7 @@ AnalysisConfiguration <- R6Class("AnalysisConfiguration",
                                  )
 )
 
-
-
+# Functions ----
 #' Helper function to extract all value slots in an R6 object
 #' @export
 R6extractValues <- function(r6class){
@@ -127,7 +128,6 @@ craeteSkylineConfiguration <- function(isotopeLabel="Isotope.Label", qValue="ann
   atable$hierarchy[["peptide_Id"]] <- "Peptide.Sequence"
   atable$hierarchy[["precursor_Id"]] <-  c("Peptide.Sequence","Precursor.Charge")
   atable$hierarchy[["fragment_Id"]] <- c("Peptide.Sequence","Precursor.Charge","Fragment.Ion", "Product.Charge")
-
 
   #
   atable$qValue = qValue
@@ -298,7 +298,7 @@ hierarchyCounts <- function(x, configuration){
 #' Summarize Protein counts
 #' @export
 summarizeProteins <- function(x, configuration ){
-  rev_hierarchy <- rev(names(configuration$table$hierarchy))
+  rev_hierarchy <- rev(configuration$table$hierarchyKeys(TRUE))
 
   precursorSum <- x %>% select(rev_hierarchy) %>% distinct() %>%
     group_by_at(rev_hierarchy[-1]) %>%
