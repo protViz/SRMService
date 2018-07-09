@@ -129,6 +129,8 @@ decorelatedPly <- function(x, corThreshold = 0.7){
 
 #' marks decorrelated elements
 #' @export
+#' @section TODO: do something with warnings of type "the standard deviation is zero".
+#' @section TODO: do investigate In max(x, na.rm = TRUE) : no non-missing arguments to max; returning -Inf
 markDecorrelated <- function(x , config, minCorrelation = 0.7){
   x<-qvalFiltV
   qvalFiltX <- x %>%  group_by_at(config$table$hierarchyKeys()[1]) %>% nest()
