@@ -4,6 +4,7 @@ library(rlang)
 library(conflicted)
 library(SRMService)
 
+
 outdir <- tempdir()
 
 #allDataM <- read.csv(file="d:\\projects\\p2342_JonasZaugg\\order4041\\output/allData.txt", stringsAsFactors = FALSE)
@@ -31,7 +32,6 @@ yaml::write_yaml(tt, file=file.path(outdir,"testSkyline.yml"))
 
 proteinIDsymbol <- sym(skylineconfig$table$hierarchyKeys()[1])
 xnested <- resData %>% group_by(UQ(proteinIDsymbol)) %>% nest()
-options(warn=0)
 
 linePlotHierarchy_configuration(xnested$data[[2]], xnested$protein_Id[[2]], skylineconfig)
 linePlotHierarchy_configuration(xnested$data[[3]], xnested$protein_Id[[3]], skylineconfig, separate = TRUE)
@@ -46,10 +46,8 @@ if(1){
 }
 
 #rmarkdown::render("SRMReport.Rmd", params = list(data=resData, configuration = skylineconfig), envir = new.env(), output_file = "SRMReport.pdf")
-skylineconfig$table$isotopeLabel
 HLData <- spreadValueVarsIsotopeLabel(resData, skylineconfig)
 HLData <- HLData %>% mutate(log2L_log2H = log2(light_Area)- log2(heavy_Area))
-
 HLData$Isotope.Label <- "L/H"
 
 skylineconfigHL <- skylineconfig

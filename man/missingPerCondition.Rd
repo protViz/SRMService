@@ -11,7 +11,7 @@ Summarize missing in condtion as barplot
 }
 \examples{
 setNa <- function(x){ifelse(x < 100, NA, x)}
-sample_analysis \%>\% mutate(Area = setNa(Area)) -> sample_analysis
+sample_analysis \%>\% dplyr::mutate(Area = setNa(Area)) -> sample_analysis
 res <- missingPerCondition(sample_analysis,skylineconfig)
 names(res)
 print(res$figure)

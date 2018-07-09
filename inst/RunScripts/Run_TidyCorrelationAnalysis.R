@@ -56,8 +56,9 @@ if(0){
   longFormat <- longFormat %>% select(which(!colnames(longFormat) %in% not))
   spectronautDIAData250 <- longFormat
   usethis::use_data(spectronautDIAData250,overwrite = TRUE)
-
 }
+
+
 longFormat <- get(data(spectronautDIAData250))
 "PEP.StrippedSequence" %in% colnames(longFormat)
 longFormat$Isotope.Label <- "Light"
@@ -70,7 +71,6 @@ longNoDecoy <- setup_analysis(longFormat, config)
 
 data <- longNoDecoy
 longNoDecoy <- setIntensitiesToNA(longNoDecoy, config)
-config$table$workIntensity
 
 ## QValue Summaries
 
@@ -108,6 +108,7 @@ hierarchyCounts(qvalFiltV,config)
 # Correlation Filtering
 
 #```{r}
+options(warn=0)
 xx <- markDecorrelated(qvalFiltV, config)
 hierarchyCounts(xx, config)
 
@@ -136,7 +137,6 @@ config$table$workIntensity <- config$table$workIntensity[-length(config$table$wo
 qvalFiltCorrSI %>% select(protein_Id,fragment_Id, starts_with("srm_")) %>% distinct()
 
 qvalFiltImputed <- impute_correlationBased(qvalFiltCorrSI, config)
-
 qvalFiltImputed %>% select(protein_Id,fragment_Id, starts_with("srm_")) %>% distinct()
 
 # Aggregation
