@@ -6,7 +6,7 @@ output:
   pdf_document: default
   html_document: default
 params:
-  grp: !r get(data(genericQuantMatrixGRP2))
+  grp: !r quote(get(data(genericQuantMatrixGRP2, package="SRMService")))
 vignette: >
   %\VignetteIndexEntry{Summarize Peptide Level Measurements}
   %\VignetteEngine{knitr::rmarkdown}
@@ -26,7 +26,8 @@ if(!exists("progress")){
     invisible(NULL)
   }
 }
-grp2 <- params$grp
+
+grp2 <- eval(params$grp)
 ```
 
 # Input Matrix
