@@ -9,7 +9,7 @@ params:
   grp: !r quote(SRMService::genericQuantMatrixGRP2)
   #  grp: !r quote(get(data(genericQuantMatrixGRP2, package="SRMService")))
 vignette: >
-  %\VignetteIndexEntry{Summarize Peptide Level Measurements}
+  %\VignetteIndexEntry{FGCZ Two-Group Analysis}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
@@ -340,10 +340,8 @@ NAinfo <- c(sum(is.na(results[, grp2$getConditions()$reference])) ,
             sum(is.na(results[, grp2$getConditions()$condition])) )
 NAinfo<-data.frame(name = unlist(grp2$getConditions()), nrProteins= NAinfo)
 
-if(sum(NAinfo$nrProteins > 0) > 0)
-{
-  child_docs <- "Grp2Analysis_MissingInOneCondtion.Rmd_t"
-} else{
+child_docs <- "Grp2Analysis_MissingInOneCondtion.Rmd_t"
+if(!sum(NAinfo$nrProteins > 0) > 0){
   child_docs <- "Grp2Analysis_Empty.Rmd_t"
 }
 
