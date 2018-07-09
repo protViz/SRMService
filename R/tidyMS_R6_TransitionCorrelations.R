@@ -207,7 +207,10 @@ rankProteinPrecursors <- function(data,
   return(data)
 }
 
-
+#' ranks precursor - peptide by intensity.
+#'
+#' @section TODO
+#' @export
 rankPrecursorsByIntensity <- function(data, config){
   summaryColumn <- "srm_meanInt"
   rankColumn <- "srm_meanIntRank"
@@ -223,11 +226,11 @@ rankPrecursorsByIntensity <- function(data, config){
 }
 
 
-## Ranks precursors by NAs (adds new column .NARank)
+#' Ranks precursors by NAs (adds new column .NARank)
+#' @export
 rankPrecursorsByNAs <- function(data, config){
   summaryColumn <- "srm_NrNAs"
   rankColumn <- "srm_NrNARank"
-
   data<- rankProteinPrecursors(data, config,
                                column = config$table$getWorkIntensity(),
                                fun = function(x){sum(is.na(x))},
@@ -239,8 +242,10 @@ rankPrecursorsByNAs <- function(data, config){
   return(data)
 }
 
-
-
+#' aggregates top N intensities
+#'
+#' run \item{rankPrecursorsByIntensity} first
+#' @export
 aggregateTopNIntensities <- function(data,config, N = 3){
   topInt <- data %>%
     dplyr::filter_at( "srm_meanIntRank", any_vars(. <= N)) %>%

@@ -90,6 +90,7 @@ SRMService::hierarchyCounts(qvalFilt, config)
 tmp <- toWideConfig(qvalFilt, config)
 tmp2 <- as.matrix(tmp[(length(config$table$hierarchyKeys() ) + 1):ncol(tmp)])
 rownames(tmp2) <- tmp %>% unite(x ,1,4) %>% pull(x)
+
 quantable::simpleheatmap(cor(log2(tmp2), use="pairwise.complete.obs"), margin=c(15,5))
 
 
