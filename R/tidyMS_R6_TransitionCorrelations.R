@@ -225,7 +225,6 @@ rankPrecursorsByIntensity <- function(data, config){
   return(data)
 }
 
-
 #' Ranks precursors by NAs (adds new column .NARank)
 #' @export
 rankPrecursorsByNAs <- function(data, config){
@@ -244,7 +243,7 @@ rankPrecursorsByNAs <- function(data, config){
 
 #' aggregates top N intensities
 #'
-#' run \item{rankPrecursorsByIntensity} first
+#' run \link{rankPrecursorsByIntensity} first
 #' @export
 aggregateTopNIntensities <- function(data,config, N = 3){
   topInt <- data %>%

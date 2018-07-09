@@ -293,12 +293,11 @@ hierarchyCounts <- function(x, configuration){
   return(res)
 }
 
-
 #' Light only version.
 #' Summarize Protein counts
 #' @export
-summarizeProteins <- function(x, configuration ){
-  rev_hierarchy <- rev(configuration$table$hierarchyKeys(TRUE))
+summarizeProteins <- function( x, configuration ){
+  rev_hierarchy <- configuration$table$hierarchyKeys(TRUE)
 
   precursorSum <- x %>% select(rev_hierarchy) %>% distinct() %>%
     group_by_at(rev_hierarchy[-1]) %>%

@@ -7,5 +7,5 @@
 aggregateTopNIntensities(data, config, N = 3)
 }
 \description{
-run \item{rankPrecursorsByIntensity} first
+run \link{rankPrecursorsByIntensity} first
 }
