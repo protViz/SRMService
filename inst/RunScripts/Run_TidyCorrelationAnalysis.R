@@ -63,7 +63,7 @@ longFormat <- get(data(spectronautDIAData250))
 "PEP.StrippedSequence" %in% colnames(longFormat)
 longFormat$Isotope.Label <- "Light"
 
-source("c:/Users/wolski/prog/SRMService/inst/RPrototypes/tidyMS_R6_TransitionCorrelations.R")
+#source("c:/Users/wolski/prog/SRMService/inst/RPrototypes/tidyMS_R6_TransitionCorrelations.R")
 
 config$table$workIntensity <- config$table$workIntensity[1]
 longNoDecoy <- setup_analysis(longFormat, config)
