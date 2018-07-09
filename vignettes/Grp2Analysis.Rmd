@@ -6,7 +6,7 @@ output:
   pdf_document: default
   html_document: default
 params:
-  grp:  !r get(data(genericQuantMatrixGRP2))
+  grp: !r get(data(genericQuantMatrixGRP2))
 vignette: >
   %\VignetteIndexEntry{Summarize Peptide Level Measurements}
   %\VignetteEngine{knitr::rmarkdown}

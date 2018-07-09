@@ -463,7 +463,7 @@ missingPerCondition <- function(x, configuration, nrfactors = 1){
   return(list(data = xx ,figure = p))
 }
 
-#'
+#' spreads isotope label heavy light into two columns
 #' @examples
 #' setNa <- function(x){ifelse(x < 100, NA, x)}
 #' data(sample_analysis)
