@@ -34,6 +34,7 @@ knitr::kable(data.frame(NR = x), caption="summary")
 
 
 ```{r proteinSummaries}
+
 x2 <- summarizeProteins(params$data, params$configuration)
 x3 <- summarizeHierarchy(params$data, params$configuration)
 tmp <- inner_join(x3, x2)
@@ -45,6 +46,7 @@ knitr::kable(tmp, caption="Protein Summaries")
 
 ```{r missingFigIntensityHistorgram, fig.cap="histogram of mean condition intensities per transition"}
 missignessHistogram(params$data, params$configuration)
+
 ```
 
 

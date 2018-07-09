@@ -16,6 +16,6 @@ skylineconfig_HL <- craeteSkylineConfiguration(isotopeLabel="Isotope.Label", qVa
 skylineconfig_HL$table$factors[["treatment_c"]] <- "Condition2"
 skylineconfig_HL$table$factors[["time_c"]] <- "time"
 skylineconfig_HL$parameter$workingIntensityTransform = ""
-#usethis::use_data( skylineconfig_HL , overwrite = TRUE )
+usethis::use_data( skylineconfig_HL , overwrite = TRUE )
 }
 \keyword{datasets}

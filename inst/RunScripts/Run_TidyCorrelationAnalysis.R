@@ -91,7 +91,7 @@ tmp <- toWideConfig(qvalFilt, config)
 tmp2 <- as.matrix(tmp[(length(config$table$hierarchyKeys() ) + 1):ncol(tmp)])
 rownames(tmp2) <- tmp %>% unite(x ,1,4) %>% pull(x)
 
-quantable::simpleheatmap(cor(log2(tmp2), use="pairwise.complete.obs"), margin=c(15,5))
+#quantable::simpleheatmap(cor(log2(tmp2), use="pairwise.complete.obs"), margin=c(15,5))
 
 
 ## Remove single hit wonders
@@ -123,8 +123,8 @@ intensitiesD <- toWideConfig(qvalFiltCorr, config)
 
 
 #```{r}
-quantable::simpleheatmap(cor(log2( intensitiesD[,sapply(intensitiesD, class) == "numeric"]
-),use="pairwise.complete.obs"), margin=c(15,5))
+#quantable::simpleheatmap(cor(log2( intensitiesD[,sapply(intensitiesD, class) == "numeric"]),
+#                             use="pairwise.complete.obs"), margin=c(15,5))
 
 #```
 
@@ -157,7 +157,7 @@ proteinIntensities <- aggregateTopNIntensities(qvalFiltImputed,config,N=3)
 
 proteinsWide <- spread(proteinIntensities, sampleName,srm_sumTopInt)
 
-quantable::simpleheatmap(t(scale(t(log2(1+proteinsWide[2:ncol(proteinsWide)])))), margins = c(16,5))
+#quantable::simpleheatmap(t(scale(t(log2(1+proteinsWide[2:ncol(proteinsWide)])))), margins = c(16,5))
 nrPep <-qvalFiltImputed %>% select(config$table$hierarchyKeys()[1], nr_peptide_Id_by_protein_Id) %>% distinct()
 xx <- inner_join(nrPep,proteinsWide)
 #readr::write_csv(xx, path="output/proteinQuantsTidy.txt")

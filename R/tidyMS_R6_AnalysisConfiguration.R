@@ -359,7 +359,9 @@ getMissingStats <- function(x, configuration, nrfactors = 1){
                                      table$hierarchyKeys()[1],
                                      tail(table$hierarchyKeys(),1),
                                      table$isotopeLabel
-  )) %>%
+  ))
+
+  missingPrec <- missingPrec %>%
     dplyr::summarize(nrReplicates = n(), nrNAs = sum(is.na(!!sym(table$getWorkIntensity()))) ,
               meanArea = mean(!!sym(table$getWorkIntensity()), na.rm=TRUE)) %>%
     arrange(desc(nrNAs))

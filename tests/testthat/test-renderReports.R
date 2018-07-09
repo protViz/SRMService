@@ -5,8 +5,7 @@ tmp_d <- tempdir()
 packagedir <- path.package("SRMService")
 
 test_that("render TR_SRM_Summary", {
-  reportFile <- file.path(packagedir, "inst" , "reports" , "TR_SRM_Summary.Rmd")
-  #reportFile <- file.path(packagedir, "reports" , "TR_SRM_Summary.Rmd")
+  reportFile <- file.path(packagedir, "vignettes" , "tr_srm_summary.Rmd")
 
   tmp_f <- file.path(tmp_d,"TR_SRM_Summary.Rmd")
   tmp <- file.copy(reportFile, tmp_f,overwrite = TRUE)
@@ -15,8 +14,11 @@ test_that("render TR_SRM_Summary", {
   if(expect_true(tmp)){
     skylineconfig <- craeteSkylineConfiguration(isotopeLabel="Isotope.Label.Type", qValue="Detection.Q.Value")
     skylineconfig$table$factors[["Time"]] = "Sampling.Time.Point"
+    #usethis::use_data(skylineconfig, overwrite = TRUE)
     data(skylinePRMSampleData)
     sample_analysis <- setup_analysis(skylinePRMSampleData, skylineconfig)
+    params = list(data = sample_analysis,
+         configuration = skylineconfig)
     x <- rmarkdown::render(tmp_f, output_format = "html_document",
                       params = list(data = sample_analysis,
                                     configuration = skylineconfig),envir = new.env())

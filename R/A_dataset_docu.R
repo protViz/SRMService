@@ -61,7 +61,7 @@
 #' skylineconfig_HL$table$factors[["treatment_c"]] <- "Condition2"
 #' skylineconfig_HL$table$factors[["time_c"]] <- "time"
 #' skylineconfig_HL$parameter$workingIntensityTransform = ""
-#' #usethis::use_data( skylineconfig_HL , overwrite = TRUE )
+#' usethis::use_data( skylineconfig_HL , overwrite = TRUE )
 "skylineconfig_HL"
 
 #' A data frame wich goes along with the \link{skylineconfig_HL}.
@@ -77,7 +77,7 @@
 #' data(skylineSRM_HL_data)
 #'
 #' sample_analysis_HL <- setup_analysis(skylineSRM_HL_data, skylineconfig)
-#' # usethis::use_data( sample_analysis_HL , overwrite = TRUE )
+#' #usethis::use_data( sample_analysis_HL , overwrite = TRUE )
 "sample_analysis_HL"
 
 #' Data frame of a Spectronaut export with DIA datat
