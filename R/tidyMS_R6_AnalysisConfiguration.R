@@ -517,7 +517,8 @@ medpolishPly <- function(x){
   res
 }
 
-
+#' realign data
+#' @export
 reestablishCondition <- function(data,
                                  medpolishRes,
                                  configuration
