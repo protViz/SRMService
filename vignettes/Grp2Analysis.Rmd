@@ -1,10 +1,20 @@
 ---
-title: "FGCZ Two-Group Analysis: `r grp2$projectName` \n Statistics for a Quantitative Protein Matrix"
+title: "FGCZ Two-Group Analysis: `r params$grp$projectName` \n Statistics for a Quantitative Protein Matrix"
 author: "Functional Genomics Center Zurich"
 date: "`r format(Sys.time(), '%d %B, %Y')`"
+output:
+  pdf_document: default
+  html_document: default
+params:
+  grp:  !r get(data(genericQuantMatrixGRP2))
+vignette: >
+  %\VignetteIndexEntry{Summarize Peptide Level Measurements}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
 ---
 
 ```{r setup, include=FALSE}
+
 knitr::opts_chunk$set(
   echo = FALSE,
   message = FALSE,
@@ -16,6 +26,7 @@ if(!exists("progress")){
     invisible(NULL)
   }
 }
+grp2 <- params$grp
 ```
 
 # Input Matrix

@@ -21,8 +21,8 @@ skylineconfig_HL$table$factors[["treatment_c"]] <- "Condition2"
 skylineconfig_HL$table$factors[["time_c"]] <- "time"
 skylineconfig_HL$parameter$workingIntensityTransform = ""
 data(skylineSRM_HL_data)
-
-sample_analysis_HL <- setup_analysis(skylineSRM_HL_data, skylineconfig)
-#usethis::use_data( sample_analysis_HL , overwrite = TRUE )
+skylineSRM_HL_data$Area[skylineSRM_HL_data$Area == 0] <- NA
+sample_analysis_HL <- setup_analysis(skylineSRM_HL_data, skylineconfig_HL)
+usethis::use_data( sample_analysis_HL , overwrite = TRUE )
 }
 \keyword{datasets}

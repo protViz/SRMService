@@ -9,7 +9,10 @@ library(limma)
 library(SRMService)
 
 ### Protein groups file
-proteinGroupsFile <- "Generic_QuantMatrix.txt"
+packagePath <- path.package("SRMService")
+packagePath <- "."
+proteinGroupsFile <- file.path(packagePath,"/inst/samples/genericQuantMatrix","Generic_QuantMatrix.txt")
+
 # read in protein groups file
 protein <- readr::read_tsv(proteinGroupsFile)
 colnames(protein) <- make.names(colnames(protein))
@@ -17,7 +20,7 @@ colnames(protein) <- make.names(colnames(protein))
 
 # important structure for protein matrix
 #colnames(protein)
-# "Majority.protein.IDs"   "Intensity.dnmt3b_15_s1" "Intensity.dnmt3b_15_s2" "Intensity.dnmt3l_11_s1" "Intensity.dnmt3l_11_s2" "Intensity.IP_lsh_s1"    "Intensity.IP_lsh_s2"    "Intensity.WT"           "Peptides"               "Fasta.headers"   
+# "Majority.protein.IDs"   "Intensity.dnmt3b_15_s1" "Intensity.dnmt3b_15_s2" "Intensity.dnmt3l_11_s1" "Intensity.dnmt3l_11_s2" "Intensity.IP_lsh_s1"    "Intensity.IP_lsh_s2"    "Intensity.WT"           "Peptides"               "Fasta.headers"
 # fix column names in order to parse all efficientl
 # also add some columns that are not by default present
 # "Majority.protein.IDs"
@@ -52,11 +55,13 @@ annotation <- data.frame(Raw.file = rawF,
 
 ###################################
 ### Configuration section
-resultdir <- "GenericTwoGroup"
+
+tmpdir <- tempdir()
+resultdir <- file.path(tmpdir,"GenericTwoGroup")
 dir.create(resultdir)
 
 # calls up data editor
-fix(annotation)
+#fix(annotation)
 
 # default settings
 Experimentname = "pXXX_compareDifferentTissues"
@@ -80,11 +85,18 @@ grp2$setQValueThresholds(qvalue = qvalueThreshold,qfoldchange = qfoldchange)
 
 #write out results and render pdf
 readr::write_tsv(x = grp2$getResultTable(), path = file.path(resultdir,"pValues.csv"))
-rmarkdown::render("Grp2Analysis.Rmd",bookdown::pdf_document2())
 
-#Move 
-outPutFileName <- paste(gsub(x = Experimentname, pattern = " ", replacement = "_"),".pdf",sep="")
-myMoveCommand <- paste("mv Grp2Analysis.pdf ",resultdir,"/",outPutFileName,sep="")
-system(command = myMoveCommand, intern = FALSE)
+dstMarkdown <- file.path(resultdir,"Grp2Analysis.Rmd")
+file.copy(file.path(packagePath,"inst/reports/Grp2Analysis.Rmd"), dstMarkdown, overwrite = TRUE)
+file.copy(file.path(packagePath,"inst/reports/Grp2Analysis_Empty.Rmd"),
+          file.path(resultdir,"Grp2Analysis_Empty.Rmd" ), overwrite = TRUE)
+file.copy(file.path(packagePath,"inst/reports/Grp2Analysis_MissingInOneCondtion.Rmd"),
+          file.path(resultdir,"Grp2Analysis_MissingInOneCondtion.Rmd"), overwrite = TRUE)
+
+genericQuantMatrixGRP2 <- grp2
+class(genericQuantMatrixGRP2)
+
+rmarkdown::render("vignettes/Grp2Analysis.Rmd", params = list(grp = genericQuantMatrixGRP2), envir = new.env())
+
 
 
