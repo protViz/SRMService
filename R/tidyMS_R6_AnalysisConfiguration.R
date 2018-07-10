@@ -45,6 +45,7 @@ AnalysisTableAnnotation <- R6Class("AnalysisTableAnnotation",
                                      popWorkIntensity=function(){
                                         res <- self$workIntensity[length(self$workIntensity)]
                                         self$workIntensity <- self$workIntensity[-length(self$workIntensity)]
+                                        return(res)
                                      },
                                      idRequired = function(){
                                        "Id Columns which must be in the input data frame"
@@ -268,7 +269,8 @@ linePlotHierarchy_configuration <- function(res, proteinName, configuration, sep
   return(res)
 }
 
-
+#' make some nice plot with summary statistics
+#' @export
 linePlotHierarchy_QuantLine <- function(p, data, aes_y,  configuration){
   table <- configuration$table
   p + geom_line(data=data,
