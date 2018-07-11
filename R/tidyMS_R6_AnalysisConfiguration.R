@@ -97,7 +97,7 @@ AnalysisConfiguration <- R6Class("AnalysisConfiguration",
                                  )
 )
 
-# Functions ----
+# Functions - Configuration ----
 #' Helper function to extract all value slots in an R6 object
 #' @export
 R6extractValues <- function(r6class){
@@ -199,7 +199,7 @@ setup_analysis <- function(data, configuration ,sep="~"){
   return( data )
 }
 
-
+# Functions - Plotting ----
 #' Plot peptide and fragments
 linePlotHierarchy_default <- function(data,
                                       proteinName,
@@ -269,7 +269,7 @@ linePlotHierarchy_configuration <- function(res, proteinName, configuration, sep
   return(res)
 }
 
-#' make some nice plot with summary statistics
+#' add quantline to plot
 #' @export
 linePlotHierarchy_QuantLine <- function(p, data, aes_y,  configuration){
   table <- configuration$table
@@ -281,6 +281,8 @@ linePlotHierarchy_QuantLine <- function(p, data, aes_y,  configuration){
     geom_point(data=data,
                aes_string(x = table$sampleName , y = aes_y, group=1), color="black", shape=10)
 }
+
+# Functions - summary ----
 
 #' Count distinct elements for each level of hierarchy
 #'
@@ -355,6 +357,7 @@ summarizeHierarchy <- function(x, configuration, level = 1)
   return(x3)
 }
 
+# Functions - Missigness ----
 #' compute missing statistics
 #' @export
 getMissingStats <- function(x, configuration, nrfactors = 1){
@@ -468,6 +471,8 @@ missingPerCondition <- function(x, configuration, nrfactors = 1){
   return(list(data = xx ,figure = p))
 }
 
+# Functions - Handling isotopes ----
+
 #' spreads isotope label heavy light into two columns
 #' @examples
 #' setNa <- function(x){ifelse(x < 100, NA, x)}
@@ -491,6 +496,7 @@ spreadValueVarsIsotopeLabel <- function(resData, configuration){
   invisible(HLData)
 }
 
+# Computing protein Intensity summaries
 
 .ExtractMatrix <- function(x){
   idx <- sapply(x,is.numeric)
@@ -532,7 +538,6 @@ reestablishCondition <- function(data,
   table <- configuration$table
   xx <- data %>%  select(c(table$sampleName,
                            table$factorKeys(), table$fileName)) %>% distinct()
-
   res <- inner_join(xx,medpolishRes, by=table$sampleName)
   res
 }
