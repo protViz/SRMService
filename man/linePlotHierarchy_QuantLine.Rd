@@ -2,10 +2,10 @@
 % Please edit documentation in R/tidyMS_R6_AnalysisConfiguration.R
 \name{linePlotHierarchy_QuantLine}
 \alias{linePlotHierarchy_QuantLine}
-\title{make some nice plot with summary statistics}
+\title{add quantline to plot}
 \usage{
 linePlotHierarchy_QuantLine(p, data, aes_y, configuration)
 }
 \description{
-make some nice plot with summary statistics
+add quantline to plot
 }

@@ -346,11 +346,7 @@ if(!sum(NAinfo$nrProteins > 0) > 0){
   child_docs <- "Grp2Analysis_Empty.Rmd_t"
 }
 
-#if(TRUE){
-#  child_docs <- "Grp2Analysis_Empty.Rmd_t"
-#}
-
-child_docs <- system.file(file.path("ParametrizedReportsChild", child_docs), package = "SRMService")
+child_docs <- system.file(file.path("ParametrizedReportsChild",child_docs),package = "SRMService")
 
 ```
 
