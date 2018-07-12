@@ -10,8 +10,11 @@ gatherItBack(x, value, config, data = NULL)
 make it long
 }
 \examples{
-res <- toWideConfig(sample_analysis, skylineconfig, as.matrix = TRUE)
+conf <- skylineconfig$clone(deep = TRUE)
+res <- toWideConfig(sample_analysis, conf, as.matrix = TRUE)
 res <- scale(res)
-xx <- gatherItBack(res,"srm_intensityScaled",skylineconfig)
-xx <- gatherItBack(res,"srm_intensityScaled",skylineconfig,sample_analysis)
+
+xx <- gatherItBack(res,"srm_intensityScaled",conf)
+xx <- gatherItBack(res,"srm_intensityScaled",conf,sample_analysis)
+conf$table$getWorkIntensity() == "srm_intensityScaled"
 }

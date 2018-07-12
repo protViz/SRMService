@@ -2,13 +2,10 @@
 % Please edit documentation in R/tidyMS_R6_TransitionCorrelations.R
 \name{setIntensitiesToNA}
 \alias{setIntensitiesToNA}
-\title{sets intensities to NA if maxQValue_Threshold exceeded}
+\title{DEPRECATED use \link{setLarge_Q_ValuesToNA}}
 \usage{
 setIntensitiesToNA(data, config, newcolname = "IntensitiesWithNA")
 }
-\value{
-list with augmented data and updated config
-}
 \description{
-sets intensities to NA if maxQValue_Threshold exceeded
+DEPRECATED use \link{setLarge_Q_ValuesToNA}
 }

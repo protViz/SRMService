@@ -10,7 +10,10 @@ extractIntensities(x, configuration)
 Extract intensity column
 }
 \examples{
-rm(skylineconfig)
-xx <- extractIntensities(sample_analysis,skylineconfig)
-head(xx)
+colnames(sample_analysis)
+xnested <- sample_analysis \%>\%
+ group_by_at(skylineconfig$table$hierarchyKeys()[1]) \%>\%
+ tidyr::nest()
+xx <- extractIntensities(xnested$data[[1]],skylineconfig)
+stopifnot(dim(xx)==c(104,22))
 }

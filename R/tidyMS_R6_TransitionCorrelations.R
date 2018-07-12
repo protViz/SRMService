@@ -1,8 +1,8 @@
-.setIntensitiesToNA <- function(data,
-                                QValueColumn,
-                                intensityOld,
-                                thresholdQValue = 0.05,
-                                intensityNew = "IntensitiesWithNA"){
+.setLargeQValuesToNA <- function(data,
+                                 QValueColumn,
+                                 intensityOld,
+                                 thresholdQValue = 0.05,
+                                 intensityNew = "IntensitiesWithNA"){
 
   thresholdF <- function(x,y, threshold = 0.05){ ifelse(x < threshold, y, NA)}
   data <- data %>%
@@ -10,25 +10,48 @@
   return(data)
 }
 
+
 #' sets intensities to NA if maxQValue_Threshold exceeded
 #' @export
-#' @return list with augmented data and updated config
-setIntensitiesToNA <- function(data, config, newcolname="IntensitiesWithNA"){
-  data <- .setIntensitiesToNA(data,
-                              QValueColumn = config$table$qValue,
-                              intensityOld = config$table$getWorkIntensity(),
-                              thresholdQValue = config$parameter$maxQValue_Threshold,
-                              intensityNew = newcolname
+#' @examples
+#' analysis <- SRMService::spectronautDIAData250_analysis
+#' config <- SRMService::spectronautDIAData250_config$clone(deep=TRUE)
+#' res <- setLarge_Q_ValuesToNA(analysis, config)
+setLarge_Q_ValuesToNA <- function(data, config, intensityNewName="IntensitiesWithNA"){
+  data <- .setLargeQValuesToNA(data,
+                               QValueColumn = config$table$qValue,
+                               intensityOld = config$table$getWorkIntensity(),
+                               thresholdQValue = config$parameter$maxQValue_Threshold,
+                               intensityNew = intensityNewName
   )
-  config$table$setWorkIntensity(newcolname)
+  config$table$setWorkIntensity(intensityNewName)
+  return(data)
+}
+#' DEPRECATED use \link{setLarge_Q_ValuesToNA}
+#' @export
+setIntensitiesToNA <- function(data, config, newcolname="IntensitiesWithNA"){
+  warning("DEPRECATED use setLarge_Q_ValuesToNA instead")
+  data <-setLarge_Q_ValuesToNA(data, config, intensityNewName=newcolname)
   return(data)
 }
 
-
-m_inner_join <- function(x,y){
-  config <- getConfig(x)
-  x <- dplyr::inner_join(x,y)
-  return(setConfig(x,config))
+#' sets intensities smaller than threshold to NA
+#' @export
+#' @examples
+#' analysis <- SRMService::spectronautDIAData250_analysis
+#' config <- SRMService::spectronautDIAData250_config$clone(deep=TRUE)
+#'
+#' config$table$getWorkIntensity()
+#'
+#' config2 <- config$clone(deep=TRUE)
+#' res1 <- setSmallIntensitiesToNA(analysis, config, threshold=1, intensityNewName = "Int1" )
+#' res1000 <- setSmallIntensitiesToNA(analysis, config2, threshold=1000, intensityNewName = "Int1000" )
+#' sum(is.na(res1[[config$table$getWorkIntensity()]])) < sum(is.na(res1000[[config2$table$getWorkIntensity()]]))
+setSmallIntensitiesToNA <- function(data, config, threshold = 1 , intensityNewName ="IntensitiesWithNA"){
+  resData <- data %>% mutate_at(vars(!!intensityNewName := config$table$getWorkIntensity()) ,
+                                   function(x){ifelse(x < threshold, NA, x)} )
+  config$table$setWorkIntensity(intensityNewName)
+  return(resData)
 }
 
 
@@ -79,8 +102,8 @@ summariseNAs <- function(data,
 #' Compute nr of B per A
 #' @export
 nr_B_in_A <- function(data,
-                     levelA,
-                     levelB){
+                      levelA,
+                      levelB){
   c_name <- paste("nr_",levelB,"_by_",levelA,sep="")
   tmp <- data %>%
     dplyr::select_at(c(levelA, levelB)) %>%
@@ -129,12 +152,13 @@ toWideConfig <- function(data, config , as.matrix = FALSE){
 #' make it long
 #' @export
 #' @examples
-#' res <- toWideConfig(sample_analysis, skylineconfig, as.matrix = TRUE)
+#' conf <- skylineconfig$clone(deep = TRUE)
+#' res <- toWideConfig(sample_analysis, conf, as.matrix = TRUE)
 #' res <- scale(res)
 #'
-#' xx <- gatherItBack(res,"srm_intensityScaled",skylineconfig)
-#' xx <- gatherItBack(res,"srm_intensityScaled",skylineconfig,sample_analysis)
-#' skylineconfig$table$getWorkIntensity() == "srm_intensityScaled"
+#' xx <- gatherItBack(res,"srm_intensityScaled",conf)
+#' xx <- gatherItBack(res,"srm_intensityScaled",conf,sample_analysis)
+#' conf$table$getWorkIntensity() == "srm_intensityScaled"
 gatherItBack <- function(x,value,config,data = NULL){
   x <- dplyr::bind_cols(
     tibble::tibble("row.names" := rownames(x)),

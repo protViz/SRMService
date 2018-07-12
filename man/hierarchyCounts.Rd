@@ -16,5 +16,5 @@ skylineconfig$table$factors[["Time"]] = "Sampling.Time.Point"
 data(skylinePRMSampleData)
 
 sample_analysis <- setup_analysis(skylinePRMSampleData, skylineconfig)
-summarizeProtPepPrecursorFragCounts(sample_analysis, skylineconfig)
+hierarchyCounts(sample_analysis, skylineconfig)
 }

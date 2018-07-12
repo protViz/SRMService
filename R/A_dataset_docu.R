@@ -79,11 +79,38 @@
 #' usethis::use_data( sample_analysis_HL , overwrite = TRUE )
 "sample_analysis_HL"
 
-#' Data frame of a Spectronaut export with DIA datat
-#'
+#' Data frame of a Spectronaut export with DIA data
 #'
 #' @format a data frame
 "spectronautDIAData250"
+
+#' A configuration which matches the \link{spectronautDIAData250} and \link{spectronautDIAData250} data.
+#'
+#'
+#' @format A AnalysisConfiguration R6 class
+#' @examples
+#' spectronautDIAData250_config <- createSpectronautPeptideConfiguration(isotopeLabel="Isotope.Label", qValue="EG.Qvalue")
+#' spectronautDIAData250_config$table$factors[["coding"]] = "coding"
+#' spectronautDIAData250_config$table$factors[["sex"]] = "sex"
+#' spectronautDIAData250_config$table$factors[["age"]] = "age"
+#' spectronautDIAData250_config$table$factors[["Sample_id"]] = "Sample.Name"
+#' #usethis::use_data( spectronautDIAData250_config , overwrite = TRUE )
+#'
+"spectronautDIAData250_config"
+
+#' A data frame wich goes along with the \link{spectronautDIAData250_config}.
+#'
+#'
+#' @source \url{http://www.fgcz.ch/}
+#' @examples
+#' data <- SRMService::spectronautDIAData250
+#' xx <-  SRMService::spectronautDIAData250_config
+#'
+#' spectronautDIAData250_analysis <- setup_analysis(data,xx)
+#' #usethis::use_data( spectronautDIAData250_analysis , overwrite = TRUE )
+"spectronautDIAData250_analysis"
+
+
 
 #' Grp2Analysis reference class for running 2 grp analysis
 #' @format reference class

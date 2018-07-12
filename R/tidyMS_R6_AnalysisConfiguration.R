@@ -221,8 +221,12 @@ linePlotHierarchy_default <- function(data,
 #' extracts the relevant information from the configuration to make the plot.
 #' @export
 #' @examples
-#' data(sample_config)
-#' linePlotHierarchy_configuration(sample_config)
+#' library(SRMService)
+#' conf <- SRMService::skylineconfig$clone(deep=TRUE)
+#' xnested <- SRMService::sample_analysis %>%
+#'  group_by_at(conf$table$hierarchyKeys()[1]) %>% tidyr::nest()
+#'
+#' SRMService::linePlotHierarchy_configuration(xnested$data[[1]], xnested$protein_Id[[1]],conf )
 linePlotHierarchy_configuration <- function(res, proteinName, configuration, separate=FALSE){
   rev_hnames <- rev(names(configuration$table$hierarchy))
   res <- linePlotHierarchy_default(res, proteinName = proteinName,
@@ -263,7 +267,7 @@ linePlotHierarchy_QuantLine <- function(p, data, aes_y,  configuration){
 #' data(skylinePRMSampleData)
 #'
 #' sample_analysis <- setup_analysis(skylinePRMSampleData, skylineconfig)
-#' summarizeProtPepPrecursorFragCounts(sample_analysis, skylineconfig)
+#' hierarchyCounts(sample_analysis, skylineconfig)
 hierarchyCounts <- function(x, configuration){
   hierarchy <- names( configuration$table$hierarchy )
   res <- x %>% group_by_at(configuration$table$isotopeLabel) %>% summarise_at( hierarchy, n_distinct )
@@ -443,6 +447,7 @@ missingPerCondition <- function(x, configuration, nrfactors = 1){
 # Functions - Handling isotopes ----
 
 #' spreads isotope label heavy light into two columns
+#' @export
 #' @examples
 #' setNa <- function(x){ifelse(x < 100, NA, x)}
 #' data(sample_analysis)
@@ -451,9 +456,7 @@ missingPerCondition <- function(x, configuration, nrfactors = 1){
 #' x<-spreadValueVarsIsotopeLabel(sample_analysis,skylineconfig)
 #' head(x)
 #'
-#' data(sample_analysis_HL)
-#' data(skylineconfigHL)
-#' x<-spreadValueVarsIsotopeLabel(sample_analysis_HL,skylineconfigHL)
+#' x<-spreadValueVarsIsotopeLabel(sample_analysis_HL,skylineconfig_HL)
 #' head(x[,5:ncol(x)])
 spreadValueVarsIsotopeLabel <- function(resData, configuration){
   table <- configuration$table
@@ -477,9 +480,12 @@ spreadValueVarsIsotopeLabel <- function(resData, configuration){
 #' Extract intensity column
 #' @export
 #' @examples
-#' rm(skylineconfig)
-#' xx <- extractIntensities(sample_analysis,skylineconfig)
-#' head(xx)
+#' colnames(sample_analysis)
+#' xnested <- sample_analysis %>%
+#'  group_by_at(skylineconfig$table$hierarchyKeys()[1]) %>%
+#'  tidyr::nest()
+#' xx <- extractIntensities(xnested$data[[1]],skylineconfig)
+#' stopifnot(dim(xx)==c(104,22))
 extractIntensities <- function(x, configuration){
   table <- configuration$table
   x <- x %>%

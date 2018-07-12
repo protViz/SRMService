@@ -11,6 +11,10 @@ linePlotHierarchy_configuration(res, proteinName, configuration,
 extracts the relevant information from the configuration to make the plot.
 }
 \examples{
-data(sample_config)
-linePlotHierarchy_configuration(sample_config)
+library(SRMService)
+conf <- SRMService::skylineconfig$clone(deep=TRUE)
+xnested <- SRMService::sample_analysis \%>\%
+ group_by_at(conf$table$hierarchyKeys()[1]) \%>\% tidyr::nest()
+
+SRMService::linePlotHierarchy_configuration(xnested$data[[1]], xnested$protein_Id[[1]],conf )
 }

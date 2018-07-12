@@ -20,13 +20,18 @@ PAnnotated$Isotope.Label <- "light"
 PAnnotated <- PAnnotated %>% dplyr::filter(!grepl("_Decoy$",PG.ProteinAccessions ))
 
 
+
+
 resData <- setup_analysis(PAnnotated, config)
 
 
-newcol <- paste("log2", config$table$getWorkIntensity(), sep="")
+newcol <- paste("log2_", config$table$getWorkIntensity(), sep="")
 resDataLog <- resData %>% mutate_at(config$table$workIntensity, .funs = funs(!!sym(newcol) := log2(.)))
 config$table$setWorkIntensity(newcol)
 config$parameter$workingIntensityTransform = "log"
+
+
+
 
 # normalize data ----
 wideMatrix <- toWideConfig(resDataLog, config, as.matrix = TRUE)

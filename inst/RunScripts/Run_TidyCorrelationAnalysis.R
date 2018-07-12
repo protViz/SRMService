@@ -38,6 +38,8 @@ config$table$factors[["Sample_id"]] = "Sample.Name"
 #config$table$hierarchy
 R6extractValues(config)
 
+
+
 if(0){
   not <- c("R.Condition", "R.Fraction", "R.Label", "R.Replicate", "PG.ProteinGroups" ,"PG.Cscore","PG.Qvalue","PG.RunEvidenceCount",
            "PEP.GroupingKey", "PEP.GroupingKeyType",   "PEP.IsProteotypic",               "PEP.NrOfMissedCleavages",
@@ -70,7 +72,10 @@ config$table$workIntensity <- config$table$workIntensity[1]
 longNoDecoy <- setup_analysis(longFormat, config)
 
 
+
+
 data <- longNoDecoy
+config$table$workIntensity
 longNoDecoy <- setIntensitiesToNA(longNoDecoy, config)
 
 ## QValue Summaries

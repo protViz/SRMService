@@ -17,8 +17,6 @@ sample_analysis \%>\% dplyr::mutate(Area = setNa(Area)) -> sample_analysis
 x<-spreadValueVarsIsotopeLabel(sample_analysis,skylineconfig)
 head(x)
 
-data(sample_analysis_HL)
-data(skylineconfigHL)
-x<-spreadValueVarsIsotopeLabel(sample_analysis_HL,skylineconfigHL)
+x<-spreadValueVarsIsotopeLabel(sample_analysis_HL,skylineconfig_HL)
 head(x[,5:ncol(x)])
 }
