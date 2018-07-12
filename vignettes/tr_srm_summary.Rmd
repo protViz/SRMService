@@ -7,7 +7,7 @@ output:
   html_document: default
 params:
   configuration:  !r quote(SRMService::skylineconfig)
-  data: !r quote(SRMService::skylineconfig)
+  data: !r quote(SRMService::sample_analysis)
 vignette: >
   %\VignetteIndexEntry{Summarize Peptide Level Measurements}
   %\VignetteEngine{knitr::rmarkdown}

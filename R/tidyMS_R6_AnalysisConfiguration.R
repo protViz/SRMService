@@ -206,8 +206,6 @@ linePlotHierarchy_default <- function(data,
 
   }
 
-
-
   #p <- ggplot(data, aes_string(x = sample, y = intensity, group=fragment,  color= peptide, linetype = isotopeLabel))
   p <- p + facet_grid(as.formula(formula), scales = "free_x"   )
   p <- p + ggtitle(proteinName) + theme_classic()
@@ -480,7 +478,7 @@ spreadValueVarsIsotopeLabel <- function(resData, configuration){
 #' Extract intensity column
 #' @export
 #' @examples
-#' colnames(sample_analysis)
+#' library(dplyr)
 #' xnested <- sample_analysis %>%
 #'  group_by_at(skylineconfig$table$hierarchyKeys()[1]) %>%
 #'  tidyr::nest()

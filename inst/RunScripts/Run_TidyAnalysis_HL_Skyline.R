@@ -1,7 +1,7 @@
 rm(list=ls())
+library(conflicted)
 library(tidyverse)
 library(rlang)
-library(conflicted)
 library(SRMService)
 
 

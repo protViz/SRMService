@@ -1,9 +1,9 @@
 rm(list=ls())
+library(conflicted)
 library(tidyverse)
 library(readxl)
 library(rlang)
 library(yaml)
-library(conflicted)
 
 outdir <- tempdir()
 data(skylinePRMSampleData)

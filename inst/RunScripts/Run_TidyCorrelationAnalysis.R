@@ -1,6 +1,4 @@
 rm(list=ls())
-knitr::opts_chunk$set(echo = TRUE, message = FALSE, fig.width = 8, fig.height = 12)
-
 library(conflicted)
 library(tidyverse)
 library(rlang)

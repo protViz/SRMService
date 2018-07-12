@@ -2,10 +2,10 @@
 % Please edit documentation in R/tidyMS_R6_TransitionCorrelations.R
 \name{summariseNAs}
 \alias{summariseNAs}
-\title{add number of NA's per lowest hierarchy to data}
+\title{add number of NA's at lowest hierarchy to data}
 \usage{
 summariseNAs(data, config)
 }
 \description{
-add number of NA's per lowest hierarchy to data
+add number of NA's at lowest hierarchy to data
 }
