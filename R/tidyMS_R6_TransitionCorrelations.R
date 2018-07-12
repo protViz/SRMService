@@ -1,3 +1,4 @@
+# Direct intensity manipulation ----
 .setLargeQValuesToNA <- function(data,
                                  QValueColumn,
                                  intensityOld,
@@ -54,7 +55,34 @@ setSmallIntensitiesToNA <- function(data, config, threshold = 1 , intensityNewNa
   return(resData)
 }
 
+#' Transform intensity
+#' export
+#' @examples
+#' library(tidyverse)
+#' config <- SRMService::spectronautDIAData250_config$clone(deep=TRUE)
+#' analysis <- SRMService::spectronautDIAData250_analysis
+#' x <- transformIntensities(analysis, config, transform = log2)
+#' stopifnot("log2_FG.Quantity" %in% colnames(x))
+#' config <- SRMService::spectronautDIAData250_config$clone(deep=TRUE)
+#' analysis <- SRMService::spectronautDIAData250_analysis
+#' x <- transformIntensities(analysis, config, transform = asinh)
+#' stopifnot("asinh_FG.Quantity" %in% colnames(x))
+transformIntensities <- function(data,
+                                 config,
+                                 transformation = log2,
+                                 intesityNewName = NULL){
+  x <- as.list( match.call() )
+  newcol <- paste(as.character(x$transformation), config$table$getWorkIntensity(), sep="_")
+  data <- data %>% mutate_at(config$table$getWorkIntensity(), .funs = funs(!!sym(newcol) := transformation(.)))
+  config$table$setWorkIntensity(newcol)
+  if(grepl("log",as.character(x$transformation))){
+    config$parameter$workingIntensityTransform = "log"
+  }
+  return(data)
+}
 
+
+# Summarize Q Values ----
 #' Compute QValue summaries for each precursor
 #' @export
 #' @param data data
@@ -84,36 +112,10 @@ summariseQValues <- function(data,
   return(data)
 }
 
-#' add number of NA's per lowest hierarchy to data
-#' @export
-summariseNAs <- function(data,
-                         config){
-  NrNAs = "srm_NrNAs"
-  nNAs <- function(x){sum(is.na(x))}
-  precursorID <- config$table$hierarchyKeys(TRUE)[1]
-  workIntensity <- config$table$getWorkIntensity()
 
-  lFG <- data %>% dplyr::group_by_at(precursorID)
-  naSummaries <- lFG %>% dplyr::summarise_at( workIntensity, funs(!!NrNAs := nNAs(.)))
-  data <- dplyr::inner_join(data, naSummaries , by=precursorID)
-  return(data)
-}
 
-#' Compute nr of B per A
-#' @export
-nr_B_in_A <- function(data,
-                      levelA,
-                      levelB){
-  c_name <- paste("nr_",levelB,"_by_",levelA,sep="")
-  tmp <- data %>%
-    dplyr::select_at(c(levelA, levelB)) %>%
-    dplyr::distinct() %>%
-    dplyr::group_by_at(levelA) %>%
-    dplyr::summarise(!!c_name:=n())
-  data <- dplyr::inner_join(data, tmp, by=levelA )
-  return(data)
-}
 
+# Extact intensities in Wide format ----
 #' transform long to wide
 #' @export
 toWide <- function(data,
@@ -167,17 +169,42 @@ gatherItBack <- function(x,value,config,data = NULL){
   x <- gather(x,key= !!config$table$sampleName, value = !!value, 2:ncol(x))
   x <- tidyr::separate(x, "row.names",  c(config$table$hierarchyKeys()[1],config$table$hierarchyKeys(TRUE)[1]), sep="~")
   if(!is.null(data)){
-
     x <- inner_join(data, x)
     config$table$setWorkIntensity(value)
-
   }
   return(x)
 }
 
+# Functions working on Matrices go Here ----
+#' robust scale warpper
+#' @export
+robust_scale <- function(data){
+  return(quantable::robustscale(data)$data)
+}
+
+
+#' apply Function To matrix
+#' @export
+#' @examples
+#'
+#' conf <- skylineconfig$clone(deep = TRUE)
+#' res <- applyMatrixFunction(sample_analysis, conf, normalization = base::scale)
+#' stopifnot("Area_base..scale" %in% colnames(res))
+#' stopifnot("Area_base..scale" == conf$table$getWorkIntensity())
+#'
+#' res <- applyMatrixFunction(res, conf, normalization = robust_scale)
+applyMatrixFunction <- function(data, config, normalization){
+  x <- as.list( match.call() )
+  colname <- make.names(paste(conf$table$getWorkIntensity(), deparse(x$normalization), sep="_"))
+  mat <- toWideConfig(data, conf, as.matrix = TRUE)
+  mat <- normalization(mat)
+  data <- gatherItBack(mat, colname, conf, data)
+  return(data)
+}
+
+
 
 # Decorrelation analysis ----
-
 .findDecorrelated <- function(res, threshold = 0.65){
   if(is.null(res))
     return(NULL)
@@ -250,6 +277,22 @@ impute_correlationBased <- function(x , config){
 }
 
 
+#' Compute nr of B per A
+#' @export
+nr_B_in_A <- function(data,
+                      levelA,
+                      levelB){
+  c_name <- paste("nr_",levelB,"_by_",levelA,sep="")
+  tmp <- data %>%
+    dplyr::select_at(c(levelA, levelB)) %>%
+    dplyr::distinct() %>%
+    dplyr::group_by_at(levelA) %>%
+    dplyr::summarise(!!c_name:=n())
+  data <- dplyr::inner_join(data, tmp, by=levelA )
+  return(data)
+}
+
+# Summarize Intensities by Intensity or NAs ----
 rankProteinPrecursors <- function(data,
                                   config,
                                   column = config$table$getWorkIntensity(),
@@ -292,12 +335,28 @@ rankPrecursorsByIntensity <- function(data, config){
   return(data)
 }
 
+#' add number of NA's at lowest hierarchy to data
+#' @export
+summariseNAs <- function(data,
+                         config){
+  NrNAs = "srm_NrNAs"
+  nNAs <- function(x){sum(is.na(x))}
+  precursorID <- c(config$table$table$hierarchyKeys()[1], config$table$hierarchyKeys(TRUE)[1])
+  workIntensity <- config$table$getWorkIntensity()
+
+  lFG <- data %>% dplyr::group_by_at(precursorID)
+  naSummaries <- lFG %>% dplyr::summarise_at( workIntensity, funs(!!NrNAs := nNAs(.)))
+  data <- dplyr::inner_join(data, naSummaries , by=precursorID)
+  return(data)
+}
+
+
 #' Ranks precursors by NAs (adds new column .NARank)
 #' @export
 rankPrecursorsByNAs <- function(data, config){
   summaryColumn <- "srm_NrNAs"
   rankColumn <- "srm_NrNARank"
-  data<- rankProteinPrecursors(data, config,
+  data <- rankProteinPrecursors(data, config,
                                column = config$table$getWorkIntensity(),
                                fun = function(x){sum(is.na(x))},
                                summaryColumn = summaryColumn,
