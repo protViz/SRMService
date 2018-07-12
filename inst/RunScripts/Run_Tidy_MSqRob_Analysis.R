@@ -3,6 +3,7 @@ library(tidyverse)
 library(readxl)
 library(rlang)
 library(yaml)
+library(MSqRob)
 options(warn=0)
 
 config <- createSpectronautPeptideConfiguration()
@@ -19,40 +20,34 @@ PAnnotated$Isotope.Label <- "light"
 #head(PAnnotated %>% dplyr::filter(grepl("_LPQQANDYLNSFNWER_",PAnnotated$EG.ModifiedSequence)))
 PAnnotated <- PAnnotated %>% dplyr::filter(!grepl("_Decoy$",PG.ProteinAccessions ))
 
-
-
-
 resData <- setup_analysis(PAnnotated, config)
 
-
-newcol <- paste("log2_", config$table$getWorkIntensity(), sep="")
-resDataLog <- resData %>% mutate_at(config$table$workIntensity, .funs = funs(!!sym(newcol) := log2(.)))
-config$table$setWorkIntensity(newcol)
-config$parameter$workingIntensityTransform = "log"
+summary(resData$EG.Qvalue[!is.na(resData$FG.Quantity) ])
 
 
-
+resData <- setLarge_Q_ValuesToNA(resData, config)
+resData <- setSmallIntensitiesToNA(resData, config,threshold = 100)
+sum(is.na(select(resData, config$table$getWorkIntensity())))
+resDataLog <- transformIntensities(resData,config, transformation = log2)
 
 # normalize data ----
-wideMatrix <- toWideConfig(resDataLog, config, as.matrix = TRUE)
-wideMatrix <- scale(wideMatrix)
-resDataLog <- gatherItBack(wideMatrix,"srm_ScaledLogIntensity",config, resDataLog)
+
+resDataLog <- applyToIntensityMatrix(resDataLog, config, robust_scale)
+
 
 ggplot(resDataLog, aes_string(x = config$table$getWorkIntensity(), colour = config$table$sampleName )) +
   geom_line(stat="density")
+head(resDataLog$coding)
 
 proteins <- MSqRob::df2protdata(data.frame(resDataLog),
-                                acc_col = "protein_Id",
-                                run_name = "R.FileName",
-                                quant_cols = "srm_ScaledLogIntensity",
+                                acc_col = config$table$hierarchyKeys()[1],
+                                run_name = config$table$fileName,
+                                quant_cols = config$table$getWorkIntensity(),
                                 annotations = NULL)
 
-class(proteins)
-slotNames(proteins)
-slotNames(proteins@data[[1]])
 
 #Fixed effects
-fixed <- c("response")
+fixed <- c("coding")
 #Random effects, for label-free data, it is best to always keep "Sequence"
 random <- c("fragment_Id","R.FileName" )
 
@@ -63,11 +58,9 @@ save_model <- TRUE #Alternative: save_model <- FALSE
 export_folder <- "./tmp/"
 
 #Construct the contrast matrix L for testing on the fold changes of interest (i.e. our research hypotheses)
-L <- makeContrast(contrasts=c("responseR - responseNR",
-                              "responseR - responsePR",
-                              "responsePR - responseNR",
-                              "(responsePR + responseNR + responseR)/3-responsec"),
-                  levels=c("responseR","responseNR","responsePR", "responsec"))
+L <- makeContrast(contrasts=c("codingPartialResponders - codingResponders",
+                              "codingResponders - codingControl"),
+                  levels=c("codingResponders","codingPartialResponders","codingControl", "codingNonResponders"))
 
 #Set the significance threshold (default: 5% FDR)
 FDRlevel=0.05
@@ -87,16 +80,14 @@ for(i in 1:length(results)){
 }
 
 allContrasts <- bind_rows(results)
-head(allContrasts)
+#write.csv(results,file=file.path(outdir,"MSqRobSignificances.tsv"))
 
-write.csv(results,file=file.path(outdir,"MSqRobSignificances.tsv"))
-
-head(allContrasts)
 library(quantable)
-pdf(file.path(outdir,"MSqRob_pValue_Volcano.pdf"))
-quantable::multigroupVolcano(allContrasts,effect = "estimate", type="pval", condition="contrast",xintercept = c(-1,1),label = )
-dev.off()
 
-pdf(file.path(outdir,"MSqRob_qValue_Volcano.pdf"))
-quantable::multigroupVolcano(allContrasts,effect = "estimate", type="qval", condition="contrast",xintercept = c(-1,1),label = )
-dev.off()
+#pdf(file.path(outdir,"MSqRob_pValue_Volcano.pdf"))
+#quantable::multigroupVolcano(allContrasts,effect = "estimate", type="pval", condition="contrast",xintercept = c(-1,1),label = )
+#dev.off()
+
+#pdf(file.path(outdir,"MSqRob_qValue_Volcano.pdf"))
+#quantable::multigroupVolcano(allContrasts,effect = "estimate", type="qval", condition="contrast",xintercept = c(-1,1),label = )
+#dev.off()

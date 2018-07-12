@@ -69,12 +69,18 @@ setSmallIntensitiesToNA <- function(data, config, threshold = 1 , intensityNewNa
 #' stopifnot("asinh_FG.Quantity" %in% colnames(x))
 transformIntensities <- function(data,
                                  config,
-                                 transformation = log2,
+                                 transformation,
                                  intesityNewName = NULL){
   x <- as.list( match.call() )
-  newcol <- paste(as.character(x$transformation), config$table$getWorkIntensity(), sep="_")
+  print(x)
+  if(is.null(intesityNewName)){
+    newcol <- paste(as.character(x$transformation), config$table$getWorkIntensity(), sep="_")
+  }else{
+    newcol <- intesityNewName
+  }
   data <- data %>% mutate_at(config$table$getWorkIntensity(), .funs = funs(!!sym(newcol) := transformation(.)))
   config$table$setWorkIntensity(newcol)
+  print(x$transformation)
   if(grepl("log",as.character(x$transformation))){
     config$parameter$workingIntensityTransform = "log"
   }
@@ -188,17 +194,17 @@ robust_scale <- function(data){
 #' @examples
 #'
 #' conf <- skylineconfig$clone(deep = TRUE)
-#' res <- applyMatrixFunction(sample_analysis, conf, normalization = base::scale)
+#' res <- applyToIntensityMatrix(sample_analysis, conf, normalization = base::scale)
 #' stopifnot("Area_base..scale" %in% colnames(res))
 #' stopifnot("Area_base..scale" == conf$table$getWorkIntensity())
 #'
-#' res <- applyMatrixFunction(res, conf, normalization = robust_scale)
-applyMatrixFunction <- function(data, config, normalization){
+#' res <- applyToIntensityMatrix(res, conf, normalization = robust_scale)
+applyToIntensityMatrix <- function(data, config, normalization){
   x <- as.list( match.call() )
-  colname <- make.names(paste(conf$table$getWorkIntensity(), deparse(x$normalization), sep="_"))
-  mat <- toWideConfig(data, conf, as.matrix = TRUE)
+  colname <- make.names(paste(config$table$getWorkIntensity(), deparse(x$normalization), sep="_"))
+  mat <- toWideConfig(data, config, as.matrix = TRUE)
   mat <- normalization(mat)
-  data <- gatherItBack(mat, colname, conf, data)
+  data <- gatherItBack(mat, colname, config, data)
   return(data)
 }
 
