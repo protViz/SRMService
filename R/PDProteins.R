@@ -6,7 +6,7 @@ fix_PD_inputFiles <- function(inputFiles){
   colnames(inputFiles) <- make.names(colnames(inputFiles))
   inputFiles$Raw.File <- basename(inputFiles$File.Name)
   inputFiles <- inputFiles %>%
-    filter(grepl("\\.raw", File.Name)) %>%
+    dplyr::filter(grepl("\\.raw", File.Name)) %>%
     mutate(Raw.File = gsub("\\.raw", "", Raw.File))
   inputFiles <- inputFiles %>% select(Study.File.ID, Raw.File)
   return(inputFiles)
@@ -23,8 +23,8 @@ remap_PD_ProteinTable <- function(proteins, inputFiles){
   inputFiles <- fix_PD_inputFiles(inputFiles)
   colnames(proteins) <- make.names(colnames(proteins))
   proteins <- proteins %>%
-    filter(Master == "IsMasterProtein") %>%
-    filter(Exp.q.value.Combined < 0.01)
+    dplyr::filter(Master == "IsMasterProtein") %>%
+    dplyr::filter(Exp.q.value.Combined < 0.01)
 
 
   proteinsX <- proteins %>% select(TopProteinName = Accession, nrPeptides = Number.of.Peptides,Fasta.headers=FASTA.Title.Lines, contains("Abundance.F") )

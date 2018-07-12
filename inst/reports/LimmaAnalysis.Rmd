@@ -167,7 +167,7 @@ x <- table(nrSigProtein$nrSigComparisons[nrSigProtein$nrSigComparisons > 0])
 
 x <- res %>% dplyr::group_by_at( "ProteinID" ) %>% dplyr::summarise(n=n(),nrSigComparisons = sum(!is.na(adj.P.Val) & adj.P.Val <qvalue)) 
 
-x <- x %>% filter( nrSigComparisons > 0) %>% group_by(nrSigComparisons) %>% dplyr::summarize(nr = n())
+x <- x %>% dplyr::filter( nrSigComparisons > 0) %>% group_by(nrSigComparisons) %>% dplyr::summarize(nr = n())
 class(x$nrSigComparisons) <- "character"
 
 p <- ggplot(x, aes(x = nrSigComparisons, y= nr )) + geom_bar(stat="identity") 

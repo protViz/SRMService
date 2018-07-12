@@ -3,7 +3,6 @@
 #' @format A list of data frames
 "correlatedPeptideList"
 
-
 #' Data frame which can be transformed into \link{sample_analysis}
 #' by applying the \link{skylineconfig} using the function \link{setup_analysis}.
 #'

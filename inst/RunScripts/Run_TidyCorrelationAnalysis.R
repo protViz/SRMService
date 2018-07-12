@@ -9,6 +9,7 @@ library(ggplot2)
 
 rm(list=ls())
 library(SRMService)
+
 createSpectronautPeptideConfiguration <- function(isotopeLabel="Isotope.Label", qValue="EG.Qvalue"){
   atable <- AnalysisTableAnnotation$new()
   atable$fileName = "R.FileName"
@@ -34,7 +35,7 @@ config$table$factors[["sex"]] = "sex"
 config$table$factors[["age"]] = "age"
 config$table$factors[["Sample_id"]] = "Sample.Name"
 
-config$table$hierarchy
+#config$table$hierarchy
 R6extractValues(config)
 
 if(0){
@@ -59,7 +60,7 @@ if(0){
 }
 
 
-longFormat <- get(data(spectronautDIAData250))
+longFormat <- SRMService::spectronautDIAData250
 "PEP.StrippedSequence" %in% colnames(longFormat)
 longFormat$Isotope.Label <- "Light"
 
@@ -133,6 +134,7 @@ intensitiesD <- toWideConfig(qvalFiltCorr, config)
 qvalFiltCorrS <- rankPrecursorsByNAs(qvalFiltCorr, config)
 qvalFiltCorrS %>% select(protein_Id,fragment_Id, srm_NrNAs, srm_NrNARank) %>% distinct()
 qvalFiltCorrSI <- rankPrecursorsByIntensity(qvalFiltCorrS, config)
+
 config$table$getWorkIntensity()
 config$table$workIntensity <- config$table$workIntensity[-length(config$table$workIntensity)]
 qvalFiltCorrSI %>% select(protein_Id,fragment_Id, starts_with("srm_")) %>% distinct()

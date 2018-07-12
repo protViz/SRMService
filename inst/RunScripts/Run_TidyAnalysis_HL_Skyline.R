@@ -11,7 +11,7 @@ outdir <- tempdir()
 #skylineSRM_HL_data <- allDataM
 #usethis::use_data(skylineSRM_HL_data)
 
-allDataM <- get(data(skylineSRM_HL_data))
+allDataM <- SRMService::skylineSRM_HL_data
 head(allDataM)
 
 #source("c:/Users/wolski/prog/SRMService/R/tidyMS_R6_AnalysisConfiguration.R")

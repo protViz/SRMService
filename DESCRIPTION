@@ -52,6 +52,7 @@ Collate:
     'plotNicelyTransitions.R'
     'readMaxQuant.R'
     'tidyMS_R6_AnalysisConfiguration.R'
+    'tidyMS_R6_ConcreteConfigurations.R'
     'tidyMS_R6_TransitionCorrelations.R'
     'transitionCorrelations.R'
     'zzz.R'

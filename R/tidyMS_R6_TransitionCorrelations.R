@@ -131,8 +131,10 @@ toWideConfig <- function(data, config , as.matrix = FALSE){
 #' @examples
 #' res <- toWideConfig(sample_analysis, skylineconfig, as.matrix = TRUE)
 #' res <- scale(res)
+#'
 #' xx <- gatherItBack(res,"srm_intensityScaled",skylineconfig)
 #' xx <- gatherItBack(res,"srm_intensityScaled",skylineconfig,sample_analysis)
+#' skylineconfig$table$getWorkIntensity() == "srm_intensityScaled"
 gatherItBack <- function(x,value,config,data = NULL){
   x <- dplyr::bind_cols(
     tibble::tibble("row.names" := rownames(x)),

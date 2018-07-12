@@ -10,8 +10,6 @@ maxquanttxtdirectory <- ""
 # www.github.com/protViz/SRMService
 # by W.E. Wolski, J. Grossmann, C. Panse
 #
-
-
 msmsName<- "msms.txt"
 summary <- "summary.txt"
 evidence <- "evidence.txt"

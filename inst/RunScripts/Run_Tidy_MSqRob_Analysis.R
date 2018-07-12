@@ -14,16 +14,14 @@ config$table$factors[["Sample_id"]] = "Sample.Name"
 
 #PAnnotated <- read.csv("SpectronautLibrary_Annotated_IncludingControls2.txt", sep="\t", stringsAsFactors = FALSE, dec=",")
 
-PAnnotated <- get(data(spectronautDIAData250))
+PAnnotated <- SRMService::spectronautDIAData250
 PAnnotated$Isotope.Label <- "light"
 #head(PAnnotated %>% dplyr::filter(grepl("_LPQQANDYLNSFNWER_",PAnnotated$EG.ModifiedSequence)))
-#PAnnotated <- PAnnotated %>% filter(!grepl("_Decoy$",PG.ProteinGroups ))
 PAnnotated <- PAnnotated %>% dplyr::filter(!grepl("_Decoy$",PG.ProteinAccessions ))
 
 
 resData <- setup_analysis(PAnnotated, config)
 
-#resData %>% filter(!is.na(FG.Quantity)) -> resDataNoNA
 
 newcol <- paste("log2", config$table$getWorkIntensity(), sep="")
 resDataLog <- resData %>% mutate_at(config$table$workIntensity, .funs = funs(!!sym(newcol) := log2(.)))

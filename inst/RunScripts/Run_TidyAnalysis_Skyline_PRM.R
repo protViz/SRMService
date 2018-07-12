@@ -44,6 +44,7 @@ xnested <- resDataLog %>% group_by(UQ(proteinIDsymbol)) %>% nest()
 figs <- xnested %>% mutate(plotlog = map2(data, UQ(proteinIDsymbol) , linePlotHierarchy_configuration, skylineconfig))
 print(figs$plotlog[[1]])
 
+
 figs2 <- figs %>% mutate(spreadMatrix = map(data, extractIntensities, skylineconfig))
 figs2 <- figs2 %>% mutate(medpolishRes = map(spreadMatrix, medpolishPly))
 figs3 <- figs2 %>% mutate(medpolishRes = map2(data,medpolishRes,reestablishCondition, skylineconfig ))
