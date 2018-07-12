@@ -113,36 +113,6 @@ R6extractValues <- function(r6class){
   }
   return(res)
 }
-
-#' This function sets up an example configuration
-#' @export
-#' @examples
-#' skylineconfig <- craeteSkylineConfiguration()
-#' skylineconfig$table$factors[["Time"]] = "Sampling.Time.Point"
-#' skylineconfig$table$factorKeys()
-#' skylineconfig$table$hierarchyKeys()
-#' # ACHTUNG ##
-#' # when making changes to this object you need to regenerate the data.
-#' # usethis::use_data(skylineconfig, overwrite = TRUE)
-craeteSkylineConfiguration <- function(isotopeLabel="Isotope.Label", qValue="annotation_QValue"){
-  atable <- AnalysisTableAnnotation$new()
-  atable$fileName = "Replicate.Name"
-
-  # measurement levels.
-  atable$hierarchy[["protein_Id"]] <- "Protein.Name"
-  atable$hierarchy[["peptide_Id"]] <- "Peptide.Sequence"
-  atable$hierarchy[["precursor_Id"]] <-  c("Peptide.Sequence","Precursor.Charge")
-  atable$hierarchy[["fragment_Id"]] <- c("Peptide.Sequence","Precursor.Charge","Fragment.Ion", "Product.Charge")
-
-  #
-  atable$qValue = qValue
-  atable$startIntensity = "Area"
-  atable$setWorkIntensity("Area")
-  atable$isotopeLabel = isotopeLabel
-  anaparam <- AnalysisParameters$new()
-  configuration <- AnalysisConfiguration$new(atable, anaparam)
-}
-
 #' Deprecated
 #' @export
 setupDataFrame <- function(data, configuration ,sep="~"){
@@ -163,7 +133,6 @@ setupDataFrame <- function(data, configuration ,sep="~"){
 #'
 setup_analysis <- function(data, configuration ,sep="~"){
   table <- configuration$table
-
   for(i in 1:length(table$hierarchy))
   {
     data <- unite(data, UQ(sym(table$hierarchyKeys()[i])), table$hierarchy[[i]],remove = FALSE)
