@@ -1,3 +1,29 @@
+---
+title: "Example of data preprocessing"
+author: "Functional Genomics Center Zurich"
+date: "`r format(Sys.time(), '%d %B, %Y')`"
+output:
+  pdf_document: default
+  html_document: default
+params:
+  grp: !r quote(SRMService::genericQuantMatrixGRP2)
+vignette: >
+  %\VignetteIndexEntry{FGCZ Two-Group Analysis}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include=FALSE}
+
+knitr::opts_chunk$set(
+  echo = FALSE,
+  message = FALSE,
+  warning = FALSE
+)
+
+```
+
+```{r}
 rm(list=ls())
 library(conflicted)
 library(tidyverse)
@@ -13,11 +39,11 @@ config$table$factors[["sex"]] = "sex"
 config$table$factors[["age"]] = "age"
 config$table$factors[["Sample_id"]] = "Sample.Name"
 
-#config$table$hierarchy
 R6extractValues(config)
+```
 
 
-
+```{r include=FALSE, eval=FALSE}
 if(0){
   not <- c("R.Condition", "R.Fraction", "R.Label", "R.Replicate", "PG.ProteinGroups" ,"PG.Cscore","PG.Qvalue","PG.RunEvidenceCount",
            "PEP.GroupingKey", "PEP.GroupingKeyType",   "PEP.IsProteotypic",               "PEP.NrOfMissedCleavages",
@@ -38,104 +64,99 @@ if(0){
   spectronautDIAData250 <- longFormat
   usethis::use_data(spectronautDIAData250,overwrite = TRUE)
 }
+```
 
-
+```{r}
 longFormat <- SRMService::spectronautDIAData250
 "PEP.StrippedSequence" %in% colnames(longFormat)
 longFormat$Isotope.Label <- "Light"
 
 #source("c:/Users/wolski/prog/SRMService/inst/RPrototypes/tidyMS_R6_TransitionCorrelations.R")
 
-config$table$workIntensity <- config$table$workIntensity[1]
 longNoDecoy <- setup_analysis(longFormat, config)
+```
+
+## QValue Summaries
 
 
-
-
+```{r}
 data <- longNoDecoy
 config$table$workIntensity
 longNoDecoy <- setLarge_Q_ValuesToNA(longNoDecoy, config)
-
-## QValue Summaries
 
 longQSummaries <- summariseQValues(longNoDecoy, config)
 
 SRMService::getMissingStats(longQSummaries, config)
 longQNASummaries <- summariseNAs(longQSummaries, config)
-
+```
 
 
 ## Filter
 
+```{r}
 qvalFilt <- longQNASummaries %>% filter_at( "srm_QValueMin" , all_vars(. < config$parameter$qValThreshold )   )
 SRMService::hierarchyCounts(qvalFilt, config)
+```
 
 
+```{r}
 tmp <- toWideConfig(qvalFilt, config, as.matrix = TRUE)
-quantable::simpleheatmap(cor(log2(tmp2), use="pairwise.complete.obs"), margin=c(15,5))
+quantable::simpleheatmap(cor(log2(tmp), use="pairwise.complete.obs"), margin=c(15,5))
+```
+
+# Remove single hit wonders
 
 
-## Remove single hit wonders
-# Drop all proteins with only one precursor.
-
-
-#```{r}
+```{r}
 qvalFilt2 <- nr_B_in_A(qvalFilt,config$table$hierarchyKeys()[1], config$table$hierarchyKeys()[2], FALSE)
 qvalFilt2 <- nr_B_in_A(qvalFilt,config$table$hierarchyKeys()[1], config$table$hierarchyKeys()[2])
 
 qvalFiltV <- dplyr::filter(qvalFilt2, nr_peptide_Id_by_protein_Id > 1)
 hierarchyCounts(qvalFiltV,config)
-
-#```
+```
 
 # Correlation Filtering
 
-#```{r}
+```{r}
+
+qvalFiltV <- transformIntensities(qvalFiltV, config, log2)
+qvalFiltCorrS <- rankPrecursorsByNAs(qvalFiltV, config)
+qvalFiltCorrS <- qvalFiltCorrS %>% dplyr::filter(srm_NrNAs < 10)
+
 xx <- markDecorrelated(qvalFiltV, config)
 hierarchyCounts(xx, config)
 qvalFiltCorr <- dplyr::filter(xx, srm_decorelated == FALSE)
 hierarchyCounts(qvalFiltCorr, config)
 
-
-#```
-
+```
 
 
-#```{r}
+
+```{r}
 intensitiesD <- toWideConfig(qvalFiltCorr, config, as.matrix = TRUE)
-quantable::simpleheatmap(cor(log2( intensitiesD),
-                             use="pairwise.complete.obs"), margin=c(15,5))
+bb <- cor( intensitiesD, use="pairwise.complete.obs")
+quantable::simpleheatmap(bb, margin=c(15,5))
 
-#```
+```
 
 ### Rank precursors by NA
 
-#```{r}
-qvalFiltCorrS <- rankPrecursorsByNAs(qvalFiltCorr, config)
+```{r}
 qvalFiltCorrS %>% select(protein_Id,fragment_Id, srm_NrNAs, srm_NrNARank) %>% distinct()
 
 qvalFiltCorrSI <- rankPrecursorsByIntensity(qvalFiltCorrS, config)
 
 config$table$getWorkIntensity()
 qvalFiltCorrSI %>% select(protein_Id,fragment_Id, starts_with("srm_")) %>% distinct()
-
 qvalFiltImputed <- impute_correlationBased(qvalFiltCorrSI, config)
+
 qvalFiltImputed %>% select(protein_Id,fragment_Id, starts_with("srm_")) %>% distinct()
+```
 
 # Aggregation
 
-# Rank precursors by intensity in all samples
-
-#```{r}
-#qvalFiltImputed <- rankPrecursorsByIntensity(qvalFiltImputed, config)
-
-#```
-
-
-
-#```{r}
+```{r}
 proteinIntensities <- aggregateTopNIntensities(qvalFiltImputed,config,N=3)
-config$table$getWorkIntensity()
 
 xnested <- qvalFiltImputed %>% group_by_at(config$table$hierarchyKeys()[1]) %>% nest()
 linePlotHierarchy_configuration(xnested$data[[1]], xnested$protein_Id[1],config)
@@ -149,11 +170,11 @@ figs4 <- inner_join(figs3,ff)
 
 linePlotHierarchy_QuantLine(figs4$plotlog[[1]], figs4$topNIntensity[[1]], "srm_sumTopInt", config)
 
-#qvalFiltImputed %>% select(config$table$hierarchyKeys()[1], nr_peptide_Id_by_protein_Id) %>% arrange(nr_peptide_Id_by_protein_Id)
 
 proteinsWide <- spread(proteinIntensities, sampleName,srm_sumTopInt)
 
 #quantable::simpleheatmap(t(scale(t(log2(1+proteinsWide[2:ncol(proteinsWide)])))), margins = c(16,5))
+
 nrPep <- qvalFiltImputed %>% select(config$table$hierarchyKeys()[1], nr_peptide_Id_by_protein_Id) %>% distinct()
 xx <- inner_join(nrPep,proteinsWide)
 #readr::write_csv(xx, path="output/proteinQuantsTidy.txt")

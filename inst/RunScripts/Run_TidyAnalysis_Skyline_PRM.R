@@ -19,8 +19,6 @@ xxord <- order(as.numeric(gsub("T","",xx)))
 resData$Time <- parse_factor(resData$Time, unique(resData$Time)[xxord])
 resData$Area[resData$Area == 0] <- NA
 
-
-
 ### Generate overview plots
 proteinIDsymbol <- sym(names(skylineconfig$table$hierarchy)[1])
 xnested <- resData %>% group_by(UQ(proteinIDsymbol)) %>% nest()
@@ -40,31 +38,29 @@ skylineconfig$parameter$workingIntensityTransform = "log"
 
 #source("c:/Users/wolski/prog/SRMService/R/tidyMS_R6_AnalysisConfiguration.R")
 
-xnested <- resDataLog %>% group_by(UQ(proteinIDsymbol)) %>% nest()
-figs <- xnested %>% mutate(plotlog = map2(data, UQ(proteinIDsymbol) , linePlotHierarchy_configuration, skylineconfig))
-print(figs$plotlog[[1]])
+
+figs3 <- applyToHighestHierarchyBySample(resDataLog, skylineconfig, medpolishPly)
+
+figs3 <- figs3 %>% mutate(plotlog = map2(data, UQ(proteinIDsymbol) , linePlotHierarchy_configuration, skylineconfig))
+linePlotHierarchy_QuantLine(figs3$plotlog[[1]], figs3$medpolishPly[[1]], "medpolish", skylineconfig)
 
 
-figs2 <- figs %>% mutate(spreadMatrix = map(data, extractIntensities, skylineconfig))
-figs2 <- figs2 %>% mutate(medpolishRes = map(spreadMatrix, medpolishPly))
-figs3 <- figs2 %>% mutate(medpolishRes = map2(data,medpolishRes,reestablishCondition, skylineconfig ))
 
-
-linePlotHierarchy_QuantLine(figs3$plotlog[[1]], figs3$medpolishRes[[1]], "medpolish", skylineconfig)
-
-figs3 <- figs3 %>% mutate(figsMed = map2(plotlog, medpolishRes, linePlotHierarchy_QuantLine, "medpolish" , skylineconfig ))
-head(figs3)
+figs3 <- figs3 %>% mutate(figsMed = map2(plotlog, medpolishPly, linePlotHierarchy_QuantLine, "medpolish" , skylineconfig ))
 print(figs3$figsMed[[1]])
 
 pdf(file.path( outdir , "allProteinsWithMed.pdf"), width = 10, height = 10)
 invisible(lapply(figs3$figsMed[1:3], print))
 dev.off()
 
-table <- skylineconfig$table
-protIntensity <- figs3 %>% select(names(table$hierarchy)[1], medpolishRes) %>% unnest()
-CiRT <- protIntensity %>% dplyr::filter(protein_Id == "CiRT standards")
-dim(protIntensity)
+# Get the intensities..
 
+table <- skylineconfig$table
+protIntensity <- figs3 %>% select(names(table$hierarchy)[1], medpolishPly) %>% unnest()
+head(protIntensity)
+
+CiRT <- protIntensity %>% dplyr::filter(protein_Id == "CiRT standards")
+# Normalize py CiRT protein
 proteinIntensity <- protIntensity %>%
   inner_join(CiRT, by= dplyr::setdiff(names(protIntensity), c("protein_Id","medpolish")), suffix = c("",".CiRT")) %>%
   mutate(log2Med_log2MedCiRT = medpolish - medpolish.CiRT)

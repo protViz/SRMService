@@ -14,3 +14,6 @@ summariseQValues(data, config)
 \description{
 Compute QValue summaries for each precursor
 }
+\examples{
+
+}

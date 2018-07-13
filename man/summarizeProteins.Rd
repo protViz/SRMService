@@ -11,3 +11,10 @@ summarizeProteins(x, configuration)
 Light only version.
 Summarize Protein counts
 }
+\examples{
+skylineconfig <- craeteSkylineConfiguration(isotopeLabel="Isotope.Label.Type", qValue="Detection.Q.Value")
+skylineconfig$table$factors[["Time"]] = "Sampling.Time.Point"
+data(skylinePRMSampleData)
+sample_analysis <- setup_analysis(skylinePRMSampleData, skylineconfig)
+summarizeProteins()
+}

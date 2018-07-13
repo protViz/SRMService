@@ -4,7 +4,7 @@
 \alias{nr_B_in_A}
 \title{Compute nr of B per A}
 \usage{
-nr_B_in_A(data, levelA, levelB)
+nr_B_in_A(data, levelA, levelB, merge = TRUE)
 }
 \description{
 Compute nr of B per A

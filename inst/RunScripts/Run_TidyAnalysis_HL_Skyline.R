@@ -70,10 +70,10 @@ if(1){
 options(warn=0)
 HLfigs2 <- HLfigs %>% mutate(spreadMatrix = map(data, extractIntensities, skylineconfig))
 HLfigs2 <- HLfigs2 %>% mutate(medpolishRes = map(spreadMatrix, medpolishPly))
+HLfigs3 <- HLfigs2 %>% mutate(medpolishRes = map2(data,medpolishRes,reestablishCondition , skylineconfig))
+
 
 #reestablishCondition(HLfigs2$data[[2]], HLfigs2$medpolishRes[[2]], skylineconfig )
-
-HLfigs3 <- HLfigs2 %>% mutate(medpolishRes = map2(data,medpolishRes,reestablishCondition , skylineconfig))
 
 HLfigs3 <- HLfigs3 %>% mutate(figsMed = map2(plot, medpolishRes, linePlotHierarchy_QuantLine, "medpolish", skylineconfig))
 

@@ -51,7 +51,7 @@ setIntensitiesToNA <- function(data, config, newcolname="IntensitiesWithNA"){
 #' sum(is.na(res1[[config$table$getWorkIntensity()]])) < sum(is.na(res1000[[config2$table$getWorkIntensity()]]))
 setSmallIntensitiesToNA <- function(data, config, threshold = 1 , intensityNewName ="IntensitiesWithNA"){
   resData <- data %>% mutate_at(vars(!!intensityNewName := config$table$getWorkIntensity()) ,
-                                   function(x){ifelse(x < threshold, NA, x)} )
+                                function(x){ifelse(x < threshold, NA, x)} )
   config$table$setWorkIntensity(intensityNewName)
   return(resData)
 }
@@ -93,6 +93,7 @@ transformIntensities <- function(data,
 #' @export
 #' @param data data
 #' @param config configuration
+#' @examples
 #'
 summariseQValues <- function(data,
                              config
@@ -116,7 +117,7 @@ summariseQValues <- function(data,
                                                     !!QValueNR  := npass(., maxQValThreshold)
     ))
   data <- dplyr::inner_join(data, qValueSummaries, by=c(precursorID))
-  message(glue("Columns added {QValueMin}, {QValueNR}"))
+  message(glue::glue("Columns added {QValueMin}, {QValueNR}"))
   return(data)
 }
 
@@ -252,8 +253,10 @@ markDecorrelated <- function(x , config, minCorrelation = 0.7){
 simpleImpute <- function(data){
   m <-apply(data,2, mean, na.rm=TRUE )
   res <- sweep(data,2,m,"-")
+  dim(data)
+  dim(res)
   resMean <- apply(res, 1, mean, na.rm = TRUE)
-  resid <- replicate(length(m),resMean)
+  resid <- matrix(replicate(length(m),resMean), nrow=length(resMean))
   imp <- sweep(resid,2,m,"+")
   res <- data
   res[is.na(res)] <- imp[is.na(res)]
@@ -273,9 +276,8 @@ impute_correlationBased <- function(x , config){
     )
     gather(x,key= !!config$table$sampleName, value = "srm_ImputedIntensity", 2:ncol(x))
   }
-
-  nestedX <- nestedX %>% dplyr::mutate(imputed = map(spreadMatrix, simpleImpute)) %>%
-    dplyr::mutate(imputed = map(imputed, gatherItback, config))
+  nestedX <- nestedX %>% dplyr::mutate(imputed = map(spreadMatrix, simpleImpute))
+  nestedX <- nestedX %>% dplyr::mutate(imputed = map(imputed, gatherItback, config))
 
   unnest_res <- nestedX %>% select(protein_Id, imputed) %>% unnest()
   qvalFiltX <- inner_join(x, unnest_res,
@@ -296,13 +298,16 @@ impute_correlationBased <- function(x , config){
 #' distinct() %>% pull() %>% table()
 nr_B_in_A <- function(data,
                       levelA,
-                      levelB){
+                      levelB, merge=TRUE){
   c_name <- paste("nr_",levelB,"_by_",levelA,sep="")
   tmp <- data %>%
     dplyr::select_at(c(levelA, levelB)) %>%
     dplyr::distinct() %>%
     dplyr::group_by_at(levelA) %>%
     dplyr::summarise(!!c_name:=n())
+  if(!merge){
+    return(tmp)
+  }
   data <- dplyr::inner_join(data, tmp, by=levelA )
   message("Column addded : ", c_name)
   return(data)
@@ -363,6 +368,7 @@ rankPrecursorsByIntensity <- function(data, config){
 #' run \link{rankPrecursorsByIntensity} first
 #' @export
 #' @examples
+#' library(SRMService)
 #' config <- spectronautDIAData250_config$clone(deep=T)
 #' res <- setLarge_Q_ValuesToNA(spectronautDIAData250_analysis, config)
 #' res <- rankPrecursorsByIntensity(res,config)
@@ -371,7 +377,10 @@ aggregateTopNIntensities <- function(data,config, N = 3){
   newcol <- "srm_sumTopInt"
   topInt <- data %>%
     dplyr::filter_at( "srm_meanIntRank", any_vars(. <= N)) %>%
-    dplyr::group_by(!!!syms(c( config$table$hierarchyKeys()[1], config$table$sampleName)))
+    dplyr::group_by(!!!syms(c( config$table$hierarchyKeys()[1],
+                               config$table$sampleName,
+                               config$table$fileName,
+                               config$table$factorKeys())))
   sumNA <- function(x){sum(x, na.rm=TRUE)}
   sumTopInt <- topInt %>%
     dplyr::summarize( !!newcol := sumNA(!!sym(config$table$getWorkIntensity()))  )
@@ -421,17 +430,15 @@ rankPrecursorsByNAs <- function(data, config){
   summaryColumn <- "srm_NrNAs"
   rankColumn <- "srm_NrNARank"
   data <- rankProteinPrecursors(data, config,
-                               column = config$table$getWorkIntensity(),
-                               fun = function(x){sum(is.na(x))},
-                               summaryColumn = summaryColumn,
-                               rankColumn = rankColumn,
-                               rankFunction = function(x){min_rank(x)}
+                                column = config$table$getWorkIntensity(),
+                                fun = function(x){sum(is.na(x))},
+                                summaryColumn = summaryColumn,
+                                rankColumn = rankColumn,
+                                rankFunction = function(x){min_rank(x)}
   )
   message("Added Columns :", summaryColumn, " ",  rankColumn)
   return(data)
 }
-
-
 #'
 
 

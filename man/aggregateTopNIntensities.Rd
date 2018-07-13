@@ -10,6 +10,7 @@ aggregateTopNIntensities(data, config, N = 3)
 run \link{rankPrecursorsByIntensity} first
 }
 \examples{
+library(SRMService)
 config <- spectronautDIAData250_config$clone(deep=T)
 res <- setLarge_Q_ValuesToNA(spectronautDIAData250_analysis, config)
 res <- rankPrecursorsByIntensity(res,config)

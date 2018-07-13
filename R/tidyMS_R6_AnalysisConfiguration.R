@@ -43,9 +43,9 @@ AnalysisTableAnnotation <- R6Class("AnalysisTableAnnotation",
                                        return(tail(self$workIntensity, n=1))
                                      },
                                      popWorkIntensity=function(){
-                                        res <- self$workIntensity[length(self$workIntensity)]
-                                        self$workIntensity <- self$workIntensity[-length(self$workIntensity)]
-                                        return(res)
+                                       res <- self$workIntensity[length(self$workIntensity)]
+                                       self$workIntensity <- self$workIntensity[-length(self$workIntensity)]
+                                       return(res)
                                      },
                                      idRequired = function(){
                                        "Id Columns which must be in the input data frame"
@@ -54,7 +54,7 @@ AnalysisTableAnnotation <- R6Class("AnalysisTableAnnotation",
                                          unlist(self$factors),
                                          unlist(self$hierarchy),
                                          self$isotopeLabel
-                                         )
+                                       )
                                        return(idVars)
                                      },
                                      hierarchyKeys = function(rev = FALSE){
@@ -275,6 +275,12 @@ hierarchyCounts <- function(x, configuration){
 #' Light only version.
 #' Summarize Protein counts
 #' @export
+#' @examples
+#' skylineconfig <- craeteSkylineConfiguration(isotopeLabel="Isotope.Label.Type", qValue="Detection.Q.Value")
+#' skylineconfig$table$factors[["Time"]] = "Sampling.Time.Point"
+#' data(skylinePRMSampleData)
+#' sample_analysis <- setup_analysis(skylinePRMSampleData, skylineconfig)
+#' summarizeProteins()
 summarizeProteins <- function( x, configuration ){
   rev_hierarchy <- configuration$table$hierarchyKeys(TRUE)
 
@@ -284,17 +290,17 @@ summarizeProteins <- function( x, configuration ){
 
   peptideSum <- precursorSum %>% group_by_at(rev_hierarchy[-(1:2)]) %>%
     dplyr::summarize(nrPrecursors = n(),
-              minNrFragments = min(nrFragments),
-              maxNrFragments = max(nrFragments))
+                     minNrFragments = min(nrFragments),
+                     maxNrFragments = max(nrFragments))
 
 
   proteinSum <- peptideSum %>% group_by_at(rev_hierarchy[-(1:3)])  %>%
     dplyr::summarize(nrpeptides = n(),
-              minNrPrecursors = min(nrPrecursors),
-              maxNrPrecursors = max(nrPrecursors),
-              minNrFragments= min(minNrFragments),
-              maxNrFragments = max(maxNrFragments)
-              )
+                     minNrPrecursors = min(nrPrecursors),
+                     maxNrPrecursors = max(nrPrecursors),
+                     minNrFragments= min(minNrFragments),
+                     maxNrFragments = max(maxNrFragments)
+    )
   proteinPeptide <- proteinSum %>% tidyr::unite(Precursors ,minNrPrecursors , maxNrPrecursors, sep="-", remove=FALSE)
   proteinPeptide <- proteinPeptide %>% tidyr::unite(Fragments ,minNrFragments , maxNrFragments, sep="-", remove=FALSE)
   return(proteinPeptide)
@@ -342,7 +348,7 @@ getMissingStats <- function(x, configuration, nrfactors = 1){
 
   missingPrec <- missingPrec %>%
     dplyr::summarize(nrReplicates = n(), nrNAs = sum(is.na(!!sym(table$getWorkIntensity()))) ,
-              meanArea = mean(!!sym(table$getWorkIntensity()), na.rm=TRUE)) %>%
+                     meanArea = mean(!!sym(table$getWorkIntensity()), na.rm=TRUE)) %>%
     arrange(desc(nrNAs))
   missingPrec
 }
@@ -466,7 +472,7 @@ spreadValueVarsIsotopeLabel <- function(resData, configuration){
   invisible(HLData)
 }
 
-# Computing protein Intensity summaries
+# Computing protein Intensity summaries ---
 
 .ExtractMatrix <- function(x){
   idx <- sapply(x,is.numeric)
@@ -510,9 +516,30 @@ reestablishCondition <- function(data,
 ){
   table <- configuration$table
   xx <- data %>%  select(c(table$sampleName,
-                           table$factorKeys(), table$fileName)) %>% distinct()
+                           table$factorKeys(),
+                           table$fileName)) %>% distinct()
   res <- inner_join(xx,medpolishRes, by=table$sampleName)
   res
 }
 
+#' applys func - a funciton workin on matrix for each protein and returning a vector of the same length as the number of samples
+#' @export
+#' @examples
+#' x <- applyToHighestHierarchyBySample(sample_analysis, skylineconfig, medpolishPly)
+#'
+#' x %>% dplyr::select(config$table$hierarchyKeys()[1] ,  medpolishPly) %>% unnest()
+#'
+applyToHighestHierarchyBySample <- function( data, config, func)
+{
+  x <- as.list( match.call() )
+  makeName <- make.names(as.character(x$func))
+  print(makeName)
+  xnested <- data %>% group_by_at(config$table$hierarchyKeys()[1]) %>% nest()
 
+  xnested <- xnested %>% mutate(spreadMatrix = map(data, extractIntensities, config))
+  xnested <- xnested %>% mutate(!!makeName := map(spreadMatrix, func))
+  xnested <- xnested %>% mutate(!!makeName := map2(data,!!sym(makeName),reestablishCondition, config ))
+  return(xnested)
+}
+
+#prots <- HLfigs3 %>% dplyr::select(,  medpolishRes) %>% unnest()
