@@ -2,15 +2,16 @@
 % Please edit documentation in R/tidyMS_R6_TransitionCorrelations.R
 \name{aggregateTopNIntensities}
 \alias{aggregateTopNIntensities}
-\alias{aggregateTopNIntensities}
 \title{aggregates top N intensities}
 \usage{
-aggregateTopNIntensities(data, config, N = 3)
-
 aggregateTopNIntensities(data, config, N = 3)
 }
 \description{
 run \link{rankPrecursorsByIntensity} first
-
-run \link{rankPrecursorsByIntensity} first
+}
+\examples{
+config <- spectronautDIAData250_config$clone(deep=T)
+res <- setLarge_Q_ValuesToNA(spectronautDIAData250_analysis, config)
+res <- rankPrecursorsByIntensity(res,config)
+aggregateTopNIntensities(res, config, N=3)
 }

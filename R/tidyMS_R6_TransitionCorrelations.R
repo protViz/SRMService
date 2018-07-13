@@ -362,14 +362,20 @@ rankPrecursorsByIntensity <- function(data, config){
 #'
 #' run \link{rankPrecursorsByIntensity} first
 #' @export
+#' @examples
+#' config <- spectronautDIAData250_config$clone(deep=T)
+#' res <- setLarge_Q_ValuesToNA(spectronautDIAData250_analysis, config)
+#' res <- rankPrecursorsByIntensity(res,config)
+#' aggregateTopNIntensities(res, config, N=3)
 aggregateTopNIntensities <- function(data,config, N = 3){
+  newcol <- "srm_sumTopInt"
   topInt <- data %>%
     dplyr::filter_at( "srm_meanIntRank", any_vars(. <= N)) %>%
     dplyr::group_by(!!!syms(c( config$table$hierarchyKeys()[1], config$table$sampleName)))
   sumNA <- function(x){sum(x, na.rm=TRUE)}
   sumTopInt <- topInt %>%
-    dplyr::summarize( srm_sumTopInt = sumNA(!!sym(config$table$getWorkIntensity()))  )
-  #data <- inner_join(data, sumTopInt)
+    dplyr::summarize( !!newcol := sumNA(!!sym(config$table$getWorkIntensity()))  )
+  message("Column added : ", newcol)
   return(sumTopInt)
 }
 
@@ -425,20 +431,7 @@ rankPrecursorsByNAs <- function(data, config){
   return(data)
 }
 
-#' aggregates top N intensities
-#'
-#' run \link{rankPrecursorsByIntensity} first
-#' @export
-aggregateTopNIntensities <- function(data,config, N = 3){
-  topInt <- data %>%
-    dplyr::filter_at( "srm_meanIntRank", any_vars(. <= N)) %>%
-    dplyr::group_by(!!!syms(c( config$table$hierarchyKeys()[1], config$table$sampleName)))
-  sumNA <- function(x){sum(x, na.rm=TRUE)}
-  sumTopInt <- topInt %>%
-    dplyr::summarize( srm_sumTopInt = sumNA(!!sym(config$table$getWorkIntensity()))  )
-  #data <- inner_join(data, sumTopInt)
-  return(sumTopInt)
-}
 
+#'
 
 
