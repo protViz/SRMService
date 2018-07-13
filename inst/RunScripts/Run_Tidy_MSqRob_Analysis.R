@@ -19,7 +19,6 @@ PAnnotated <- SRMService::spectronautDIAData250
 PAnnotated$Isotope.Label <- "light"
 #head(PAnnotated %>% dplyr::filter(grepl("_LPQQANDYLNSFNWER_",PAnnotated$EG.ModifiedSequence)))
 PAnnotated <- PAnnotated %>% dplyr::filter(!grepl("_Decoy$",PG.ProteinAccessions ))
-
 resData <- setup_analysis(PAnnotated, config)
 
 summary(resData$EG.Qvalue[!is.na(resData$FG.Quantity) ])
@@ -27,11 +26,10 @@ summary(resData$EG.Qvalue[!is.na(resData$FG.Quantity) ])
 
 resData <- setLarge_Q_ValuesToNA(resData, config)
 resData <- setSmallIntensitiesToNA(resData, config,threshold = 100)
+
 sum(is.na(select(resData, config$table$getWorkIntensity())))
 resDataLog <- transformIntensities(resData,config, transformation = log2)
-
 # normalize data ----
-
 resDataLog <- applyToIntensityMatrix(resDataLog, config, robust_scale)
 
 
@@ -39,7 +37,10 @@ ggplot(resDataLog, aes_string(x = config$table$getWorkIntensity(), colour = conf
   geom_line(stat="density")
 head(resDataLog$coding)
 
-proteins <- MSqRob::df2protdata(data.frame(resDataLog),
+first20 <- unique(resDataLog$protein_Id)[1:20]
+resDataLog20 <-resDataLog %>% dplyr::filter(protein_Id %in% first20)
+
+proteins <- MSqRob::df2protdata(data.frame(resDataLog20),
                                 acc_col = config$table$hierarchyKeys()[1],
                                 run_name = config$table$fileName,
                                 quant_cols = config$table$getWorkIntensity(),
@@ -85,9 +86,9 @@ allContrasts <- bind_rows(results)
 library(quantable)
 
 #pdf(file.path(outdir,"MSqRob_pValue_Volcano.pdf"))
-#quantable::multigroupVolcano(allContrasts,effect = "estimate", type="pval", condition="contrast",xintercept = c(-1,1),label = )
+quantable::multigroupVolcano(allContrasts,effect = "estimate", type="pval", condition="contrast",xintercept = c(-1,1),label = )
 #dev.off()
 
 #pdf(file.path(outdir,"MSqRob_qValue_Volcano.pdf"))
-#quantable::multigroupVolcano(allContrasts,effect = "estimate", type="qval", condition="contrast",xintercept = c(-1,1),label = )
+quantable::multigroupVolcano(allContrasts,effect = "estimate", type="qval", condition="contrast",xintercept = c(-1,1),label = )
 #dev.off()

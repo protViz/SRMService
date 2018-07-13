@@ -2,10 +2,15 @@
 % Please edit documentation in R/tidyMS_R6_TransitionCorrelations.R
 \name{aggregateTopNIntensities}
 \alias{aggregateTopNIntensities}
+\alias{aggregateTopNIntensities}
 \title{aggregates top N intensities}
 \usage{
 aggregateTopNIntensities(data, config, N = 3)
+
+aggregateTopNIntensities(data, config, N = 3)
 }
 \description{
+run \link{rankPrecursorsByIntensity} first
+
 run \link{rankPrecursorsByIntensity} first
 }

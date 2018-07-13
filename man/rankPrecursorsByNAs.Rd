@@ -9,3 +9,12 @@ rankPrecursorsByNAs(data, config)
 \description{
 Ranks precursors by NAs (adds new column .NARank)
 }
+\examples{
+config <- spectronautDIAData250_config$clone(deep=T)
+res <- setLarge_Q_ValuesToNA(spectronautDIAData250_analysis, config)
+res <- rankPrecursorsByNAs(res,config)
+x <- res \%>\%
+  select(config$table$hierarchyKeys()[1], config$table$hierarchyKeys(T)[1], "srm_NrNAs") \%>\%
+  distinct() \%>\% summarize(sum(srm_NrNAs)) \%>\% pull()
+stopifnot(sum(is.na(res[[config$table$getWorkIntensity()[1]]])) == x)
+}

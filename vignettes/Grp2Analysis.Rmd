@@ -340,7 +340,6 @@ NAinfo <- c(sum(is.na(results[, grp2$getConditions()$reference])) ,
 NAinfo<-data.frame(name = unlist(grp2$getConditions()), nrProteins= NAinfo)
 
 child_docs <- "Grp2Analysis_MissingInOneCondtion.Rmd_t"
-
 if(!sum(NAinfo$nrProteins > 0) > 0){
   child_docs <- "Grp2Analysis_Empty.Rmd_t"
 }

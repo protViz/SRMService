@@ -7,26 +7,6 @@ library(ggplot2)
 
 rm(list=ls())
 library(SRMService)
-
-createSpectronautPeptideConfiguration <- function(isotopeLabel="Isotope.Label", qValue="EG.Qvalue"){
-  atable <- AnalysisTableAnnotation$new()
-  atable$fileName = "R.FileName"
-
-  # measurement levels.
-  atable$hierarchy[["protein_Id"]]    <-  "PG.ProteinAccessions"
-  atable$hierarchy[["peptide_Id"]]    <-  "PEP.StrippedSequence"
-  atable$hierarchy[["modPeptide_Id"]] <-  "EG.ModifiedSequence"
-  atable$hierarchy[["fragment_Id"]]   <-  c("EG.ModifiedSequence", "FG.Charge")
-
-  #
-  atable$qValue = qValue
-  atable$startIntensity = "FG.Quantity"
-  atable$workIntensity = "FG.Quantity"
-  atable$isotopeLabel = isotopeLabel
-  anaparam <- AnalysisParameters$new()
-  configuration <- AnalysisConfiguration$new(atable, anaparam)
-}
-
 config <- createSpectronautPeptideConfiguration()
 config$table$factors[["coding"]] = "coding"
 config$table$factors[["sex"]] = "sex"
@@ -74,7 +54,7 @@ longNoDecoy <- setup_analysis(longFormat, config)
 
 data <- longNoDecoy
 config$table$workIntensity
-longNoDecoy <- setIntensitiesToNA(longNoDecoy, config)
+longNoDecoy <- setLarge_Q_ValuesToNA(longNoDecoy, config)
 
 ## QValue Summaries
 

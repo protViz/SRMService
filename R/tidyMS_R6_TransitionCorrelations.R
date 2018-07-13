@@ -26,6 +26,7 @@ setLarge_Q_ValuesToNA <- function(data, config, intensityNewName="IntensitiesWit
                                intensityNew = intensityNewName
   )
   config$table$setWorkIntensity(intensityNewName)
+  message("Column added and new WorkIntensity Set: ", intensityNewName)
   return(data)
 }
 #' DEPRECATED use \link{setLarge_Q_ValuesToNA}
@@ -56,7 +57,7 @@ setSmallIntensitiesToNA <- function(data, config, threshold = 1 , intensityNewNa
 }
 
 #' Transform intensity
-#' export
+#' @export
 #' @examples
 #' library(tidyverse)
 #' config <- SRMService::spectronautDIAData250_config$clone(deep=TRUE)
@@ -72,7 +73,6 @@ transformIntensities <- function(data,
                                  transformation,
                                  intesityNewName = NULL){
   x <- as.list( match.call() )
-  print(x)
   if(is.null(intesityNewName)){
     newcol <- paste(as.character(x$transformation), config$table$getWorkIntensity(), sep="_")
   }else{
@@ -93,6 +93,7 @@ transformIntensities <- function(data,
 #' @export
 #' @param data data
 #' @param config configuration
+#'
 summariseQValues <- function(data,
                              config
 ){
@@ -115,6 +116,7 @@ summariseQValues <- function(data,
                                                     !!QValueNR  := npass(., maxQValThreshold)
     ))
   data <- dplyr::inner_join(data, qValueSummaries, by=c(precursorID))
+  message(glue("Columns added {QValueMin}, {QValueNR}"))
   return(data)
 }
 
@@ -285,6 +287,13 @@ impute_correlationBased <- function(x , config){
 
 #' Compute nr of B per A
 #' @export
+#' @examples
+#' config <- skylineconfig$clone(deep=TRUE)
+#' data <- sample_analysis
+#' hierarchy <- config$table$hierarchyKeys()
+#' res <- nr_B_in_A(data, hierarchy[1], hierarchy[2])
+#' res %>% select(hierarchy[1],  nr_peptide_Id_by_protein_Id) %>%
+#' distinct() %>% pull() %>% table()
 nr_B_in_A <- function(data,
                       levelA,
                       levelB){
@@ -295,6 +304,7 @@ nr_B_in_A <- function(data,
     dplyr::group_by_at(levelA) %>%
     dplyr::summarise(!!c_name:=n())
   data <- dplyr::inner_join(data, tmp, by=levelA )
+  message("Column addded : ", c_name)
   return(data)
 }
 
@@ -327,6 +337,13 @@ rankProteinPrecursors <- function(data,
 #'
 #' @section TODO
 #' @export
+#' @examples
+#'
+#' config <- spectronautDIAData250_config$clone(deep=T)
+#' res <- setLarge_Q_ValuesToNA(spectronautDIAData250_analysis, config)
+#' res <- rankPrecursorsByIntensity(res,config)
+#' X <-res %>% select(c(config$table$hierarchyKeys(), srm_meanInt, srm_meanIntRank)) %>% distinct()
+#' X %>% arrange(!!!syms(c(config$table$hierarchyKeys()[1], "srm_meanIntRank"  )))
 rankPrecursorsByIntensity <- function(data, config){
   summaryColumn <- "srm_meanInt"
   rankColumn <- "srm_meanIntRank"
@@ -341,24 +358,59 @@ rankPrecursorsByIntensity <- function(data, config){
   return(data)
 }
 
+#' aggregates top N intensities
+#'
+#' run \link{rankPrecursorsByIntensity} first
+#' @export
+aggregateTopNIntensities <- function(data,config, N = 3){
+  topInt <- data %>%
+    dplyr::filter_at( "srm_meanIntRank", any_vars(. <= N)) %>%
+    dplyr::group_by(!!!syms(c( config$table$hierarchyKeys()[1], config$table$sampleName)))
+  sumNA <- function(x){sum(x, na.rm=TRUE)}
+  sumTopInt <- topInt %>%
+    dplyr::summarize( srm_sumTopInt = sumNA(!!sym(config$table$getWorkIntensity()))  )
+  #data <- inner_join(data, sumTopInt)
+  return(sumTopInt)
+}
+
+# Summarise NAs on lowest hierarchy ----
+
 #' add number of NA's at lowest hierarchy to data
 #' @export
+#' @examples
+#'
+#' config <- spectronautDIAData250_config$clone(deep=T)
+#' res <- setLarge_Q_ValuesToNA(spectronautDIAData250_analysis, config)
+#' res <- summariseNAs(res,config)
+#' x <- res %>%
+#'   select(config$table$hierarchyKeys()[1], config$table$hierarchyKeys(T)[1], "srm_NrNAs") %>%
+#'   distinct() %>% summarize(sum(srm_NrNAs)) %>% pull()
+#' stopifnot(sum(is.na(res[[config$table$getWorkIntensity()[1]]])) == x)
 summariseNAs <- function(data,
                          config){
   NrNAs = "srm_NrNAs"
   nNAs <- function(x){sum(is.na(x))}
-  precursorID <- c(config$table$table$hierarchyKeys()[1], config$table$hierarchyKeys(TRUE)[1])
+  precursorID <- c(config$table$hierarchyKeys()[1], config$table$hierarchyKeys(TRUE)[1])
   workIntensity <- config$table$getWorkIntensity()
 
   lFG <- data %>% dplyr::group_by_at(precursorID)
   naSummaries <- lFG %>% dplyr::summarise_at( workIntensity, funs(!!NrNAs := nNAs(.)))
   data <- dplyr::inner_join(data, naSummaries , by=precursorID)
+  message("Column added : ",NrNAs)
   return(data)
 }
 
 
 #' Ranks precursors by NAs (adds new column .NARank)
 #' @export
+#' @examples
+#' config <- spectronautDIAData250_config$clone(deep=T)
+#' res <- setLarge_Q_ValuesToNA(spectronautDIAData250_analysis, config)
+#' res <- rankPrecursorsByNAs(res,config)
+#' x <- res %>%
+#'   select(config$table$hierarchyKeys()[1], config$table$hierarchyKeys(T)[1], "srm_NrNAs") %>%
+#'   distinct() %>% summarize(sum(srm_NrNAs)) %>% pull()
+#' stopifnot(sum(is.na(res[[config$table$getWorkIntensity()[1]]])) == x)
 rankPrecursorsByNAs <- function(data, config){
   summaryColumn <- "srm_NrNAs"
   rankColumn <- "srm_NrNARank"

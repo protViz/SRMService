@@ -2,15 +2,12 @@
 % Please edit documentation in R/tidyMS_R6_TransitionCorrelations.R
 \name{transformIntensities}
 \alias{transformIntensities}
-\title{Transform intensity
-export}
+\title{Transform intensity}
 \usage{
-transformIntensities(data, config, transformation = log2,
-  intesityNewName = NULL)
+transformIntensities(data, config, transformation, intesityNewName = NULL)
 }
 \description{
 Transform intensity
-export
 }
 \examples{
 library(tidyverse)
