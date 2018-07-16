@@ -9,6 +9,7 @@ Description: Analysing and LFQ and SRM experiments in service mode.
 Imports:
     bibliospec,
     bookdown,
+    conflicted,
     dplyr,
     limma,
     methods,

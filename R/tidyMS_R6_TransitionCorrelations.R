@@ -11,7 +11,6 @@
   return(data)
 }
 
-
 #' sets intensities to NA if maxQValue_Threshold exceeded
 #' @export
 #' @examples

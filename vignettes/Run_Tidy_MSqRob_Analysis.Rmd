@@ -1,34 +1,68 @@
+---
+title: "Example of data preprocessing"
+author: "Functional Genomics Center Zurich"
+date: "`r format(Sys.time(), '%d %B, %Y')`"
+output:
+  pdf_document: default
+  html_document: default
+vignette: >
+  %\VignetteIndexEntry{FGCZ Two-Group Analysis}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+  
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(
+echo = FALSE,
+message = FALSE,
+warning = FALSE,
+fig.width = 10,
+fig.height = 10
+)
+
+```
+
+
+```{r}
 rm(list=ls())
 library(tidyverse)
 library(readxl)
 library(rlang)
 library(yaml)
+
 library(MSqRob)
 options(warn=0)
+```
 
+
+```{r}
 config <- createSpectronautPeptideConfiguration()
 config$table$factors[["coding"]] = "coding"
 config$table$factors[["sex"]] = "sex"
 config$table$factors[["age"]] = "age"
 config$table$factors[["Sample_id"]] = "Sample.Name"
 
-#PAnnotated <- read.csv("SpectronautLibrary_Annotated_IncludingControls2.txt", sep="\t", stringsAsFactors = FALSE, dec=",")
 
 PAnnotated <- SRMService::spectronautDIAData250
 PAnnotated$Isotope.Label <- "light"
-#head(PAnnotated %>% dplyr::filter(grepl("_LPQQANDYLNSFNWER_",PAnnotated$EG.ModifiedSequence)))
 PAnnotated <- PAnnotated %>% dplyr::filter(!grepl("_Decoy$",PG.ProteinAccessions ))
 resData <- setup_analysis(PAnnotated, config)
+```
 
+```{r}
 summary(resData$EG.Qvalue[!is.na(resData$FG.Quantity) ])
-
 
 resData <- setLarge_Q_ValuesToNA(resData, config)
 resData <- setSmallIntensitiesToNA(resData, config,threshold = 100)
 
 sum(is.na(select(resData, config$table$getWorkIntensity())))
 resDataLog <- transformIntensities(resData,config, transformation = log2)
+```
+
 # normalize data ----
+
+```{r}
 resDataLog <- applyToIntensityMatrix(resDataLog, config, robust_scale)
 
 
@@ -44,14 +78,20 @@ proteins <- MSqRob::df2protdata(data.frame(resDataLog20),
                                 run_name = config$table$fileName,
                                 quant_cols = config$table$getWorkIntensity(),
                                 annotations = NULL)
+```
+
+Fixed effects
 
 
-#Fixed effects
+```{r}
 fixed <- c("coding")
 #Random effects, for label-free data, it is best to always keep "Sequence"
 random <- c("fragment_Id","R.FileName" )
+```
 
 #Do you want to save the model?
+
+```{r}
 save_model <- TRUE #Alternative: save_model <- FALSE
 
 #To which folder do you want to export the Excel file(s) and the saved model file (if you chose to do so)? Please do not use a trailing "/" here!
@@ -61,8 +101,12 @@ export_folder <- "./tmp/"
 L <- makeContrast(contrasts=c("codingPartialResponders - codingResponders",
                               "codingResponders - codingControl"),
                   levels=c("codingResponders","codingPartialResponders","codingControl", "codingNonResponders"))
+```
 
 #Set the significance threshold (default: 5% FDR)
+
+
+```{r}
 FDRlevel=0.05
 
 #Fit the models
@@ -78,10 +122,13 @@ for(i in 1:length(results)){
   tmp$contrast <- names(results)[i]
   results[[i]] <- tmp
 }
+```
 
+
+
+```{r}
 allContrasts <- bind_rows(results)
 #write.csv(results,file=file.path(outdir,"MSqRobSignificances.tsv"))
-
 library(quantable)
 
 #pdf(file.path(outdir,"MSqRob_pValue_Volcano.pdf"))
@@ -91,3 +138,5 @@ quantable::multigroupVolcano(allContrasts,effect = "estimate", type="pval", cond
 #pdf(file.path(outdir,"MSqRob_qValue_Volcano.pdf"))
 quantable::multigroupVolcano(allContrasts,effect = "estimate", type="qval", condition="contrast",xintercept = c(-1,1),label = )
 #dev.off()
+
+```
