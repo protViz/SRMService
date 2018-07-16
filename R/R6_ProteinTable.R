@@ -107,7 +107,7 @@ Annotation <- R6::R6Class("Annotation",
 #' x <- data.frame(Raw.file = c("A","B","C"),"MeasurementOrder" = c(1,2,3) , Gender = c("F","F","M"))
 #' cm <- Annotation$new(x, experimentID = "E1 fixed Gender", fixed = "Gender")
 #' dataProt <- data.frame("proteinID" = c("P1","P2","P3"), NrPeptides = c(1,2,3), "Fasta.Headers" = rep("",3), "A" = rexp(3), "B" = rexp(3), "C" = rexp(3))
-#' length(intersect("Annotation",class(dataProt))) > 0
+#' length(dplyr::intersect("Annotation",class(dataProt))) > 0
 #' cm$sampleID
 #' pt <- ProteinTableR6$new(cm)
 #' pt$set_data_wide(dataProt)

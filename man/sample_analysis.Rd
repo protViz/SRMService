@@ -27,6 +27,6 @@ skylineconfig <- craeteSkylineConfiguration(isotopeLabel="Isotope.Label.Type", q
 skylineconfig$table$factors[["Time"]] = "Sampling.Time.Point"
 data(skylinePRMSampleData)
 sample_analysis <- setup_analysis(skylinePRMSampleData, skylineconfig)
-usethis::use_data( sample_analysis , overwrite = TRUE )
+#usethis::use_data( sample_analysis , overwrite = TRUE )
 }
 \keyword{datasets}

@@ -22,7 +22,7 @@
 #' @examples
 #' skylineconfig <- craeteSkylineConfiguration(isotopeLabel="Isotope.Label.Type", qValue="Detection.Q.Value")
 #' skylineconfig$table$factors[["Time"]] = "Sampling.Time.Point"
-#' #usethis::use_data( skylineconfig_HL , overwrite = TRUE )
+#' #usethis::use_data( skylineconfig , overwrite = TRUE )
 "skylineconfig"
 
 #' A data frame wich goes along with the \link{skylineconfig}
@@ -42,7 +42,7 @@
 #' skylineconfig$table$factors[["Time"]] = "Sampling.Time.Point"
 #' data(skylinePRMSampleData)
 #' sample_analysis <- setup_analysis(skylinePRMSampleData, skylineconfig)
-#' usethis::use_data( sample_analysis , overwrite = TRUE )
+#' #usethis::use_data( sample_analysis , overwrite = TRUE )
 "sample_analysis"
 
 #' Data frame with a skyline export for an heavy to light experiment
@@ -60,7 +60,7 @@
 #' skylineconfig_HL$table$factors[["treatment_c"]] <- "Condition2"
 #' skylineconfig_HL$table$factors[["time_c"]] <- "time"
 #' skylineconfig_HL$parameter$workingIntensityTransform = ""
-#' usethis::use_data( skylineconfig_HL , overwrite = TRUE )
+#' #usethis::use_data( skylineconfig_HL , overwrite = TRUE )
 "skylineconfig_HL"
 
 #' A data frame wich goes along with the \link{skylineconfig_HL}.

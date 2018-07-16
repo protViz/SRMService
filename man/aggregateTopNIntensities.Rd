@@ -4,7 +4,7 @@
 \alias{aggregateTopNIntensities}
 \title{aggregates top N intensities}
 \usage{
-aggregateTopNIntensities(data, config, N = 3)
+aggregateTopNIntensities(data, config, func, N)
 }
 \description{
 run \link{rankPrecursorsByIntensity} first
@@ -14,5 +14,8 @@ library(SRMService)
 config <- spectronautDIAData250_config$clone(deep=T)
 res <- setLarge_Q_ValuesToNA(spectronautDIAData250_analysis, config)
 res <- rankPrecursorsByIntensity(res,config)
-aggregateTopNIntensities(res, config, N=3)
+res \%>\% select(c(config$table$hierarchyKeys(),"srm_meanInt"  ,"srm_meanIntRank")) \%>\% distinct() \%>\% arrange(!!!syms(c(config$table$hierarchyKeys()[1],"srm_meanIntRank")))
+mean_na <- function(x){mean(x, na.rm=TRUE)}
+aggregateTopNIntensities(res, config, func = mean_na, N=3)
+
 }

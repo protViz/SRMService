@@ -9,7 +9,10 @@ AnalysisParameters <- R6::R6Class("AnalysisParameters",
                                     nrOfSigQvalues_Threshold = 5,
                                     qValThreshold = 0.01,
                                     minNumberOfQValues = 3,
-                                    workingIntensityTransform = ""
+                                    workingIntensityTransform = "", # important for some plotting functions
+                                    min_nr_of_notNA = 1, # how many values per transition total
+                                    min_nr_of_notNA_condition = 0, # how many not missing in condition
+                                    min_peptides_protein = 2
                                   )
 )
 
@@ -280,7 +283,8 @@ hierarchyCounts <- function(x, configuration){
 #' skylineconfig$table$factors[["Time"]] = "Sampling.Time.Point"
 #' data(skylinePRMSampleData)
 #' sample_analysis <- setup_analysis(skylinePRMSampleData, skylineconfig)
-#' summarizeProteins()
+#' summarizeProteins(sample_analysis, skylineconfig)
+#'
 summarizeProteins <- function( x, configuration ){
   rev_hierarchy <- configuration$table$hierarchyKeys(TRUE)
 

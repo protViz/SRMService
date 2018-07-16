@@ -13,8 +13,10 @@ Ranks precursors by NAs (adds new column .NARank)
 config <- spectronautDIAData250_config$clone(deep=T)
 res <- setLarge_Q_ValuesToNA(spectronautDIAData250_analysis, config)
 res <- rankPrecursorsByNAs(res,config)
+colnames(res)
 x <- res \%>\%
-  select(config$table$hierarchyKeys()[1], config$table$hierarchyKeys(T)[1], "srm_NrNAs") \%>\%
-  distinct() \%>\% summarize(sum(srm_NrNAs)) \%>\% pull()
-stopifnot(sum(is.na(res[[config$table$getWorkIntensity()[1]]])) == x)
+  select(config$table$hierarchyKeys()[1], config$table$hierarchyKeys(T)[1], "srm_NrNotNAs") \%>\%
+  distinct() \%>\% summarize(sum(srm_NrNotNAs)) \%>\% pull()
+stopifnot(sum(!is.na(res[[config$table$getWorkIntensity()[1]]])) == x)
+res \%>\% select(c(config$table$hierarchyKeys(),"srm_NrNotNAs"  ,"srm_NrNotNARank")) \%>\% distinct() \%>\% arrange(!!!syms(c(config$table$hierarchyKeys()[1],"srm_NrNotNARank")))
 }

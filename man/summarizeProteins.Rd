@@ -16,5 +16,6 @@ skylineconfig <- craeteSkylineConfiguration(isotopeLabel="Isotope.Label.Type", q
 skylineconfig$table$factors[["Time"]] = "Sampling.Time.Point"
 data(skylinePRMSampleData)
 sample_analysis <- setup_analysis(skylinePRMSampleData, skylineconfig)
-summarizeProteins()
+summarizeProteins(sample_analysis, skylineconfig)
+
 }
