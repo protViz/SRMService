@@ -5,8 +5,6 @@ date: "`r format(Sys.time(), '%d %B, %Y')`"
 output:
   pdf_document: default
   html_document: default
-params:
-  grp: !r quote(SRMService::genericQuantMatrixGRP2)
 vignette: >
   %\VignetteIndexEntry{FGCZ Two-Group Analysis}
   %\VignetteEngine{knitr::rmarkdown}
