@@ -258,16 +258,15 @@ decorelatedPly <- function(x, corThreshold = 0.7){
 #' @export
 #' @section TODO: do something with warnings of type "the standard deviation is zero".
 #' @section TODO: do investigate In max(x, na.rm = TRUE) : no non-missing arguments to max; returning -Inf
-markDecorrelated <- function(x , config, minCorrelation = 0.7){
-  x<-qvalFiltV
-  qvalFiltX <- x %>%  group_by_at(config$table$hierarchyKeys()[1]) %>% nest()
+markDecorrelated <- function(data , config, minCorrelation = 0.7){
+  qvalFiltX <- data %>%  group_by_at(config$table$hierarchyKeys()[1]) %>% nest()
   qvalFiltX <- qvalFiltX %>%
     dplyr::mutate(spreadMatrix = map(data, extractIntensities, config))
   HLfigs2 <- qvalFiltX %>%
     dplyr::mutate(srmDecor = map(spreadMatrix, decorelatedPly, minCorrelation))
   unnest_res <- HLfigs2 %>%
     select(protein_Id, srmDecor) %>% unnest()
-  qvalFiltX <- inner_join(qvalFiltV, unnest_res, by=c(config$table$hierarchyKeys()[1], config$table$hierarchyKeys(TRUE)[1]) )
+  qvalFiltX <- inner_join(data, unnest_res, by=c(config$table$hierarchyKeys()[1], config$table$hierarchyKeys(TRUE)[1]) )
   return(qvalFiltX)
 }
 
@@ -338,7 +337,7 @@ nr_B_in_A <- function(data,
     return(tmp)
   }
   data <- dplyr::inner_join(data, tmp, by=levelA )
-  message("Column addded : ", c_name)
+  message("Column added : ", c_name)
   return(data)
 }
 
@@ -388,7 +387,7 @@ rankPrecursorsByIntensity <- function(data, config){
                                rankFunction = function(x){min_rank(desc(x))}
   )
 
-  message("Added Columns :", summaryColumn, " ",  rankColumn)
+  message("Columns added:", summaryColumn, " ",  rankColumn)
   return(data)
 }
 
@@ -444,7 +443,7 @@ rankPrecursorsByNAs <- function(data, config){
                                 rankColumn = rankColumn,
                                 rankFunction = function(x){min_rank(desc(x))}
   )
-  message("Added Columns :", summaryColumn, " ",  rankColumn)
+  message("Columns added:", summaryColumn, " ",  rankColumn)
   return(data)
 }
 #'

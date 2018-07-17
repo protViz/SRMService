@@ -579,10 +579,10 @@ summarize_cv <- function(data, config){
 #' data <- sample_analysis
 #' config <- skylineconfig$clone(deep=TRUE)
 #' res <- summarize_cv(data, config)
-#' plot_cv_distribution_density(res, config, stat="mean")
-#' plot_cv_distribution_density(res, config, stat="sd")
-#' plot_cv_distribution_density(res, config, stat="CV")
-plot_cv_distribution_density <- function(data, config, stat = c("CV","mean","sd")){
+#' plot_stat_density(res, config, stat="mean")
+#' plot_stat_density(res, config, stat="sd")
+#' plot_stat_density(res, config, stat="CV")
+plot_stat_density <- function(data, config, stat = c("CV","mean","sd")){
   stat <- match.arg(stat)
   ggplot(data, aes_string(x = stat, colour = config$table$factorKeys()[1] )) +
     geom_line(stat="density")
@@ -596,23 +596,38 @@ plot_cv_distribution_density <- function(data, config, stat = c("CV","mean","sd"
 #' data <- sample_analysis
 #' config <- skylineconfig$clone(deep=TRUE)
 #' res <- summarize_cv(data, config)
-#' plot_cv_distribution_violin(res, config, stat="mean")
-#' plot_cv_distribution_violin(res, config, stat="sd")
-#' plot_cv_distribution_violin(res, config, stat="CV")
-plot_cv_distribution_violin <- function(data, config, stat = c("CV","mean","sd")){
+#' plot_stat_violin(res, config, stat="mean")
+#' plot_stat_violin(res, config, stat="sd")
+#' plot_stat_violin(res, config, stat="CV")
+plot_stat_violin <- function(data, config, stat = c("CV","mean","sd")){
   stat <- match.arg(stat)
-  ggplot(data, aes_string(x = stat, colour = config$table$factorKeys()[1] )) +
+  p <- ggplot(data, aes_string(x = stat, colour = config$table$factorKeys()[1] )) +
     geom_line(stat="density")
-
+  return(p)
 }
 
 #' stddev vs mean
-#'@export
-#'@examples
+#' @export
+#' @examples
 #' library(SRMService)
 #' library(tidyverse)
 #' data <- sample_analysis
 #' config <- skylineconfig$clone(deep=TRUE)
 #' res <- summarize_cv(data, config)
-#head(res)
-#ggplot(res, aes(x = mean, y = abs(sd)))
+#' plot_stdv_vs_mean(res)
+#' datalog2 <- transformIntensities(data, config, transformation = log2)
+#' statlog2 <- summarize_cv(datalog2, config)
+#' plot_stdv_vs_mean(statlog2)
+#' config$table$getWorkIntensity()
+#' config$table$popWorkIntensity()
+#' datasqrt <- transformIntensities(data, config, transformation = sqrt)
+#' ressqrt <- summarize_cv(datasqrt, config)
+#' plot_stdv_vs_mean(ressqrt)
+plot_stdv_vs_mean <- function(data){
+  p <- ggplot(data, aes(x = mean, y = abs(sd))) +
+    geom_point() +
+    geom_smooth(method="loess") +
+    facet_wrap(~Time) +
+    theme(axis.text.x = element_text(angle = 90, hjust = 1))
+  return(p)
+}

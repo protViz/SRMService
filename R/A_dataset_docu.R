@@ -76,7 +76,7 @@
 #' data(skylineSRM_HL_data)
 #' skylineSRM_HL_data$Area[skylineSRM_HL_data$Area == 0] <- NA
 #' sample_analysis_HL <- setup_analysis(skylineSRM_HL_data, skylineconfig_HL)
-#' usethis::use_data( sample_analysis_HL , overwrite = TRUE )
+#' #usethis::use_data( sample_analysis_HL , overwrite = TRUE )
 "sample_analysis_HL"
 
 #' Data frame of a Spectronaut export with DIA data

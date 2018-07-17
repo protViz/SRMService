@@ -4,7 +4,7 @@
 \alias{markDecorrelated}
 \title{marks decorrelated elements}
 \usage{
-markDecorrelated(x, config, minCorrelation = 0.7)
+markDecorrelated(data, config, minCorrelation = 0.7)
 }
 \description{
 marks decorrelated elements

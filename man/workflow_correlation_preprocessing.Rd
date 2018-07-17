@@ -4,14 +4,16 @@
 \alias{workflow_correlation_preprocessing}
 \title{correlation preprocessing}
 \usage{
-workflow_correlation_preprocessing(data, config)
+workflow_correlation_preprocessing(data, config, minCorrelation = 0.7)
 }
 \description{
 correlation preprocessing
 }
 \examples{
+rm(list=ls())
 config <- spectronautDIAData250_config$clone(deep=T)
-
+config$parameter$min_nr_of_notNA  <- 20
 data <- spectronautDIAData250_analysis
-workflow_correlation_preprocessing(data,config)
+res <- workflow_correlation_preprocessing(data,config)
+res$stats
 }
