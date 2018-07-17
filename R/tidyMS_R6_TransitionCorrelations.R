@@ -88,6 +88,29 @@ transformIntensities <- function(data,
   return(data)
 }
 
+#' visualize intensity distributions
+#' @export
+#' @examples
+#' config <- skylineconfig$clone(deep=TRUE)
+#' analysis <- transformIntensities(sample_analysis, config, log2)
+#' plot_intensity_distribution_violin(analysis, config)
+plot_intensity_distribution_violin <- function(data, config){
+  ggplot(data, aes_string(x = config$table$sampleName, y = config$table$getWorkIntensity() )) +
+    geom_violin() +
+    theme(axis.text.x = element_text(angle=90))
+}
+
+#' visualize intensity distributions
+#' @export
+#' @examples
+#' @rdname plot_intensity_distribution_violin
+#' config <- skylineconfig$clone(deep=TRUE)
+#' analysis <- transformIntensities(sample_analysis, config, log2)
+#' plot_intensity_distribution_density(analysis, config)
+plot_intensity_distribution_density <- function(data, config){
+  ggplot(data, aes_string(x = config$table$getWorkIntensity(), colour = config$table$sampleName )) +
+    geom_line(stat="density")
+}
 
 # Summarize Q Values ----
 #' Compute QValue summaries for each precursor

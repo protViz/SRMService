@@ -546,4 +546,73 @@ applyToHighestHierarchyBySample <- function( data, config, func)
   return(xnested)
 }
 
-#prots <- HLfigs3 %>% dplyr::select(,  medpolishRes) %>% unnest()
+#' applys func - a funciton workin on matrix for each protein and returning a vector of the same length as the number of samples
+#' @export
+#' @examples
+#' library(SRMService)
+#' library(tidyverse)
+#' data <- sample_analysis
+#' config <- skylineconfig$clone(deep=TRUE)
+#'
+#' res <- summarize_cv(data, config)
+#' res$CV <- res$sd/res$mean
+summarize_cv <- function(data, config){
+
+  intsym <- sym(config$table$getWorkIntensity())
+  hierarchyFactor <- data %>%
+    group_by(!!!syms( c(config$table$hierarchyKeys(), config$table$factorKeys()[1]) )) %>%
+    summarise(n = n(), sd = sd(!!intsym, na.rm = T), mean=mean(!!intsym, na.rm = T))
+
+  hierarchy <- data %>%
+    group_by(!!!syms( config$table$hierarchyKeys() )) %>%
+    summarise(n = n(), sd = sd(!!intsym,na.rm = T), mean=mean(!!intsym,na.rm = T))
+  hierarchy <- mutate(hierarchy, !!config$table$factorKeys()[1] := "All")
+  res <- bind_rows(hierarchyFactor,hierarchy)
+  res %>% mutate(CV = sd/mean) -> res
+  return(res)
+}
+#' applys func - a funciton workin on matrix for each protein and returning a vector of the same length as the number of samples
+#' @export
+#' @examples
+#' library(SRMService)
+#' library(tidyverse)
+#' data <- sample_analysis
+#' config <- skylineconfig$clone(deep=TRUE)
+#' res <- summarize_cv(data, config)
+#' plot_cv_distribution_density(res, config, stat="mean")
+#' plot_cv_distribution_density(res, config, stat="sd")
+#' plot_cv_distribution_density(res, config, stat="CV")
+plot_cv_distribution_density <- function(data, config, stat = c("CV","mean","sd")){
+  stat <- match.arg(stat)
+  ggplot(data, aes_string(x = stat, colour = config$table$factorKeys()[1] )) +
+    geom_line(stat="density")
+
+}
+#' applys func - a funciton workin on matrix for each protein and returning a vector of the same length as the number of samples
+#' @export
+#' @examples
+#' library(SRMService)
+#' library(tidyverse)
+#' data <- sample_analysis
+#' config <- skylineconfig$clone(deep=TRUE)
+#' res <- summarize_cv(data, config)
+#' plot_cv_distribution_violin(res, config, stat="mean")
+#' plot_cv_distribution_violin(res, config, stat="sd")
+#' plot_cv_distribution_violin(res, config, stat="CV")
+plot_cv_distribution_violin <- function(data, config, stat = c("CV","mean","sd")){
+  stat <- match.arg(stat)
+  ggplot(data, aes_string(x = stat, colour = config$table$factorKeys()[1] )) +
+    geom_line(stat="density")
+
+}
+
+#' stddev vs mean
+#'@export
+#'@examples
+#' library(SRMService)
+#' library(tidyverse)
+#' data <- sample_analysis
+#' config <- skylineconfig$clone(deep=TRUE)
+#' res <- summarize_cv(data, config)
+#head(res)
+#ggplot(res, aes(x = mean, y = abs(sd)))
