@@ -1,5 +1,5 @@
 ---
-title: "Example of data preprocessing"
+title: "Example of DIA data preprocessing"
 author: "Functional Genomics Center Zurich"
 date: "`r format(Sys.time(), '%d %B, %Y')`"
 output:
