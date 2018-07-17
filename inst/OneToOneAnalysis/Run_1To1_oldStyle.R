@@ -10,6 +10,12 @@ maxquanttxtdirectory <- ""
 # www.github.com/protViz/SRMService
 # by W.E. Wolski, J. Grossmann, C. Panse
 #
+
+# get these from executing shell script
+projectNumber <- "p1000"
+OID <- "OID1234"
+
+
 msmsName<- "msms.txt"
 summary <- "summary.txt"
 evidence <- "evidence.txt"
@@ -17,6 +23,7 @@ proteinGroups <- "proteinGroups.txt"
 parameters <- "parameters.txt"
 peptides <- "peptides.txt"
 
+# 
 msmsName <- system.file(file.path("samples/maxquant_txt/MSQC1",msmsName),package = "SRMService")
 summary <- system.file(file.path("samples/maxquant_txt/MSQC1",summary),package = "SRMService")
 evidence <- system.file(file.path("samples/maxquant_txt/MSQC1",evidence),package = "SRMService")
@@ -24,7 +31,12 @@ proteinGroups <- system.file(file.path("samples/maxquant_txt/MSQC1",proteinGroup
 parameters <- system.file(file.path("samples/maxquant_txt/MSQC1",parameters),package = "SRMService")
 peptides <- system.file(file.path("samples/maxquant_txt/MSQC1",peptides),package = "SRMService")
 
-parameters
+# msmsName <- system.file(file.path("samples/maxquant_txt/maxquant",msmsName),package = "SRMService")
+# summary <- system.file(file.path("samples/maxquant_txt/maxquant",summary),package = "SRMService")
+# evidence <- system.file(file.path("samples/maxquant_txt/maxquant",evidence),package = "SRMService")
+# proteinGroups <- system.file(file.path("samples/maxquant_txt/maxquant",proteinGroups),package = "SRMService")
+# parameters <- system.file(file.path("samples/maxquant_txt/maxquant",parameters),package = "SRMService")
+# peptides <- system.file(file.path("samples/maxquant_txt/maxquant",peptides),package = "SRMService")
 
 msms_d <- read.table(msmsName, header=T, sep="\t")
 summ <- read.table(summary, header=F, sep="\t")
@@ -36,6 +48,11 @@ Fulldat <- read.table(proteinGroups, header=T, sep="\t")
 dat <- Fulldat[,grep("^Intensity\\.", colnames(Fulldat))]
 rownames(dat) <- Fulldat$Majority.protein.IDs
 
+# clean names from Intensity and truncate date for better readability
+noIntensityNames <- gsub(pattern = "Intensity.", replacement = "", x = colnames(dat))
+stoopidNames <- gsub(pattern = "^m", replacement = "", x = noIntensityNames)
+noDateNames <- gsub(pattern = "^[[:digit:]]+_", replacement = "", x = stoopidNames)
+colnames(dat) <- noDateNames
 
 # this is for witold to be replaced
 #fixedProteingroups <- "proteinGroups_FGCZ2grp_Intensity.txt"

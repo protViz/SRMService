@@ -9,7 +9,9 @@
 \pagestyle{fancy}
 \cfoot{\thepage\ of \pageref{LastPage}}
 
-\title{Label free quantification (LFQ) analysis: \\ QC analysis for sample preparation and LC-MS}
+
+\title{\Sexpr{projectNumber} - Label free quantification analysis: \\ \Sexpr{OID}: QC analysis for sample preparation and LC-MS}
+%\title{FGCZ Two-Group Analysis for: \Sexpr{projectNumber}\\
 \author{Functional Genomics Center Zuerich}
 \begin{document}
 \SweaveOpts{concordance=TRUE}
@@ -53,7 +55,7 @@ Imporant criterias are outlined below along with a reference to the figure later
 #          paste("\\textcolor{green}{", formatC(x, dig=2, format="f"), "}"),
 #          paste("\\textcolor{red}{", formatC(x, dig=2, format="f"), "}"))
 # }
-myTable <- matrix(,nrow=0, ncol = 5)
+myTable <- matrix(nrow=0, ncol = 5)
 header <- c("Criteria", "Reference","Threshold", "Value", "Flag")
 colnames(myTable) <- header
 diffExpGenes <- c("Max % of regulated proteins (1): ","n/a", "5%", "NA", "NA")
@@ -61,11 +63,12 @@ minRsquare <- c("Min R-square for correlation: ","Fig. 15", "0.9", "NA", "NA")
 maxScaleFactor <- c("Max scaling factor: ","Fig. 14", "3", "NA", "NA")
 varianceMSMS <- c("Difference of identified peptides in biochemical reps: ","Table 2", "30%", "NA", "NA")
 percSingleProteinHits <- c("Max % of single hit proteins (in full exp) (2): ","n/a", "50%", "NA", "NA")
-percSingleProteinHitsInQuant <- c("% of single hit proteins in LFQ (2): ","n/a", "0%", "NA", "NA")
+#percSingleProteinHitsInQuant <- c("% of single hit proteins in LFQ (2): ","n/a", "0%", "NA", "NA")
 missedCleavage <- c("Min % of fully tryptic: ","Fig. 7", "50%", "NA", "NA")
 unmodifiedPerc <- c("Min % of unmodified peptides: ","Fig. 8", "80%", "NA", "NA")
 
-myTable <- rbind(myTable, diffExpGenes, minRsquare, maxScaleFactor, missedCleavage, unmodifiedPerc, varianceMSMS, percSingleProteinHits, percSingleProteinHitsInQuant)
+#myTable <- rbind(myTable, diffExpGenes, minRsquare, maxScaleFactor, missedCleavage, unmodifiedPerc, varianceMSMS, percSingleProteinHits, percSingleProteinHitsInQuant)
+myTable <- rbind(myTable, diffExpGenes, minRsquare, maxScaleFactor, missedCleavage, unmodifiedPerc, varianceMSMS, percSingleProteinHits)
 
 overall_minimumOKs <- 5
 
@@ -87,7 +90,7 @@ myTable[4,3] <- paste(minMissedCleaveage,"%",sep="")
 myTable[5,3] <- paste(minUnmodPeptides,"%",sep="")
 myTable[6,3] <- paste(minVarOfID,"%",sep="")
 myTable[7,3] <- paste(minSingleProteinHits,"%",sep="")
-myTable[8,3] <- paste(minQuantSingleProteinHits,"%",sep="")
+#myTable[8,3] <- paste(minQuantSingleProteinHits,"%",sep="")
 
 #Parse and run for Values
 #Differentially Expressed Genes < 0.05
@@ -103,7 +106,7 @@ sigThr <- 0.05
 #evi_d <- read.table(f, header=T, sep="\t")
 
 # TODO(cp): cleanup the next two lines
-#filename.proteinGroups <- "maxquant/proteinGroups.txt"                                       
+#filename.proteinGroups <- "maxquant/proteinGroups.txt"
 #Fulldat <- read.csv(filename.proteinGroups, sep="\t", stringsAsFactors = FALSE, header=TRUE)
 #read.table(f, header=T, sep="\t")
 bool_moreThanOnePeptide <- Fulldat$Razor...unique.peptides > 1
@@ -157,12 +160,12 @@ myTable[7,5] <- OkOrNot
 
 
 #max % on QUANT:singleHitProteins
-totQuantProteins <- nrow(quantDat)
-totSingleHitQuant <- sum(Fulldat[bool_moreThanOnePeptide,]$Razor...unique.peptides == 1)
-percQuantSingleHits <- round(100*totSingleHitQuant/totQuantProteins, 2)
-myTable[8,4] <- paste(percQuantSingleHits,"%",sep="")
-if(percQuantSingleHits == minQuantSingleProteinHits) OkOrNot <- "OK" else OkOrNot <- "NOT OK"
-myTable[8,5] <- OkOrNot
+# totQuantProteins <- nrow(quantDat)
+# totSingleHitQuant <- sum(Fulldat[bool_moreThanOnePeptide,]$Razor...unique.peptides == 1)
+# percQuantSingleHits <- round(100*totSingleHitQuant/totQuantProteins, 2)
+# myTable[8,4] <- paste(percQuantSingleHits,"%",sep="")
+# if(percQuantSingleHits == minQuantSingleProteinHits) OkOrNot <- "OK" else OkOrNot <- "NOT OK"
+# myTable[8,5] <- OkOrNot
 
 #max % on missed cleaves
 mctable <- table(msms_d$Missed.cleavages,msms_d$Raw.file)
@@ -179,7 +182,7 @@ if(minPercMCZero > minMissedCleaveage) OkOrNot <- "OK" else OkOrNot <- "NOT OK"
 myTable[4,5] <- OkOrNot
 
 #max % on var mods
-#histogram(~ msms_d$Modifications|msms_d$Raw.file, main="VarMods per RawFile",  scales = list(x = list(rot = 90, cex=0.8)), par.strip.text = list(cex = 0.4), xlab="Variable modifications")
+#histogram(~ msms_d$Modifications|msms_d$Raw.file, main="VarMods per RawFile",  scales = list(x = list(rot = 90, cex=0.8)), par.strip.text = list(cex = 0.8), xlab="Variable modifications")
 varModTable <- table(msms_d$Modifications, msms_d$Raw.file)
 #CRITICAL:: if one changes varMods for searching.. eventually "unmodified" is not last element anymore (alphabetically order, therefore pretty unlikely.. there is only V,W,X,Y,Z left )
 unmodifiedRow <- nrow(varModTable)
@@ -219,18 +222,6 @@ The QC result is the following:
 
 
 \section{Data Input and Output Overview}
-The following outputs are provided:\\
-\\
-i). pdf file reporting the results of the QC analysis\\
-ii). zip folder with the results of the MaxQuant workflow\\
-iii). Scaffold file (within the zip-file), \\
-\\
-Scaffold is a useful software for the visualization of the protein and peptide identification results.
-The free scaffold viewer can be downloaded from the internet.\\
-\href{url}{http://www.proteomesoftware.com/products/free-viewer/}
-\\
-\\
-
 
 \subsection{Input: Samples analysed}
 Here the list of acquired raw-files:
@@ -238,7 +229,11 @@ Here the list of acquired raw-files:
 library(xtable)
 NumFiles <- (nrow(summ))/2
 files <- summ[2:NumFiles,1]
-print(xtable(as.matrix(files), caption="measured files"), size="\\normalsize", include.colnames=FALSE)
+#myFileIndex <- 1:(NumFiles-1)
+betterNames <- gsub(pattern = "^[[:digit:]]+_", replacement = "", gsub(pattern = "Intensity.", replacement = "", files))
+myFileTable <- as.matrix(cbind(as.character(files), betterNames))
+colnames(myFileTable) <- c("original RawFileNames", "betterNames")
+print(xtable(myFileTable, caption="measured files"), size="\\normalsize", include.colnames=TRUE)
 @
 
 
@@ -248,7 +243,7 @@ print(xtable(as.matrix(files), caption="measured files"), size="\\normalsize", i
 
 
 The protein identification and QC quantification was performed using MaxQuant.
-Below are reported information about the MaxQuant version, the variable modifications taken into consideration, the database used and the targeted False Discovery Rate (FDR) at the spectrum (psm) and protein level. For the complete list of parameters please check the attached parameters txt file.\\
+Below are reported information about the MaxQuant version, the variable modifications taken into consideration, the database used and the targeted False Discovery Rate (FDR) at the spectrum (psm) and protein level. For the complete list of parameters please check the parameters txt file.\\
 
 
 <<echo=FALSE>>=
@@ -261,8 +256,8 @@ psmFDR <- params[18,2]
 protFDR <- params[19,2]
 varMods <- params[31,2]
 fasta <- params[45,2]
-enz <- unique(summ[1,4])
-enzSpez <- unique(summ[1,5])
+enz <- unique(summ[2,4])
+enzSpez <- unique(summ[2,5])
 @
 
 \begin{verbatim}
@@ -302,7 +297,7 @@ colnames(topTable) <- header
 
 Look at numbers:
 <<echo=FALSE, results=tex>>=
-print(xtable(topTable, caption="Overview on the hard numbers for each file."), size="\\small")
+print(xtable(topTable, caption="Overview on the number of identified MS/MS spectra for each file."), size="\\small")
 
 @
 \pagebreak
@@ -319,6 +314,7 @@ Next an overview about the number of proteinGroups is shown. We present here mor
 # ff <- "maxquant/peptides.txt"
 # pepts <- read.table(ff, header=T, sep="\t")
 NumPep <- nrow(pepts)
+#str(pepts)
 # #total number of proteins
 originalProteinGroups <-Fulldat
 N <- nrow(originalProteinGroups)
@@ -341,51 +337,28 @@ Total number of protein with at least 3 peptides:  \Sexpr{ProtMin3}
 Average number of peptides per protein:  \Sexpr{averagePepPerProt}
 Median number of peptides per protein:  \Sexpr{medianPepPerProt}
 
-Total number of unique identified pepitdes:  \Sexpr{NumPep}
+Total number of unique identified peptides:  \Sexpr{NumPep}
 \end{verbatim}
-
-\begin{figure}[!htb]
-<<echo=FALSE,fig=TRUE>>=
-#MW
-par(mfrow=c(2,1))
-hist(originalProteinGroups$Mol..weight..kDa., breaks=200,col="green", freq=TRUE, main="Molecular Weight distribution (kDa, linear scale)",xlab = "Molecular Weight (kDa)", ylab="Counts")
-hist(log(originalProteinGroups$Mol..weight..kDa.,10), breaks=20,col="green", freq=TRUE, main="Molecular Weight distribution (kDa, log10 scale)", xlab="log scaled MW[kDa]  :: 1=10kDa   1.5=31.6kDa    2=100kDa", ylab="Counts")
-@
-  \caption{Distribution of Molecular Weights for proteins identfied (lower panel is on log10 scale)}
-  \label{fig:MW}
-\end{figure}
-
-
-
-\begin{figure}[!htb]
-<<echo=FALSE,fig=TRUE, width=6, height=6>>=
-#Coverage
-hist(originalProteinGroups$Sequence.coverage.... , breaks=40, freq=TRUE, main="Protein Sequence Coverage", col="grey", xlab="Percentage of Sequence Coverage", ylab="Counts in bin")
-@
-  \caption{Distribution of sequence coverage for all identified proteins}
-  \label{fig:SeqCov}
-\end{figure}
-
-
-\pagebreak
 
 
 \subsection{More Information about Identified Peptide Sequences}
 In the Maxquant output (evidence.txt) file there are informations for all identified peptides in the full experiment. In the Maxquant output (msms.txt) file there are informations for each and every identfied msms scan. We try here to show if all the files have been equally treated (e.g. same digestion efficiency, variable modifications..) \\
-\vspace{2cm}
-Here it shows the distribution of picked and fragmented precursor masses for the different raw-files.
+
+Shown is the distribution of picked and fragmented precursor masses for the different input files.
 
 \begin{figure}[!htb]
-<<echo=FALSE,fig=TRUE,width=8, height=6>>=
-histogram(~ evi_d$m.z|evi_d$Raw.file, par.strip.text = list(cex = 0.4), xlab="precursors (m/z)")
+<<echo=FALSE,fig=TRUE,width=12, height=8>>=
+# handle again file names
+evi_d$Raw.file <- gsub(pattern = "^[[:digit:]]+_", replacement = "", x = evi_d$Raw.file)
+histogram(~ evi_d$m.z|evi_d$Raw.file, par.strip.text = list(cex = 0.8), xlab="precursors (m/z)")
 @
   \caption{Distribution of the precursor m/z of the identified peptides}
   \label{fig:mzID}
 \end{figure}
 
 \begin{figure}
-<<echo=FALSE,fig=TRUE,width=8, height=6>>=
-histogram(~ evi_d$Mass.Error..ppm. |evi_d$Raw.file, nbins=50, main="Distribution of recalibrated mass error (ppm)", par.strip.text = list(cex = 0.4), xlab="Recalibrated mass error (ppm)")
+<<echo=FALSE,fig=TRUE,width=12, height=8>>=
+histogram(~ evi_d$Mass.Error..ppm. |evi_d$Raw.file, nbins=50, main="Distribution of recalibrated mass error (ppm)", par.strip.text = list(cex = 0.8), xlab="Recalibrated mass error (ppm)")
 @
   \caption{Distribution of recalibrated mass error (ppm) of precursors. Recalibration is a feature of MaxQuant.}
   \label{fig:ppmErrorCali}
@@ -397,47 +370,51 @@ histogram(~ evi_d$Mass.Error..ppm. |evi_d$Raw.file, nbins=50, main="Distribution
 
 
 <<echo=FALSE>>=
+# handle again file names
+msms_d$Raw.file <- gsub(pattern = "^[[:digit:]]+_", replacement = "", x = msms_d$Raw.file)
 N <- length(table(msms_d$Raw.file))
 @
 
-\begin{figure}[!htb]
-<<echo=FALSE,fig=TRUE,width=8, height=6>>=
-#Length Distribution over identified peptides (split on RAWfile)
-histogram(~ msms_d$Length|msms_d$Raw.file, main="Length Distribution of identified peptides", par.strip.text = list(cex = 0.4), xlab="Peptide Length")
-@
-  \caption{Overview of the peptide length for identified peptides (with respect to number of amino acids)}
-  \label{fig:Length}
-\end{figure}
+% \begin{figure}[!htb]
+% <<echo=FALSE,fig=TRUE,width=12, height=8>>=
+% #Length Distribution over identified peptides (split on RAWfile)
+% histogram(~ msms_d$Length|msms_d$Raw.file, main="Length Distribution of identified peptides", par.strip.text = list(cex = 0.8), xlab="Peptide Length")
+% @
+%   \caption{Overview of the peptide length for identified peptides (with respect to number of amino acids)}
+%   \label{fig:Length}
+% \end{figure}
 
 \begin{figure}[!htb]
-<<echo=FALSE,fig=TRUE,width=8, height=6>>=
+<<echo=FALSE,fig=TRUE,width=12, height=8>>=
 #Missed cleavage
+# Here Paolo requested a different plot -> I disagree and leave the trellis bar plot
 N <- length(table(msms_d$Raw.file))
-histogram(~ msms_d$Missed.cleavages|msms_d$Raw.file,main="Distribution of missed cleavages", par.strip.text = list(cex = 0.4), xlab="Number of missed cleavages")
+histogram(~ msms_d$Missed.cleavages|msms_d$Raw.file,main="Distribution of missed cleavages", par.strip.text = list(cex = 0.8), xlab="Number of missed cleavages")
 @
   \caption{Overview for missed-cleavages for identified peptides (split on raw-file level)}
   \label{fig:mmc}
 \end{figure}
 
 \begin{figure}[!htb]
-<<echo=FALSE,fig=TRUE, width=8, height=15>>=
+<<echo=FALSE,fig=TRUE, width=12, height=15>>=
 #VarMods
 N <- length(table(msms_d$Raw.file))
 #modPeps <- cbind(as.character(msms_d$Raw.file), as.character(msms_d$Modifications))
 #table(modPeps)
 #histogram(~ msms_d$Modifications|msms_d$Raw.file, main="VarMods per RawFile", layout=c(1,N), scales = list(x = list(rot = 90)))
-histogram(~ msms_d$Modifications|msms_d$Raw.file, main="VarMods per RawFile",  scales = list(x = list(rot = 90, cex=0.8)), par.strip.text = list(cex = 0.4), xlab="Variable modifications")
+# eventually take unmodified out? (ask Paolo)
+histogram(~ msms_d$Modifications|msms_d$Raw.file, ylim=c(0,30), main="VarMods per RawFile",  scales = list(x = list(rot = 90, cex=0.8)), par.strip.text = list(cex = 0.8), xlab="Variable modifications")
 @
-  \caption{Overview of identified modifications for identified peptides}
+  \caption{Overview of identified modifications for identified peptides (y-axis is truncated at 30 percent)}
   \label{fig:Varmods}
 \end{figure}
 
 \begin{figure}[!htb]
-<<echo=FALSE,fig=TRUE,width=8>>=
+<<echo=FALSE,fig=TRUE,width=12>>=
 #Charge
-histogram(~ msms_d$Charge|msms_d$Raw.file, main="Distribution of Charges for identified peptides", par.strip.text = list(cex = 0.4), xlab="Charge of identified peptides")
+histogram(~ msms_d$Charge|msms_d$Raw.file, main="Distribution of Charges for identified peptides", par.strip.text = list(cex = 0.8), xlab="Charge of identified peptides")
 @
-  \caption{Overview of charge states for identified peptides.}
+  \caption{Overview of charge states for identified peptides. Note: Singly charged peptides are excluded for MS/MS. }
   \label{fig:Charge}
 \end{figure}
 
@@ -488,8 +465,9 @@ Number of LC-MS/MS experiments in each group:  \Sexpr{grpSize}
 --
 Number of proteins with missing values:  \Sexpr{protsWithZeros}
 Number of proteins without missing values: \Sexpr{matWoZeros}
-Number of proteins with more than ONE peptide: \Sexpr{QuantableProteins}
+
 Number of proteins with only one peptide: \Sexpr{protWihtOnlyOne}
+Number of quantifiable proteins with more than ONE peptide: \Sexpr{QuantableProteins}
 
 \end{verbatim}
 
@@ -505,9 +483,9 @@ The input matrix has the following structure.\\
 
 #image(asinh(t(dat)))
 #axis(1,colnames(dat)[2], at = 2)
-heatmap.2(asinh(as.matrix(quantDat)), dendrogram = "none", trace = "none", labRow="",margins=c(15,2), main="all MS experiments", ylab="proteins")
+heatmap.2(asinh(as.matrix(quantDat)), dendrogram = "none", trace = "none", labRow="",margins=c(15,2), main="Heatmap of quantitative value in all experiments", ylab="proteins")
 @
-  \caption{Heatmap for quantifyable proteins (asinh transformed)}
+  \caption{Heatmap for all proteins with minimum two peptides (= quantifiable proteins) (Intensity value is hyperbolic arcsine transformed)}
   \label{fig:imagPlot}
 \end{figure}
 
@@ -515,10 +493,12 @@ heatmap.2(asinh(as.matrix(quantDat)), dendrogram = "none", trace = "none", labRo
 
 
 \begin{figure}[!htb]
-<<echo=FALSE, fig=TRUE, width=6, height=6>>=
+<<echo=FALSE, fig=TRUE, width=6, height=8>>=
 samples <- names(dat)
 colors <- rainbow(length(samples))
-plotDensity(quantDat, col=colors, lwd=1, main="untreated SignalDistributions (no transformation)", xlab="(Quantvalue)")
+#plotDensity(quantDat, xlim=c(0,2E11), col=colors, lwd=1, main="untreated SignalDistributions (no transformation)", xlab="(Quantitative value)")
+maxY <- max(quantDat)/5
+plotDensity(quantDat, xlim=c(0,maxY), col=colors, lwd=1, main="Histogram of untreated SignalDistributions (no transformation)", xlab="Quantitative value (x-axis is truncated)")
 legend("topright", samples, text.col=colors)
 @
   \caption{Density plot for quantifyable proteins (not transformed)}
@@ -527,7 +507,7 @@ legend("topright", samples, text.col=colors)
 
 
 \begin{figure}[!htb]
-<<echo=FALSE, fig=TRUE,  width=6, height=6 >>=
+<<echo=FALSE, fig=TRUE,  width=6, height=8 >>=
 plotDensity(asinh(i_dat), col=colors, lwd=1, main="SignalDistributions", xlab="asinh(Quantvalue)")
 legend("topright", samples, text.col=colors)
 @
@@ -536,7 +516,7 @@ legend("topright", samples, text.col=colors)
 \end{figure}
 
 \begin{figure}[!htb]
-<<echo=FALSE, fig=TRUE,  width=6, height=6>>=
+<<echo=FALSE, fig=TRUE,  width=6, height=8>>=
 plotDensity(asinh(n_i_dat), col=colors, lwd=1, main="SignalDistributions", xlab="asinh(Quantvalue)")
 legend("topright", samples, text.col=colors)
 @
@@ -547,12 +527,12 @@ legend("topright", samples, text.col=colors)
 The scaling factors are visualized in Figure \ref{fig:ScaleFactors}. It shows with what factor the individually calcuated numbers are boosted for the normalization.
 
 \begin{figure}[!htb]
-<<echo=FALSE, fig=TRUE, width=8, height=8>>=
+<<echo=FALSE, fig=TRUE, width=12, height=8>>=
 #scaleF <- read.table(sf, sep=" ", header=F)
 #sf <- "appliedScaleFactors_Median.txt"
 par(mfrow=c(1,1))
-par(mar=c(4,20,4,1))
-barplot(scaleF$V2, horiz=TRUE, names.arg=scaleF$V1, cex.names = 1, las=1, main="Scaling Factors")
+par(mar=c(4,10,4,1))
+barplot(scaleF$V2, horiz=TRUE, names.arg=scaleF$V1, cex.names = 1, las=1, main="Applied scaling Factors (normalization)")
 @
   \caption{Applied scaling factors for normalization (calculated using median normalization)}
   \label{fig:ScaleFactors}
@@ -563,8 +543,10 @@ barplot(scaleF$V2, horiz=TRUE, names.arg=scaleF$V1, cex.names = 1, las=1, main="
 
 
 \begin{figure}[!htb]
-<<echo=FALSE, fig=TRUE, width=8, height=8>>=
-SRMService:::DoCorrelationOnMatrix(asinh(n_i_dat))
+<<echo=FALSE, fig=TRUE, width=12, height=8>>=
+
+heatmap.2(as.matrix(cor(asinh(n_i_dat))),margin=c(15,10),trace="none", main="Sample Correlation")
+#SRMService:::DoCorrelationOnMatrix(asinh(n_i_dat))
 @
   \caption{Correlation plot for normalized values based on imputed matrix (asinh)}
   \label{fig:normCorr}
@@ -574,7 +556,7 @@ SRMService:::DoCorrelationOnMatrix(asinh(n_i_dat))
 
 
 \begin{figure}[!htb]
-<<echo=FALSE, fig=TRUE,  width=6, height=6>>=
+<<echo=FALSE, fig=TRUE,  width=6, height=8>>=
 mat <- n_i_dat
 TotList <- SRMService:::Do2grpTtestOnMatrixAndBHcorrReturnAllInternalTrafo(ProtQuantMatrix=mat, bool_TrafoHere=TRUE)
 hist(as.numeric(TotList[,2]), breaks=20, main="Histogram of pValues", xlab="Density of pValues")
