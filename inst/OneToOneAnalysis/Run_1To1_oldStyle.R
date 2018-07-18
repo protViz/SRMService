@@ -13,8 +13,8 @@ maxquanttxtdirectory <- ""
 
 # get these from executing shell script
 projectNumber <- "p1000"
-OID <- "OID1234"
-
+OID <- "1234"
+triggeredUser <- "UserY"
 
 msmsName<- "msms.txt"
 summary <- "summary.txt"
@@ -24,19 +24,19 @@ parameters <- "parameters.txt"
 peptides <- "peptides.txt"
 
 # 
-msmsName <- system.file(file.path("samples/maxquant_txt/MSQC1",msmsName),package = "SRMService")
-summary <- system.file(file.path("samples/maxquant_txt/MSQC1",summary),package = "SRMService")
-evidence <- system.file(file.path("samples/maxquant_txt/MSQC1",evidence),package = "SRMService")
-proteinGroups <- system.file(file.path("samples/maxquant_txt/MSQC1",proteinGroups),package = "SRMService")
-parameters <- system.file(file.path("samples/maxquant_txt/MSQC1",parameters),package = "SRMService")
-peptides <- system.file(file.path("samples/maxquant_txt/MSQC1",peptides),package = "SRMService")
+# msmsName <- system.file(file.path("samples/maxquant_txt/MSQC1",msmsName),package = "SRMService")
+# summary <- system.file(file.path("samples/maxquant_txt/MSQC1",summary),package = "SRMService")
+# evidence <- system.file(file.path("samples/maxquant_txt/MSQC1",evidence),package = "SRMService")
+# proteinGroups <- system.file(file.path("samples/maxquant_txt/MSQC1",proteinGroups),package = "SRMService")
+# parameters <- system.file(file.path("samples/maxquant_txt/MSQC1",parameters),package = "SRMService")
+# peptides <- system.file(file.path("samples/maxquant_txt/MSQC1",peptides),package = "SRMService")
 
-# msmsName <- system.file(file.path("samples/maxquant_txt/maxquant",msmsName),package = "SRMService")
-# summary <- system.file(file.path("samples/maxquant_txt/maxquant",summary),package = "SRMService")
-# evidence <- system.file(file.path("samples/maxquant_txt/maxquant",evidence),package = "SRMService")
-# proteinGroups <- system.file(file.path("samples/maxquant_txt/maxquant",proteinGroups),package = "SRMService")
-# parameters <- system.file(file.path("samples/maxquant_txt/maxquant",parameters),package = "SRMService")
-# peptides <- system.file(file.path("samples/maxquant_txt/maxquant",peptides),package = "SRMService")
+msmsName <- system.file(file.path("samples/maxquant_txt/maxquant",msmsName),package = "SRMService")
+summary <- system.file(file.path("samples/maxquant_txt/maxquant",summary),package = "SRMService")
+evidence <- system.file(file.path("samples/maxquant_txt/maxquant",evidence),package = "SRMService")
+proteinGroups <- system.file(file.path("samples/maxquant_txt/maxquant",proteinGroups),package = "SRMService")
+parameters <- system.file(file.path("samples/maxquant_txt/maxquant",parameters),package = "SRMService")
+peptides <- system.file(file.path("samples/maxquant_txt/maxquant",peptides),package = "SRMService")
 
 msms_d <- read.table(msmsName, header=T, sep="\t")
 summ <- read.table(summary, header=F, sep="\t")
