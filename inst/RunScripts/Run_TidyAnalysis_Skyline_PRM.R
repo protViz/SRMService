@@ -2,7 +2,6 @@ rm(list=ls())
 library(conflicted)
 library(tidyverse)
 library(readxl)
-library(rlang)
 library(yaml)
 
 outdir <- tempdir()

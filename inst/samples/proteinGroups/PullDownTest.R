@@ -8,9 +8,8 @@ rm(list=ls())
 library(limma)
 library(SRMService)
 
-
-
-protein <- readr::read_tsv("proteinGroupsPullDown.txt")
+protein <- system.file("samples/proteinGroups/proteinGroupsPullDown.txt",package = "SRMService")
+protein <- readr::read_tsv(protein)
 colnames(protein) <- make.names(colnames(protein))
 
 
@@ -46,7 +45,7 @@ nrPeptides = 2
 annotation$Condition[grepl("_w$",annotation$Condition)] <- NA
 reference = "pegfp_wo" # unique(annotation$Condition)[3]
 
-write.table(annotation, file="output/annotationused.txt")
+#write.table(annotation, file="output/annotationused.txt")
 
 
 ####### END of user configuration ##
@@ -55,8 +54,9 @@ grp2$setMQProteinGroups(protein)
 grp2$qfoldchange = 2
 grp2$setQValueThresholds(qvalue = 0.01)
 
-
+grp2PullDownExample <- grp2
+usethis::use_data(grp2PullDownExample)
 results <- grp2$getResultTable()
-write.table(results, file=file.path(workdir,"pValues.csv"), quote=FALSE, sep = "\t", col.names=NA)
+#write.table(results, file=file.path(workdir,"pValues.csv"), quote=FALSE, sep = "\t", col.names=NA)
 
 rmarkdown::render("Grp2Analysis.Rmd", bookdown::pdf_document2())

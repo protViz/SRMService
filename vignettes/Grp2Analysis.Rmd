@@ -28,6 +28,17 @@ if(!exists("progress")){
 }
 
 grp2 <- eval(params$grp)
+
+library(tidyverse)
+library(knitr)
+library(limma)
+library(dplyr)
+library(reshape2)
+library(quantable)
+library(ggplot2)
+library(dplyr)
+
+
 ```
 
 # Input Matrix
@@ -56,8 +67,6 @@ The protein matrix is filtered like this:
 
 ```{r}
 
-library(knitr)
-library(limma)
 
 tab <- data.frame(table(grp2$getAnnotation()$Condition))
 colnames(tab) <- c("Condition","# samples")
@@ -97,7 +106,6 @@ grp2$proteinIntensity <- grp2$proteinIntensity[order(missing, -int,decreasing = 
 The input matrix has the following structure (Figure \@ref(fig:overview)).
 
 ```{r overview, fig.width=8,fig.height=8,dpi=300,fig.cap="Heatmap for quantifyable proteins sorted by missigness and intensity (log2). Gray - missing values"}
-library(quantable)
 imageWithLabels(t(log2(grp2$proteinIntensity)), col.labels = NULL, col=quantable::getBlueScale(21))
 ```
 
@@ -118,8 +126,6 @@ progress(0.1, "Summary")
 Shown in Figure \@ref(fig:distributionRaw) are the distributions of raw log2 transformed intensity values. Ideally the violins should look very similar.
 
 ```{r distributionRaw, fig.width=7, fig.height=7, fig.cap="Density plot for quantifyable proteins (log2 transformed)"}
-library(ggplot2)
-library(reshape2)
 longm <- melt(log2(grp2$proteinIntensity))
 
 p <- qplot( variable , value , data=longm , geom="violin" , xlab="" , ylab="log2(I)")
@@ -322,7 +328,6 @@ knitr::kable(x, caption = "Number of not significant and significant proteins.")
 
 
 ```{r top20table}
-library(dplyr)
 top20 <- tmp %>% dplyr::select( TopProteinName,effectSize, q.mod ) %>% arrange((q.mod) ) %>% head(20)
 knitr::kable(top20, caption = "Top 20 proteins sorted by smallest Q Value (q.mod). The effectSize column is the log2 FC of condition - reference.")
 ```
@@ -332,8 +337,6 @@ knitr::kable(top20, caption = "Top 20 proteins sorted by smallest Q Value (q.mod
 
 
 ```{r presentInOnlyOneCondition}
-library(dplyr)
-library(rlang)
 results <- grp2$getResultTable()
 NAinfo <- c(sum(is.na(results[, grp2$getConditions()$reference])) , 
             sum(is.na(results[, grp2$getConditions()$condition])) )
