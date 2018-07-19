@@ -8,7 +8,7 @@ library(yaml)
 outdir <- tempdir()
 data(skylinePRMSampleData)
 
-skylineconfig <- craeteSkylineConfiguration(isotopeLabel="Isotope.Label.Type", qValue="Detection.Q.Value")
+skylineconfig <- craeteSkylineConfiguration(isotopeLabel="Isotope.Label.Type", ident_qValue="Detection.Q.Value")
 skylineconfig$table$factors[["Time"]] = "Sampling.Time.Point"
 #usethis::use_data(skylineconfig, overwrite = TRUE)
 resData <- setup_analysis(skylinePRMSampleData, skylineconfig)

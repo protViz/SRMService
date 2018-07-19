@@ -23,7 +23,8 @@ and was generate from \link{skylinePRMSampleData}
 }
 \examples{
 
-skylineconfig <- craeteSkylineConfiguration(isotopeLabel="Isotope.Label.Type", qValue="Detection.Q.Value")
+skylineconfig <- craeteSkylineConfiguration(isotopeLabel="Isotope.Label.Type",
+ ident_qValue="Detection.Q.Value")
 skylineconfig$table$factors[["Time"]] = "Sampling.Time.Point"
 data(skylinePRMSampleData)
 sample_analysis <- setup_analysis(skylinePRMSampleData, skylineconfig)

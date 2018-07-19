@@ -19,6 +19,6 @@ data <- SRMService::spectronautDIAData250
 xx <-  SRMService::spectronautDIAData250_config
 
 spectronautDIAData250_analysis <- setup_analysis(data,xx)
-#usethis::use_data( spectronautDIAData250_analysis , overwrite = TRUE )
+usethis::use_data( spectronautDIAData250_analysis , overwrite = TRUE )
 }
 \keyword{datasets}

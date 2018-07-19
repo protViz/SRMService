@@ -33,9 +33,9 @@ AnalysisTableAnnotation <- R6Class("AnalysisTableAnnotation",
                                      # do you want to model charge sequence etc?
 
 
-                                     qValue = character(), # rename to score
+                                     ident_qValue = character(), # rename to score (smaller better)
+                                     ident_Score = character(), # larger better
                                      workIntensity = NULL, # could be list with names and functions
-                                     startIntensity = NULL, # think of simplifying (use only workIntensity)
 
                                      initialize = function(){
                                      },
@@ -82,7 +82,7 @@ AnalysisTableAnnotation <- R6Class("AnalysisTableAnnotation",
                                      },
                                      valueVars = function(){
                                        "Columns containing values"
-                                       c(self$startIntensity, self$getWorkIntensity(), self$qValue)
+                                       c( self$getWorkIntensity(), self$ident_qValue)
                                      }
                                    )
 )
@@ -128,7 +128,7 @@ setupDataFrame <- function(data, configuration ,sep="~"){
 #' @export
 #' @examples
 #'
-#' skylineconfig <- craeteSkylineConfiguration(isotopeLabel="Isotope.Label.Type", qValue="Detection.Q.Value")
+#' skylineconfig <- craeteSkylineConfiguration(isotopeLabel="Isotope.Label.Type", ident_qValue="Detection.Q.Value")
 #' skylineconfig$table$factors[["Time"]] = "Sampling.Time.Point"
 #' data(skylinePRMSampleData)
 #'
@@ -263,7 +263,7 @@ linePlotHierarchy_QuantLine <- function(p, data, aes_y,  configuration){
 #' @export
 #' @examples
 #' library(SRMService)
-#' skylineconfig <- craeteSkylineConfiguration(isotopeLabel="Isotope.Label.Type", qValue="Detection.Q.Value")
+#' skylineconfig <- craeteSkylineConfiguration(isotopeLabel="Isotope.Label.Type", ident_qValue="Detection.Q.Value")
 #' skylineconfig$table$factors[["Time"]] = "Sampling.Time.Point"
 #' data(skylinePRMSampleData)
 #'
@@ -279,7 +279,7 @@ hierarchyCounts <- function(x, configuration){
 #' Summarize Protein counts
 #' @export
 #' @examples
-#' skylineconfig <- craeteSkylineConfiguration(isotopeLabel="Isotope.Label.Type", qValue="Detection.Q.Value")
+#' skylineconfig <- craeteSkylineConfiguration(isotopeLabel="Isotope.Label.Type", ident_qValue="Detection.Q.Value")
 #' skylineconfig$table$factors[["Time"]] = "Sampling.Time.Point"
 #' data(skylinePRMSampleData)
 #' sample_analysis <- setup_analysis(skylinePRMSampleData, skylineconfig)
@@ -313,7 +313,7 @@ summarizeProteins <- function( x, configuration ){
 #' @export
 #' @examples
 #' library(SRMService)
-#' skylineconfig <- craeteSkylineConfiguration(isotopeLabel="Isotope.Label.Type", qValue="Detection.Q.Value")
+#' skylineconfig <- craeteSkylineConfiguration(isotopeLabel="Isotope.Label.Type", ident_qValue="Detection.Q.Value")
 #' skylineconfig$table$factors[["Time"]] = "Sampling.Time.Point"
 #' data(skylinePRMSampleData)
 #'
@@ -531,7 +531,7 @@ reestablishCondition <- function(data,
 #' @examples
 #' x <- applyToHighestHierarchyBySample(sample_analysis, skylineconfig, medpolishPly)
 #'
-#' x %>% dplyr::select(config$table$hierarchyKeys()[1] ,  medpolishPly) %>% unnest()
+#' x %>% dplyr::select(skylineconfig$table$hierarchyKeys()[1] ,  medpolishPly) %>% unnest()
 #'
 applyToHighestHierarchyBySample <- function( data, config, func)
 {

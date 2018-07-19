@@ -12,12 +12,13 @@ spectronautDIAData250_config
 A configuration which matches the \link{spectronautDIAData250} and \link{spectronautDIAData250} data.
 }
 \examples{
-spectronautDIAData250_config <- createSpectronautPeptideConfiguration(isotopeLabel="Isotope.Label", qValue="EG.Qvalue")
+spectronautDIAData250_config <- createSpectronautPeptideConfiguration(isotopeLabel="Isotope.Label",
+ ident_qValue="EG.Qvalue")
 spectronautDIAData250_config$table$factors[["coding"]] = "coding"
 spectronautDIAData250_config$table$factors[["sex"]] = "sex"
 spectronautDIAData250_config$table$factors[["age"]] = "age"
 spectronautDIAData250_config$table$factors[["Sample_id"]] = "Sample.Name"
-#usethis::use_data( spectronautDIAData250_config , overwrite = TRUE )
+usethis::use_data( spectronautDIAData250_config , overwrite = TRUE )
 
 }
 \keyword{datasets}

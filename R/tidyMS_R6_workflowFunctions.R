@@ -13,6 +13,7 @@ workflow_correlation_preprocessing <- function(data, config, minCorrelation = 0.
 
   data_NA <- setLarge_Q_ValuesToNA(data, config)
   data_NA <- summariseQValues(data_NA, config)
+
   data_NA_QVal <- data_NA %>% filter_at( "srm_QValueMin" , all_vars(. < config$parameter$qValThreshold )   )
 
   stat_qval <- hierarchyCounts(data_NA_QVal, config)

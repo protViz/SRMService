@@ -8,7 +8,7 @@
 #' # ACHTUNG ##
 #' # when making changes to this object you need to regenerate the data.
 #' # usethis::use_data(skylineconfig, overwrite = TRUE)
-craeteSkylineConfiguration <- function(isotopeLabel="Isotope.Label", qValue="annotation_QValue"){
+craeteSkylineConfiguration <- function(isotopeLabel="Isotope.Label", ident_qValue="annotation_QValue"){
   atable <- AnalysisTableAnnotation$new()
   atable$fileName = "Replicate.Name"
 
@@ -19,8 +19,7 @@ craeteSkylineConfiguration <- function(isotopeLabel="Isotope.Label", qValue="ann
   atable$hierarchy[["fragment_Id"]] <- c("Peptide.Sequence","Precursor.Charge","Fragment.Ion", "Product.Charge")
 
   #
-  atable$qValue = qValue
-  atable$startIntensity = "Area"
+  atable$ident_qValue = ident_qValue
   atable$setWorkIntensity("Area")
   atable$isotopeLabel = isotopeLabel
   anaparam <- AnalysisParameters$new()
@@ -39,7 +38,7 @@ craeteSkylineConfiguration <- function(isotopeLabel="Isotope.Label", qValue="ann
 #' # ACHTUNG ##
 #' # when making changes to this object you need to regenerate the data.
 #' # usethis::use_data(spectronautconfig, overwrite = TRUE)
-createSpectronautPeptideConfiguration <- function(isotopeLabel="Isotope.Label", qValue="EG.Qvalue"){
+createSpectronautPeptideConfiguration <- function(isotopeLabel="Isotope.Label", ident_qValue="EG.Qvalue"){
   atable <- AnalysisTableAnnotation$new()
   atable$fileName = "R.FileName"
 
@@ -50,8 +49,7 @@ createSpectronautPeptideConfiguration <- function(isotopeLabel="Isotope.Label", 
   atable$hierarchy[["fragment_Id"]]   <-  c("EG.ModifiedSequence", "FG.Charge")
 
   #
-  atable$qValue = qValue
-  atable$startIntensity = "FG.Quantity"
+  atable$ident_qValue = ident_qValue
   atable$workIntensity = "FG.Quantity"
   atable$isotopeLabel = isotopeLabel
   anaparam <- AnalysisParameters$new()

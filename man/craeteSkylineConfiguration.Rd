@@ -5,7 +5,7 @@
 \title{This function sets up an example configuration}
 \usage{
 craeteSkylineConfiguration(isotopeLabel = "Isotope.Label",
-  qValue = "annotation_QValue")
+  ident_qValue = "annotation_QValue")
 }
 \description{
 This function sets up an example configuration

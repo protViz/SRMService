@@ -5,7 +5,7 @@
 \title{This function sets up an example spectronaut configuration}
 \usage{
 createSpectronautPeptideConfiguration(isotopeLabel = "Isotope.Label",
-  qValue = "EG.Qvalue")
+  ident_qValue = "EG.Qvalue")
 }
 \description{
 This function sets up an example spectronaut configuration

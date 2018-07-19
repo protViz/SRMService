@@ -19,7 +19,7 @@
 #' res <- setLarge_Q_ValuesToNA(analysis, config)
 setLarge_Q_ValuesToNA <- function(data, config, intensityNewName="IntensitiesWithNA"){
   data <- .setLargeQValuesToNA(data,
-                               QValueColumn = config$table$qValue,
+                               QValueColumn = config$table$ident_qValue,
                                intensityOld = config$table$getWorkIntensity(),
                                thresholdQValue = config$parameter$maxQValue_Threshold,
                                intensityNew = intensityNewName
@@ -118,7 +118,9 @@ plot_intensity_distribution_density <- function(data, config){
 #' @param data data
 #' @param config configuration
 #' @examples
-#'
+#' config <- skylineconfig$clone(deep=TRUE)
+#' res <- summariseQValues(sample_analysis, config)
+#' stopifnot(c("srm_QValueMin", "srm_QValueNR") %in% colnames(res))
 summariseQValues <- function(data,
                              config
 ){
@@ -127,7 +129,7 @@ summariseQValues <- function(data,
 
   precursorID <- config$table$hierarchyKeys(TRUE)[1]
   fileName <- config$table$fileName
-  QValue  <- config$table$qValue
+  QValue  <- config$table$ident_qValue
   minNumberOfQValues <- config$parameter$minNumberOfQValues
   maxQValThreshold <- config$parameter$maxQValue_Threshold
 
@@ -135,11 +137,12 @@ summariseQValues <- function(data,
   npass <-  function(x,thresh = maxQValThreshold){sum(x < thresh)}
 
   qValueSummaries <- data %>%
-    dplyr::select(fileName, precursorID, config$table$qValue) %>%
+    dplyr::select(fileName, precursorID, config$table$ident_qValue) %>%
     dplyr::group_by_at(precursorID) %>%
     dplyr::summarise_at(  c( QValue ), .funs = funs(!!QValueMin := nthbestQValue(.,minNumberOfQValues ),
                                                     !!QValueNR  := npass(., maxQValThreshold)
     ))
+  print(colnames(qValueSummaries))
   data <- dplyr::inner_join(data, qValueSummaries, by=c(precursorID))
   message(glue::glue("Columns added {QValueMin}, {QValueNR}"))
   return(data)
@@ -396,6 +399,7 @@ rankPrecursorsByIntensity <- function(data, config){
 #' run \link{rankPrecursorsByIntensity} first
 #' @export
 #' @examples
+#'
 #' library(SRMService)
 #' config <- spectronautDIAData250_config$clone(deep=T)
 #' res <- setLarge_Q_ValuesToNA(spectronautDIAData250_analysis, config)
