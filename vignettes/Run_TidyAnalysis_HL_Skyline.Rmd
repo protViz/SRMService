@@ -39,7 +39,7 @@ allDataM <- SRMService::skylineSRM_HL_data
 head(allDataM)
 
 
-skylineconfig <- craeteSkylineConfiguration(isotopeLabel="Isotope.Label", qValue="annotation_QValue")
+skylineconfig <- craeteSkylineConfiguration(isotopeLabel="Isotope.Label", ident_qValue="annotation_QValue")
 skylineconfig$table$factors[["treatment_c"]] <- "Condition2"
 skylineconfig$table$factors[["time_c"]] <- "time"
 skylineconfig$parameter$workingIntensityTransform = ""
