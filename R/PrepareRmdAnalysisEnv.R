@@ -26,7 +26,10 @@
 #'
 #' @export
 #' @examples
+#'
+#' \dontrun{
 #' SRMService::RMD_MQ_Quant_2GrpAnalysis()
+#' }
 #' @param workdir specify working directory
 #'
 RMD_MQ_Quant_2GrpAnalysis <- function(workdir= getwd()){
@@ -41,7 +44,9 @@ RMD_MQ_Quant_2GrpAnalysis <- function(workdir= getwd()){
 #'
 #' @export
 #' @examples
+#' \dontrun{
 #' SRMService::RMD_PD_Quant_2GrpAnalysis()
+#' }
 #' @param workdir specify working directory
 #'
 RMD_PD_Quant_2GrpAnalysis <- function(workdir= getwd()){
@@ -56,8 +61,9 @@ RMD_PD_Quant_2GrpAnalysis <- function(workdir= getwd()){
 #' @param workdir specify working directory
 #' @export
 #' @examples
+#' \dontrun{
 #' SRMService::RMD_MQ_Quant_QCReport()
-#'
+#' }
 RMD_MQ_Quant_QCReport <- function(workdir = getwd()){
   .scriptCopyHelperVec(c("/RunScripts/Run_QuantQCReport.R","/reports/QCReport.Rmd"), workdir = workdir )
 }
@@ -76,7 +82,7 @@ RMD_VarSelection <- function(workdir = getwd()){
                          "/RunScripts/RUN_VarSelection_GLM.R",
                          "/reports/VariableSelection_ROCSingleProtein.Rmd",
                          "/reports/VariableSelection_GLM.Rmd"
-                         ), workdir =workdir )
+  ), workdir =workdir )
 }
 
 #' Copies the RMD and Run R file for Library generation your working directory.
@@ -101,10 +107,10 @@ RMD_LibraryGen_specLProzor <- function(workdir = getwd()){
 #'
 RMD_QC1To1_Old <- function(workdir = getwd(), minimal = TRUE){
   if(!minimal){
-  .scriptCopyHelperVec(c("/OneToOneAnalysis/Run_1To1_oldStyle.R",
-                         "/OneToOneAnalysis/MQ_sampleQC_overview.Rnw",
-                         "/OneToOneAnalysis/images/LFQ_QC_workflow.pdf",
-                         "/OneToOneAnalysis/images/Sweave.sty"), workdir = workdir)
+    .scriptCopyHelperVec(c("/OneToOneAnalysis/Run_1To1_oldStyle.R",
+                           "/OneToOneAnalysis/MQ_sampleQC_overview.Rnw",
+                           "/OneToOneAnalysis/images/LFQ_QC_workflow.pdf",
+                           "/OneToOneAnalysis/images/Sweave.sty"), workdir = workdir)
   }else{
     .scriptCopyHelperVec(c("/OneToOneAnalysis/MQ_sampleQC_overview.Rnw",
                            "/OneToOneAnalysis/images/LFQ_QC_workflow.pdf",

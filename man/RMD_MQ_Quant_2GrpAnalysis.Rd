@@ -14,5 +14,8 @@ RMD_MQ_Quant_2GrpAnalysis(workdir = getwd())
 Please see the Run_QuantTwoGroupAnalysis.R for more details
 }
 \examples{
+
+\dontrun{
 SRMService::RMD_MQ_Quant_2GrpAnalysis()
+}
 }
