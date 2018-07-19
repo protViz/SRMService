@@ -12,6 +12,6 @@ applys func - a funciton workin on matrix for each protein and returning a vecto
 \examples{
 x <- applyToHighestHierarchyBySample(sample_analysis, skylineconfig, medpolishPly)
 
-x \%>\% dplyr::select(config$table$hierarchyKeys()[1] ,  medpolishPly) \%>\% unnest()
+x \%>\% dplyr::select(skylineconfig$table$hierarchyKeys()[1] ,  medpolishPly) \%>\% unnest()
 
 }

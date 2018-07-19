@@ -15,5 +15,7 @@ summariseQValues(data, config)
 Compute QValue summaries for each precursor
 }
 \examples{
-
+config <- skylineconfig$clone(deep=TRUE)
+res <- summariseQValues(sample_analysis, config)
+stopifnot(c("srm_QValueMin", "srm_QValueNR") \%in\% colnames(res))
 }
