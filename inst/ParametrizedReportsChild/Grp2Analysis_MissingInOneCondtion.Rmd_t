@@ -26,8 +26,8 @@ ggplot(NAinfo , aes(x= name, y=nrProteins)) +
 ```{r IntensitiesSingle}
 tmp1 <- results %>%
   select(TopProteinName,grp2$getConditions()$reference , grp2$getConditions()$condition,effectSize) %>%
-  filter(is.na(effectSize)) %>%
-  arrange( desc(!!sym(grp2$getConditions()$reference)) ,desc(!!sym(grp2$getConditions()$condition)) ) 
+  dplyr::filter(is.na(effectSize)) %>%
+  arrange( desc(!!sym(grp2$getConditions()$reference)) ,desc(!!sym(grp2$getConditions()$condition)) )
 
 ```
 
@@ -44,8 +44,8 @@ plotBaR<-function(tmp2, name){
 }
 
 
-tmp2R <- filter(tmp1, !is.na(!!sym(grp2$getConditions()$reference)))
-tmp2C <- filter(tmp1, !is.na(!!sym(grp2$getConditions()$condition)))
+tmp2R <- dplyr::filter(tmp1, !is.na(!!sym(grp2$getConditions()$reference)))
+tmp2C <- dplyr::filter(tmp1, !is.na(!!sym(grp2$getConditions()$condition)))
 
 
 if(nrow(tmp2R) >0 & nrow(tmp2C)> 0){
@@ -62,7 +62,7 @@ if(nrow(tmp2R) >0 & nrow(tmp2C)> 0){
 ```
 
 
-Furthermore, in order to integrate those proteins with proteins which do have a fold change and a q.value, we also provide and a fold change estimate and q.value for those proteins. To emphasize that these values were not obtained by means of fitting a statistical model we call the columns in the output file which do contain them `pseudo.effectSize` and `pseudo.q.mod`. The reported pseudo fold change is computed by subtracting from the quantification value the average of the 10% smallest protein averages of the other condition while the q-value for those proteins was set to 0. The Volcano plot in Figure @ref(fig:pseudoVolcanoplot) envisages all the proteins quantified including those identified only in one of the samples (green). 
+Furthermore, in order to integrate those proteins with proteins which do have a fold change and a q.value, we also provide and a fold change estimate and q.value for those proteins. To emphasize that these values were not obtained by means of fitting a statistical model we call the columns in the output file which do contain them `pseudo.effectSize` and `pseudo.q.mod`. The reported pseudo fold change is computed by subtracting from the quantification value the average of the 10% smallest protein averages of the other condition while the q-value for those proteins was set to 0. The Volcano plot in Figure @ref(fig:pseudoVolcanoplot) envisages all the proteins quantified including those identified only in one of the samples (green).
 
 
 
@@ -72,7 +72,7 @@ pseudoData <- grp2$getResultTableWithPseudo()
 p <- quantable::volcano2GB(pseudoData,
                 foldchange ="pseudo.effectSize",
                 pvalue = "pseudo.q.mod",
-                labels = "TopProteinName", 
+                labels = "TopProteinName",
                 ylab="-log10(Q Value)",
                 log2FCThresh=grp2$qfoldchange,
                 pthresh=grp2$qvalue,

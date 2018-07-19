@@ -3,6 +3,7 @@
 #' @format A list of data frames
 "correlatedPeptideList"
 
+# skylinePRMSampleData ----
 #' Data frame which can be transformed into \link{sample_analysis}
 #' by applying the \link{skylineconfig} using the function \link{setup_analysis}.
 #'
@@ -47,6 +48,7 @@
 #' #usethis::use_data( sample_analysis , overwrite = TRUE )
 "sample_analysis"
 
+# skylineSRM_HL_data ----
 #' Data frame with a skyline export for an heavy to light experiment
 #'
 #'
@@ -83,6 +85,8 @@
 #' #usethis::use_data( sample_analysis_HL , overwrite = TRUE )
 "sample_analysis_HL"
 
+#spectronautDIAData250----
+
 #' Data frame of a Spectronaut export with DIA data
 #'
 #' @format a data frame
@@ -115,8 +119,15 @@
 #' usethis::use_data( spectronautDIAData250_analysis , overwrite = TRUE )
 "spectronautDIAData250_analysis"
 
-
+# genericQuantMatrixGRP2 ---
 
 #' Grp2Analysis reference class for running 2 grp analysis
 #' @format reference class
 "genericQuantMatrixGRP2"
+
+# grp2PullDownExample ---
+
+#' Grp2Analysis on pulldown data example
+#' @format reference clss
+"grp2PullDownExample"
+

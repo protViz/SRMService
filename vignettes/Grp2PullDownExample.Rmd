@@ -1,0 +1,18 @@
+---
+title: "FGCZ Two-Group Analysis: `r params$grp$projectName` \n Statistics for a Quantitative Protein Matrix"
+author: "Functional Genomics Center Zurich"
+date: "`r format(Sys.time(), '%d %B, %Y')`"
+output:
+  pdf_document: default
+  html_document: default
+params:
+  grp: !r quote(SRMService::grp2PullDownExample)
+vignette: >
+  %\VignetteIndexEntry{FGCZ Two-Group Analysis of Pull Down Data}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+
+```{r child="Grp2Analysis.Rmd"}
+```
