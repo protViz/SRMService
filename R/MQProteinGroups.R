@@ -1,76 +1,108 @@
 #' extract intensities and annotations from MQ proteinGroups.txt
 #' @export
 #' @param MQProteinGroups data.frame generated with read.csv("peptide.txt",sep="\\t", stringsAsFactors=FALSE)
-#'
+#' @examples
+#' protein_txt <- system.file("samples/maxquant_txt/MSQC1/proteinGroups.txt",package = "SRMService")
+#' protein_txt
+#' protein_txt <- read.csv(protein_txt, header=TRUE, stringsAsFactors = FALSE, sep="\t")
+#' res <-tidyMQ_ProteinGroups(protein_txt)
+#' head(res)
 tidyMQ_ProteinGroups <- function(MQProteinGroups){
-  pint <- select(MQProteinGroups, "Protein.group.Id" = "id", starts_with("Intensity."))
-  pintLFQ <- select(MQProteinGroups, "Protein.group.Id" = "id", starts_with("LFQ.Intensity."))
-  meta <- data.frame(ProteinName = MQProteinGroups$Majority.protein.IDs,
-                     TopProteinName = sapply(strsplit(MQProteinGroups$Majority.protein.IDs, split=";"),
+  if(is.character(MQProteinGroups)){
+    MQProteinGroups <- read.csv(MQProteinGroups, header=TRUE, stringsAsFactors = FALSE, sep="\t")
+  }
+  colnames(MQProteinGroups) <- tolower(colnames(MQProteinGroups))
+
+  pint <- select(MQProteinGroups, "protein.group.id" = "id", starts_with("intensity."))
+  pintLFQ <- select(MQProteinGroups, "protein.group.id" = "id", starts_with("lfq.intensity."))
+  meta <- data.frame(protein.names = MQProteinGroups$majority.protein.ids,
+                     top.protein.name = sapply(strsplit(MQProteinGroups$majority.protein.ids, split=";"),
                                              function(x){x[1]}),
-                     nrPeptides = MQProteinGroups$Peptides,
-                     Fasta.headers = MQProteinGroups$Fasta.headers,
-                     Protein.group.Id = MQProteinGroups$id,
+                     nr.peptides = MQProteinGroups$peptides,
+                     fasta.headers = MQProteinGroups$fasta.headers,
+                     protein.group.id = MQProteinGroups$id,
                      stringsAsFactors = F
   )
   pint <- pint %>%
-    gather(key="Raw.file", value="MQ.Protein.Intensity", starts_with("Intensity.")) %>%
-    mutate(Raw.file = gsub("Intensity.","",Raw.file))
+    gather(key="raw.file", value="mq.protein.intensity", starts_with("intensity.")) %>%
+    mutate(raw.file = gsub("intensity.","",raw.file))
 
   pintLFQ <- pintLFQ %>%
-    gather(key="Raw.file", value="MQ.Protein.LFQ.intensity", starts_with("LFQ.intensity.")) %>%
-    mutate(Raw.file = gsub("LFQ.intensity.","",Raw.file))
+    gather(key="raw.file", value="mq.protein.lfq.intensity", starts_with("lfq.intensity.")) %>%
+    mutate(raw.file = gsub("lfq.intensity.","",raw.file))
 
-  pint <- inner_join(pint, pintLFQ , by=c("Protein.group.Id","Raw.file"))
-  res <- inner_join(meta, pint , by="Protein.group.Id")
+  pint <- inner_join(pint, pintLFQ , by=c("protein.group.id","raw.file"))
+  res <- inner_join(meta, pint , by="protein.group.id")
   return(res)
 }
 
 #' parse MQ peptides.txt
 #' @export
 #' @param MQPeptides data.frame generated with read.csv("peptide.txt",sep="\\t", stringsAsFactors=FALSE)
-#'
+#' @examples
+#' library(tidyverse)
+#' peptides_txt <- system.file("samples/maxquant_txt/MSQC1/peptides.txt",package = "SRMService")
+#' peptides_txt <- read.csv(peptides_txt, header=TRUE, stringsAsFactors = FALSE, sep="\t")
+#' str(peptides_txt)
+#' tmp <-paste(peptides_txt$Evidence.IDs, collapse = ";")
+#' tmp <- strsplit(tmp, ";")
+#' length(unique(tmp[[1]]))
+#' res <-tidyMQ_Peptides(peptides_txt)
+#' dim(res)
+#' head(res)
 tidyMQ_Peptides <- function(MQPeptides){
-  pint <- select(MQPeptides,"Peptides.Id"= "id", starts_with("Intensity."))
-  idtype <- select(MQPeptides, "Peptides.Id"="id", starts_with("Identification.type."))
-  meta <- select(MQPeptides, "Peptides.Id" = "id",
-                 "Sequence",
-                 "Proteins",
-                 "Leading.razor.protein",
-                 "Protein.group.IDs",
-                 "Score",
-                 "Missed.cleavages")
+  if(is.character(MQPeptides)){
+    MQPeptides <- read.csv(MQPeptides, header=TRUE, stringsAsFactors = FALSE, sep="\t")
+  }
+  colnames(MQPeptides) <- tolower(colnames(MQPeptides))
+  pint <- select(MQPeptides,"peptides.id"= "id", starts_with("intensity."))
+  idtype <- select(MQPeptides, "peptides.id"="id", starts_with("identification.type."))
+  meta <- select(MQPeptides, "peptides.id" = "id",
+                 "sequence",
+                 "proteins",
+                 "leading.razor.protein",
+                 "protein.group.ids",
+                 "score",
+                 "pep",
+                 "missed.cleavages")
 
   PepIntensities <- pint %>%
-    gather(key="Raw.file", value="Peptide.Intensity", starts_with("Intensity.")) %>%
-    mutate(Raw.file = gsub("Intensity.","",Raw.file))
+    gather(key="raw.file", value="peptide.intensity", starts_with("intensity.")) %>%
+    mutate(raw.file = gsub("intensity.","",raw.file))
 
 
   PepIDType <- idtype %>%
-    gather(key="Raw.file", value="IdType", starts_with("Identification.type.")) %>%
-    mutate(Raw.file = gsub("Identification.type.","",Raw.file))
+    gather(key="raw.file", value="id.type", starts_with("identification.type.")) %>%
+    mutate(raw.file = gsub("identification.type.","",raw.file))
 
-  tmp <-inner_join(PepIntensities,PepIDType, by=c("Peptides.Id", "Raw.file" ))
-  xx<-inner_join(meta , tmp, by="Peptides.Id")
+  tmp <-inner_join(PepIntensities,PepIDType, by=c("peptides.id", "raw.file" ))
+  xx<-inner_join(meta , tmp, by="peptides.id")
 
-  xx$Proteotypic <-!grepl(";",xx$Protein.group.IDs)
-  xx <- xx %>% separate_rows(Protein.group.IDs, sep=";",convert =TRUE)
+  xx$proteotypic <-!grepl(";",xx$protein.group.ids)
+  xx <- xx %>% separate_rows(protein.group.ids, sep=";",convert =TRUE)
   return(xx)
 }
-
-
-
+#' read evidence file
+#' @export
+#' @examples
+#' library(tidyverse)
+#' evidence_txt <- system.file("samples/maxquant_txt/MSQC1/evidence.txt",package = "SRMService")
+#' evidence_txt <- read.csv(evidence_txt, header=TRUE, stringsAsFactors = FALSE, sep="\t")
+#' xx <- tidyMQ_Evidence(evidence_txt)
 tidyMQ_Evidence <- function(Evidence){
+  colnames(Evidence) <- tolower(colnames(Evidence))
   tmp <- select(Evidence,
-                "Evidence.Id" = "id",
-                "Peptide.Id" = "Peptide.ID",
-                "Raw.file",
-                "Protein.group.IDs",
-                "Score",
-                "Delta.score",
-                "Calibrated.retention.time",
-                "Charge",
-                "MS.MS.count",
-                "MS.MS.scan.number",
-                "Evidence.Intensity" = "Intensity")
+                "evidence.id" = "id",
+                "peptide.id",
+                "raw.file",
+                "protein.group.ids",
+                "score",
+                "delta.score",
+                "calibrated.retention.time",
+                "charge",
+                "mass",
+                "ms.ms.count",
+                "ms.ms.scan.number",
+                "evidence.intensity" = "intensity")
+  return(tmp)
 }

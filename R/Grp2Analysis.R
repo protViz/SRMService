@@ -96,7 +96,6 @@ Grp2Analysis <- setRefClass("Grp2Analysis",
                                 stopifnot(.self$annotation_$Raw.file %in% colnames(.self$proteinIntensity))
                                 .self$proteinIntensity <- .self$proteinIntensity[,.self$annotation_$Raw.file]
                                 # Sorts them in agreement with annotation_.
-                                #.self$proteinIntensity <- .self$proteinIntensity[,.self$annotation_$Raw.file]
                                 .self$proteinIntensity[.self$proteinIntensity==0] <- NA
 
                                 nas <-.self$getNrNAs()

@@ -7,7 +7,6 @@
 #' config$parameter$min_nr_of_notNA  <- 20
 #' data <- spectronautDIAData250_analysis
 #' res <- workflow_correlation_preprocessing(data,config)
-#' res$stats
 workflow_correlation_preprocessing <- function(data, config, minCorrelation = 0.7){
   stat_input <- hierarchyCounts(data, config)
 

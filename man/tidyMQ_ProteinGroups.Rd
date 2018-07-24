@@ -12,3 +12,10 @@ tidyMQ_ProteinGroups(MQProteinGroups)
 \description{
 extract intensities and annotations from MQ proteinGroups.txt
 }
+\examples{
+protein_txt <- system.file("samples/maxquant_txt/MSQC1/proteinGroups.txt",package = "SRMService")
+protein_txt
+protein_txt <- read.csv(protein_txt, header=TRUE, stringsAsFactors = FALSE, sep="\\t")
+res <-tidyMQ_ProteinGroups(protein_txt)
+head(res)
+}
