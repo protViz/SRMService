@@ -39,25 +39,25 @@ Annotation <- R6::R6Class("Annotation",
                               self$experimentID = experimentID
                               self$fixed = c(fixed)
                               self$random = c(random)
-                              if(length(setdiff(c(self$sampleID,self$fixed,self$random), colnames(data))) == 0  ){
+                              if(length(base::setdiff(c(self$sampleID,self$fixed,self$random), colnames(data))) == 0  ){
                                 stop("condition mappings does not contain columns : ", c(self$sampleID,self$fixed,self$random), sep = "\n")
                               }
                               if( !is.null(self$fixed) ){
-                                if( length(setdiff(self$fixed, colnames(annotation))) != 0 ){
-                                  stop("annotation does not contain fixed effects : ", setdiff(self$fixed, colnames(annotation)))
+                                if( length(base::setdiff(self$fixed, colnames(annotation))) != 0 ){
+                                  stop("annotation does not contain fixed effects : ", base::setdiff(self$fixed, colnames(annotation)))
                                 }
                               }
                               if( !is.null(self$random)){
-                                if( length(setdiff(self$random, colnames(annotation))) != 0 ){
-                                  stop("annotation does not contain random effects : ", setdiff(self$random, colnames(annotation)))
+                                if( length(base::setdiff(self$random, colnames(annotation))) != 0 ){
+                                  stop("annotation does not contain random effects : ", base::setdiff(self$random, colnames(annotation)))
                                 }
                               }
                               self$annotation <- annotation %>%  mutate_if(is.factor, as.character)
                             },
                             exists = function(colname)
                             {
-                              if(length(setdiff(colname , colnames(self$annotation)))){
-                                warning("annotation does not contain  : ", setdiff(colname, colnames(self$annotation)))
+                              if(length(base::setdiff(colname , colnames(self$annotation)))){
+                                warning("annotation does not contain  : ", base::setdiff(colname, colnames(self$annotation)))
                                 return(FALSE)
                               }
                               return(TRUE)
@@ -133,7 +133,7 @@ ProteinTableR6 <- R6::R6Class( "ProteinTableR6", public = list(
   },
   set_data_wide = function(data){
     all_required <- c(self$proteinID, self$required, self$annotation$get_sample_id())
-    check <- setdiff(all_required , colnames(data))
+    check <- base::setdiff(all_required , colnames(data))
     if(length(check) != 0){
       stop("not having required columns : " , paste(check , sep=" ")  )
     }

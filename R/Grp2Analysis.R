@@ -3,7 +3,6 @@
 #' @exportClass Grp2Analysis
 #' @include eb.fit.R
 #' @include RequiredColumns.R
-#' @include MQProteinGroups.R
 #' @importFrom dplyr mutate
 #' @field proteinIntensity data.frame where colnames are Raw.File names, row.names are protein ID's and cells are protein abundances.
 #' @field annotation_ annotations data.frame with columns such as Raw.File, Condition, Run etc.
@@ -192,7 +191,7 @@ Grp2Analysis <- setRefClass("Grp2Analysis",
                                 return(.self$annotation_)
                               },
                               getConditions = function(){
-                                list(reference = .self$reference, condition = setdiff(.self$conditions, .self$reference) )
+                                list(reference = .self$reference, condition = base::setdiff(.self$conditions, .self$reference) )
                               },
                               getResultTable = function(){
                                 pvalues <- .self$getPValues()
@@ -224,7 +223,7 @@ Grp2Analysis <- setRefClass("Grp2Analysis",
                                 "add pseudo p-values and pseudo fold changes"
                                 ### compute pseudo p-values
                                 results <- .self$getResultTable()
-                                c2name <- setdiff(.self$conditions, .self$reference)
+                                c2name <- base::setdiff(.self$conditions, .self$reference)
 
 
                                 # fix references

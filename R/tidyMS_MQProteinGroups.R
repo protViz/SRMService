@@ -3,10 +3,9 @@
 #' @param MQProteinGroups data.frame generated with read.csv("peptide.txt",sep="\\t", stringsAsFactors=FALSE)
 #' @examples
 #' protein_txt <- system.file("samples/maxquant_txt/MSQC1/proteinGroups.txt",package = "SRMService")
-#' protein_txt
 #' protein_txt <- read.csv(protein_txt, header=TRUE, stringsAsFactors = FALSE, sep="\t")
-#' res <-tidyMQ_ProteinGroups(protein_txt)
-#' head(res)
+#' mq_proteins <-tidyMQ_ProteinGroups(protein_txt)
+#' head(mq_proteins)
 tidyMQ_ProteinGroups <- function(MQProteinGroups){
   if(is.character(MQProteinGroups)){
     MQProteinGroups <- read.csv(MQProteinGroups, header=TRUE, stringsAsFactors = FALSE, sep="\t")
@@ -15,14 +14,13 @@ tidyMQ_ProteinGroups <- function(MQProteinGroups){
 
   pint <- select(MQProteinGroups, "protein.group.id" = "id", starts_with("intensity."))
   pintLFQ <- select(MQProteinGroups, "protein.group.id" = "id", starts_with("lfq.intensity."))
-  meta <- data.frame(protein.names = MQProteinGroups$majority.protein.ids,
-                     top.protein.name = sapply(strsplit(MQProteinGroups$majority.protein.ids, split=";"),
-                                             function(x){x[1]}),
-                     nr.peptides = MQProteinGroups$peptides,
-                     fasta.headers = MQProteinGroups$fasta.headers,
-                     protein.group.id = MQProteinGroups$id,
-                     stringsAsFactors = F
-  )
+  meta <- select(MQProteinGroups, "protein.names" = "majority.protein.ids",
+                 "nr.peptides" = "peptides",
+                 "fasta.headers",
+                 "protein.group.id" = "id",
+                 "protein.score" = "score"
+  ) %>% mutate(top.protein.name = sapply(strsplit(protein.names, split=";"),function(x){x[1]}))
+
   pint <- pint %>%
     gather(key="raw.file", value="mq.protein.intensity", starts_with("intensity.")) %>%
     mutate(raw.file = gsub("intensity.","",raw.file))
@@ -40,46 +38,54 @@ tidyMQ_ProteinGroups <- function(MQProteinGroups){
 #' @export
 #' @param MQPeptides data.frame generated with read.csv("peptide.txt",sep="\\t", stringsAsFactors=FALSE)
 #' @examples
-#' library(tidyverse)
 #' peptides_txt <- system.file("samples/maxquant_txt/MSQC1/peptides.txt",package = "SRMService")
 #' peptides_txt <- read.csv(peptides_txt, header=TRUE, stringsAsFactors = FALSE, sep="\t")
-#' str(peptides_txt)
 #' tmp <-paste(peptides_txt$Evidence.IDs, collapse = ";")
 #' tmp <- strsplit(tmp, ";")
 #' length(unique(tmp[[1]]))
-#' res <-tidyMQ_Peptides(peptides_txt)
-#' dim(res)
-#' head(res)
+#' mq_peptides <-tidyMQ_Peptides(peptides_txt)
+#' mq_peptides
+#' peptides_txt <- system.file("samples/maxquant_txt/tiny/peptides.txt",package = "SRMService")
+#' peptides_txt <- read.csv(peptides_txt, header=TRUE, stringsAsFactors = FALSE, sep="\t")
+#' tmp <-paste(peptides_txt$Evidence.IDs, collapse = ";")
+#' tmp <- strsplit(tmp, ";")
+#' length(unique(tmp[[1]]))
+#' mq_peptides <-tidyMQ_Peptides(peptides_txt)
+#' head(mq_peptides)
 tidyMQ_Peptides <- function(MQPeptides){
   if(is.character(MQPeptides)){
     MQPeptides <- read.csv(MQPeptides, header=TRUE, stringsAsFactors = FALSE, sep="\t")
   }
   colnames(MQPeptides) <- tolower(colnames(MQPeptides))
-  pint <- select(MQPeptides,"peptides.id"= "id", starts_with("intensity."))
-  idtype <- select(MQPeptides, "peptides.id"="id", starts_with("identification.type."))
-  meta <- select(MQPeptides, "peptides.id" = "id",
+  #return(MQPeptides)
+  meta <- select(MQPeptides, "peptide.id" = "id",
                  "sequence",
                  "proteins",
                  "leading.razor.protein",
-                 "protein.group.ids",
-                 "score",
+                 "protein.group.id"="protein.group.ids",
+                 "peptide.score" ="score",
                  "pep",
                  "missed.cleavages")
+
+  pint <- select(MQPeptides,"peptide.id"= "id", starts_with("intensity."))
 
   PepIntensities <- pint %>%
     gather(key="raw.file", value="peptide.intensity", starts_with("intensity.")) %>%
     mutate(raw.file = gsub("intensity.","",raw.file))
 
+  idtype <- select(MQPeptides, "peptide.id"="id", starts_with("identification.type."))
+  if(ncol(idtype) > 1){ # if only one file no id type is provided
+    PepIDType <- idtype %>%
+      gather(key="raw.file", value="id.type", starts_with("identification.type.")) %>%
+      mutate(raw.file = gsub("identification.type.","",raw.file))
+    PepIntensities <-inner_join(PepIntensities,PepIDType, by=c("peptide.id", "raw.file" ))
+  }else{
+    PepIntensities$id.type <- "By MS/MS"
+  }
+  xx<-inner_join(meta , PepIntensities, by="peptide.id")
 
-  PepIDType <- idtype %>%
-    gather(key="raw.file", value="id.type", starts_with("identification.type.")) %>%
-    mutate(raw.file = gsub("identification.type.","",raw.file))
-
-  tmp <-inner_join(PepIntensities,PepIDType, by=c("peptides.id", "raw.file" ))
-  xx<-inner_join(meta , tmp, by="peptides.id")
-
-  xx$proteotypic <-!grepl(";",xx$protein.group.ids)
-  xx <- xx %>% separate_rows(protein.group.ids, sep=";",convert =TRUE)
+  xx$proteotypic <-!grepl(";",xx$protein.group.id)
+  xx <- xx %>% separate_rows(protein.group.id, sep=";",convert =TRUE)
   return(xx)
 }
 #' read evidence file
@@ -88,15 +94,18 @@ tidyMQ_Peptides <- function(MQPeptides){
 #' library(tidyverse)
 #' evidence_txt <- system.file("samples/maxquant_txt/MSQC1/evidence.txt",package = "SRMService")
 #' evidence_txt <- read.csv(evidence_txt, header=TRUE, stringsAsFactors = FALSE, sep="\t")
-#' xx <- tidyMQ_Evidence(evidence_txt)
+#' mq_evidence <- tidyMQ_Evidence(evidence_txt)
 tidyMQ_Evidence <- function(Evidence){
+  if(is.character(Evidence)){
+    Evidence <- read.csv(Evidence, header=TRUE, stringsAsFactors = FALSE, sep="\t")
+  }
   colnames(Evidence) <- tolower(colnames(Evidence))
-  tmp <- select(Evidence,
+  res <- select(Evidence,
                 "evidence.id" = "id",
                 "peptide.id",
                 "raw.file",
-                "protein.group.ids",
-                "score",
+                "protein.group.id"="protein.group.ids",
+                "evidence.score" = "score",
                 "delta.score",
                 "calibrated.retention.time",
                 "charge",
@@ -104,5 +113,27 @@ tidyMQ_Evidence <- function(Evidence){
                 "ms.ms.count",
                 "ms.ms.scan.number",
                 "evidence.intensity" = "intensity")
-  return(tmp)
+  res %>% mutate(raw.file = tolower(raw.file)) -> res
+  res$proteotypic <-!grepl(";",res$protein.group.id)
+  res <- res %>% separate_rows(protein.group.id, sep=";",convert =TRUE)
+  return(res)
+}
+#' Generating mq all level file.
+#'
+#' @export
+#' @examples
+#'
+#' txt_directory <- system.file("samples/maxquant_txt/MSQC1", package = "SRMService")
+#' allData <- tidyMQ_All(txt_directory)
+#'
+tidyMQ_All <- function(txt_directory){
+  protein_txt <- file.path(txt_directory, "proteinGroups.txt")
+  peptides_txt <- file.path(txt_directory, "peptides.txt")
+  evidence_txt <- file.path(txt_directory , "evidence.txt")
+  mq_proteins <- tidyMQ_ProteinGroups(protein_txt)
+  mq_peptides <- tidyMQ_Peptides(peptides_txt)
+  mq_evidence <- tidyMQ_Evidence(evidence_txt)
+  resProt_Pep <- inner_join(mq_proteins,mq_peptides, by = c("protein.group.id", "raw.file"))
+  resProt_Pep_Evidence <- inner_join(resProt_Pep, mq_evidence, by = c("protein.group.id", "raw.file", "peptide.id"))
+  return(resProt_Pep_Evidence)
 }

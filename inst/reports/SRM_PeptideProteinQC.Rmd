@@ -62,7 +62,7 @@ curatedTransitions$plot()
 ```{r results="markdown"}
 allX <- unique(all$getPeptideIDs())
 fc <- unique(curatedTransitions$getPeptideIDs())
-tmp <- setdiff(allX ,  fc)
+tmp <- dplyr::setdiff(allX ,  fc)
 
 
 if(nrow(tmp)>0){
@@ -165,7 +165,7 @@ knitr::kable(proteins,caption="Quantified proteins with number of peptides used 
 
 
 ```{r listRemoved , results="markup"}
-remprot <- t(t(setdiff(unique(all$ids$Protein.Name),rownames(proteins))))
+remprot <- t(t(dplyr::setdiff(unique(all$ids$Protein.Name),rownames(proteins))))
 colnames(remprot) <- "Proteins"
 knitr::kable(data.frame(remprot), caption= "List of removed proteins", row.names = FALSE)
 

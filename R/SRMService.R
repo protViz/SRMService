@@ -31,8 +31,8 @@ getConditionColumns <- function(){
   df_args <- c( subset(dh, select = colnames(dh)!="Area"), sep=".")
   dhid <-do.call(paste, df_args)
 
-  missingInHeavy <- setdiff(dlid,dhid)
-  missingInLight <- setdiff(dhid,dlid)
+  missingInHeavy <- base::setdiff(dlid,dhid)
+  missingInLight <- base::setdiff(dhid,dlid)
   if(length(missingInHeavy) > 0){
     warning("Transitions present in Light but missing in Heavy")
     warning(missingInHeavy)
@@ -82,7 +82,7 @@ ProteinTable <- setRefClass("ProteinTable",
                                   stop("condition mappings does not contain columns : ", reccolumns)
                                 }
 
-                                check <- setdiff(colnames(data) , conditionmapping$Replicate.Name)
+                                check <- base::setdiff(colnames(data) , conditionmapping$Replicate.Name)
                                 if(length(check)!=0){
                                   warning(check)
                                   stop("Colnames data do not match conditionmappings")
@@ -104,7 +104,7 @@ ProteinTable <- setRefClass("ProteinTable",
                               },
                               setHouseKeepers = function(housekeeper){
                                 .self$housekeeper <- housekeeper[housekeeper %in% rownames(.self$data)]
-                                diff <- setdiff(housekeeper,.self$housekeeper)
+                                diff <- base::setdiff(housekeeper,.self$housekeeper)
                                 if( length(diff) > 0){
                                   warning(diff, " are not among the proteins")
                                 }
@@ -192,8 +192,8 @@ PeptideTable <- setRefClass("PeptideTable",
                                 prottab <- .self$getProteinsAsList()
                                 res <- lapply(prottab, SRMService::transitionCorrelationsJack)
                                 toremove <- unlist(lapply(res, .findDecorrelated, threshold=minCorrelation ))
-                                xx<-PeptideTable(.self$data[setdiff(rownames(.self$data),toremove),],
-                                                 .self$ids[setdiff(rownames(.self$data),toremove),],
+                                xx<-PeptideTable(.self$data[base::setdiff(rownames(.self$data),toremove),],
+                                                 .self$ids[base::setdiff(rownames(.self$data),toremove),],
                                                  .self$conditionmap,
                                                  .self$experimentID)
                                 return(xx)
@@ -288,7 +288,7 @@ TransitionTable <- setRefClass("TransitionTable",
                                    prottab <- .self$getPeptidesAsList()
                                    res <- lapply(prottab, SRMService::transitionCorrelationsJack)
                                    toremove <- unlist(lapply(res, .findDecorrelated, threshold=minCorrelation))
-                                   xx<-TransitionTable(.self$data[setdiff(rownames(.self$data),toremove),],
+                                   xx<-TransitionTable(.self$data[base::setdiff(rownames(.self$data),toremove),],
                                                        .self$conditionmap,
                                                        .self$experimentID)
                                    return(xx)
