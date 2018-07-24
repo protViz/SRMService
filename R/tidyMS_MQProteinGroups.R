@@ -125,11 +125,23 @@ tidyMQ_Evidence <- function(Evidence){
 #'
 #' txt_directory <- system.file("samples/maxquant_txt/MSQC1", package = "SRMService")
 #' allData <- tidyMQ_All(txt_directory)
-#'
+#' zip_archive <- "inst/samples/maxquant_txt/twoGroup3Reps.zip"
+#' res <- tidyMQ_All(zip_directory)
 tidyMQ_All <- function(txt_directory){
-  protein_txt <- file.path(txt_directory, "proteinGroups.txt")
-  peptides_txt <- file.path(txt_directory, "peptides.txt")
-  evidence_txt <- file.path(txt_directory , "evidence.txt")
+
+  if(grepl("\\.zip$",txt_directory)){
+    proteins_txt <- read.csv(unz(txt_directory,"proteinGroups.txt"),
+                            header=TRUE, sep="\t", stringsAsFactors = FALSE)
+    peptides_txt <- read.csv(unz(txt_directory,"peptides.txt"),
+                            header=TRUE, sep="\t", stringsAsFactors = FALSE)
+    evidence_txt <- read.csv(unz(txt_directory,"evidence.txt"),
+                            header=TRUE, sep="\t", stringsAsFactors = FALSE)
+  }else{
+    proteins_txt <- file.path(txt_directory, "proteinGroups.txt")
+    peptides_txt <- file.path(txt_directory, "peptides.txt")
+    evidence_txt <- file.path(txt_directory , "evidence.txt")
+  }
+
   mq_proteins <- tidyMQ_ProteinGroups(protein_txt)
   mq_peptides <- tidyMQ_Peptides(peptides_txt)
   mq_evidence <- tidyMQ_Evidence(evidence_txt)
@@ -137,3 +149,4 @@ tidyMQ_All <- function(txt_directory){
   resProt_Pep_Evidence <- inner_join(resProt_Pep, mq_evidence, by = c("protein.group.id", "raw.file", "peptide.id"))
   return(resProt_Pep_Evidence)
 }
+
