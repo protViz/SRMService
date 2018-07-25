@@ -529,20 +529,22 @@ reestablishCondition <- function(data,
 #' applys func - a funciton workin on matrix for each protein and returning a vector of the same length as the number of samples
 #' @export
 #' @examples
-#' x <- applyToHighestHierarchyBySample(sample_analysis, skylineconfig, medpolishPly)
+#' x <- applyToHierarchyBySample(sample_analysis, skylineconfig, medpolishPly)
 #'
 #' x %>% dplyr::select(skylineconfig$table$hierarchyKeys()[1] ,  medpolishPly) %>% unnest()
 #'
-applyToHighestHierarchyBySample <- function( data, config, func)
+applyToHierarchyBySample <- function( data, config, func, level = 1, unnest = FALSE)
 {
   x <- as.list( match.call() )
   makeName <- make.names(as.character(x$func))
-  print(makeName)
-  xnested <- data %>% group_by_at(config$table$hierarchyKeys()[1]) %>% nest()
+  xnested <- data %>% group_by_at(config$table$hierarchyKeys()[level]) %>% nest()
 
   xnested <- xnested %>% mutate(spreadMatrix = map(data, extractIntensities, config))
   xnested <- xnested %>% mutate(!!makeName := map(spreadMatrix, func))
   xnested <- xnested %>% mutate(!!makeName := map2(data,!!sym(makeName),reestablishCondition, config ))
+  if(unnest){
+    protIntensity <- figs3 %>% select(config$table$hierarchyKeys()[1], makeName) %>% unnest()
+  }
   return(xnested)
 }
 

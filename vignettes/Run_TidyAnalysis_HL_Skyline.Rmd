@@ -6,7 +6,7 @@ output:
   pdf_document: default
   html_document: default
 vignette: >
-  %\VignetteIndexEntry{FGCZ Two-Group Analysis}
+  %\VignetteIndexEntry{Example of data preprocessing for HL experiment}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
@@ -114,11 +114,12 @@ dev.off()
 
 ```{r}
 
-HLfigs3 <- SRMService::applyToHighestHierarchyBySample(HLData, skylineconfigHL, medpolishPly)
+HLfigs3 <- SRMService::applyToHierarchyBySample(HLData, skylineconfigHL, medpolishPly)
 HLfigs3 <- inner_join(HLfigs3,HLfigs, by=skylineconfigHL$table$hierarchyKeys()[1])
 
 linePlotHierarchy_configuration(xnested$data[[2]], xnested$protein_Id[[2]], skylineconfigHL) %>%
   linePlotHierarchy_QuantLine(HLfigs3$medpolishPly[[2]],"medpolish", skylineconfigHL)
+
 HLfigs3 <- HLfigs3 %>% mutate(figsMed = map2(plot, medpolishPly, linePlotHierarchy_QuantLine, "medpolish", skylineconfig))
 
 ```

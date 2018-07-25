@@ -72,7 +72,7 @@ if(1){
 ```{r}
 resDataLog <- SRMService::transformIntensities(resData , skylineconfig, log2)
 
-figs3 <- applyToHighestHierarchyBySample(resDataLog, skylineconfig, medpolishPly)
+figs3 <- applyToHierarchyBySample(resDataLog, skylineconfig, medpolishPly)
 figs3 <- figs3 %>% mutate(plotlog = map2(data, UQ(proteinIDsymbol) , linePlotHierarchy_configuration, skylineconfig))
 linePlotHierarchy_QuantLine(figs3$plotlog[[1]], figs3$medpolishPly[[1]], "medpolish", skylineconfig)
 
