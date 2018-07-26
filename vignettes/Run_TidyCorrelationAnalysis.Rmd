@@ -187,12 +187,4 @@ xx <- inner_join(nrPep,proteinsWide)
 
 # Combine all in one function.
 
-```{r eval=FALSE}
-data <- longFormat
-config_tmp
-
-
-
-```
-
 

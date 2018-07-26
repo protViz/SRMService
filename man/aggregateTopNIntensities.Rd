@@ -12,6 +12,7 @@ run \link{rankPrecursorsByIntensity} first
 \examples{
 
 library(SRMService)
+library(tidyverse)
 config <- spectronautDIAData250_config$clone(deep=T)
 res <- setLarge_Q_ValuesToNA(spectronautDIAData250_analysis, config)
 res <- rankPrecursorsByIntensity(res,config)

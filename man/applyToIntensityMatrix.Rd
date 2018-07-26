@@ -4,7 +4,7 @@
 \alias{applyToIntensityMatrix}
 \title{apply Function To matrix}
 \usage{
-applyToIntensityMatrix(data, config, normalization)
+applyToIntensityMatrix(data, config, .func)
 }
 \description{
 apply Function To matrix
@@ -12,9 +12,9 @@ apply Function To matrix
 \examples{
 
 conf <- skylineconfig$clone(deep = TRUE)
-res <- applyToIntensityMatrix(sample_analysis, conf, normalization = base::scale)
+res <- applyToIntensityMatrix(sample_analysis, conf, .func = base::scale)
 stopifnot("Area_base..scale" \%in\% colnames(res))
 stopifnot("Area_base..scale" == conf$table$getWorkIntensity())
 
-res <- applyToIntensityMatrix(res, conf, normalization = robust_scale)
+res <- applyToIntensityMatrix(res, conf, .func = robust_scale)
 }
