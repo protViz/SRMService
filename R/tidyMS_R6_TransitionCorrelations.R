@@ -224,16 +224,16 @@ robust_scale <- function(data){
 #' @examples
 #'
 #' conf <- skylineconfig$clone(deep = TRUE)
-#' res <- applyToIntensityMatrix(sample_analysis, conf, normalization = base::scale)
+#' res <- applyToIntensityMatrix(sample_analysis, conf, .func = base::scale)
 #' stopifnot("Area_base..scale" %in% colnames(res))
 #' stopifnot("Area_base..scale" == conf$table$getWorkIntensity())
 #'
-#' res <- applyToIntensityMatrix(res, conf, normalization = robust_scale)
-applyToIntensityMatrix <- function(data, config, normalization){
+#' res <- applyToIntensityMatrix(res, conf, .func = robust_scale)
+applyToIntensityMatrix <- function(data, config, .func){
   x <- as.list( match.call() )
-  colname <- make.names(paste(config$table$getWorkIntensity(), deparse(x$normalization), sep="_"))
+  colname <- make.names(paste(config$table$getWorkIntensity(), deparse(x$.func), sep="_"))
   mat <- toWideConfig(data, config, as.matrix = TRUE)
-  mat <- normalization(mat)
+  mat <- .func(mat)
   data <- gatherItBack(mat, colname, config, data)
   return(data)
 }
@@ -251,7 +251,7 @@ applyToIntensityMatrix <- function(data, config, normalization){
 
 #' finds decorrelated measues
 #' @export
-decorelatedPly <- function(x, corThreshold = 0.7){
+decorelatedPly <- function(x, config , corThreshold = 0.7){
   res <- SRMService::transitionCorrelationsJack(x)
   decorelated <- .findDecorrelated(res,threshold = corThreshold)
   tibble(!!config$table$hierarchyKeys(TRUE)[1] := rownames(res), srm_decorelated = rownames(res) %in% decorelated)
@@ -265,8 +265,9 @@ markDecorrelated <- function(data , config, minCorrelation = 0.7){
   qvalFiltX <- data %>%  group_by_at(config$table$hierarchyKeys()[1]) %>% nest()
   qvalFiltX <- qvalFiltX %>%
     dplyr::mutate(spreadMatrix = map(data, extractIntensities, config))
+
   HLfigs2 <- qvalFiltX %>%
-    dplyr::mutate(srmDecor = map(spreadMatrix, decorelatedPly, minCorrelation))
+    dplyr::mutate(srmDecor = map(spreadMatrix, decorelatedPly, config, minCorrelation))
   unnest_res <- HLfigs2 %>%
     select(protein_Id, srmDecor) %>% unnest()
   qvalFiltX <- inner_join(data, unnest_res, by=c(config$table$hierarchyKeys()[1], config$table$hierarchyKeys(TRUE)[1]) )
@@ -401,6 +402,7 @@ rankPrecursorsByIntensity <- function(data, config){
 #' @examples
 #'
 #' library(SRMService)
+#' library(tidyverse)
 #' config <- spectronautDIAData250_config$clone(deep=T)
 #' res <- setLarge_Q_ValuesToNA(spectronautDIAData250_analysis, config)
 #' res <- rankPrecursorsByIntensity(res,config)
@@ -450,6 +452,45 @@ rankPrecursorsByNAs <- function(data, config){
   message("Columns added:", summaryColumn, " ",  rankColumn)
   return(data)
 }
+
+
+#' find proteins wich have 2 peptides in at least x percent of samples in main factor.
+#' @return tibble with hierarchy Id's
+#' @export
+#' @examples
 #'
+#' rm(list=ls())
+#' library(SRMService)
+#' library(tidyverse)
+#' config <- spectronautDIAData250_config$clone(deep=T)
+#' config$parameter$min_nr_of_notNA  <- 20
+#' data <- spectronautDIAData250_analysis
+#' hierarchyCounts(data, config)
+#' res <- proteins_WithXPeptidesInCondition(data, config,percent = 60)
+#'
+#' tmp <- inner_join(res, data )
+#' hierarchyCounts(tmp, config)
+proteins_WithXPeptidesInCondition <- function(data , config,  percent = 60 ){
+  table <- config$table
+  summaryColumn = "srm_NrNotNAs"
+  column <- config$table$getWorkIntensity()
+  fun = function(x){sum(!is.na(x))}
+  summaryPerPrecursor <-data %>%
+    dplyr::group_by(!!!syms( c(table$hierarchyKeys(), table$factorKeys()[1]))) %>%
+    dplyr::summarise(!!"nr" := n(), !!summaryColumn := fun(!!sym(column))) %>%
+    mutate(fraction = !!sym(summaryColumn)/!!sym("nr") * 100 ) %>% ungroup()
+
+  summaryPerPrecursor <- summaryPerPrecursor %>% filter(fraction > percent)
+  summaryPerPrecursorX <- summaryPerPrecursor %>%
+    select(!!!syms(c(table$hierarchyKeys(),table$factorKeys()[1]))) %>% distinct()
+  summaryPerPrecursorX %>% select(!!!syms(table$hierarchyKeys())) -> ids
+
+  res <- summaryPerPrecursorX %>% group_by(protein_Id, coding) %>%
+    summarise(n=n()) %>%
+    filter(n > config$parameter$min_peptides_protein) %>%
+    select(protein_Id) %>% distinct()
+  res <- inner_join(res, ids)
+  return(res)
+}
 
 
