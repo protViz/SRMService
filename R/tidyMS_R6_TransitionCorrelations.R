@@ -465,32 +465,44 @@ rankPrecursorsByNAs <- function(data, config){
 #' config <- spectronautDIAData250_config$clone(deep=T)
 #' config$parameter$min_nr_of_notNA  <- 20
 #' data <- spectronautDIAData250_analysis
+#' data <- setLarge_Q_ValuesToNA(data, config)
 #' hierarchyCounts(data, config)
 #' res <- proteins_WithXPeptidesInCondition(data, config,percent = 60)
-#'
 #' tmp <- inner_join(res, data )
 #' hierarchyCounts(tmp, config)
+#' res2 <- select(res, config$table$hierarchyKeys()[1]) %>% distinct()
+#' tmp2 <- inner_join(res2, data )
+#' hierarchyCounts(tmp2, config)
+#'
 proteins_WithXPeptidesInCondition <- function(data , config,  percent = 60 ){
   table <- config$table
   summaryColumn = "srm_NrNotNAs"
   column <- config$table$getWorkIntensity()
   fun = function(x){sum(!is.na(x))}
-  summaryPerPrecursor <-data %>%
+  summaryPerPrecursor <- data %>%
     dplyr::group_by(!!!syms( c(table$hierarchyKeys(), table$factorKeys()[1]))) %>%
     dplyr::summarise(!!"nr" := n(), !!summaryColumn := fun(!!sym(column))) %>%
     mutate(fraction = !!sym(summaryColumn)/!!sym("nr") * 100 ) %>% ungroup()
 
-  summaryPerPrecursor <- summaryPerPrecursor %>% filter(fraction > percent)
-  summaryPerPrecursorX <- summaryPerPrecursor %>%
-    select(!!!syms(c(table$hierarchyKeys(),table$factorKeys()[1]))) %>% distinct()
-  summaryPerPrecursorX %>% select(!!!syms(table$hierarchyKeys())) -> ids
+  nrow(summaryPerPrecursor)
+  summaryPerPrecursorFiltered <- summaryPerPrecursor %>% filter(fraction > percent)
+  nrow(summaryPerPrecursorFiltered)
 
-  res <- summaryPerPrecursorX %>% group_by(protein_Id, coding) %>%
+  summaryPerPrecursorFilteredIDs <- summaryPerPrecursorFiltered %>%
+    select(!!!syms(c(table$hierarchyKeys(),table$factorKeys()[1]))) %>% distinct()
+
+  # count nr peptides per protein in condition
+  res <- summaryPerPrecursorFilteredIDs %>%
+    group_by(!!!syms(c(config$table$hierarchyKeys()[1], table$factorKeys()[1]))) %>%
     summarise(n=n()) %>%
-    filter(n > config$parameter$min_peptides_protein) %>%
+    filter(n >= config$parameter$min_peptides_protein) %>% arrange(n)
+  head(res)
+
+  res <- res %>%
     select(protein_Id) %>% distinct()
-  res <- inner_join(res, ids)
-  return(res)
+
+  res <- inner_join(res, summaryPerPrecursorFilteredIDs)
+  return(ungroup(res))
 }
 
 

@@ -16,3 +16,6 @@ config$parameter$min_nr_of_notNA  <- 20
 data <- spectronautDIAData250_analysis
 res <- workflow_correlation_preprocessing(data,config)
 }
+\seealso{
+Other workflow functions: \code{\link{workflow_NA_preprocessing}}
+}

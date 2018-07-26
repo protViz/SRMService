@@ -15,5 +15,9 @@ library(tidyverse)
 rm(list=ls())
 config <- spectronautDIAData250_config$clone(deep=T)
 data <- spectronautDIAData250_analysis
-workflow_NA_preprocessing(data, config)
+tmp <-workflow_NA_preprocessing(data, config)
+stopifnot(isFALSE(is.grouped_df(tmp)))
+}
+\seealso{
+Other workflow functions: \code{\link{workflow_correlation_preprocessing}}
 }
