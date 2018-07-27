@@ -34,6 +34,7 @@ workflow_correlation_preprocessing <- function(data, config, minCorrelation = 0.
   data_NA_QVal <- transformIntensities(data_NA_QVal, config, log2)
   data_NA_QVal <- markDecorrelated(data_NA_QVal, config, minCorrelation = minCorrelation)
   keepCorrelated <- dplyr::filter(data_NA_QVal, srm_decorelated == FALSE)
+
   stat_correlated  <- hierarchyCounts(keepCorrelated, config)
 
   # TODO check if you are not aggregating log transformed intensities
@@ -57,6 +58,60 @@ workflow_correlation_preprocessing <- function(data, config, minCorrelation = 0.
   return(list(data = proteinIntensities$data, stats = stats, newconfig = proteinIntensities$newconfig))
 }
 
+#' apply correlation filtering and impuation
+#' @export
+#' @examples
+#' rm(list=ls())
+#' library(tidyverse)
+#' library(SRMService)
+#' config <- spectronautDIAData250_config$clone(deep=T)
+#' config$parameter$min_nr_of_notNA  <- 20
+#' data <- spectronautDIAData250_analysis
+#' res <- workflow_corr_filter_impute(data,config)
+workflow_corr_filter_impute <- function(data,config, minCorrelation =0.6){
+  stat_input <- hierarchyCounts(data, config)
+
+  data_NA <- removeLarge_Q_Values(data, config)
+  data_NA <- summariseQValues(data_NA, config)
+
+  data_NA_QVal <- data_NA %>% filter_at( "srm_QValueMin" , all_vars(. < config$parameter$qValThreshold )   )
+
+  stat_qval <- hierarchyCounts(data_NA_QVal, config)
+
+  # remove transitions with large numbers of NA's
+  data_NA_QVal <- rankPrecursorsByNAs(data_NA_QVal, config)
+  data_NA_QVal <- data_NA_QVal %>% dplyr::filter(srm_NrNotNAs > config$parameter$min_nr_of_notNA)
+  stat_min_nr_of_notNA <- hierarchyCounts(data_NA_QVal, config)
+
+  # remove single hit wonders
+  data_NA_QVal <- nr_B_in_A(data_NA_QVal,config$table$hierarchyKeys()[1], config$table$hierarchyKeys()[2])
+  c_name <- make_name(config$table$hierarchyKeys()[1], config$table$hierarchyKeys()[2])
+  data_NA_QVal <- dplyr::filter(data_NA_QVal, !!sym(c_name) >= config$parameter$min_peptides_protein )
+
+  stat_min_peptides_protein  <- hierarchyCounts(data_NA_QVal, config)
+
+  # filter decorrelated.
+  data_NA_QVal <- transformIntensities(data_NA_QVal, config, log2)
+  data_NA_QVal <- markDecorrelated(data_NA_QVal, config, minCorrelation = minCorrelation)
+  keepCorrelated <- dplyr::filter(data_NA_QVal, srm_decorelated == FALSE)
+
+  stat_correlated  <- hierarchyCounts(keepCorrelated, config)
+  keepCorrelated <- rankPrecursorsByIntensity(keepCorrelated, config)
+  qvalFiltImputed <- impute_correlationBased(keepCorrelated, config)
+
+
+  stats <- list(stat_input = stat_input,
+                stat_qval = stat_qval,
+                stat_min_nr_of_notNA = stat_min_nr_of_notNA,
+                stat_min_peptides_protein = stat_min_peptides_protein,
+                stat_correlated = stat_correlated
+  )
+  x <- bind_rows(stats)
+  stats <- add_column(x, processing = names(stats),.before = 1)
+
+  return(qvalFiltImputed)
+}
+
 #' filter QVAlues and NA's and factor information
 #'
 #' @export
@@ -67,7 +122,11 @@ workflow_correlation_preprocessing <- function(data, config, minCorrelation = 0.
 #' rm(list=ls())
 #' config <- spectronautDIAData250_config$clone(deep=T)
 #' data <- spectronautDIAData250_analysis
+#' hierarchyCounts(data, config)
 #' tmp <-workflow_NA_preprocessing(data, config)
+#' tmp <-workflow_NA_preprocessing(data, config, percent=70)
+#' config$get
+#' hierarchyCounts(tmp, config)
 #' stopifnot(isFALSE(is.grouped_df(tmp)))
 workflow_NA_preprocessing <- function(data, config, percent = 60, factor_level = 1){
   stat_input <- hierarchyCounts(data, config)
@@ -77,6 +136,7 @@ workflow_NA_preprocessing <- function(data, config, percent = 60, factor_level =
   data_NA_QVal <- data_NA %>% filter_at( "srm_QValueMin" , all_vars(. < config$parameter$qValThreshold )   )
 
   stat_qval <- hierarchyCounts(data_NA_QVal, config)
+
   resNACondition <- proteins_WithXPeptidesInCondition(data_NA_QVal, config, percent = percent, factor_level = factor_level)
   data_NA_QVal_condition <- inner_join(resNACondition, data_NA_QVal )
 
@@ -123,5 +183,8 @@ workflow_Q_NA_filtered_Hierarchy <- function(data, config, percent = 60, hierarc
   return(protIntensity)
 }
 
+
+#' anova anlyse
+#'
 
 

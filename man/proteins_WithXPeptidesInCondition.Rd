@@ -29,7 +29,7 @@ hierarchyCounts(tmp, config)
 res2 <- select(res, config$table$hierarchyKeys()[1]) \%>\% distinct()
 tmp2 <- inner_join(res2, data )
 hierarchyCounts(tmp2, config)
-res3 <- proteins_WithXPeptidesInCondition(data, config,percent = 60, factor_level = 2)
+res3 <- proteins_WithXPeptidesInCondition(data, config,percent = 90)
 tmp2 <- inner_join(res3, data )
 hierarchyCounts(tmp2, config)
 }

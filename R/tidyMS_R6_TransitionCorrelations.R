@@ -471,18 +471,23 @@ rankPrecursorsByNAs <- function(data, config){
 #' res2 <- select(res, config$table$hierarchyKeys()[1]) %>% distinct()
 #' tmp2 <- inner_join(res2, data )
 #' hierarchyCounts(tmp2, config)
-#' res3 <- proteins_WithXPeptidesInCondition(data, config,percent = 60, factor_level = 2)
+#' res3 <- proteins_WithXPeptidesInCondition(data, config,percent = 90)
 #' tmp2 <- inner_join(res3, data )
 #' hierarchyCounts(tmp2, config)
 proteins_WithXPeptidesInCondition <- function(data , config,  percent = 60, factor_level=1 ){
   table <- config$table
   summaryColumn = "srm_NrNotNAs"
   column <- config$table$getWorkIntensity()
+
+  data <- complete( data , nesting(!!!syms(c(table$hierarchyKeys(), table$isotopeLabel))),
+                    nesting(!!!syms(c( table$fileName , table$sampleName, table$factorKeys() ))))
+
   fun = function(x){sum(!is.na(x))}
   summaryPerPrecursor <- data %>%
     dplyr::group_by(!!!syms( c(table$hierarchyKeys(), table$factorKeys()[1:factor_level]))) %>%
     dplyr::summarise(!!"nr" := n(), !!summaryColumn := fun(!!sym(column))) %>%
     mutate(fraction = !!sym(summaryColumn)/!!sym("nr") * 100 ) %>% ungroup()
+
 
   nrow(summaryPerPrecursor)
   summaryPerPrecursorFiltered <- summaryPerPrecursor %>% filter(fraction > percent)

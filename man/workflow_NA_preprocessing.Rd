@@ -15,7 +15,11 @@ library(tidyverse)
 rm(list=ls())
 config <- spectronautDIAData250_config$clone(deep=T)
 data <- spectronautDIAData250_analysis
+hierarchyCounts(data, config)
 tmp <-workflow_NA_preprocessing(data, config)
+tmp <-workflow_NA_preprocessing(data, config, percent=70)
+config$get
+hierarchyCounts(tmp, config)
 stopifnot(isFALSE(is.grouped_df(tmp)))
 }
 \seealso{
