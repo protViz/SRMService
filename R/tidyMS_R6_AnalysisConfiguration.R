@@ -172,11 +172,17 @@ setup_analysis <- function(data, configuration ,sep="~"){
 
   # Make implicit NA's explicit
   data <- data %>% select(c(configuration$table$idVars(),configuration$table$valueVars()))
-
-  data <- complete( data , nesting(!!!syms(c(table$hierarchyKeys(), table$isotopeLabel))),
-                    nesting(!!!syms(c( table$fileName , table$sampleName, table$factorKeys() ))))
+  data <- completeCases( data , configuration)
 
   return( data )
+}
+
+#' Complete cases
+completeCases <- function(data, config){
+  data <- complete( data ,
+                    nesting(!!!syms(c(config$table$hierarchyKeys(), config$table$isotopeLabel))),
+                    nesting(!!!syms(c( config$table$fileName , config$table$sampleName, config$table$factorKeys() ))))
+  return(data)
 }
 
 # Functions - Plotting ----

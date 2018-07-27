@@ -479,8 +479,7 @@ proteins_WithXPeptidesInCondition <- function(data , config,  percent = 60, fact
   summaryColumn = "srm_NrNotNAs"
   column <- config$table$getWorkIntensity()
 
-  data <- complete( data , nesting(!!!syms(c(table$hierarchyKeys(), table$isotopeLabel))),
-                    nesting(!!!syms(c( table$fileName , table$sampleName, table$factorKeys() ))))
+  data <- completeCases( data , config)
 
   fun = function(x){sum(!is.na(x))}
   summaryPerPrecursor <- data %>%

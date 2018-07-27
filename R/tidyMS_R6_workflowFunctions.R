@@ -141,10 +141,7 @@ workflow_NA_preprocessing <- function(data, config, percent = 60, factor_level =
   data_NA_QVal_condition <- inner_join(resNACondition, data_NA_QVal )
 
   # Complete cases
-  data_NA_QVal_condition <- complete( data_NA_QVal_condition ,
-                                      nesting(!!!syms(c(config$table$hierarchyKeys(), config$table$isotopeLabel))),
-                                      nesting(!!!syms(c( config$table$fileName , config$table$sampleName, config$table$factorKeys() ))))
-
+  data_NA_QVal_condition <- completeCases( data_NA_QVal_condition , config)
   return(data_NA_QVal_condition)
 }
 
