@@ -4,7 +4,8 @@
 \alias{applyToHierarchyBySample}
 \title{applys func - a funciton workin on matrix for each protein and returning a vector of the same length as the number of samples}
 \usage{
-applyToHierarchyBySample(data, config, func, level = 1, unnest = FALSE)
+applyToHierarchyBySample(data, config, func, hierarchy_level = 1,
+  unnest = FALSE)
 }
 \description{
 applys func - a funciton workin on matrix for each protein and returning a vector of the same length as the number of samples

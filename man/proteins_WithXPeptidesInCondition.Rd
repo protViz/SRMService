@@ -4,7 +4,8 @@
 \alias{proteins_WithXPeptidesInCondition}
 \title{find proteins wich have 2 peptides in at least x percent of samples in main factor.}
 \usage{
-proteins_WithXPeptidesInCondition(data, config, percent = 60)
+proteins_WithXPeptidesInCondition(data, config, percent = 60,
+  factor_level = 1)
 }
 \value{
 tibble with hierarchy Id's
@@ -20,7 +21,7 @@ library(tidyverse)
 config <- spectronautDIAData250_config$clone(deep=T)
 config$parameter$min_nr_of_notNA  <- 20
 data <- spectronautDIAData250_analysis
-data <- setLarge_Q_ValuesToNA(data, config)
+data <- removeLarge_Q_Values(data, config)
 hierarchyCounts(data, config)
 res <- proteins_WithXPeptidesInCondition(data, config,percent = 60)
 tmp <- inner_join(res, data )
@@ -28,5 +29,7 @@ hierarchyCounts(tmp, config)
 res2 <- select(res, config$table$hierarchyKeys()[1]) \%>\% distinct()
 tmp2 <- inner_join(res2, data )
 hierarchyCounts(tmp2, config)
-
+res3 <- proteins_WithXPeptidesInCondition(data, config,percent = 60, factor_level = 2)
+tmp2 <- inner_join(res3, data )
+hierarchyCounts(tmp2, config)
 }

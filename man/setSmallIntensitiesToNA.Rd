@@ -11,6 +11,7 @@ setSmallIntensitiesToNA(data, config, threshold = 1,
 sets intensities smaller than threshold to NA
 }
 \examples{
+
 analysis <- SRMService::spectronautDIAData250_analysis
 config <- SRMService::spectronautDIAData250_config$clone(deep=TRUE)
 

@@ -533,17 +533,17 @@ reestablishCondition <- function(data,
 #'
 #' x %>% dplyr::select(skylineconfig$table$hierarchyKeys()[1] ,  medpolishPly) %>% unnest()
 #'
-applyToHierarchyBySample <- function( data, config, func, level = 1, unnest = FALSE)
+applyToHierarchyBySample <- function( data, config, func, hierarchy_level = 1, unnest = FALSE)
 {
   x <- as.list( match.call() )
   makeName <- make.names(as.character(x$func))
-  xnested <- data %>% group_by_at(config$table$hierarchyKeys()[level]) %>% nest()
+  xnested <- data %>% group_by_at(config$table$hierarchyKeys()[1:hierarchy_level]) %>% nest()
 
   xnested <- xnested %>% mutate(spreadMatrix = map(data, extractIntensities, config))
   xnested <- xnested %>% mutate(!!makeName := map(spreadMatrix, func))
   xnested <- xnested %>% mutate(!!makeName := map2(data,!!sym(makeName),reestablishCondition, config ))
   if(unnest){
-    protIntensity <- figs3 %>% select(config$table$hierarchyKeys()[1], makeName) %>% unnest()
+    protIntensity <- figs3 %>% select(config$table$hierarchyKeys()[1:hierarchy_level], makeName) %>% unnest()
   }
   return(xnested)
 }

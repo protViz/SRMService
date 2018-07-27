@@ -2,12 +2,12 @@
 % Please edit documentation in R/tidyMS_R6_workflowFunctions.R
 \name{workflow_NA_preprocessing}
 \alias{workflow_NA_preprocessing}
-\title{filter by NA's and factor information}
+\title{filter QVAlues and NA's and factor information}
 \usage{
-workflow_NA_preprocessing(data, config, percent = 60)
+workflow_NA_preprocessing(data, config, percent = 60, factor_level = 1)
 }
 \description{
-filter by NA's and factor information
+filter QVAlues and NA's and factor information
 }
 \examples{
 library(SRMService)
@@ -19,5 +19,6 @@ tmp <-workflow_NA_preprocessing(data, config)
 stopifnot(isFALSE(is.grouped_df(tmp)))
 }
 \seealso{
-Other workflow functions: \code{\link{workflow_correlation_preprocessing}}
+Other workflow functions: \code{\link{workflow_Q_NA_filtered_ProteinIntensities}},
+  \code{\link{workflow_correlation_preprocessing}}
 }

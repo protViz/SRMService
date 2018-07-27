@@ -83,7 +83,7 @@ longNoDecoy <- setup_analysis(longFormat, config)
 
 ```{r}
 data <- longNoDecoy
-longNoDecoy <- setLarge_Q_ValuesToNA(longNoDecoy, config)
+longNoDecoy <- removeLarge_Q_Values(longNoDecoy, config)
 longQSummaries <- summariseQValues(longNoDecoy, config)
 SRMService::getMissingStats(longQSummaries, config)
 

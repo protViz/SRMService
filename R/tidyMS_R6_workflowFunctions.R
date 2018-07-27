@@ -11,7 +11,7 @@
 workflow_correlation_preprocessing <- function(data, config, minCorrelation = 0.7){
   stat_input <- hierarchyCounts(data, config)
 
-  data_NA <- setLarge_Q_ValuesToNA(data, config)
+  data_NA <- removeLarge_Q_Values(data, config)
   data_NA <- summariseQValues(data_NA, config)
 
   data_NA_QVal <- data_NA %>% filter_at( "srm_QValueMin" , all_vars(. < config$parameter$qValThreshold )   )
@@ -36,6 +36,7 @@ workflow_correlation_preprocessing <- function(data, config, minCorrelation = 0.
   keepCorrelated <- dplyr::filter(data_NA_QVal, srm_decorelated == FALSE)
   stat_correlated  <- hierarchyCounts(keepCorrelated, config)
 
+  # TODO check if you are not aggregating log transformed intensities
   # rank precursors by intensity
   keepCorrelated <- rankPrecursorsByIntensity(keepCorrelated, config)
   qvalFiltImputed <- impute_correlationBased(keepCorrelated, config)
@@ -48,14 +49,14 @@ workflow_correlation_preprocessing <- function(data, config, minCorrelation = 0.
                 stat_min_nr_of_notNA = stat_min_nr_of_notNA,
                 stat_min_peptides_protein = stat_min_peptides_protein,
                 stat_correlated = stat_correlated
-                )
+  )
   x <- bind_rows(stats)
   stats <- add_column(x, processing = names(stats),.before = 1)
 
   return(list(data = proteinIntensities, stats = stats))
 }
 
-#' filter by NA's and factor information
+#' filter QVAlues and NA's and factor information
 #'
 #' @export
 #' @family workflow functions
@@ -67,16 +68,56 @@ workflow_correlation_preprocessing <- function(data, config, minCorrelation = 0.
 #' data <- spectronautDIAData250_analysis
 #' tmp <-workflow_NA_preprocessing(data, config)
 #' stopifnot(isFALSE(is.grouped_df(tmp)))
-workflow_NA_preprocessing <- function(data, config, percent = 60){
+workflow_NA_preprocessing <- function(data, config, percent = 60, factor_level = 1){
   stat_input <- hierarchyCounts(data, config)
-  data_NA <- setLarge_Q_ValuesToNA(data, config)
+  data_NA <- removeLarge_Q_Values(data, config)
+  data_NA <- summariseQValues(data_NA, config)
+
+  data_NA_QVal <- data_NA %>% filter_at( "srm_QValueMin" , all_vars(. < config$parameter$qValThreshold )   )
+
+  stat_qval <- hierarchyCounts(data_NA_QVal, config)
+  resNACondition <- proteins_WithXPeptidesInCondition(data_NA_QVal, config, percent = percent, factor_level = factor_level)
+  data_NA_QVal_condition <- inner_join(resNACondition, data_NA_QVal )
+  # Complete cases
+  data_NA_QVal_condition <- complete( data_NA_QVal_condition ,
+                                      nesting(!!!syms(c(config$table$hierarchyKeys(), config$table$isotopeLabel))),
+                                      nesting(!!!syms(c( config$table$fileName , config$table$sampleName, config$table$factorKeys() ))))
+
+  return(data_NA_QVal_condition)
+}
+
+#' Get Protein Intensities after QValue NA filtering and medianpolish
+#'
+#' @export
+#' @family workflow functions
+#' @examples
+#' library(SRMService)
+#' library(tidyverse)
+#' rm(list=ls())
+#' config <- spectronautDIAData250_config$clone(deep=T)
+#' data <- spectronautDIAData250_analysis
+#' tmp <-workflow_Q_NA_filtered_ProteinIntensities(data, config, hierarchy_level=2)
+#' nrow(tmp)
+#' config <- spectronautDIAData250_config$clone(deep=T)
+#' tmp <-workflow_Q_NA_filtered_ProteinIntensities(data, config, hierarchy_level=1)
+#' nrow(tmp)
+workflow_Q_NA_filtered_ProteinIntensities <- function(data, config, percent = 60, hierarchy_level=1, factors_level=1){
+  stat_input <- hierarchyCounts(data, config)
+  data_NA <- removeLarge_Q_Values(data, config)
   data_NA <- summariseQValues(data_NA, config)
   data_NA_QVal <- data_NA %>% filter_at( "srm_QValueMin" , all_vars(. < config$parameter$qValThreshold )   )
   stat_qval <- hierarchyCounts(data_NA_QVal, config)
   resNACondition <- proteins_WithXPeptidesInCondition(data_NA_QVal, config, percent =percent)
-  is.grouped_df(resNACondition)
-  is.grouped_df(data_NA_QVal)
   data_NA_QVal_condition <- inner_join(resNACondition, data_NA_QVal )
-  return(data_NA_QVal_condition)
+
+  resDataLog <- SRMService::transformIntensities(data_NA_QVal_condition , config, log2)
+
+  resDataLog <- applyToIntensityMatrix(resDataLog, config, robust_scale)
+
+  figs3 <- applyToHierarchyBySample(resDataLog, config, medpolishPly, hierarchy_level = hierarchy_level)
+  protIntensity <- figs3 %>% select(config$table$hierarchyKeys()[1:hierarchy_level], medpolishPly) %>% unnest()
+  return(protIntensity)
 }
+
+
 

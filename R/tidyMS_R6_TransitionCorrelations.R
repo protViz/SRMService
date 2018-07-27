@@ -7,38 +7,28 @@
 
   thresholdF <- function(x,y, threshold = 0.05){ ifelse(x < threshold, y, NA)}
   data <- data %>%
-    dplyr::mutate(!!intensityNew := thresholdF(!!!syms(c(QValueColumn ,intensityOld )),threshold = thresholdQValue))
+    dplyr::mutate(!!intensityNew := thresholdF(!!!syms(c(QValueColumn ,intensityOld )), threshold = thresholdQValue))
   return(data)
 }
 
 #' sets intensities to NA if maxQValue_Threshold exceeded
 #' @export
 #' @examples
+#' @family filter functions
 #' analysis <- SRMService::spectronautDIAData250_analysis
 #' config <- SRMService::spectronautDIAData250_config$clone(deep=TRUE)
-#' res <- setLarge_Q_ValuesToNA(analysis, config)
-setLarge_Q_ValuesToNA <- function(data, config, intensityNewName="IntensitiesWithNA"){
-  data <- .setLargeQValuesToNA(data,
-                               QValueColumn = config$table$ident_qValue,
-                               intensityOld = config$table$getWorkIntensity(),
-                               thresholdQValue = config$parameter$maxQValue_Threshold,
-                               intensityNew = intensityNewName
-  )
-  config$table$setWorkIntensity(intensityNewName)
-  message("Column added and new WorkIntensity Set: ", intensityNewName)
-  return(data)
-}
-#' DEPRECATED use \link{setLarge_Q_ValuesToNA}
-#' @export
-setIntensitiesToNA <- function(data, config, newcolname="IntensitiesWithNA"){
-  warning("DEPRECATED use setLarge_Q_ValuesToNA instead")
-  data <-setLarge_Q_ValuesToNA(data, config, intensityNewName=newcolname)
+#' res <- removeLarge_Q_Values(analysis, config)
+removeLarge_Q_Values <- function(data, config){
+  data <- data %>%
+    filter(!!sym(config$table$ident_qValue) < config$parameter$maxQValue_Threshold)
   return(data)
 }
 
 #' sets intensities smaller than threshold to NA
 #' @export
+#' @family filter functions
 #' @examples
+#'
 #' analysis <- SRMService::spectronautDIAData250_analysis
 #' config <- SRMService::spectronautDIAData250_config$clone(deep=TRUE)
 #'
@@ -90,6 +80,7 @@ transformIntensities <- function(data,
 
 #' visualize intensity distributions
 #' @export
+#' @family plotting
 #' @examples
 #' config <- skylineconfig$clone(deep=TRUE)
 #' analysis <- transformIntensities(sample_analysis, config, log2)
@@ -102,8 +93,9 @@ plot_intensity_distribution_violin <- function(data, config){
 
 #' visualize intensity distributions
 #' @export
-#' @examples
+#' @family plotting
 #' @rdname plot_intensity_distribution_violin
+#' @examples
 #' config <- skylineconfig$clone(deep=TRUE)
 #' analysis <- transformIntensities(sample_analysis, config, log2)
 #' plot_intensity_distribution_density(analysis, config)
@@ -269,7 +261,7 @@ markDecorrelated <- function(data , config, minCorrelation = 0.7){
   HLfigs2 <- qvalFiltX %>%
     dplyr::mutate(srmDecor = map(spreadMatrix, decorelatedPly, config, minCorrelation))
   unnest_res <- HLfigs2 %>%
-    select(protein_Id, srmDecor) %>% unnest()
+    select(config$table$hierarchyKeys()[1], "srmDecor") %>% unnest()
   qvalFiltX <- inner_join(data, unnest_res, by=c(config$table$hierarchyKeys()[1], config$table$hierarchyKeys(TRUE)[1]) )
   return(qvalFiltX)
 }
@@ -306,7 +298,7 @@ impute_correlationBased <- function(x , config){
   nestedX <- nestedX %>% dplyr::mutate(imputed = map(spreadMatrix, simpleImpute))
   nestedX <- nestedX %>% dplyr::mutate(imputed = map(imputed, gatherItback, config))
 
-  unnest_res <- nestedX %>% select(protein_Id, imputed) %>% unnest()
+  unnest_res <- nestedX %>% select(config$table$hierarchyKeys()[1], "imputed") %>% unnest()
   qvalFiltX <- inner_join(x, unnest_res,
                           by=c(config$table$hierarchyKeys()[1], config$table$hierarchyKeys(TRUE)[1], config$table$sampleName) )
   config$table$setWorkIntensity("srm_ImputedIntensity")
@@ -377,7 +369,7 @@ rankProteinPrecursors <- function(data,
 #' @examples
 #'
 #' config <- spectronautDIAData250_config$clone(deep=T)
-#' res <- setLarge_Q_ValuesToNA(spectronautDIAData250_analysis, config)
+#' res <- removeLarge_Q_Values(spectronautDIAData250_analysis, config)
 #' res <- rankPrecursorsByIntensity(res,config)
 #' X <-res %>% select(c(config$table$hierarchyKeys(), srm_meanInt, srm_meanIntRank)) %>% distinct()
 #' X %>% arrange(!!!syms(c(config$table$hierarchyKeys()[1], "srm_meanIntRank"  )))
@@ -404,7 +396,7 @@ rankPrecursorsByIntensity <- function(data, config){
 #' library(SRMService)
 #' library(tidyverse)
 #' config <- spectronautDIAData250_config$clone(deep=T)
-#' res <- setLarge_Q_ValuesToNA(spectronautDIAData250_analysis, config)
+#' res <- removeLarge_Q_Values(spectronautDIAData250_analysis, config)
 #' res <- rankPrecursorsByIntensity(res,config)
 #' res %>% select(c(config$table$hierarchyKeys(),"srm_meanInt"  ,"srm_meanIntRank")) %>% distinct() %>% arrange(!!!syms(c(config$table$hierarchyKeys()[1],"srm_meanIntRank")))
 #' mean_na <- function(x){mean(x, na.rm=TRUE)}
@@ -431,7 +423,7 @@ aggregateTopNIntensities <- function(data , config, func, N){
 #' @export
 #' @examples
 #' config <- spectronautDIAData250_config$clone(deep=T)
-#' res <- setLarge_Q_ValuesToNA(spectronautDIAData250_analysis, config)
+#' res <- removeLarge_Q_Values(spectronautDIAData250_analysis, config)
 #' res <- rankPrecursorsByNAs(res,config)
 #' colnames(res)
 #' x <- res %>%
@@ -465,7 +457,7 @@ rankPrecursorsByNAs <- function(data, config){
 #' config <- spectronautDIAData250_config$clone(deep=T)
 #' config$parameter$min_nr_of_notNA  <- 20
 #' data <- spectronautDIAData250_analysis
-#' data <- setLarge_Q_ValuesToNA(data, config)
+#' data <- removeLarge_Q_Values(data, config)
 #' hierarchyCounts(data, config)
 #' res <- proteins_WithXPeptidesInCondition(data, config,percent = 60)
 #' tmp <- inner_join(res, data )
@@ -473,14 +465,16 @@ rankPrecursorsByNAs <- function(data, config){
 #' res2 <- select(res, config$table$hierarchyKeys()[1]) %>% distinct()
 #' tmp2 <- inner_join(res2, data )
 #' hierarchyCounts(tmp2, config)
-#'
-proteins_WithXPeptidesInCondition <- function(data , config,  percent = 60 ){
+#' res3 <- proteins_WithXPeptidesInCondition(data, config,percent = 60, factor_level = 2)
+#' tmp2 <- inner_join(res3, data )
+#' hierarchyCounts(tmp2, config)
+proteins_WithXPeptidesInCondition <- function(data , config,  percent = 60, factor_level=1 ){
   table <- config$table
   summaryColumn = "srm_NrNotNAs"
   column <- config$table$getWorkIntensity()
   fun = function(x){sum(!is.na(x))}
   summaryPerPrecursor <- data %>%
-    dplyr::group_by(!!!syms( c(table$hierarchyKeys(), table$factorKeys()[1]))) %>%
+    dplyr::group_by(!!!syms( c(table$hierarchyKeys(), table$factorKeys()[1:factor_level]))) %>%
     dplyr::summarise(!!"nr" := n(), !!summaryColumn := fun(!!sym(column))) %>%
     mutate(fraction = !!sym(summaryColumn)/!!sym("nr") * 100 ) %>% ungroup()
 
@@ -489,17 +483,17 @@ proteins_WithXPeptidesInCondition <- function(data , config,  percent = 60 ){
   nrow(summaryPerPrecursorFiltered)
 
   summaryPerPrecursorFilteredIDs <- summaryPerPrecursorFiltered %>%
-    select(!!!syms(c(table$hierarchyKeys(),table$factorKeys()[1]))) %>% distinct()
+    select(!!!syms(c(table$hierarchyKeys(),table$factorKeys()[1:factor_level]))) %>% distinct()
 
   # count nr peptides per protein in condition
   res <- summaryPerPrecursorFilteredIDs %>%
-    group_by(!!!syms(c(config$table$hierarchyKeys()[1], table$factorKeys()[1]))) %>%
+    group_by(!!!syms(c(config$table$hierarchyKeys()[1], table$factorKeys()[1:factor_level]))) %>%
     summarise(n=n()) %>%
     filter(n >= config$parameter$min_peptides_protein) %>% arrange(n)
   head(res)
 
   res <- res %>%
-    select(protein_Id) %>% distinct()
+    select(config$table$hierarchyKeys()[1]) %>% distinct()
 
   res <- inner_join(res, summaryPerPrecursorFilteredIDs)
   return(ungroup(res))

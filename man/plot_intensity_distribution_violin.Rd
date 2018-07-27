@@ -2,15 +2,23 @@
 % Please edit documentation in R/tidyMS_R6_TransitionCorrelations.R
 \name{plot_intensity_distribution_violin}
 \alias{plot_intensity_distribution_violin}
+\alias{plot_intensity_distribution_density}
 \title{visualize intensity distributions}
 \usage{
 plot_intensity_distribution_violin(data, config)
+
+plot_intensity_distribution_density(data, config)
 }
 \description{
+visualize intensity distributions
+
 visualize intensity distributions
 }
 \examples{
 config <- skylineconfig$clone(deep=TRUE)
 analysis <- transformIntensities(sample_analysis, config, log2)
 plot_intensity_distribution_violin(analysis, config)
+config <- skylineconfig$clone(deep=TRUE)
+analysis <- transformIntensities(sample_analysis, config, log2)
+plot_intensity_distribution_density(analysis, config)
 }

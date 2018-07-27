@@ -17,5 +17,6 @@ data <- spectronautDIAData250_analysis
 res <- workflow_correlation_preprocessing(data,config)
 }
 \seealso{
-Other workflow functions: \code{\link{workflow_NA_preprocessing}}
+Other workflow functions: \code{\link{workflow_NA_preprocessing}},
+  \code{\link{workflow_Q_NA_filtered_ProteinIntensities}}
 }

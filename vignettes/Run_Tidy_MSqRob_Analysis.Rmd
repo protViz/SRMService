@@ -52,7 +52,7 @@ resData <- setup_analysis(PAnnotated, config)
 ```{r}
 summary(resData$EG.Qvalue[!is.na(resData$FG.Quantity) ])
 
-resData <- setLarge_Q_ValuesToNA(resData, config)
+resData <- removeLarge_Q_Values(resData, config)
 resData <- setSmallIntensitiesToNA(resData, config,threshold = 100)
 
 sum(is.na(select(resData, config$table$getWorkIntensity())))

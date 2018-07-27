@@ -16,7 +16,7 @@ NA
 \examples{
 
 config <- spectronautDIAData250_config$clone(deep=T)
-res <- setLarge_Q_ValuesToNA(spectronautDIAData250_analysis, config)
+res <- removeLarge_Q_Values(spectronautDIAData250_analysis, config)
 res <- rankPrecursorsByIntensity(res,config)
 X <-res \%>\% select(c(config$table$hierarchyKeys(), srm_meanInt, srm_meanIntRank)) \%>\% distinct()
 X \%>\% arrange(!!!syms(c(config$table$hierarchyKeys()[1], "srm_meanIntRank"  )))
