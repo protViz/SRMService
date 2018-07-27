@@ -12,7 +12,7 @@ applys func - a funciton workin on matrix for each protein and returning a vecto
 }
 \examples{
 x <- applyToHierarchyBySample(sample_analysis, skylineconfig, medpolishPly)
-
 x \%>\% dplyr::select(skylineconfig$table$hierarchyKeys()[1] ,  medpolishPly) \%>\% unnest()
-
+x <- applyToHierarchyBySample(sample_analysis, skylineconfig, medpolishPly, hierarchy_level = 2, unnest=TRUE)
+x <- applyToHierarchyBySample(sample_analysis, skylineconfig, medpolishPly, hierarchy_level = 2)
 }

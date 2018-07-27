@@ -505,6 +505,7 @@ extractIntensities <- function(x, configuration){
 }
 
 #' compute tukeys median polish from peptide or precursor intensities
+#' @family matrix manipulation
 #' @export
 medpolishPly <- function(x){
   X <- medpolish(x,na.rm=TRUE, trace.iter=FALSE, maxiter = 10);
@@ -530,9 +531,9 @@ reestablishCondition <- function(data,
 #' @export
 #' @examples
 #' x <- applyToHierarchyBySample(sample_analysis, skylineconfig, medpolishPly)
-#'
 #' x %>% dplyr::select(skylineconfig$table$hierarchyKeys()[1] ,  medpolishPly) %>% unnest()
-#'
+#' x <- applyToHierarchyBySample(sample_analysis, skylineconfig, medpolishPly, hierarchy_level = 2, unnest=TRUE)
+#' x <- applyToHierarchyBySample(sample_analysis, skylineconfig, medpolishPly, hierarchy_level = 2)
 applyToHierarchyBySample <- function( data, config, func, hierarchy_level = 1, unnest = FALSE)
 {
   x <- as.list( match.call() )
@@ -543,7 +544,7 @@ applyToHierarchyBySample <- function( data, config, func, hierarchy_level = 1, u
   xnested <- xnested %>% mutate(!!makeName := map(spreadMatrix, func))
   xnested <- xnested %>% mutate(!!makeName := map2(data,!!sym(makeName),reestablishCondition, config ))
   if(unnest){
-    protIntensity <- figs3 %>% select(config$table$hierarchyKeys()[1:hierarchy_level], makeName) %>% unnest()
+    xnested <- xnested %>% select(config$table$hierarchyKeys()[1:hierarchy_level], makeName) %>% unnest()
   }
   return(xnested)
 }

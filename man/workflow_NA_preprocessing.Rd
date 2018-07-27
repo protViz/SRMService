@@ -19,6 +19,6 @@ tmp <-workflow_NA_preprocessing(data, config)
 stopifnot(isFALSE(is.grouped_df(tmp)))
 }
 \seealso{
-Other workflow functions: \code{\link{workflow_Q_NA_filtered_ProteinIntensities}},
+Other workflow functions: \code{\link{workflow_Q_NA_filtered_Hierarchy}},
   \code{\link{workflow_correlation_preprocessing}}
 }
