@@ -13,8 +13,8 @@
 
 #' sets intensities to NA if maxQValue_Threshold exceeded
 #' @export
-#' @examples
 #' @family filter functions
+#' @examples
 #' analysis <- SRMService::spectronautDIAData250_analysis
 #' config <- SRMService::spectronautDIAData250_config$clone(deep=TRUE)
 #' res <- removeLarge_Q_Values(analysis, config)
@@ -400,21 +400,27 @@ rankPrecursorsByIntensity <- function(data, config){
 #' res <- rankPrecursorsByIntensity(res,config)
 #' res %>% select(c(config$table$hierarchyKeys(),"srm_meanInt"  ,"srm_meanIntRank")) %>% distinct() %>% arrange(!!!syms(c(config$table$hierarchyKeys()[1],"srm_meanIntRank")))
 #' mean_na <- function(x){mean(x, na.rm=TRUE)}
-#' aggregateTopNIntensities(res, config, func = mean_na, N=3)
+#' res <- aggregateTopNIntensities(res, config, func = mean_na, N=3)
+#' stopifnot(names(res) %in% c("data", "newconfig"))
 #'
-aggregateTopNIntensities <- function(data , config, func, N){
+aggregateTopNIntensities <- function(data , config, func, N, hierarchy_level = 1){
   x <- as.list( match.call() )
   newcol <- make.names(glue::glue("srm_{deparse(x$func)}_{x$N}"))
   topInt <- data %>%
     dplyr::filter_at( "srm_meanIntRank", any_vars(. <= N)) %>%
-    dplyr::group_by(!!!syms(c( config$table$hierarchyKeys()[1],
+    dplyr::group_by(!!!syms(c( config$table$hierarchyKeys()[1:hierarchy_level],
                                config$table$sampleName,
                                config$table$fileName,
+                               config$table$isotopeLabel,
                                config$table$factorKeys())))
   sumTopInt <- topInt %>%
-    dplyr::summarize( !!newcol := func(!!sym(config$table$getWorkIntensity()))  )
-  message("Column added : ", newcol)
-  return(sumTopInt)
+    dplyr::summarize( !!newcol := func(!!sym(config$table$getWorkIntensity())),
+                      ident_qValue = min(!!sym(config$table$ident_qValue)))
+
+  newconfig <- make_reduced_hierarchy_config(config,
+                                          workIntensity = newcol,
+                                          hierarchy = config$table$hierarchyKeys()[1:hierarchy_level] )
+  return(list(data = sumTopInt, newconfig = newconfig))
 }
 
 # Summarise NAs on lowest hierarchy ----

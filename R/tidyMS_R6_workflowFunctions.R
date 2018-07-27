@@ -41,7 +41,7 @@ workflow_correlation_preprocessing <- function(data, config, minCorrelation = 0.
   keepCorrelated <- rankPrecursorsByIntensity(keepCorrelated, config)
   qvalFiltImputed <- impute_correlationBased(keepCorrelated, config)
   mean_na <- function(x){mean(x, na.rm = TRUE)}
-  proteinIntensities <- aggregateTopNIntensities(qvalFiltImputed,config,func = mean_na,N=3)
+  proteinIntensities <- aggregateTopNIntensities(qvalFiltImputed, config, func = mean_na,N=3)
 
   # collect stats
   stats <- list(stat_input = stat_input,
@@ -53,7 +53,8 @@ workflow_correlation_preprocessing <- function(data, config, minCorrelation = 0.
   x <- bind_rows(stats)
   stats <- add_column(x, processing = names(stats),.before = 1)
 
-  return(list(data = proteinIntensities, stats = stats))
+
+  return(list(data = proteinIntensities$data, stats = stats, newconfig = proteinIntensities$newconfig))
 }
 
 #' filter QVAlues and NA's and factor information
@@ -78,6 +79,7 @@ workflow_NA_preprocessing <- function(data, config, percent = 60, factor_level =
   stat_qval <- hierarchyCounts(data_NA_QVal, config)
   resNACondition <- proteins_WithXPeptidesInCondition(data_NA_QVal, config, percent = percent, factor_level = factor_level)
   data_NA_QVal_condition <- inner_join(resNACondition, data_NA_QVal )
+
   # Complete cases
   data_NA_QVal_condition <- complete( data_NA_QVal_condition ,
                                       nesting(!!!syms(c(config$table$hierarchyKeys(), config$table$isotopeLabel))),
@@ -117,6 +119,7 @@ workflow_Q_NA_filtered_Hierarchy <- function(data, config, percent = 60, hierarc
   figs3 <- applyToHierarchyBySample(resDataLog, config, medpolishPly, hierarchy_level = hierarchy_level)
 
   protIntensity <- figs3 %>% select(config$table$hierarchyKeys()[1:hierarchy_level], medpolishPly) %>% unnest()
+
   return(protIntensity)
 }
 

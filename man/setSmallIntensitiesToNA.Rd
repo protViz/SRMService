@@ -22,3 +22,6 @@ res1 <- setSmallIntensitiesToNA(analysis, config, threshold=1, intensityNewName 
 res1000 <- setSmallIntensitiesToNA(analysis, config2, threshold=1000, intensityNewName = "Int1000" )
 sum(is.na(res1[[config$table$getWorkIntensity()]])) < sum(is.na(res1000[[config2$table$getWorkIntensity()]]))
 }
+\seealso{
+Other filter functions: \code{\link{removeLarge_Q_Values}}
+}

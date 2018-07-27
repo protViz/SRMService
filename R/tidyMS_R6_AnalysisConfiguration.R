@@ -82,7 +82,7 @@ AnalysisTableAnnotation <- R6Class("AnalysisTableAnnotation",
                                      },
                                      valueVars = function(){
                                        "Columns containing values"
-                                       c( self$getWorkIntensity(), self$ident_qValue)
+                                       c( self$getWorkIntensity(), self$ident_qValue, self$ident_Score)
                                      }
                                    )
 )
@@ -99,6 +99,14 @@ AnalysisConfiguration <- R6Class("AnalysisConfiguration",
                                    }
                                  )
 )
+
+#' Make reduced hierarchy configuration
+#' @export
+make_reduced_hierarchy_config <- function(config, workIntensity , hierarchy ){
+  newConfig <-config$clone(deep=TRUE)
+  newConfig$table$hierarchy = hierarchy
+  newConfig$table$workIntensity = workIntensity
+}
 
 # Functions - Configuration ----
 #' Helper function to extract all value slots in an R6 object
