@@ -152,7 +152,12 @@ setup_analysis <- function(data, configuration ,sep="~"){
 
   for(i in 1:length(table$factors))
   {
-    data <- unite(data, UQ(sym(table$factorKeys()[i])), table$factors[[i]],remove = FALSE)
+    if( length(table$factors[[i]]) > 1){
+      data <- unite(data, UQ(sym(table$factorKeys()[i])), table$factors[[i]],remove = FALSE)
+    }else{
+      newname <-table$factorKeys()[i]
+      data <- dplyr::mutate(data, !!newname := !!sym(table$factors[[i]]))
+    }
   }
 
   sampleName <- table$sampleName

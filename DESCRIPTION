@@ -54,6 +54,7 @@ Collate:
     'tidyMS_MQProteinGroups.R'
     'tidyMS_R6_AnalysisConfiguration.R'
     'tidyMS_R6_ConcreteConfigurations.R'
+    'tidyMS_R6_Modelling.R'
     'tidyMS_R6_TransitionCorrelations.R'
     'tidyMS_R6_workflowFunctions.R'
     'transitionCorrelations.R'
