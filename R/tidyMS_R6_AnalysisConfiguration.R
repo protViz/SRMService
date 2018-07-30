@@ -563,7 +563,11 @@ applyToHierarchyBySample <- function( data, config, func, hierarchy_level = 1, u
   xnested <- xnested %>% mutate(!!makeName := map(spreadMatrix, func))
   xnested <- xnested %>% mutate(!!makeName := map2(data,!!sym(makeName),reestablishCondition, config ))
   if(unnest){
-    xnested <- xnested %>% select(config$table$hierarchyKeys()[1:hierarchy_level], makeName) %>% unnest()
+    unnested <- xnested %>% select(config$table$hierarchyKeys()[1:hierarchy_level], makeName) %>% unnest()
+    newconfig <- make_reduced_hierarchy_config(config,
+                                               workIntensity = makeName,
+                                               hierarchy = config$table$hierarchyKeys()[1:hierarchy_level])
+    return(list(unnested = unnested, newconfig = newconfig))
   }
   return(xnested)
 }
