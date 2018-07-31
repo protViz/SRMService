@@ -53,7 +53,7 @@ resData <- setup_analysis(PAnnotated, config)
 summary(resData$EG.Qvalue[!is.na(resData$FG.Quantity) ])
 
 resData <- removeLarge_Q_Values(resData, config)
-resData <- setSmallIntensitiesToNA(resData, config,threshold = 100)
+resData <- remove_small_intensities(resData, config,threshold = 100)
 
 sum(is.na(select(resData, config$table$getWorkIntensity())))
 resDataLog <- transformIntensities(resData,config, transformation = log2)

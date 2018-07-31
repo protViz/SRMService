@@ -20,7 +20,7 @@
 #' res <- removeLarge_Q_Values(analysis, config)
 removeLarge_Q_Values <- function(data, config){
   data <- data %>%
-    filter(!!sym(config$table$ident_qValue) < config$parameter$maxQValue_Threshold)
+    dplyr::filter(!!sym(config$table$ident_qValue) < config$parameter$maxQValue_Threshold)
   return(data)
 }
 
@@ -35,16 +35,13 @@ removeLarge_Q_Values <- function(data, config){
 #' config$table$getWorkIntensity()
 #'
 #' config2 <- config$clone(deep=TRUE)
-#' res1 <- setSmallIntensitiesToNA(analysis, config, threshold=1, intensityNewName = "Int1" )
-#' res1000 <- setSmallIntensitiesToNA(analysis, config2, threshold=1000, intensityNewName = "Int1000" )
-#' sum(is.na(res1[[config$table$getWorkIntensity()]])) < sum(is.na(res1000[[config2$table$getWorkIntensity()]]))
-setSmallIntensitiesToNA <- function(data, config, threshold = 1 , intensityNewName ="IntensitiesWithNA"){
-  resData <- data %>% mutate_at(vars(!!intensityNewName := config$table$getWorkIntensity()) ,
-                                function(x){ifelse(x < threshold, NA, x)} )
-  config$table$setWorkIntensity(intensityNewName)
+#' res1 <- remove_small_intensities(analysis, config, threshold=1 )
+#' res1000 <- remove_small_intensities(analysis, config2, threshold=1000 )
+#' stopifnot(nrow(res1) >  nrow(res1000))
+remove_small_intensities <- function(data, config, threshold = 1){
+  resData <- data %>% dplyr::filter(!!sym(config$table$getWorkIntensity()) >= threshold)
   return(resData)
 }
-
 #' Transform intensity
 #' @export
 #' @examples
@@ -489,7 +486,7 @@ proteins_WithXPeptidesInCondition <- function(data , config,  percent = 60, fact
 
 
   nrow(summaryPerPrecursor)
-  summaryPerPrecursorFiltered <- summaryPerPrecursor %>% filter(fraction > percent)
+  summaryPerPrecursorFiltered <- summaryPerPrecursor %>% dplyr::filter(fraction > percent)
   nrow(summaryPerPrecursorFiltered)
 
   summaryPerPrecursorFilteredIDs <- summaryPerPrecursorFiltered %>%
@@ -499,7 +496,7 @@ proteins_WithXPeptidesInCondition <- function(data , config,  percent = 60, fact
   res <- summaryPerPrecursorFilteredIDs %>%
     group_by(!!!syms(c(config$table$hierarchyKeys()[1], table$factorKeys()[1:factor_level]))) %>%
     summarise(n=n()) %>%
-    filter(n >= config$parameter$min_peptides_protein) %>% arrange(n)
+    dplyr::filter(n >= config$parameter$min_peptides_protein) %>% arrange(n)
   head(res)
 
   res <- res %>%

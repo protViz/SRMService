@@ -15,5 +15,5 @@ config <- SRMService::spectronautDIAData250_config$clone(deep=TRUE)
 res <- removeLarge_Q_Values(analysis, config)
 }
 \seealso{
-Other filter functions: \code{\link{setSmallIntensitiesToNA}}
+Other filter functions: \code{\link{remove_small_intensities}}
 }

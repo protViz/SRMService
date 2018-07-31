@@ -161,7 +161,7 @@ qvalFiltImputed %>% select(protein_Id,fragment_Id, starts_with("srm_")) %>% dist
 ```{r}
 
 mean_na <- function(x){mean(x,na.rm=TRUE)}
-proteinIntensities <- aggregateTopNIntensities(qvalFiltImputed,config,func = mean_na,N=3)
+proteinIntensities <- aggregateTopNIntensities(qvalFiltImputed,config,func = mean_na,N=3)$data
 
 # nest transtions
 xnested <- qvalFiltImputed %>% group_by_at(config$table$hierarchyKeys()[1]) %>% nest()
@@ -173,6 +173,7 @@ linePlotHierarchy_configuration(xnested$data[[4]], xnested$protein_Id[4],config)
 figs3 <- xnested %>% mutate(plotlog = map2(data, UQ(sym(config$table$hierarchyKeys()[1])) ,
                                            linePlotHierarchy_configuration, config))
 ff <- proteinIntensities %>% group_by_at(config$table$hierarchyKeys()[1]) %>% nest(.key = "topNIntensity")
+
 figs4 <- inner_join(figs3,ff)
 
 linePlotHierarchy_QuantLine(figs4$plotlog[[1]], figs4$topNIntensity[[1]], "srm_mean_na_3", config)
