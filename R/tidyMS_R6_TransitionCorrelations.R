@@ -416,7 +416,7 @@ aggregateTopNIntensities <- function(data , config, func, N, hierarchy_level = 1
 
   newconfig <- make_reduced_hierarchy_config(config,
                                           workIntensity = newcol,
-                                          hierarchy = config$table$hierarchyKeys()[1:hierarchy_level] )
+                                          hierarchy = config$table$hierarchy[1:hierarchy_level])
   return(list(data = sumTopInt, newconfig = newconfig))
 }
 

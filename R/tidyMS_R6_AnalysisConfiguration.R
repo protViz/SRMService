@@ -102,10 +102,14 @@ AnalysisConfiguration <- R6Class("AnalysisConfiguration",
 
 #' Make reduced hierarchy configuration
 #' @export
+#' @examples
+#' make_reduced_hierarchy_config(skylineconfig, "testintensity", skylineconfig$table$hierarchy[1:2])
+#'
 make_reduced_hierarchy_config <- function(config, workIntensity , hierarchy ){
   newConfig <-config$clone(deep=TRUE)
   newConfig$table$hierarchy = hierarchy
   newConfig$table$workIntensity = workIntensity
+  return(newConfig)
 }
 
 # Functions - Configuration ----
@@ -525,8 +529,12 @@ extractIntensities <- function(x, configuration){
 
 #' compute tukeys median polish from peptide or precursor intensities
 #' @family matrix manipulation
+#' @param name if TRUE returns the name of the summary column
 #' @export
-medpolishPly <- function(x){
+medpolishPly <- function(x, name=FALSE){
+  if(name){
+    return("medpolish")
+  }
   X <- medpolish(x,na.rm=TRUE, trace.iter=FALSE, maxiter = 10);
   res <- tibble("sampleName" = names(X$col) , medpolish = X$col + X$overall)
   res
@@ -563,10 +571,10 @@ applyToHierarchyBySample <- function( data, config, func, hierarchy_level = 1, u
   xnested <- xnested %>% mutate(!!makeName := map(spreadMatrix, func))
   xnested <- xnested %>% mutate(!!makeName := map2(data,!!sym(makeName),reestablishCondition, config ))
   if(unnest){
-    unnested <- xnested %>% select(config$table$hierarchyKeys()[1:hierarchy_level], makeName) %>% unnest()
+    unnested <- xnested %>% dplyr::select(config$table$hierarchyKeys()[1:hierarchy_level], makeName) %>% unnest()
     newconfig <- make_reduced_hierarchy_config(config,
-                                               workIntensity = makeName,
-                                               hierarchy = config$table$hierarchyKeys()[1:hierarchy_level])
+                                               workIntensity = func(name=TRUE),
+                                               hierarchy = config$table$hierarchy[1:hierarchy_level])
     return(list(unnested = unnested, newconfig = newconfig))
   }
   return(xnested)

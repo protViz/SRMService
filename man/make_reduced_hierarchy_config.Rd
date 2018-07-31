@@ -9,3 +9,7 @@ make_reduced_hierarchy_config(config, workIntensity, hierarchy)
 \description{
 Make reduced hierarchy configuration
 }
+\examples{
+make_reduced_hierarchy_config(skylineconfig, "testintensity", skylineconfig$table$hierarchy[1:2])
+
+}

@@ -4,7 +4,10 @@
 \alias{medpolishPly}
 \title{compute tukeys median polish from peptide or precursor intensities}
 \usage{
-medpolishPly(x)
+medpolishPly(x, name = FALSE)
+}
+\arguments{
+\item{name}{if TRUE returns the name of the summary column}
 }
 \description{
 compute tukeys median polish from peptide or precursor intensities
