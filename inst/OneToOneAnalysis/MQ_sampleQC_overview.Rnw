@@ -10,8 +10,7 @@
 \cfoot{\thepage\ of \pageref{LastPage}}
 
 
-\title{Functional Genomics Center Zuerich \Sexpr{projectNumber}  \\ Order: \Sexpr{OID}: QC analysis for sample preparation and LC-MS}
-%\title{FGCZ Two-Group Analysis for: \Sexpr{projectNumber}\\
+\title[FGCZ p\Sexpr{projectID} order \Sexpr{orderID}]{Functional Genomics Center Zuerich \Sexpr{projectID}  \\ Order: \Sexpr{orderID}: QC analysis for sample preparation and LC-MS}
 \author{\Sexpr{triggeredUser}}
 \begin{document}
 \SweaveOpts{concordance=TRUE}
