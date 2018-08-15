@@ -11,8 +11,9 @@
 
 
 \title[FGCZ p\Sexpr{projectID} order \Sexpr{orderID}]{Functional Genomics Center Zuerich \Sexpr{projectID}  \\ Order: \Sexpr{orderID}: QC analysis for sample preparation and LC-MS}
-\author{\Sexpr{triggeredUser}}
+
 \begin{document}
+
 \SweaveOpts{concordance=TRUE}
 
 \graphicspath{{/usr/local/lib/R/site-library/SRMService/samples/images/}{.}}
