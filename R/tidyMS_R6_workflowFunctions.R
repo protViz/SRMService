@@ -160,13 +160,17 @@ workflow_NA_preprocessing <- function(data, config, percent = 60, factor_level =
 #' config <- spectronautDIAData250_config$clone(deep=T)
 #' tmp <-workflow_Q_NA_filtered_Hierarchy(data, config, hierarchy_level=1)
 #' nrow(tmp)
-workflow_Q_NA_filtered_Hierarchy <- function(data, config, percent = 60, hierarchy_level=1, factors_level=1){
+workflow_Q_NA_filtered_Hierarchy <- function(data,
+                                             config,
+                                             percent = 60,
+                                             hierarchy_level=1,
+                                             factor_level=1){
   stat_input <- hierarchyCounts(data, config)
   data_NA <- removeLarge_Q_Values(data, config)
   data_NA <- summariseQValues(data_NA, config)
   data_NA_QVal <- data_NA %>% filter_at( "srm_QValueMin" , all_vars(. < config$parameter$qValThreshold )   )
   stat_qval <- hierarchyCounts(data_NA_QVal, config)
-  resNACondition <- proteins_WithXPeptidesInCondition(data_NA_QVal, config, percent =percent)
+  resNACondition <- proteins_WithXPeptidesInCondition(data_NA_QVal, config, percent =percent, factor_level = factor_level)
   data_NA_QVal_condition <- inner_join(resNACondition, data_NA_QVal )
 
   resDataLog <- SRMService::transformIntensities(data_NA_QVal_condition , config, log2)
@@ -174,14 +178,7 @@ workflow_Q_NA_filtered_Hierarchy <- function(data, config, percent = 60, hierarc
   resDataLog <- applyToIntensityMatrix(resDataLog, config, robust_scale)
 
   figs3 <- applyToHierarchyBySample(resDataLog, config, medpolishPly, hierarchy_level = hierarchy_level)
-
   protIntensity <- figs3 %>% select(config$table$hierarchyKeys()[1:hierarchy_level], medpolishPly) %>% unnest()
-
   return(protIntensity)
 }
-
-
-#' anova anlyse
-#'
-
 

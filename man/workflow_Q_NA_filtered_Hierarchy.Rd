@@ -5,7 +5,7 @@
 \title{Get Protein Intensities after QValue NA filtering and medianpolish}
 \usage{
 workflow_Q_NA_filtered_Hierarchy(data, config, percent = 60,
-  hierarchy_level = 1, factors_level = 1)
+  hierarchy_level = 1, factor_level = 1)
 }
 \description{
 Get Protein Intensities after QValue NA filtering and medianpolish

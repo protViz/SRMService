@@ -144,14 +144,14 @@ quantable::simpleheatmap(bb, margin=c(15,5))
 ### Rank precursors by Intensity
 
 ```{r}
-qvalFiltCorr %>% select(protein_Id,fragment_Id, srm_NrNotNAs) %>% distinct()
+qvalFiltCorr %>% select(protein_Id,precursor_Id, srm_NrNotNAs) %>% distinct()
 qvalFiltCorrSI <- rankPrecursorsByIntensity(qvalFiltCorr, config)
 
 config$table$getWorkIntensity()
-qvalFiltCorrSI %>% select(protein_Id,fragment_Id, starts_with("srm_")) %>% distinct()
+qvalFiltCorrSI %>% select(protein_Id,precursor_Id, starts_with("srm_")) %>% distinct()
 
 qvalFiltImputed <- impute_correlationBased(qvalFiltCorrSI, config)
-qvalFiltImputed %>% select(protein_Id,fragment_Id, starts_with("srm_")) %>% distinct()
+qvalFiltImputed %>% select(protein_Id,precursor_Id, starts_with("srm_")) %>% distinct()
 
 ```
 

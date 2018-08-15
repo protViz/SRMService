@@ -85,7 +85,7 @@ Fixed effects
 ```{r}
 fixed <- c("coding")
 #Random effects, for label-free data, it is best to always keep "Sequence"
-random <- c("fragment_Id","R.FileName" )
+random <- c("precursor_Id","R.FileName" )
 ```
 
 #Do you want to save the model?

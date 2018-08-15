@@ -2,6 +2,7 @@
 #' @export
 #' @example
 #' make_contrast(c("a- b", "c -d "), levels = c("a","b","c","d") )
+#'
 make_contrast <- function(contrasts, levels)
 {
   n <- length(levels)

@@ -181,6 +181,11 @@ Grp2Analysis <- setRefClass("Grp2Analysis",
                                 tmp$log2FC <- tmp$effectSize
                                 return(tmp)
                               },
+                              getFit = function(){
+                                fit <- limma::lmFit(grp2$getNormalized()$data, grp2$getDesignMatrix())
+                                fit.eb <- limma::eBayes(fit)
+                                return(list(fit= fit, fit.eb = fit.eb))
+                              },
                               getModPValuesCI = function(){
                                 fit <- limma::lmFit(grp2$getNormalized()$data, grp2$getDesignMatrix())
                                 fit.eb <- limma::eBayes(fit)

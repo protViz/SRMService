@@ -133,7 +133,7 @@ summariseQValues <- function(data,
     ))
   print(colnames(qValueSummaries))
   data <- dplyr::inner_join(data, qValueSummaries, by=c(precursorID))
-  message(glue::glue("Columns added {QValueMin}, {QValueNR}"))
+  message(glue::glue("Columns added: {QValueMin}, {QValueNR}"))
   return(data)
 }
 
@@ -471,7 +471,10 @@ rankPrecursorsByNAs <- function(data, config){
 #' res3 <- proteins_WithXPeptidesInCondition(data, config,percent = 90)
 #' tmp2 <- inner_join(res3, data )
 #' hierarchyCounts(tmp2, config)
-proteins_WithXPeptidesInCondition <- function(data , config,  percent = 60, factor_level=1 ){
+proteins_WithXPeptidesInCondition <- function(data,
+                                              config,
+                                              percent = 60,
+                                              factor_level=1 ){
   table <- config$table
   summaryColumn = "srm_NrNotNAs"
   column <- config$table$getWorkIntensity()
@@ -484,20 +487,16 @@ proteins_WithXPeptidesInCondition <- function(data , config,  percent = 60, fact
     dplyr::summarise(!!"nr" := n(), !!summaryColumn := fun(!!sym(column))) %>%
     mutate(fraction = !!sym(summaryColumn)/!!sym("nr") * 100 ) %>% ungroup()
 
-
-  nrow(summaryPerPrecursor)
   summaryPerPrecursorFiltered <- summaryPerPrecursor %>% dplyr::filter(fraction > percent)
-  nrow(summaryPerPrecursorFiltered)
+
 
   summaryPerPrecursorFilteredIDs <- summaryPerPrecursorFiltered %>%
     select(!!!syms(c(table$hierarchyKeys(),table$factorKeys()[1:factor_level]))) %>% distinct()
-
   # count nr peptides per protein in condition
   res <- summaryPerPrecursorFilteredIDs %>%
     group_by(!!!syms(c(config$table$hierarchyKeys()[1], table$factorKeys()[1:factor_level]))) %>%
     summarise(n=n()) %>%
     dplyr::filter(n >= config$parameter$min_peptides_protein) %>% arrange(n)
-  head(res)
 
   res <- res %>%
     select(config$table$hierarchyKeys()[1]) %>% distinct()
