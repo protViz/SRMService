@@ -14,7 +14,9 @@ fgcz_render_One2OneReport <- function(maxquanttxtdirectory = '.', reportFileBase
 
    texFile <- paste(reportFileBaseName, "tex", sep='.')
    RnwFile <- paste(reportFileBaseName, "Rnw", sep=".")
-
+   
+   projectID <<- xxxx
+   orderID <<- xxxx
 
    msms_d <<- read.table(msmsName, header = T, sep="\t")
    summ <<- read.table(summary, header = F, sep="\t")
