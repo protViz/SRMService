@@ -113,7 +113,12 @@ bool_moreThanOnePeptide <- Fulldat$Razor...unique.peptides > 1
 #f <- "proteinGroups_FGCZ2grp_Intensity.txt"
 #dat <- read.table(f, header=T, sep="\t",row.names=1)
 quantDat <- dat[bool_moreThanOnePeptide,]
-i_dat <- SRMService:::ImputeValuesInProtMatrixForRowsWithZeros(quantDat)
+
+# i_dat <- SRMService:::ImputeValuesInProtMatrixForRowsWithZeros(quantDat)
+message("remove all rows containing values with 0.")
+quantDat[quantDat == 0] <- NA
+i_dat <- na.omit(quantDat)
+
 n_i_dat <- SRMService:::NormalizeWithMedianPQMatrix(i_dat)
 sf <- "appliedScaleFactors_Median.txt"
 scaleF <- read.table(sf, sep=" ", header=F)
