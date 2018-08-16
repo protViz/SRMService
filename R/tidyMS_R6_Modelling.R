@@ -26,7 +26,7 @@ rocs <- function(data ,response, predictor){
 #' config$parameter$min_nr_of_notNA  <- 20
 #' data <- spectronautDIAData250_analysis
 #' x <- sample(data$protein_Id,2)
-#' data <- data %>% filter(protein_Id %in% x)
+#' data <- data %>% dplyr::filter(protein_Id %in% x)
 #' res <- compute_roc(data, config)
 #' head(res)
 #' i <- 1

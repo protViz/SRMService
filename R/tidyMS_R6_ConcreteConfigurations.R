@@ -37,7 +37,7 @@ craeteSkylineConfiguration <- function(isotopeLabel="Isotope.Label", ident_qValu
 #' config$table$factors[["Sample_id"]] = "Sample.Name"
 #' # ACHTUNG ##
 #' # when making changes to this object you need to regenerate the data.
-#' usethis::use_data(spectronautconfig, overwrite = TRUE)
+#' #usethis::use_data(spectronautconfig, overwrite = TRUE)
 createSpectronautPeptideConfiguration <- function(isotopeLabel="Isotope.Label", ident_qValue="EG.Qvalue"){
   atable <- AnalysisTableAnnotation$new()
   atable$fileName = "R.FileName"

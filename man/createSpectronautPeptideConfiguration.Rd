@@ -19,5 +19,5 @@ config$table$factors[["age"]] = "age"
 config$table$factors[["Sample_id"]] = "Sample.Name"
 # ACHTUNG ##
 # when making changes to this object you need to regenerate the data.
-usethis::use_data(spectronautconfig, overwrite = TRUE)
+#usethis::use_data(spectronautconfig, overwrite = TRUE)
 }

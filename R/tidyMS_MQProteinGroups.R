@@ -148,3 +148,30 @@ tidyMQ_All <- function(txt_directory){
   return(resProt_Pep_Evidence)
 }
 
+#' Generating mq all level file.
+#'
+#' @export
+#' @examples
+#'
+#' txt_directory <- system.file("samples/maxquant_txt/MSQC1", package = "SRMService")
+#' allData <- tidyMQ_All(txt_directory)
+#' zip_archive <- "inst/samples/maxquant_txt/twoGroup3Reps.zip"
+#' res <- tidyMQ_PeptideProtein(zip_archive)
+tidyMQ_PeptideProtein <- function(txt_directory){
+  if(grepl("\\.zip$",txt_directory)){
+    proteins_txt <- read.csv(unz(txt_directory,"proteinGroups.txt"),
+                             header=TRUE, sep="\t", stringsAsFactors = FALSE)
+    peptides_txt <- read.csv(unz(txt_directory,"peptides.txt"),
+                             header=TRUE, sep="\t", stringsAsFactors = FALSE)
+
+  }else{
+    proteins_txt <- file.path(txt_directory, "proteinGroups.txt")
+    peptides_txt <- file.path(txt_directory, "peptides.txt")
+
+  }
+  mq_proteins <- tidyMQ_ProteinGroups(proteins_txt)
+  mq_peptides <- tidyMQ_Peptides(peptides_txt)
+  resProt_Pep <- inner_join(mq_proteins,mq_peptides, by = c("protein.group.id", "raw.file"))
+  return(resProt_Pep)
+}
+

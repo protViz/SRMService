@@ -115,7 +115,7 @@
 #' data <- SRMService::spectronautDIAData250
 #' xx <-  SRMService::spectronautDIAData250_config
 #'
-#' spectronautDIAData250_analysis <- setup_analysis(data,xx)
+#' spectronautDIAData250_analysis <- setup_analysis(data,spectronautDIAData250_config)
 #' usethis::use_data( spectronautDIAData250_analysis , overwrite = TRUE )
 "spectronautDIAData250_analysis"
 
