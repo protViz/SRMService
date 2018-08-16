@@ -14,12 +14,14 @@ tidyMQ_ProteinGroups <- function(MQProteinGroups){
 
   pint <- select(MQProteinGroups, "protein.group.id" = "id", starts_with("intensity."))
   pintLFQ <- select(MQProteinGroups, "protein.group.id" = "id", starts_with("lfq.intensity."))
-  meta <- select(MQProteinGroups, "protein.names" = "majority.protein.ids",
+  meta <- select(MQProteinGroups,
+                 "protein.ids" = "protein.ids",
+                 "majority.protein.ids" = "majority.protein.ids",
                  "nr.peptides" = "peptides",
                  "fasta.headers",
                  "protein.group.id" = "id",
                  "protein.score" = "score"
-  ) %>% mutate(top.protein.name = sapply(strsplit(protein.names, split=";"),function(x){x[1]}))
+  )
 
   pint <- pint %>%
     gather(key="raw.file", value="mq.protein.intensity", starts_with("intensity.")) %>%
@@ -58,6 +60,7 @@ tidyMQ_Peptides <- function(MQPeptides){
   }
   colnames(MQPeptides) <- tolower(colnames(MQPeptides))
   #return(MQPeptides)
+  sc <- sym("potential.contaminant")
   meta <- select(MQPeptides, "peptide.id" = "id",
                  "sequence",
                  "proteins",
@@ -65,7 +68,9 @@ tidyMQ_Peptides <- function(MQPeptides){
                  "protein.group.id"="protein.group.ids",
                  "peptide.score" ="score",
                  "pep",
-                 "missed.cleavages")
+                 "missed.cleavages",
+                 "potential.contaminant") %>%
+    mutate(!!"potential.contaminant" := case_when( !!sc == "" ~ FALSE, !!sc == "+" ~ TRUE))
 
   pint <- select(MQPeptides,"peptide.id"= "id", starts_with("intensity."))
 
