@@ -32,10 +32,10 @@
 #' }
 #' @param workdir specify working directory
 #'
-RMD_MQ_Quant_2GrpAnalysis <- function(workdir= getwd()){
-  .scriptCopyHelperVec(c("/RunScripts/Run_MQ_QuantTwoGroupAnalysis.R","/reports/Grp2Analysis.Rmd",
-                         "/reports/Grp2Analysis_Empty.Rmd",
-                         "/reports/Grp2Analysis_MissingInOneCondtion.Rmd"), workdir = workdir )
+RMD_MQ_Quant_2GrpAnalysis <- function(workdir = getwd()){
+  .scriptCopyHelperVec(c("/RunScripts/Run_MQ_QuantTwoGroupAnalysis.R","/vignettes/Grp2Analysis.Rmd",
+                         "/vignettes/Grp2Analysis_Empty.Rmd",
+                         "/vignettes/Grp2Analysis_MissingInOneCondtion.Rmd"), workdir = workdir )
 }
 
 #' copies the RMD and Run files for 2 grp analysis based on a PD (protein discoverer) in your working directory.
