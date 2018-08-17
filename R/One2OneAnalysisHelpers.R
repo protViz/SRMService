@@ -1,7 +1,48 @@
 #' perform rendering
 #' @importFrom utils Stangle Sweave head packageVersion read.csv read.table write.table
 #' @export
-fgcz_render_One2OneReport <- function(maxquanttxtdirectory = '.', reportFileBaseName = 'MQ_sampleQC_overview'){
+fgcz_render_One2OneReport <- function(maxquanttxtdirectory = '.', reportFileBaseName = 'fgcz_MQ_QC_report'){
+
+  RMD_QC1To1_Old(maxquanttxtdirectory)
+  # 2018-08-17 -> convention and cleaning with CP
+  # e.g. mq_msms_filename
+  mq_msms_filename <- "msms.txt"
+  mq_summary_filename <- "summary.txt"
+  mq_evidence_filename <- "evidence.txt"
+  mq_proteinGroups_filename <- "proteinGroups.txt"
+  mq_parameters_filename <- "parameters.txt"
+  mq_peptides_filename <- "peptides.txt"
+
+  texFile <- paste(reportFileBaseName, "tex", sep='.')
+  RnwFile <- paste(reportFileBaseName, "Rnw", sep=".")
+
+  projectID <<- "xxxx"
+  orderID <<- "xxxx"
+
+  message("Reading in txt tables from maxquant ...")
+  mq_msms <<- read.table(mq_msms_filename, header = TRUE, sep ="\t")
+  mq_summary <<- read.table(mq_summary_filename, header = FALSE, sep ="\t")
+  mq_evidence <<- read.table(mq_evidence_filename, header = TRUE, sep ="\t")
+  mq_proteinGroups <<- read.csv(mq_proteinGroups_filename, sep ="\t", stringsAsFactors = FALSE, header = TRUE)
+  mq_parameters <<- read.table(mq_parameters_filename, header = TRUE, sep = "\t")
+  mq_peptides <<- read.csv(mq_peptides_filename, sep ="\t", stringsAsFactors = FALSE, header = TRUE)
+
+  message("Preprocessing ...")
+  mq_proteinGroups_intensities <<- mq_proteinGroups[,grep("^Intensity\\.", colnames(mq_proteinGroups))]
+  rownames(mq_proteinGroups_intensities) <- mq_proteinGroups$Majority.protein.IDs
+
+  bool_moreThanOnePeptide <<- mq_proteinGroups$Razor...unique.peptides > 1
+
+  # get Sample QC running
+  message("Now Sweaving and LaTeXing ...")
+  Stangle(RnwFile)
+  Sweave(RnwFile)
+  tools::texi2dvi(texFile, pdf = TRUE)
+}
+
+
+
+__fgcz_render_One2OneReport <- function(maxquanttxtdirectory = '.', reportFileBaseName = 'MQ_sampleQC_overview'){
 
    RMD_QC1To1_Old(maxquanttxtdirectory)
 
@@ -14,7 +55,7 @@ fgcz_render_One2OneReport <- function(maxquanttxtdirectory = '.', reportFileBase
 
    texFile <- paste(reportFileBaseName, "tex", sep='.')
    RnwFile <- paste(reportFileBaseName, "Rnw", sep=".")
-   
+
    projectID <<- "xxxx"
    orderID <<- "xxxx"
 
