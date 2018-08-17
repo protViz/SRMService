@@ -1,6 +1,6 @@
 #' create contrast matrix to simplify work with multicomp. (taken from MSqRob)
 #' @export
-#' @example
+#' @examples
 #' make_contrast(c("a- b", "c -d "), levels = c("a","b","c","d") )
 #'
 make_contrast <- function(contrasts, levels)

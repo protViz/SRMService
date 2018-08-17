@@ -9,6 +9,7 @@
 #' config$parameter$min_nr_of_notNA  <- 20
 #' data <- spectronautDIAData250_analysis
 #' res <- workflow_correlation_preprocessing(data,config)
+#' names(res)
 #'
 workflow_correlation_preprocessing <- function(data, config, minCorrelation = 0.7){
   stat_input <- hierarchyCounts(data, config)
@@ -171,13 +172,15 @@ workflow_Q_NA_filtered_Hierarchy <- function(data,
   data_NA <- summariseQValues(data_NA, config)
   data_NA_QVal <- data_NA %>% filter_at( "srm_QValueMin" , all_vars(. < config$parameter$qValThreshold )   )
   stat_qval <- hierarchyCounts(data_NA_QVal, config)
-  resNACondition <- proteins_WithXPeptidesInCondition(data_NA_QVal, config, percent =percent, factor_level = factor_level)
+  resNACondition <- proteins_WithXPeptidesInCondition(data_NA_QVal,
+                                                      config,
+                                                      percent =percent,
+                                                      factor_level = factor_level)
   data_NA_QVal_condition <- inner_join(resNACondition, data_NA_QVal )
 
   resDataLog <- SRMService::transformIntensities(data_NA_QVal_condition , config, log2)
 
   resDataLog <- applyToIntensityMatrix(resDataLog, config, robust_scale)
-
   figs3 <- applyToHierarchyBySample(resDataLog, config, medpolishPly, hierarchy_level = hierarchy_level)
   protIntensity <- figs3 %>% select(config$table$hierarchyKeys()[1:hierarchy_level], medpolishPly) %>% unnest()
   return(protIntensity)

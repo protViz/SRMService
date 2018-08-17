@@ -25,6 +25,7 @@ peptides_txt <- read.csv(peptides_txt, header=TRUE, stringsAsFactors = FALSE, se
 tmp <-paste(peptides_txt$Evidence.IDs, collapse = ";")
 tmp <- strsplit(tmp, ";")
 length(unique(tmp[[1]]))
+
 mq_peptides <-tidyMQ_Peptides(peptides_txt)
 head(mq_peptides)
 }

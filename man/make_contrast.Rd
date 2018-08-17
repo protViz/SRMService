@@ -9,3 +9,7 @@ make_contrast(contrasts, levels)
 \description{
 create contrast matrix to simplify work with multicomp. (taken from MSqRob)
 }
+\examples{
+make_contrast(c("a- b", "c -d "), levels = c("a","b","c","d") )
+
+}
