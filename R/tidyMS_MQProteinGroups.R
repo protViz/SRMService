@@ -42,6 +42,7 @@ tidyMQ_ProteinGroups <- function(MQProteinGroups){
 #' @examples
 #' peptides_txt <- system.file("samples/maxquant_txt/MSQC1/peptides.txt",package = "SRMService")
 #' peptides_txt <- read.csv(peptides_txt, header=TRUE, stringsAsFactors = FALSE, sep="\t")
+#' colnames(peptides_txt)
 #' tmp <-paste(peptides_txt$Evidence.IDs, collapse = ";")
 #' tmp <- strsplit(tmp, ";")
 #' length(unique(tmp[[1]]))
@@ -79,12 +80,12 @@ tidyMQ_Peptides <- function(MQPeptides){
     gather(key="raw.file", value="peptide.intensity", starts_with("intensity.")) %>%
     mutate(raw.file = gsub("intensity.","",raw.file))
 
-
-  pint <- select(MQPeptides,"peptide.id"= "id", starts_with("intensity."))
-  PepLFQIntensities <- pint %>%
-    gather(key="raw.file", value="peptide.intensity", starts_with("intensity.")) %>%
-    mutate(raw.file = gsub("intensity.","",raw.file))
-
+  if(0){
+    pint <- select(MQPeptides,"peptide.id"= "id", starts_with("intensity."))
+    PepLFQIntensities <- pint %>%
+      gather(key="raw.file", value="peptide.lfq.intensity", starts_with("intensity.")) %>%
+      mutate(raw.file = gsub("intensity.","",raw.file))
+  }
 
   idtype <- select(MQPeptides, "peptide.id"="id", starts_with("identification.type."))
   if(ncol(idtype) > 1){ # if only one file no id type is provided
@@ -143,11 +144,11 @@ tidyMQ_Evidence <- function(Evidence){
 tidyMQ_All <- function(txt_directory){
   if(grepl("\\.zip$",txt_directory)){
     proteins_txt <- read.csv(unz(txt_directory,"proteinGroups.txt"),
-                            header=TRUE, sep="\t", stringsAsFactors = FALSE)
+                             header=TRUE, sep="\t", stringsAsFactors = FALSE)
     peptides_txt <- read.csv(unz(txt_directory,"peptides.txt"),
-                            header=TRUE, sep="\t", stringsAsFactors = FALSE)
+                             header=TRUE, sep="\t", stringsAsFactors = FALSE)
     evidence_txt <- read.csv(unz(txt_directory,"evidence.txt"),
-                            header=TRUE, sep="\t", stringsAsFactors = FALSE)
+                             header=TRUE, sep="\t", stringsAsFactors = FALSE)
   }else{
     proteins_txt <- file.path(txt_directory, "proteinGroups.txt")
     peptides_txt <- file.path(txt_directory, "peptides.txt")

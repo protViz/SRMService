@@ -158,10 +158,12 @@ workflow_NA_preprocessing <- function(data, config, percent = 60, factor_level =
 #' config <- spectronautDIAData250_config$clone(deep=T)
 #' data <- spectronautDIAData250_analysis
 #' tmp <-workflow_Q_NA_filtered_Hierarchy(data, config, hierarchy_level=2)
-#' nrow(tmp)
+#' nrow(tmp$data)
 #' config <- spectronautDIAData250_config$clone(deep=T)
-#' tmp <-workflow_Q_NA_filtered_Hierarchy(data, config, hierarchy_level=1)
-#' nrow(tmp)
+#' res <-workflow_Q_NA_filtered_Hierarchy(data, config, hierarchy_level=1)
+#' nrow(res$data)
+#' res$newconfig
+#' hierarchyCounts(res$data, res$newconfig)
 workflow_Q_NA_filtered_Hierarchy <- function(data,
                                              config,
                                              percent = 60,
@@ -182,7 +184,14 @@ workflow_Q_NA_filtered_Hierarchy <- function(data,
 
   resDataLog <- applyToIntensityMatrix(resDataLog, config, robust_scale)
   figs3 <- applyToHierarchyBySample(resDataLog, config, medpolishPly, hierarchy_level = hierarchy_level)
+  colnames(figs3$data[[1]])
+  colnames(figs3$medpolishPly[[1]])
+
   protIntensity <- figs3 %>% select(config$table$hierarchyKeys()[1:hierarchy_level], medpolishPly) %>% unnest()
-  return(protIntensity)
+
+  newconfig <- make_reduced_hierarchy_config(config,
+                                             workIntensity = "medpolish",
+                                             hierarchy = config$table$hierarchy[1:hierarchy_level])
+  return(list(data = protIntensity, newconfig = newconfig))
 }
 
