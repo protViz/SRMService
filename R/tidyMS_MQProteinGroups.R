@@ -52,6 +52,7 @@ tidyMQ_ProteinGroups <- function(MQProteinGroups){
 #' tmp <-paste(peptides_txt$Evidence.IDs, collapse = ";")
 #' tmp <- strsplit(tmp, ";")
 #' length(unique(tmp[[1]]))
+#'
 #' mq_peptides <-tidyMQ_Peptides(peptides_txt)
 #' head(mq_peptides)
 tidyMQ_Peptides <- function(MQPeptides){
@@ -69,7 +70,7 @@ tidyMQ_Peptides <- function(MQPeptides){
                  "peptide.score" ="score",
                  "pep",
                  "missed.cleavages",
-                 "potential.contaminant") %>%
+                 "potential.contaminant" = ends_with("contaminant")) %>%
     mutate(!!"potential.contaminant" := case_when( !!sc == "" ~ FALSE, !!sc == "+" ~ TRUE))
 
   pint <- select(MQPeptides,"peptide.id"= "id", starts_with("intensity."))
