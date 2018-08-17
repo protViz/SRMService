@@ -3,11 +3,13 @@
 #' @export
 #' @family workflow functions
 #' @examples
+#' library(SRMService)
 #' rm(list=ls())
 #' config <- spectronautDIAData250_config$clone(deep=T)
 #' config$parameter$min_nr_of_notNA  <- 20
 #' data <- spectronautDIAData250_analysis
 #' res <- workflow_correlation_preprocessing(data,config)
+#'
 workflow_correlation_preprocessing <- function(data, config, minCorrelation = 0.7){
   stat_input <- hierarchyCounts(data, config)
 
@@ -108,7 +110,6 @@ workflow_corr_filter_impute <- function(data,config, minCorrelation =0.6){
   )
   x <- bind_rows(stats)
   stats <- add_column(x, processing = names(stats),.before = 1)
-
   return(qvalFiltImputed)
 }
 

@@ -556,6 +556,7 @@ reestablishCondition <- function(data,
 
 #' applys func - a funciton workin on matrix for each protein and returning a vector of the same length as the number of samples
 #' @export
+#' @importFrom purrr map
 #' @examples
 #' x <- applyToHierarchyBySample(sample_analysis, skylineconfig, medpolishPly)
 #' x %>% dplyr::select(skylineconfig$table$hierarchyKeys()[1] ,  medpolishPly) %>% unnest()

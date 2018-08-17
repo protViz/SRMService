@@ -78,6 +78,13 @@ tidyMQ_Peptides <- function(MQPeptides){
     gather(key="raw.file", value="peptide.intensity", starts_with("intensity.")) %>%
     mutate(raw.file = gsub("intensity.","",raw.file))
 
+
+  pint <- select(MQPeptides,"peptide.id"= "id", starts_with("intensity."))
+  PepLFQIntensities <- pint %>%
+    gather(key="raw.file", value="peptide.intensity", starts_with("intensity.")) %>%
+    mutate(raw.file = gsub("intensity.","",raw.file))
+
+
   idtype <- select(MQPeptides, "peptide.id"="id", starts_with("identification.type."))
   if(ncol(idtype) > 1){ # if only one file no id type is provided
     PepIDType <- idtype %>%

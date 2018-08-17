@@ -133,7 +133,7 @@ summariseQValues <- function(data,
     ))
   print(colnames(qValueSummaries))
   data <- dplyr::inner_join(data, qValueSummaries, by=c(precursorID))
-  message(glue::glue("Columns added: {QValueMin}, {QValueNR}"))
+  message(glue::glue("Columns added : {QValueMin}, {QValueNR}"))
   return(data)
 }
 
@@ -248,6 +248,7 @@ decorelatedPly <- function(x, config , corThreshold = 0.7){
 
 #' marks decorrelated elements
 #' @export
+#' @importFrom purrr map
 #' @section TODO: do something with warnings of type "the standard deviation is zero".
 #' @section TODO: do investigate In max(x, na.rm = TRUE) : no non-missing arguments to max; returning -Inf
 markDecorrelated <- function(data , config, minCorrelation = 0.7){
@@ -281,6 +282,7 @@ simpleImpute <- function(data){
 
 #' imputation based on correlation assumption
 #' @export
+#' @importFrom purrr map
 impute_correlationBased <- function(x , config){
   nestedX <- x %>%  group_by_at(config$table$hierarchyKeys()[1]) %>% nest()
   nestedX <- nestedX %>% dplyr::mutate(spreadMatrix = map(data, extractIntensities, config))
@@ -380,7 +382,7 @@ rankPrecursorsByIntensity <- function(data, config){
                                rankFunction = function(x){min_rank(desc(x))}
   )
 
-  message("Columns added:", summaryColumn, " ",  rankColumn)
+  message("Columns added : ", summaryColumn, " ",  rankColumn)
   return(data)
 }
 
@@ -444,7 +446,7 @@ rankPrecursorsByNAs <- function(data, config){
                                 rankColumn = rankColumn,
                                 rankFunction = function(x){min_rank(desc(x))}
   )
-  message("Columns added:", summaryColumn, " ",  rankColumn)
+  message("Columns added : ", summaryColumn, " ",  rankColumn)
   return(data)
 }
 

@@ -17,6 +17,7 @@ Imports:
     missForest,
     pander,
     plyr,
+    purrr,
     quantable (>= 0.3.4),
     R6,
     reshape2,

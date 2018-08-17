@@ -19,6 +19,7 @@ rocs <- function(data ,response, predictor){
 
 #' Apply roc analysis on main factor on lowest level
 #' @export
+#' @importFrom purrr map
 #' @examples
 #' library(tidyverse)
 #' library(SRMService)
@@ -57,6 +58,7 @@ compute_roc <- function(data, config){
 #' Perform anova analysis
 #' @export
 #' @importFrom glue glue
+#' @importFrom purrr map
 #' @examples
 #'
 #' library(SRMService)
