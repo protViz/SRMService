@@ -549,7 +549,8 @@ reestablishCondition <- function(data,
   table <- configuration$table
   xx <- data %>%  select(c(table$sampleName,
                            table$factorKeys(),
-                           table$fileName)) %>% distinct()
+                           table$fileName,
+                           table$isotopeLabel)) %>% distinct()
   res <- inner_join(xx,medpolishRes, by=table$sampleName)
   res
 }
