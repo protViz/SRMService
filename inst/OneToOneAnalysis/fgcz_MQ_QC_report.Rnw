@@ -1,21 +1,20 @@
+%% cd MQ_txt_directory && R -e "library(SRMService); SRMService::fgcz_render_One2OneReport()" 
 \pdfminorversion=4
-\documentclass[a4paper]{article}
+%\documentclass[a4paper]{article}
+\documentclass[a4paper,DIV19]{scrartcl}
+
 \usepackage{a4wide}
 \usepackage[utf8]{inputenc}
 \usepackage{lastpage}
 \usepackage{fancyhdr}
 \usepackage[section]{placeins}
 \usepackage{hyperref}
+\usepackage{graphics}
+\usepackage{rotating}
 \pagestyle{fancy}
 \cfoot{\thepage\ of \pageref{LastPage}}
 
 
-\title{FGCZ p\Sexpr{projectID} order \Sexpr{orderID} \\ Order: \Sexpr{orderID}: QC analysis for sample preparation and LC-MS}
-\begin{document}
-
-\SweaveOpts{concordance=TRUE}
-
-\graphicspath{{/usr/local/lib/R/site-library/SRMService/samples/images/}{.}}
 
 <<loadingLibrarys, echo=FALSE, result=HIDE>>=
 library(lattice)
@@ -23,7 +22,26 @@ library(xtable)
 library(gplots)
 library(affy)
 library(missForest)
+library(yaml);
 @
+
+<<loadYAML, echo=FALSE, result=HIDE>>=
+idx <- grep("WU.*yaml", lf<-list.files("../")); 
+Y <- yaml.load_file(file.path("..", lf[idx[1]]))
+txt <- Y$application$input[[1]][[1]]
+projectID <<- regmatches(txt,regexpr("p[0-9]+",txt))
+workunitID <<- Y$job_configuration$workunit_id
+@
+
+\graphicspath{{/usr/local/lib/R/site-library/SRMService/samples/images/}{.}}
+
+\begin{document}
+\SweaveOpts{concordance=TRUE}
+
+
+\title{FGCZ \Sexpr{projectID} WU\Sexpr{workunitID}: QC analysis for sample preparation and LC-MS}
+
+
 \maketitle
 
 
@@ -208,10 +226,14 @@ if (table(qc_summary_table=="OK")[1] <= acceptableNotOKsInTable) QC_yn <- "QC pa
 
 
 <<printQCTable, echo=FALSE, results=tex>>=
-# #qc_summary_table[,2] <- colorColumnIf(qc_summary_table[,2],3)
-# #print(xtable(qc_summary_table, caption="Quality Control Summary", sanitize.text.function = function(x){x}), include.rownames=FALSE)
-print(xtable(qc_summary_table, caption="Quality Control Summary, (1) Fold change threshold: 1.5, pValue threshold: 0.05 this is the percentage of false positives. As this is a QC analysis which consists of biochemical replicas where we do not expect to see real changes. (2) single hit proteins are proteins identified with only one peptide. This percentage can vary extensively and is largely sample dependent. Since we are going to quantify proteins with at least 2 peptides this shows the percentage one may loose for quantitation."), include.rownames=FALSE)
+print(xtable(qc_summary_table,
+      caption = "Quality Control Summary, (1) Fold change threshold: 1.5, pValue threshold: 0.05 this is the percentage of false positives. As this is a QC analysis which consists of biochemical replicas where we do not expect to see real changes. (2) single hit proteins are proteins identified with only one peptide. This percentage can vary extensively and is largely sample dependent. Since we are going to quantify proteins with at least 2 peptides this shows the percentage one may loose for quantitation."),
+      include.rownames = FALSE,
+      scalebox= "0.8"
+      )
 @
+
+
 \vspace{1cm}
 The QC result is the following:
 
@@ -479,7 +501,11 @@ heatmap.2(asinh(as.matrix(qc_intensities)), dendrogram = "none", trace = "none",
 samples <- gsub(x = names(qc_intensities), pattern = "Intensity.\\d+_", replacement = "")
 colors <- rainbow(length(samples))
 maxY <- max(qc_intensities)/5
-plotDensity(qc_intensities, xlim=c(0,maxY), col=colors, lwd=1, main="Distribution of untreated Signals (no transformation)", xlab="Quantitative value (x-axis is truncated)")
+plotDensity(qc_intensities,
+            xlim=c(0,maxY),
+            col=colors, lwd=1,
+            main="Distribution of untreated Signals (no transformation)",
+            xlab="Quantitative value (x-axis is truncated)")
 legend("topright", samples, text.col=colors)
 @
   \caption{Density plot for quantifyable proteins (not transformed)}
@@ -488,7 +514,7 @@ legend("topright", samples, text.col=colors)
 
 
 \begin{figure}[!htb]
-<<plotDensityASINHTransformation, echo=FALSE, fig=TRUE,  width=6, height=8 >>=
+<<plotDensityASINHTransformation, echo=FALSE, fig=TRUE,  width=6, height=8>>=
 plotDensity(asinh(qc_intensities), col=colors, lwd=1, main="Distributions of imputed signals before normalization", xlab="asinh(Quantvalue)")
 legend("topright", samples, text.col=colors)
 @
@@ -497,8 +523,10 @@ legend("topright", samples, text.col=colors)
 \end{figure}
 
 \begin{figure}[!htb]
-<<plotDensityNormalizedASINHTransformation echo=FALSE, fig=TRUE,  width=6, height=8>>=
-plotDensity(asinh(qc_normalized_intensities), col=colors, lwd=1, main="Signal Distributions (imputed and normalized)", xlab="asinh(Quantvalue)")
+<<plotDensityNormalizedASINHTransformation, echo=FALSE, fig=TRUE,  width=6, height=8>>=
+plotDensity(asinh(qc_normalized_intensities),
+            col=colors, lwd=1,
+            main="Signal Distributions (imputed and normalized)", xlab="asinh(Quantvalue)")
 legend("topright", samples, text.col=colors)
 @
   \caption{Density plot for normalized values based on imputed matrix (asinh)}
@@ -552,5 +580,16 @@ ALL INFORMATION, INTELLECTUAL PROPERTY RIGHTS, PRODUCTS AND / OR SERVICES ARE PR
 \\
 \\
 Deep thanks go to C. Panse, S. Barkow, C. Trachsel, P. Nanni, C. Fortes and W. Wolski who provided stimulating environment, discussions and/or a template for this QC report.
+
+\appendix
+
+\section{Session information}
+\label{section:session}
+An overview of the package versions used to produce this document are
+shown below.
+
+<<sessioninfo, results=tex, echo=FALSE>>=
+toLatex(sessionInfo())
+@
 
 \end{document}
