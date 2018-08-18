@@ -119,7 +119,7 @@ RMD_QC1To1_Old <- function(workdir = getwd(), minimal = TRUE){
   }
 }
 
-__RMD_QC1To1_Old <- function(workdir = getwd(), minimal = TRUE){
+.RMD_QC1To1_Old <- function(workdir = getwd(), minimal = TRUE){
   if(!minimal){
     .scriptCopyHelperVec(c("/OneToOneAnalysis/Run_1To1_oldStyle.R",
                            "/OneToOneAnalysis/MQ_sampleQC_overview.Rnw",

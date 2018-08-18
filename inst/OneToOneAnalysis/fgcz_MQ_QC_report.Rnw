@@ -257,7 +257,10 @@ betterNames <- gsub(pattern = "^[[:digit:]]+_", replacement = "", gsub(pattern =
 evenBetterNames <- gsub(pattern = "^[[:digit:]]+_", replacement = "", gsub(pattern = "^[[:digit:]]+_", replacement = "", betterNames))
 myFileTable <- as.matrix(cbind(as.character(files), evenBetterNames))
 colnames(myFileTable) <- c("original RawFileNames", "Short Names")
-print(xtable(myFileTable, caption="measured files"), size="\\normalsize", include.colnames=TRUE)
+print(xtable(myFileTable, caption="measured files"),
+  size="\\normalsize",
+  include.colnames = TRUE,
+  scalebox= "0.8")
 @
 
 
@@ -285,30 +288,29 @@ enzSpez <- unique(mq_summary[2,4])
 @
 
 \begin{verbatim}
-Maxquant version:  \Sexpr{mqVersion}
+MaxQuant version:  \Sexpr{mqVersion}
 
-Fasta database:  \Sexpr{fasta}
-Decoy mode:  \Sexpr{decoyMode}
-Enzyme:  \Sexpr{enz}
-Enzyme specificity:  \Sexpr{enzSpez}
+FASTA: \Sexpr{fasta}
+Decoy mode: \Sexpr{decoyMode}
+Enzyme: \Sexpr{enz}
+Enzyme specificity: \Sexpr{enzSpez}
 
-Protein FDR:  \Sexpr{protFDR}
-PSM FDR:  \Sexpr{psmFDR}
+Protein FDR: \Sexpr{protFDR}
+PSM FDR: \Sexpr{psmFDR}
 
-Variable modifications:  \Sexpr{varMods}
+Variable modifications: \Sexpr{varMods}
 \end{verbatim}
 
 
-
-
 \subsection{Overview of the data quality}
-Information on the LC MS/MS data acquired for each sample:\\
-- number of MS scans;\\
-- number MS/MS scans;\\
-- number of peptide sequences identified\\
-\\
+Information on the LC MS/MS data acquired for each sample:
+\begin{itemize}
+\item number of MS scans,
+\item number MS/MS scans,
+\item number of peptide sequences identified.
+\end{itemize}
 
-Data are extracted from file "Summary.txt"
+Data are extracted from file \texttt{Summary.txt}.
 
 <<generateIdentTable, echo=FALSE>>=
 NumRows <- nrow(mq_summary)/2
@@ -328,7 +330,9 @@ colnames(topTable) <- betterheader
 
 
 <<printIdentTable, echo=FALSE, results=tex>>=
-print(xtable(topTable, caption="Overview on the assingment rates for each file"), size="\\small")
+print(xtable(topTable, caption="Overview on the assingment rates for each file"),
+  scalebox= "0.7",
+  size="\\small")
 
 @
 \pagebreak
@@ -454,13 +458,13 @@ histogram(~ mq_msms$Charge|mq_msms$Raw.file,
 
 mq_quantableProteins <- nrow(qc_intensities)
 #write out:
-(totProteins <- nrow(mq_proteinGroups))
-(msRuns <- ncol(qc_intensities))
-(grpSize <- ncol(qc_intensities)/2)
-(matWoZeros <- nrow(qc_intensities))
-(protsWithZeros <- totProteins - matWoZeros)
-(protWihtOnlyOne <- totProteins - mq_quantableProteins)
-(percQuant <- round((mq_quantableProteins*100)/totProteins,2))
+totProteins <- nrow(mq_proteinGroups)
+msRuns <- ncol(qc_intensities)
+grpSize <- ncol(qc_intensities)/2
+matWoZeros <- nrow(qc_intensities)
+protsWithZeros <- totProteins - matWoZeros
+protWihtOnlyOne <- totProteins - mq_quantableProteins
+percQuant <- round((mq_quantableProteins*100)/totProteins,2)
 
 colnames(qc_normalized_intensities) <- gsub(x = names(qc_normalized_intensities), pattern = "Intensity.\\d+_", replacement = "")
 colnames(qc_intensities) <- gsub(x = names(qc_intensities), pattern = "Intensity.\\d+_", replacement = "")

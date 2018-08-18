@@ -42,7 +42,7 @@ fgcz_render_One2OneReport <- function(maxquanttxtdirectory = '.', reportFileBase
 
 
 
-__fgcz_render_One2OneReport <- function(maxquanttxtdirectory = '.', reportFileBaseName = 'MQ_sampleQC_overview'){
+.fgcz_render_One2OneReport <- function(maxquanttxtdirectory = '.', reportFileBaseName = 'MQ_sampleQC_overview'){
 
    RMD_QC1To1_Old(maxquanttxtdirectory)
 
