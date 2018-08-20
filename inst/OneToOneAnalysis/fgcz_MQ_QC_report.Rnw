@@ -566,12 +566,36 @@ heatmap.2(as.matrix(cor(asinh(qc_normalized_intensities))),margin=c(15,10),trace
 
 
 
-\begin{figure}[!htb]
-<<pairsPlot, echo=FALSE, fig=TRUE, width=12, height=8>>=
-pairs(asinh(qc_normalized_intensities), main="Pairwise Intensities vs Intensities Correlation", pch=".", col="blue")
+<<pairs, echo=FALSE, fig=TRUE, width=16, height=16, include=FALSE>>=
+panel.cor <- function(x, y, digits = 2, prefix = "", cex.cor, ...)
+{
+  usr <- par("usr"); on.exit(par(usr))
+  par(usr = c(0, 1, 0, 1))
+  r <- abs(cor(x, y))
+  txt <- format(c(r, 0.123456789), digits = digits)[1]
+  txt <- paste0(prefix, txt)
+  if(missing(cex.cor)) cex.cor <- 0.8/strwidth(txt)
+  text(0.5, 0.5, txt, cex = cex.cor * r)
+}
+
+pairs(asinh(qc_normalized_intensities),
+  main = "Pairwise Intensities vs Intensities Correlation",
+  pch = '.',
+  col = rgb(0.1,0.1,0.7,
+    alpha = 0.4),
+  lower.panel = panel.cor)
 @
-  \caption{All Signals against all samples (hyperbolic arcsine transformation)}
-  \label{fig:pairPlot}
+
+\begin{figure}[!htb]
+
+\includegraphics[width=1.0\textwidth, keepaspectratio]{fgcz_MQ_QC_report-pairs}
+
+\caption{The {\emph scatterplot matrix} roughly determines if you have a
+linear correlation with the logarithmically transformed signal between
+multiple samples. The lower panels display the correlation between the
+corresponding samples.}
+
+\label{fig:pairPlot}
 \end{figure}
 
 
