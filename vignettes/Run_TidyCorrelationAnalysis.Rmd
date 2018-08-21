@@ -1,12 +1,12 @@
 ---
-title: "Example of data preprocessing"
+title: "Analyse correlation among precursors"
 author: "Functional Genomics Center Zurich"
 date: "`r format(Sys.time(), '%d %B, %Y')`"
 output:
   pdf_document: default
   html_document: default
 vignette: >
-  %\VignetteIndexEntry{FGCZ Two-Group Analysis}
+  %\VignetteIndexEntry{Analyse correlations among precursors}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---

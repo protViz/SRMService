@@ -1,12 +1,12 @@
 ---
-title: "Example of DIA data preprocessing"
+title: "DIA data analysis with MSqROB"
 author: "Functional Genomics Center Zurich"
 date: "`r format(Sys.time(), '%d %B, %Y')`"
 output:
   pdf_document: default
   html_document: default
 vignette: >
-  %\VignetteIndexEntry{FGCZ Two-Group Analysis}
+  %\VignetteIndexEntry{DIA data analysis with MSqROB}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
