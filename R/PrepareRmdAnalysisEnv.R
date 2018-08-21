@@ -108,6 +108,20 @@ RMD_LibraryGen_specLProzor <- function(workdir = getwd()){
 RMD_QC1To1_Old <- function(workdir = getwd(), minimal = TRUE){
   if(!minimal){
     .scriptCopyHelperVec(c("/OneToOneAnalysis/Run_1To1_oldStyle.R",
+                           "/OneToOneAnalysis/fgcz_MQ_QC_report.Rnw",
+                           "/OneToOneAnalysis/images/LFQ_QC_workflow.pdf",
+                           "/OneToOneAnalysis/images/Sweave.sty"), workdir = workdir)
+  }else{
+    .scriptCopyHelperVec(c("/OneToOneAnalysis/fgcz_MQ_QC_report.Rnw",
+                           "/OneToOneAnalysis/images/LFQ_QC_workflow.pdf",
+                           "/OneToOneAnalysis/images/Sweave.sty"), workdir = workdir)
+
+  }
+}
+
+.RMD_QC1To1_Old <- function(workdir = getwd(), minimal = TRUE){
+  if(!minimal){
+    .scriptCopyHelperVec(c("/OneToOneAnalysis/Run_1To1_oldStyle.R",
                            "/OneToOneAnalysis/MQ_sampleQC_overview.Rnw",
                            "/OneToOneAnalysis/images/LFQ_QC_workflow.pdf",
                            "/OneToOneAnalysis/images/Sweave.sty"), workdir = workdir)
