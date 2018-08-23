@@ -187,6 +187,8 @@ setup_analysis <- function(data, configuration ,sep="~"){
 }
 
 #' Complete cases
+#' @export
+#'
 completeCases <- function(data, config){
   data <- complete( data ,
                     nesting(!!!syms(c(config$table$hierarchyKeys(), config$table$isotopeLabel))),
@@ -364,7 +366,10 @@ summarizeHierarchy <- function(x, configuration, level = 1)
 # Functions - Missigness ----
 #' compute missing statistics
 #' @export
+#' @examples
+#'
 getMissingStats <- function(x, configuration, nrfactors = 1){
+  x <- completeCases(x, configuration)
   table <- configuration$table
   factors <- head(table$factorKeys(), nrfactors)
   missingPrec <- x %>% group_by_at(c(factors,
@@ -383,7 +388,13 @@ getMissingStats <- function(x, configuration, nrfactors = 1){
 #' Histogram summarizing missigness
 #' @export
 #' @examples
-#' missignessHistogram(sample_analysis,skylineconfig)
+#' library(tidyverse)
+#' library(SRMService)
+#' xx <- completeCases(sample_analysis,skylineconfig)
+#' skylineconfig$parameter$maxQValue_Threshold <- 0.01
+#' xx <- SRMService::removeLarge_Q_Values(sample_analysis, skylineconfig)
+#' xx <- completeCases(xx, skylineconfig)
+#' missignessHistogram(xx,skylineconfig)
 #' setNa <- function(x){ifelse(x < 100, NA, x)}
 #' sample_analysis %>% mutate(Area = setNa(Area)) -> sample_analysis
 #' missignessHistogram(sample_analysis,skylineconfig)
@@ -501,31 +512,6 @@ spreadValueVarsIsotopeLabel <- function(resData, configuration){
 
 # Computing protein Intensity summaries ---
 
-.ExtractMatrix <- function(x){
-  idx <- sapply(x,is.numeric)
-  xmat <- as.matrix(x[,idx])
-  rownames(xmat) <- x %>% select(which(!idx==TRUE)) %>% unite(x, sep="~") %>% pull(x)
-  xmat
-}
-
-#' Extract intensity column
-#' @export
-#' @examples
-#' library(dplyr)
-#' xnested <- sample_analysis %>%
-#'  group_by_at(skylineconfig$table$hierarchyKeys()[1]) %>%
-#'  tidyr::nest()
-#' xx <- extractIntensities(xnested$data[[1]],skylineconfig)
-#' stopifnot(dim(xx)==c(104,22))
-extractIntensities <- function(x, configuration){
-  table <- configuration$table
-  x <- x %>%
-    select( c( table$sampleName,
-               table$hierarchyKeys(TRUE)[1],
-               table$getWorkIntensity()) ) %>%
-    spread(table$sampleName, table$getWorkIntensity()) %>% .ExtractMatrix()
-  return(x)
-}
 
 #' compute tukeys median polish from peptide or precursor intensities
 #' @family matrix manipulation
@@ -593,11 +579,12 @@ applyToHierarchyBySample <- function( data, config, func, hierarchy_level = 1, u
 #' res <- summarize_cv(data, config)
 #' res$CV <- res$sd/res$mean
 summarize_cv <- function(data, config){
-
   intsym <- sym(config$table$getWorkIntensity())
   hierarchyFactor <- data %>%
     group_by(!!!syms( c(config$table$hierarchyKeys(), config$table$factorKeys()[1]) )) %>%
-    summarise(n = n(), sd = sd(!!intsym, na.rm = T), mean=mean(!!intsym, na.rm = T))
+    summarise(n = n(), sd = sd(!!intsym, na.rm = T), mean=mean(!!intsym, na.rm = T)) %>% ungroup()
+
+  hierarchyFactor <- hierarchyFactor %>% mutate_at(config$table$factorKeys()[1], funs(as.character) )
 
   hierarchy <- data %>%
     group_by(!!!syms( config$table$hierarchyKeys() )) %>%
@@ -620,9 +607,9 @@ summarize_cv <- function(data, config){
 #' plot_stat_density(res, config, stat="CV")
 plot_stat_density <- function(data, config, stat = c("CV","mean","sd")){
   stat <- match.arg(stat)
-  ggplot(data, aes_string(x = stat, colour = config$table$factorKeys()[1] )) +
+  p <- ggplot(data, aes_string(x = stat, colour = config$table$factorKeys()[1] )) +
     geom_line(stat="density")
-
+  return(p)
 }
 #' applys func - a funciton workin on matrix for each protein and returning a vector of the same length as the number of samples
 #' @export

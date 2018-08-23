@@ -5,7 +5,7 @@
 \title{perform rendering}
 \usage{
 fgcz_render_One2OneReport(maxquanttxtdirectory = ".",
-  reportFileBaseName = "MQ_sampleQC_overview")
+  reportFileBaseName = "fgcz_MQ_QC_report")
 }
 \description{
 perform rendering

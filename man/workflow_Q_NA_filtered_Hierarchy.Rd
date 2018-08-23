@@ -17,10 +17,12 @@ rm(list=ls())
 config <- spectronautDIAData250_config$clone(deep=T)
 data <- spectronautDIAData250_analysis
 tmp <-workflow_Q_NA_filtered_Hierarchy(data, config, hierarchy_level=2)
-nrow(tmp)
+nrow(tmp$data)
 config <- spectronautDIAData250_config$clone(deep=T)
-tmp <-workflow_Q_NA_filtered_Hierarchy(data, config, hierarchy_level=1)
-nrow(tmp)
+res <-workflow_Q_NA_filtered_Hierarchy(data, config, hierarchy_level=1)
+nrow(res$data)
+res$newconfig
+hierarchyCounts(res$data, res$newconfig)
 }
 \seealso{
 Other workflow functions: \code{\link{workflow_NA_preprocessing}},

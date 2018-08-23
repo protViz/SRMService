@@ -9,3 +9,6 @@ getMissingStats(x, configuration, nrfactors = 1)
 \description{
 compute missing statistics
 }
+\examples{
+
+}

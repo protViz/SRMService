@@ -15,6 +15,7 @@ parse MQ peptides.txt
 \examples{
 peptides_txt <- system.file("samples/maxquant_txt/MSQC1/peptides.txt",package = "SRMService")
 peptides_txt <- read.csv(peptides_txt, header=TRUE, stringsAsFactors = FALSE, sep="\\t")
+colnames(peptides_txt)
 tmp <-paste(peptides_txt$Evidence.IDs, collapse = ";")
 tmp <- strsplit(tmp, ";")
 length(unique(tmp[[1]]))

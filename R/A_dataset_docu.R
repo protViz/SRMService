@@ -45,7 +45,8 @@
 #' skylineconfig$table$factors[["Time"]] = "Sampling.Time.Point"
 #' data(skylinePRMSampleData)
 #' sample_analysis <- setup_analysis(skylinePRMSampleData, skylineconfig)
-#' #usethis::use_data( sample_analysis , overwrite = TRUE )
+#' sample_analysis <- SRMService::remove_small_intensities(sample_analysis, skylineconfig, threshold = 30)
+#' usethis::use_data( sample_analysis , overwrite = TRUE )
 "sample_analysis"
 
 # skylineSRM_HL_data ----

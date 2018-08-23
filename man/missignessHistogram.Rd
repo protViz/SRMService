@@ -10,7 +10,13 @@ missignessHistogram(x, configuration, showempty = TRUE, nrfactors = 1)
 Histogram summarizing missigness
 }
 \examples{
-missignessHistogram(sample_analysis,skylineconfig)
+library(tidyverse)
+library(SRMService)
+xx <- completeCases(sample_analysis,skylineconfig)
+skylineconfig$parameter$maxQValue_Threshold <- 0.01
+xx <- SRMService::removeLarge_Q_Values(sample_analysis, skylineconfig)
+xx <- completeCases(xx, skylineconfig)
+missignessHistogram(xx,skylineconfig)
 setNa <- function(x){ifelse(x < 100, NA, x)}
 sample_analysis \%>\% mutate(Area = setNa(Area)) -> sample_analysis
 missignessHistogram(sample_analysis,skylineconfig)

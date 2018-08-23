@@ -19,7 +19,8 @@ x <- sample(data$protein_Id,2)
 data <- data \%>\% dplyr::filter(protein_Id \%in\% x)
 res <- compute_roc(data, config)
 head(res)
-i <- 1
+i <- 2
+
 pROC::plot.roc(res$rocs[[i]], print.auc = TRUE, main = paste(res$protein_Id[[i]], "\\n",paste(res$rocs[[i]]$levels, collapse = " vs ")))
 unique(res$protein_Id)
 }

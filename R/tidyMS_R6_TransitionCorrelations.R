@@ -101,6 +101,22 @@ plot_intensity_distribution_density <- function(data, config){
     geom_line(stat="density")
 }
 
+#' visualize correlation among samples
+#' @export
+#' @family plotting
+#' @rdname plot_sample_correlation
+#' @examples
+#' config <- skylineconfig$clone(deep=TRUE)
+#' analysis <- transformIntensities(sample_analysis, config, log2)
+#' plot_sample_correlation(analysis, config)
+plot_sample_correlation <- function(data, config){
+  matrix <- toWideConfig(data, config, as.matrix = TRUE)
+  M <- cor(matrix, use="pairwise.complete.obs")
+  corrplot::corrplot.mixed(M,upper="square", lower="pie",  diag="u", tl.pos="lt")
+  invisible(M)
+}
+
+
 # Summarize Q Values ----
 #' Compute QValue summaries for each precursor
 #' @export
@@ -138,9 +154,38 @@ summariseQValues <- function(data,
 }
 
 
+# Intensities to wide ----
+
+.ExtractMatrix <- function(x){
+  idx <- sapply(x,is.numeric)
+  xmat <- as.matrix(x[,idx])
+  rownames(xmat) <- x %>% select(which(!idx==TRUE)) %>% unite(x, sep="~") %>% pull(x)
+  xmat
+}
 
 
-# Extact intensities in Wide format ----
+#' Extract intensity column in wide format using lowest hierarchy as key.
+#' @export
+#' @examples
+#' library(dplyr)
+#' xnested <- sample_analysis %>%
+#'  group_by_at(skylineconfig$table$hierarchyKeys()[1]) %>%
+#'  tidyr::nest()
+#' xx <- extractIntensities(xnested$data[[1]],skylineconfig)
+#' dim(xx)
+#' stopifnot(dim(xx)==c(103,22))
+extractIntensities <- function(x, configuration){
+  table <- configuration$table
+  x <- x %>%
+    select( c( table$sampleName,
+               table$hierarchyKeys(TRUE)[1],
+               table$getWorkIntensity()) ) %>%
+    spread(table$sampleName, table$getWorkIntensity()) %>% .ExtractMatrix()
+  return(x)
+}
+
+
+
 #' transform long to wide
 #' @export
 toWide <- function(data,
@@ -163,12 +208,11 @@ toWide <- function(data,
 #' res <- scale(res)
 #'
 toWideConfig <- function(data, config , as.matrix = FALSE){
-  res <- toWide( data, c(config$table$hierarchyKeys()[1],config$table$hierarchyKeys(TRUE)[1]) ,
-                 config$table$sampleName ,
+  res <- toWide( data, c(config$table$hierarchyKeys()[1], config$table$hierarchyKeys(TRUE)[1]) ,
+                 config$table$sampleName,
                  value = config$table$getWorkIntensity() )
   if(as.matrix){
     resMat <- as.matrix(select(res,-(1:2)))
-    head(resMat)
     names <- res %>% select(1:2) %>% unite(precursor_id, 1,2, sep="~") %>% pull()
     rownames(resMat) <- names
     res <- resMat

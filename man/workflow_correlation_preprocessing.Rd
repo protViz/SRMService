@@ -16,6 +16,7 @@ config <- spectronautDIAData250_config$clone(deep=T)
 config$parameter$min_nr_of_notNA  <- 20
 data <- spectronautDIAData250_analysis
 res <- workflow_correlation_preprocessing(data,config)
+names(res)
 
 }
 \seealso{
