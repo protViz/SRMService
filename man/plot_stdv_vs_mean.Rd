@@ -4,7 +4,7 @@
 \alias{plot_stdv_vs_mean}
 \title{stddev vs mean}
 \usage{
-plot_stdv_vs_mean(data)
+plot_stdv_vs_mean(data, config)
 }
 \description{
 stddev vs mean

@@ -622,6 +622,17 @@ plot_stat_density <- function(data, config, stat = c("CV","mean","sd")){
     geom_line(stat="density")
   return(p)
 }
+#'plot_stat_density_median
+#'@export
+plot_stat_density_median <- function(data, config, stat = c("CV","sd")){
+  stat <- match.arg(stat)
+  res <- data %>% mutate(top = ifelse(mean > median(mean),"top 50","bottom 50")) -> top50
+  p <- ggplot(top50, aes_string(x = stat, colour = config$table$factorKeys()[1])) +
+    geom_line(stat = "density") + facet_wrap("top")
+  return(p)
+}
+
+
 #' applys func - a funciton workin on matrix for each protein and returning a vector of the same length as the number of samples
 #' @export
 #' @examples
@@ -635,9 +646,25 @@ plot_stat_density <- function(data, config, stat = c("CV","mean","sd")){
 #' plot_stat_violin(res, config, stat="CV")
 plot_stat_violin <- function(data, config, stat = c("CV","mean","sd")){
   stat <- match.arg(stat)
-  p <- ggplot(data, aes_string(x = config$table$factorKeys(), y = stat  )) +
+  p <- ggplot(data, aes_string(x = config$table$factorKeys()[1], y = stat  )) +
     geom_violin()
   return(p)
+}
+#' plot_stat_violin_median
+#' @export
+plot_stat_violin_median <- function(data, config , stat=c("CV","sd")){
+  median.quartile <- function(x){
+    out <- quantile(x, probs = c(0.25,0.5,0.75))
+    names(out) <- c("ymin","y","ymax")
+    return(out)
+  }
+
+  res <- data %>% mutate(top = ifelse(mean > median(mean),"top 50","bottom 50")) -> top50
+  p <- ggplot(top50, aes_string(x = config$table$factorKeys()[1], y = "CV")) +
+    geom_violin() +
+    stat_summary(fun.y=median.quartile,geom='point', shape=3) + stat_summary(fun.y=median,geom='point', shape=1) +
+    facet_wrap("top")
+  print(p)
 }
 
 #' stddev vs mean
@@ -657,11 +684,11 @@ plot_stat_violin <- function(data, config, stat = c("CV","mean","sd")){
 #' datasqrt <- transformIntensities(data, config, transformation = sqrt)
 #' ressqrt <- summarize_cv(datasqrt, config)
 #' plot_stdv_vs_mean(ressqrt)
-plot_stdv_vs_mean <- function(data){
+plot_stdv_vs_mean <- function(data, config){
   p <- ggplot(data, aes(x = mean, y = abs(sd))) +
     geom_point() +
     geom_smooth(method="loess") +
-    facet_wrap(~Time) +
+    facet_wrap(config$table$factorKeys()[1]) +
     theme(axis.text.x = element_text(angle = 90, hjust = 1))
   return(p)
 }
