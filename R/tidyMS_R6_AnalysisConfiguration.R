@@ -338,31 +338,42 @@ summarizeProteins <- function( x, configuration ){
 #' @export
 #' @examples
 #' library(SRMService)
+#' library(tidyverse)
 #' skylineconfig <- craeteSkylineConfiguration(isotopeLabel="Isotope.Label.Type", ident_qValue="Detection.Q.Value")
 #' skylineconfig$table$factors[["Time"]] = "Sampling.Time.Point"
 #' data(skylinePRMSampleData)
 #'
 #' sample_analysis <- setup_analysis(skylinePRMSampleData, skylineconfig)
-#' summarizeHierarchy(sample_analysis, skylineconfig)
-#' summarizeHierarchy(sample_analysis, skylineconfig, level =2 )
-#' summarizeHierarchy(sample_analysis, skylineconfig, level =3 )
-#' summarizeHierarchy(sample_analysis, skylineconfig, level =4 )
-summarizeHierarchy <- function(x, configuration, level = 1)
+#' res <- summarizeHierarchy(sample_analysis, skylineconfig)
+#' res2 <- summarizeHierarchy(sample_analysis, skylineconfig, factor_level=1)
+#' summarizeHierarchy(sample_analysis, skylineconfig, hierarchy_level =2, factor_level=0 )
+#' summarizeHierarchy(sample_analysis, skylineconfig, hierarchy_level =3 )
+#' summarizeHierarchy(sample_analysis, skylineconfig, hierarchy_level =4 )
+#'
+summarizeHierarchy <- function(x,
+                               configuration,
+                               hierarchy_level = 1,
+                               factor_level=0)
 {
-  hierarchy <- names(configuration$table$hierarchy)
-  print(length(hierarchy))
-  if(length(hierarchy) <= level){
-    warning("There is less hierarchy levels than : ", level)
+  hierarchy <- configuration$table$hierarchyKeys()
+  factors <- configuration$table$factorKeys()[ifelse(factor_level < 1, 0, 1): factor_level]
+
+  if(length(hierarchy) <= hierarchy_level){
+    warning("There is less hierarchy levels than : ", hierarchy_level)
     return(NULL)
   }
 
-  hierarchy <- hierarchy[level:length(hierarchy)]
-  precursor <- x %>% select(hierarchy) %>% distinct()
-  x3 <- precursor %>% group_by_at(hierarchy[1]) %>%
-    dplyr::summarize_at( hierarchy[-1], n_distinct)
+  hierarchy <- hierarchy[hierarchy_level:length(hierarchy)]
+  precursor <- x %>% select(hierarchy, factors) %>% distinct()
+  if(length(hierarchy[-1]) > 1){
+    x3 <- precursor %>% group_by_at(c(factors,hierarchy[1])) %>%
+      dplyr::summarize_at( hierarchy[-1],  funs(n_distnict = n_distinct))
+  }else{
+    x3 <- precursor %>% group_by_at(c(factors,hierarchy[1])) %>%
+      dplyr::summarize_at( vars(!!(hierarchy[-1]) := hierarchy[-1]),  funs(n_distnict = n_distinct))
+  }
   return(x3)
 }
-
 # Functions - Missigness ----
 #' compute missing statistics
 #' @export
@@ -591,7 +602,7 @@ summarize_cv <- function(data, config){
     summarise(n = n(), sd = sd(!!intsym,na.rm = T), mean=mean(!!intsym,na.rm = T))
   hierarchy <- mutate(hierarchy, !!config$table$factorKeys()[1] := "All")
   res <- bind_rows(hierarchyFactor,hierarchy)
-  res %>% mutate(CV = sd/mean) -> res
+  res %>% mutate(CV = sd/mean*100) -> res
   return(res)
 }
 #' applys func - a funciton workin on matrix for each protein and returning a vector of the same length as the number of samples
@@ -624,8 +635,8 @@ plot_stat_density <- function(data, config, stat = c("CV","mean","sd")){
 #' plot_stat_violin(res, config, stat="CV")
 plot_stat_violin <- function(data, config, stat = c("CV","mean","sd")){
   stat <- match.arg(stat)
-  p <- ggplot(data, aes_string(x = stat, colour = config$table$factorKeys()[1] )) +
-    geom_line(stat="density")
+  p <- ggplot(data, aes_string(x = config$table$factorKeys(), y = stat  )) +
+    geom_violin()
   return(p)
 }
 

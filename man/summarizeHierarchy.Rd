@@ -4,7 +4,7 @@
 \alias{summarizeHierarchy}
 \title{Summarize peptide Counts}
 \usage{
-summarizeHierarchy(x, configuration, level = 1)
+summarizeHierarchy(x, configuration, hierarchy_level = 1, factor_level = 0)
 }
 \description{
 Summarize peptide Counts
@@ -16,8 +16,9 @@ skylineconfig$table$factors[["Time"]] = "Sampling.Time.Point"
 data(skylinePRMSampleData)
 
 sample_analysis <- setup_analysis(skylinePRMSampleData, skylineconfig)
-summarizeHierarchy(sample_analysis, skylineconfig)
-summarizeHierarchy(sample_analysis, skylineconfig, level =2 )
-summarizeHierarchy(sample_analysis, skylineconfig, level =3 )
-summarizeHierarchy(sample_analysis, skylineconfig, level =4 )
+res<- summarizeHierarchy(sample_analysis, skylineconfig)
+res2 <- summarizeHierarchy(sample_analysis, skylineconfig, factor_level=1)
+summarizeHierarchy(sample_analysis, skylineconfig, hierarchy_level =2, factor_level=0 )
+summarizeHierarchy(sample_analysis, skylineconfig, hierarchy_level =3 )
+summarizeHierarchy(sample_analysis, skylineconfig, hierarchy_level =4 )
 }

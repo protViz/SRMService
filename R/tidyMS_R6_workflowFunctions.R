@@ -139,7 +139,10 @@ workflow_NA_preprocessing <- function(data, config, percent = 60, factor_level =
 
   stat_qval <- hierarchyCounts(data_NA_QVal, config)
 
-  resNACondition <- proteins_WithXPeptidesInCondition(data_NA_QVal, config, percent = percent, factor_level = factor_level)
+  resNACondition <- proteins_WithXPeptidesInCondition(data_NA_QVal,
+                                                      config,
+                                                      percent = percent,
+                                                      factor_level = factor_level)
   data_NA_QVal_condition <- inner_join(resNACondition, data_NA_QVal )
 
   # Complete cases

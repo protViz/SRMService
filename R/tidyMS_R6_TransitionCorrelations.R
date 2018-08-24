@@ -535,9 +535,10 @@ proteins_WithXPeptidesInCondition <- function(data,
 
   summaryPerPrecursorFiltered <- summaryPerPrecursor %>% dplyr::filter(fraction > percent)
 
-
   summaryPerPrecursorFilteredIDs <- summaryPerPrecursorFiltered %>%
     select(!!!syms(c(table$hierarchyKeys(),table$factorKeys()[1:factor_level]))) %>% distinct()
+
+
   # count nr peptides per protein in condition
   res <- summaryPerPrecursorFilteredIDs %>%
     group_by(!!!syms(c(config$table$hierarchyKeys()[1], table$factorKeys()[1:factor_level]))) %>%
