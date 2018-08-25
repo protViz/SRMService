@@ -9,7 +9,7 @@ AnalysisParameters <- R6::R6Class("AnalysisParameters",
                                     nrOfSigQvalues_Threshold = 5,
                                     qValThreshold = 0.01,
                                     minNumberOfQValues = 3,
-                                    workingIntensityTransform = "", # important for some plotting functions
+                                    is_intensity_transformed = FALSE, # important for some plotting functions
                                     min_nr_of_notNA = 1, # how many values per transition total
                                     min_nr_of_notNA_condition = 0, # how many not missing in condition
                                     min_peptides_protein = 2
@@ -263,7 +263,7 @@ linePlotHierarchy_configuration <- function(res, proteinName, configuration, sep
                                    factor = names(configuration$table$factors)[1],
                                    isotopeLabel = configuration$table$isotopeLabel,
                                    separate = separate,
-                                   log_y = (configuration$parameter$workingIntensityTransform != "log")
+                                   log_y = configuration$parameter$is_intensity_transformed
   )
   return(res)
 }
@@ -415,7 +415,7 @@ missignessHistogram <- function(x, configuration, showempty = TRUE, nrfactors = 
 
   missingPrec <- missingPrec %>% ungroup()%>% dplyr::mutate(nrNAs = as.factor(nrNAs))
   if(showempty){
-    if(configuration$parameter$workingIntensityTransform != "log")
+    if(configuration$parameter$is_intensity_transformed)
     {
       missingPrec <- missingPrec %>% dplyr::mutate(meanArea = ifelse(is.na(meanArea),1,meanArea))
     }else{
@@ -434,7 +434,7 @@ missignessHistogram <- function(x, configuration, showempty = TRUE, nrfactors = 
     facet_grid(as.formula(formula)) +
     theme(axis.text.x = element_text(angle = 90, hjust = 1))
 
-  if(configuration$parameter$workingIntensityTransform != "log")
+  if(configuration$parameter$is_intensity_transformed)
   {
     p <- p + scale_x_log10()
   }
@@ -626,7 +626,7 @@ plot_stat_density <- function(data, config, stat = c("CV","mean","sd")){
 #'@export
 plot_stat_density_median <- function(data, config, stat = c("CV","sd")){
   stat <- match.arg(stat)
-  res <- data %>% mutate(top = ifelse(mean > median(mean),"top 50","bottom 50")) -> top50
+  res <- data %>% mutate(top = ifelse(mean > median(mean, na.rm=TRUE),"top 50","bottom 50")) -> top50
   p <- ggplot(top50, aes_string(x = stat, colour = config$table$factorKeys()[1])) +
     geom_line(stat = "density") + facet_wrap("top")
   return(p)
@@ -659,7 +659,7 @@ plot_stat_violin_median <- function(data, config , stat=c("CV","sd")){
     return(out)
   }
 
-  res <- data %>% mutate(top = ifelse(mean > median(mean),"top 50","bottom 50")) -> top50
+  res <- data %>% mutate(top = ifelse(mean > median(mean, na.rm = TRUE),"top 50","bottom 50")) -> top50
   p <- ggplot(top50, aes_string(x = config$table$factorKeys()[1], y = "CV")) +
     geom_violin() +
     stat_summary(fun.y=median.quartile,geom='point', shape=3) + stat_summary(fun.y=median,geom='point', shape=1) +
@@ -675,15 +675,15 @@ plot_stat_violin_median <- function(data, config , stat=c("CV","sd")){
 #' data <- sample_analysis
 #' config <- skylineconfig$clone(deep=TRUE)
 #' res <- summarize_cv(data, config)
-#' plot_stdv_vs_mean(res)
+#' plot_stdv_vs_mean(res, config)
 #' datalog2 <- transformIntensities(data, config, transformation = log2)
 #' statlog2 <- summarize_cv(datalog2, config)
-#' plot_stdv_vs_mean(statlog2)
+#' plot_stdv_vs_mean(statlog2, config)
 #' config$table$getWorkIntensity()
 #' config$table$popWorkIntensity()
 #' datasqrt <- transformIntensities(data, config, transformation = sqrt)
 #' ressqrt <- summarize_cv(datasqrt, config)
-#' plot_stdv_vs_mean(ressqrt)
+#' plot_stdv_vs_mean(ressqrt, config)
 plot_stdv_vs_mean <- function(data, config){
   p <- ggplot(data, aes(x = mean, y = abs(sd))) +
     geom_point() +

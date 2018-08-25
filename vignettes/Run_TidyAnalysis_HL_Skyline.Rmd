@@ -41,7 +41,7 @@ head(allDataM)
 skylineconfig <- craeteSkylineConfiguration(isotopeLabel="Isotope.Label", ident_qValue="annotation_QValue")
 skylineconfig$table$factors[["treatment_c"]] <- "Condition2"
 skylineconfig$table$factors[["time_c"]] <- "time"
-skylineconfig$parameter$workingIntensityTransform = ""
+skylineconfig$parameter$is_intensity_transformed = FALSE
 
 resData <- setup_analysis(allDataM, skylineconfig)
 
@@ -95,7 +95,7 @@ HLData$Isotope.Label <- "L/H"
 
 skylineconfigHL <- skylineconfig
 skylineconfigHL$table$workIntensity = "log2L_log2H"
-skylineconfigHL$parameter$workingIntensityTransform = "log"
+skylineconfigHL$parameter$is_intensity_transformed = TRUE
 skylineconfigHL$table$isotopeLabel
 
 xnested <- HLData %>% group_by(UQ(proteinIDsymbol)) %>% nest()

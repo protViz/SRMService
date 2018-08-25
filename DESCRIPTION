@@ -10,6 +10,7 @@ Imports:
     bibliospec,
     bookdown,
     conflicted,
+    corrplot,
     dplyr,
     glue,
     limma,
@@ -29,13 +30,14 @@ Imports:
     tidyverse,
     tibble,
     tools,
+    usethis,
     yaml
 License: GPL
 LazyData: TRUE
 URL: https://github.com/protViz/SRMService
 BugReports: https://github.com/protViz/SRMService/issues
 Repository: CRAN
-RoxygenNote: 6.0.0
+RoxygenNote: 6.0.1
 Collate:
     'A_dataset_docu.R'
     'RequiredColumns.R'

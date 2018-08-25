@@ -23,5 +23,5 @@ config$table$getWorkIntensity()
 config$table$popWorkIntensity()
 datasqrt <- transformIntensities(data, config, transformation = sqrt)
 ressqrt <- summarize_cv(datasqrt, config)
-plot_stdv_vs_mean(ressqrt)
+plot_stdv_vs_mean(ressqrt, config)
 }

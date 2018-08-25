@@ -68,9 +68,7 @@ transformIntensities <- function(data,
   data <- data %>% mutate_at(config$table$getWorkIntensity(), .funs = funs(!!sym(newcol) := transformation(.)))
   config$table$setWorkIntensity(newcol)
   message("Column added : ", newcol)
-  if(grepl("log",as.character(x$transformation))){
-    config$parameter$workingIntensityTransform = "log"
-  }
+  config$parameter$is_intensity_transformed = TRUE
 
   return(data)
 }
@@ -461,8 +459,8 @@ aggregateTopNIntensities <- function(data , config, func, N, hierarchy_level = 1
                       ident_qValue = min(!!sym(config$table$ident_qValue)))
 
   newconfig <- make_reduced_hierarchy_config(config,
-                                          workIntensity = newcol,
-                                          hierarchy = config$table$hierarchy[1:hierarchy_level])
+                                             workIntensity = newcol,
+                                             hierarchy = config$table$hierarchy[1:hierarchy_level])
   return(list(data = sumTopInt, newconfig = newconfig))
 }
 
