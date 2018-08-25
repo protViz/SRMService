@@ -11,14 +11,16 @@ Summarize peptide Counts
 }
 \examples{
 library(SRMService)
+library(tidyverse)
 skylineconfig <- craeteSkylineConfiguration(isotopeLabel="Isotope.Label.Type", ident_qValue="Detection.Q.Value")
 skylineconfig$table$factors[["Time"]] = "Sampling.Time.Point"
 data(skylinePRMSampleData)
 
 sample_analysis <- setup_analysis(skylinePRMSampleData, skylineconfig)
-res<- summarizeHierarchy(sample_analysis, skylineconfig)
+res <- summarizeHierarchy(sample_analysis, skylineconfig)
 res2 <- summarizeHierarchy(sample_analysis, skylineconfig, factor_level=1)
 summarizeHierarchy(sample_analysis, skylineconfig, hierarchy_level =2, factor_level=0 )
 summarizeHierarchy(sample_analysis, skylineconfig, hierarchy_level =3 )
 summarizeHierarchy(sample_analysis, skylineconfig, hierarchy_level =4 )
+
 }
