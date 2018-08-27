@@ -652,14 +652,20 @@ plot_stat_violin <- function(data, config, stat = c("CV","mean","sd")){
 }
 #' plot_stat_violin_median
 #' @export
+#'
 plot_stat_violin_median <- function(data, config , stat=c("CV","sd")){
+
   median.quartile <- function(x){
     out <- quantile(x, probs = c(0.25,0.5,0.75))
     names(out) <- c("ymin","y","ymax")
     return(out)
   }
+  stats_resCV <- stats_res %>% filter_at(stat, all_vars(!is.na(.)))
 
-  res <- data %>% mutate(top = ifelse(mean > median(mean, na.rm = TRUE),"top 50","bottom 50")) -> top50
+  res <- data %>%
+    mutate(top = ifelse(mean > median(mean, na.rm = TRUE),"top 50","bottom 50")) ->
+    top50
+
   p <- ggplot(top50, aes_string(x = config$table$factorKeys()[1], y = "CV")) +
     geom_violin() +
     stat_summary(fun.y=median.quartile,geom='point', shape=3) + stat_summary(fun.y=median,geom='point', shape=1) +
