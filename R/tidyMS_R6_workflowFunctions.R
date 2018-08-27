@@ -34,7 +34,7 @@ workflow_correlation_preprocessing <- function(data, config, minCorrelation = 0.
   stat_min_peptides_protein  <- hierarchyCounts(data_NA_QVal, config)
 
   # filter decorrelated.
-  data_NA_QVal <- transformIntensities(data_NA_QVal, config, log2)
+  data_NA_QVal <- transform_work_intensity(data_NA_QVal, config, log2)
   data_NA_QVal <- markDecorrelated(data_NA_QVal, config, minCorrelation = minCorrelation)
   keepCorrelated <- dplyr::filter(data_NA_QVal, srm_decorelated == FALSE)
 
@@ -94,7 +94,7 @@ workflow_corr_filter_impute <- function(data,config, minCorrelation =0.6){
   stat_min_peptides_protein  <- hierarchyCounts(data_NA_QVal, config)
 
   # filter decorrelated.
-  data_NA_QVal <- transformIntensities(data_NA_QVal, config, log2)
+  data_NA_QVal <- transform_work_intensity(data_NA_QVal, config, log2)
   data_NA_QVal <- markDecorrelated(data_NA_QVal, config, minCorrelation = minCorrelation)
   keepCorrelated <- dplyr::filter(data_NA_QVal, srm_decorelated == FALSE)
 
@@ -183,7 +183,7 @@ workflow_Q_NA_filtered_Hierarchy <- function(data,
                                                       factor_level = factor_level)
   data_NA_QVal_condition <- inner_join(resNACondition, data_NA_QVal )
 
-  resDataLog <- SRMService::transformIntensities(data_NA_QVal_condition , config, log2)
+  resDataLog <- SRMService::transform_work_intensity(data_NA_QVal_condition , config, log2)
 
   resDataLog <- applyToIntensityMatrix(resDataLog, config, robust_scale)
   figs3 <- applyToHierarchyBySample(resDataLog, config, medpolishPly, hierarchy_level = hierarchy_level)

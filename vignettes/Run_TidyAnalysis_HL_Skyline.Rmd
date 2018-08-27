@@ -99,6 +99,10 @@ skylineconfigHL$parameter$is_intensity_transformed = TRUE
 skylineconfigHL$table$isotopeLabel
 
 xnested <- HLData %>% group_by(UQ(proteinIDsymbol)) %>% nest()
+skylineconfigHL$table$getWorkIntensity()
+
+xnested$data[[2]][["log2L_log2H"]]
+
 linePlotHierarchy_configuration(xnested$data[[2]], xnested$protein_Id[[2]], skylineconfigHL)
 HLfigs <- xnested %>% mutate(plot = map2(data, UQ(proteinIDsymbol) , linePlotHierarchy_configuration, skylineconfig))
 

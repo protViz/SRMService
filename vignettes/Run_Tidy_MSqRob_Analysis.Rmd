@@ -56,7 +56,7 @@ resData <- removeLarge_Q_Values(resData, config)
 resData <- remove_small_intensities(resData, config,threshold = 100)
 
 sum(is.na(select(resData, config$table$getWorkIntensity())))
-resDataLog <- transformIntensities(resData,config, transformation = log2)
+resDataLog <- transform_work_intensity(resData,config, transformation = log2)
 ```
 
 # normalize data ----

@@ -231,7 +231,6 @@ linePlotHierarchy_default <- function(data,
     formula <- sprintf("~%s",factor)
     p <- ggplot(data, aes_string(x = sample, y = intensity, group=fragment,  color= peptide))
     p <- p +  geom_point() + geom_line()
-
   }
 
   #p <- ggplot(data, aes_string(x = sample, y = intensity, group=fragment,  color= peptide, linetype = isotopeLabel))
@@ -263,7 +262,7 @@ linePlotHierarchy_configuration <- function(res, proteinName, configuration, sep
                                    factor = names(configuration$table$factors)[1],
                                    isotopeLabel = configuration$table$isotopeLabel,
                                    separate = separate,
-                                   log_y = configuration$parameter$is_intensity_transformed
+                                   log_y = !configuration$parameter$is_intensity_transformed
   )
   return(res)
 }
@@ -434,7 +433,7 @@ missignessHistogram <- function(x, configuration, showempty = TRUE, nrfactors = 
     facet_grid(as.formula(formula)) +
     theme(axis.text.x = element_text(angle = 90, hjust = 1))
 
-  if(configuration$parameter$is_intensity_transformed)
+  if(!configuration$parameter$is_intensity_transformed)
   {
     p <- p + scale_x_log10()
   }
@@ -626,6 +625,7 @@ plot_stat_density <- function(data, config, stat = c("CV","mean","sd")){
 #'@export
 plot_stat_density_median <- function(data, config, stat = c("CV","sd")){
   stat <- match.arg(stat)
+  data <- data %>% filter_at(stat, all_vars(!is.na(.)))
   res <- data %>% mutate(top = ifelse(mean > median(mean, na.rm=TRUE),"top 50","bottom 50")) -> top50
   p <- ggplot(top50, aes_string(x = stat, colour = config$table$factorKeys()[1])) +
     geom_line(stat = "density") + facet_wrap("top")
@@ -660,17 +660,17 @@ plot_stat_violin_median <- function(data, config , stat=c("CV","sd")){
     names(out) <- c("ymin","y","ymax")
     return(out)
   }
-  stats_resCV <- stats_res %>% filter_at(stat, all_vars(!is.na(.)))
+  data <- data %>% filter_at(stat, all_vars(!is.na(.)))
 
   res <- data %>%
     mutate(top = ifelse(mean > median(mean, na.rm = TRUE),"top 50","bottom 50")) ->
     top50
 
-  p <- ggplot(top50, aes_string(x = config$table$factorKeys()[1], y = "CV")) +
+  p <- ggplot(top50, aes_string(x = config$table$factorKeys()[1], y = stat)) +
     geom_violin() +
     stat_summary(fun.y=median.quartile,geom='point', shape=3) + stat_summary(fun.y=median,geom='point', shape=1) +
     facet_wrap("top")
-  print(p)
+  return(p)
 }
 
 #' stddev vs mean
@@ -682,12 +682,12 @@ plot_stat_violin_median <- function(data, config , stat=c("CV","sd")){
 #' config <- skylineconfig$clone(deep=TRUE)
 #' res <- summarize_cv(data, config)
 #' plot_stdv_vs_mean(res, config)
-#' datalog2 <- transformIntensities(data, config, transformation = log2)
+#' datalog2 <- transform_work_intensity(data, config, transformation = log2)
 #' statlog2 <- summarize_cv(datalog2, config)
 #' plot_stdv_vs_mean(statlog2, config)
 #' config$table$getWorkIntensity()
 #' config$table$popWorkIntensity()
-#' datasqrt <- transformIntensities(data, config, transformation = sqrt)
+#' datasqrt <- transform_work_intensity(data, config, transformation = sqrt)
 #' ressqrt <- summarize_cv(datasqrt, config)
 #' plot_stdv_vs_mean(ressqrt, config)
 plot_stdv_vs_mean <- function(data, config){

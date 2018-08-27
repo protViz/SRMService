@@ -123,7 +123,7 @@ hierarchyCounts(qvalFiltV,config)
 
 ```{r}
 
-qvalFiltV <- transformIntensities(qvalFiltV, config, log2)
+qvalFiltV <- transform_work_intensity(qvalFiltV, config, log2)
 xx <- markDecorrelated(qvalFiltV, config)
 hierarchyCounts(xx, config)
 qvalFiltCorr <- dplyr::filter(xx, srm_decorelated == FALSE)

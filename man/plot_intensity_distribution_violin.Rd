@@ -16,10 +16,13 @@ visualize intensity distributions
 }
 \examples{
 config <- skylineconfig$clone(deep=TRUE)
-analysis <- transformIntensities(sample_analysis, config, log2)
+plot_intensity_distribution_violin(sample_analysis, config)
+analysis <- transform_work_intensity(sample_analysis, config, log2)
 plot_intensity_distribution_violin(analysis, config)
+
 config <- skylineconfig$clone(deep=TRUE)
-analysis <- transformIntensities(sample_analysis, config, log2)
+plot_intensity_distribution_density(sample_analysis, config)
+analysis <- transform_work_intensity(sample_analysis, config, log2)
 plot_intensity_distribution_density(analysis, config)
 }
 \seealso{
