@@ -12,7 +12,7 @@ skylineconfig
 A configuration which matches the \link{sample_analysis} data.
 }
 \examples{
-skylineconfig <- craeteSkylineConfiguration(isotopeLabel="Isotope.Label.Type",
+skylineconfig <- createSkylineConfiguration(isotopeLabel="Isotope.Label.Type",
  ident_qValue="Detection.Q.Value")
 skylineconfig$table$factors[["Time"]] = "Sampling.Time.Point"
 usethis::use_data( skylineconfig , overwrite = TRUE )

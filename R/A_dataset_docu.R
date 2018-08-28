@@ -21,7 +21,7 @@
 #'
 #' @format A AnalysisConfiguration R6 class
 #' @examples
-#' skylineconfig <- craeteSkylineConfiguration(isotopeLabel="Isotope.Label.Type",
+#' skylineconfig <- createSkylineConfiguration(isotopeLabel="Isotope.Label.Type",
 #'  ident_qValue="Detection.Q.Value")
 #' skylineconfig$table$factors[["Time"]] = "Sampling.Time.Point"
 #' usethis::use_data( skylineconfig , overwrite = TRUE )
@@ -40,7 +40,7 @@
 #' @source \url{http://www.fgcz.ch/}
 #' @examples
 #'
-#' skylineconfig <- craeteSkylineConfiguration(isotopeLabel="Isotope.Label.Type",
+#' skylineconfig <- createSkylineConfiguration(isotopeLabel="Isotope.Label.Type",
 #'  ident_qValue="Detection.Q.Value")
 #' skylineconfig$table$factors[["Time"]] = "Sampling.Time.Point"
 #' data(skylinePRMSampleData)
@@ -61,7 +61,7 @@
 #'
 #' @format A AnalysisConfiguration R6 class
 #' @examples
-#' skylineconfig_HL <- craeteSkylineConfiguration(isotopeLabel="Isotope.Label",
+#' skylineconfig_HL <- createSkylineConfiguration(isotopeLabel="Isotope.Label",
 #'  ident_qValue="annotation_QValue")
 #' skylineconfig_HL$table$factors[["treatment_c"]] <- "Condition2"
 #' skylineconfig_HL$table$factors[["time_c"]] <- "time"
@@ -75,7 +75,7 @@
 #' @source \url{http://www.fgcz.ch/}
 #' @examples
 #'
-#' skylineconfig_HL <- craeteSkylineConfiguration(isotopeLabel="Isotope.Label",
+#' skylineconfig_HL <- createSkylineConfiguration(isotopeLabel="Isotope.Label",
 #'  ident_qValue="annotation_QValue")
 #' skylineconfig_HL$table$factors[["treatment_c"]] <- "Condition2"
 #' skylineconfig_HL$table$factors[["time_c"]] <- "time"

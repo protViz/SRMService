@@ -140,7 +140,7 @@ setupDataFrame <- function(data, configuration ,sep="~"){
 #' @export
 #' @examples
 #'
-#' skylineconfig <- craeteSkylineConfiguration(isotopeLabel="Isotope.Label.Type", ident_qValue="Detection.Q.Value")
+#' skylineconfig <- createSkylineConfiguration(isotopeLabel="Isotope.Label.Type", ident_qValue="Detection.Q.Value")
 #' skylineconfig$table$factors[["Time"]] = "Sampling.Time.Point"
 #' data(skylinePRMSampleData)
 #'
@@ -287,7 +287,7 @@ linePlotHierarchy_QuantLine <- function(p, data, aes_y,  configuration){
 #' @export
 #' @examples
 #' library(SRMService)
-#' skylineconfig <- craeteSkylineConfiguration(isotopeLabel="Isotope.Label.Type", ident_qValue="Detection.Q.Value")
+#' skylineconfig <- createSkylineConfiguration(isotopeLabel="Isotope.Label.Type", ident_qValue="Detection.Q.Value")
 #' skylineconfig$table$factors[["Time"]] = "Sampling.Time.Point"
 #' data(skylinePRMSampleData)
 #'
@@ -303,7 +303,7 @@ hierarchyCounts <- function(x, configuration){
 #' Summarize Protein counts
 #' @export
 #' @examples
-#' skylineconfig <- craeteSkylineConfiguration(isotopeLabel="Isotope.Label.Type", ident_qValue="Detection.Q.Value")
+#' skylineconfig <- createSkylineConfiguration(isotopeLabel="Isotope.Label.Type", ident_qValue="Detection.Q.Value")
 #' skylineconfig$table$factors[["Time"]] = "Sampling.Time.Point"
 #' data(skylinePRMSampleData)
 #' sample_analysis <- setup_analysis(skylinePRMSampleData, skylineconfig)
@@ -338,7 +338,7 @@ summarizeProteins <- function( x, configuration ){
 #' @examples
 #' library(SRMService)
 #' library(tidyverse)
-#' skylineconfig <- craeteSkylineConfiguration(isotopeLabel="Isotope.Label.Type", ident_qValue="Detection.Q.Value")
+#' skylineconfig <- createSkylineConfiguration(isotopeLabel="Isotope.Label.Type", ident_qValue="Detection.Q.Value")
 #' skylineconfig$table$factors[["Time"]] = "Sampling.Time.Point"
 #' data(skylinePRMSampleData)
 #'
@@ -697,4 +697,52 @@ plot_stdv_vs_mean <- function(data, config){
     facet_wrap(config$table$factorKeys()[1]) +
     theme(axis.text.x = element_text(angle = 90, hjust = 1))
   return(p)
+}
+
+
+#' plot correlation heatmap with annations
+#' @export
+#' @importFrom heatmap3 heatmap3
+#' @examples
+#' library(tidyverse)
+#' data <- sample_analysis
+#' config <- skylineconfig$clone(deep=TRUE)
+#' plot_heatmap_cor(data, config)
+#' plot_heatmap_cor(data, config, R2=TRUE)
+plot_heatmap_cor <- function(data, config, R2 = FALSE){
+ res <-  toWideConfig(data, config , as.matrix = TRUE)
+ cres <- cor(res,use = "pa")
+ if(R2){
+   cres <- cres^2
+ }
+ annot <- select(data, c(config$table$sampleName, config$table$factorKeys())) %>%
+     distinct() %>% arrange(sampleName)
+ stopifnot(annot$sampleName == colnames(cres))
+
+ ColSideColors <- select(annot, config$table$factorKeys()[1])
+ ColSideColors <- as.matrix(dplyr::mutate_all(ColSideColors, funs(network::as.color)))
+ rownames(ColSideColors) <- annot$sampleName
+ heatmap3::heatmap3(cres,symm=TRUE, scale="none", ColSideColors = ColSideColors,
+                    main=ifelse(R2, "R^2", "correlation"))
+}
+
+#' plot heatmap with annotations
+#' @export
+#' @importFrom heatmap3 heatmap3
+#' @examples
+#' library(tidyverse)
+#' data <- sample_analysis
+#' config <- skylineconfig$clone(deep=TRUE)
+#' plot_heatmap(data, config)
+plot_heatmap <- function(data, config){
+  res <-  toWideConfig(data, config , as.matrix = TRUE)
+  annot <- select(data, c(config$table$sampleName, config$table$factorKeys())) %>%
+    distinct() %>% arrange(sampleName)
+  stopifnot(annot$sampleName == colnames(cres))
+
+  ColSideColors <- select(annot, config$table$factorKeys()[1])
+  ColSideColors <- as.matrix(dplyr::mutate_all(ColSideColors, funs(network::as.color)))
+  rownames(ColSideColors) <- annot$sampleName
+  res <- quantable::removeNArows(res, round(ncol(res)*0.4,digits = 0))
+  heatmap3::heatmap3(res, ColSideColors = ColSideColors,labRow="")
 }
