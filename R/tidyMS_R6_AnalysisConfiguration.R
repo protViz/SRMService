@@ -475,17 +475,19 @@ missingPerConditionCumsum <- function(x,configuration,nrfactors = 1){
 #' setNa <- function(x){ifelse(x < 100, NA, x)}
 #' sample_analysis %>% dplyr::mutate(Area = setNa(Area)) -> sample_analysis
 #' res <- missingPerCondition(sample_analysis,skylineconfig)
+configuration <- skylineconfig$clone(TRUE)
+x <- sample_analysis
+nrfactors = 1
 #' names(res)
 #' print(res$figure)
 missingPerCondition <- function(x, configuration, nrfactors = 1){
   table <- configuration$table
   missingPrec <- getMissingStats(x, configuration, nrfactors)
   factors <- head(table$factorKeys(), nrfactors)
-
+  hierarchyKey <- tail(configuration$table$hierarchyKeys(),1)
   xx <-missingPrec %>% group_by_at(c(table$isotopeLabel,
                                      factors,"nrNAs","nrReplicates")) %>%
-    dplyr::summarize(nrTransitions =n())
-
+    dplyr::summarize( !!sym(paste0("nr_",hierarchyKey)) := n())
   formula <- paste(table$isotopeLabel, "~", paste(factors, collapse = "+"))
   message(formula)
 
