@@ -11,6 +11,12 @@ vignette: >
   %\VignetteIndexEntry{FGCZ Two-Group Analysis of Pull Down Data}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
+header-includes: |
+    \usepackage{fancyhdr}
+    \pagestyle{fancy}
+    \fancyhead[CO,CE]{Group Comparison}
+    \fancyfoot[CO,CE]{Functional Genomics Center Zurich - 2018}
+    \fancyfoot[LE,RO]{\thepage}  
 ---
 
 
