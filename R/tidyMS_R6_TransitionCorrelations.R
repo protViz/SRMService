@@ -127,16 +127,20 @@ plot_sample_correlation <- function(data, config){
   corrplot::corrplot.mixed(M,upper="ellipse",
                            lower="pie",
                            diag="u",
+                           tl.cex=.6,
                            tl.pos="lt",
-                           tl.col="black")
+                           tl.col="black",
+                           mar=c(2,5,5,2))
   } else{
     corrplot::corrplot.mixed(M,upper="ellipse",
                              lower="number",
                              lower.col = "black",
+                             tl.cex=.6,
                              number.cex = .7,
                              diag="u",
                              tl.pos="lt",
-                             tl.col="black")
+                             tl.col="black",
+                             mar=c(2,5,5,2))
 
   }
   invisible(M)

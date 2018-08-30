@@ -11,6 +11,12 @@ vignette: >
   %\VignetteIndexEntry{FGCZ Two-Group Analysis}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
+header-includes: |
+    \usepackage{fancyhdr}
+    \pagestyle{fancy}
+    \fancyhead[CO,CE]{Group Comparison}
+    \fancyfoot[CO,CE]{Functional Genomics Center Zurich - 2018}
+    \fancyfoot[LE,RO]{\thepage} 
 ---
 
 ```{r setup, include=FALSE}
@@ -66,8 +72,6 @@ The protein matrix is filtered like this:
 
 
 ```{r}
-
-
 tab <- data.frame(table(grp2$getAnnotation()$Condition))
 colnames(tab) <- c("Condition","# samples")
 knitr::kable(tab)
@@ -76,23 +80,20 @@ knitr::kable(tab)
 
 Here the files in each group:
 
-```{r }
+```{r annotation}
 tab<-grp2$getAnnotation()[,c("Condition","Raw.file")]
 rownames(tab) <- NULL
 knitr::kable(tab)
 
 ```
 
-```{r}
+```{r grouping vars}
 x <- data.frame(name = unlist(grp2$getConditions()))
 knitr::kable(x)
 ```
 
 
 \pagebreak
-
-
-
 
 ## The Protein Quantities
 
@@ -105,16 +106,15 @@ grp2$proteinIntensity <- grp2$proteinIntensity[order(missing, -int,decreasing = 
 
 The input matrix has the following structure (Figure \@ref(fig:overview)).
 
-```{r overview, fig.width=8,fig.height=8,dpi=300,fig.cap="Heatmap for quantifyable proteins sorted by missigness and intensity (log2). Gray - missing values"}
+```{r overview, fig.width=8,fig.height=7,dpi=300,fig.cap="Heatmap for quantifyable proteins sorted by missigness and intensity (log2). Gray - missing values"}
 imageWithLabels(t(log2(grp2$proteinIntensity)), col.labels = NULL, col=quantable::getBlueScale(21))
 ```
 
 
 
-```{r missingValuesPerProtein, fig.cap="# of missing values per protein"}
-plot(table(missing), xlab="number of missing values", ylab="number of proteins")
+```{r missingValuesPerProtein, fig.cap="# of missing values per protein", fig.height=3,fig.width=5}
+barplot(table(missing), xlab="number of missing values", ylab="number of proteins")
 progress(0.1, "Summary")
-
 ```
 
 \pagebreak
@@ -125,11 +125,11 @@ progress(0.1, "Summary")
 
 Shown in Figure \@ref(fig:distributionRaw) are the distributions of raw log2 transformed intensity values. Ideally the violins should look very similar.
 
-```{r distributionRaw, fig.width=7, fig.height=7, fig.cap="Density plot for quantifyable proteins (log2 transformed)"}
+```{r distributionRaw, fig.width=8, fig.height=5, fig.cap="Violin plots for quantifyable proteins (log2 transformed)"}
 longm <- melt(log2(grp2$proteinIntensity))
 
 p <- qplot( variable , value , data=longm , geom="violin" , xlab="" , ylab="log2(I)")
-p + stat_summary(fun.y=median,geom='point') +theme(axis.text.x = element_text(angle = 90, hjust = 1))
+p + stat_summary(fun.y=median,geom='point') +theme(axis.text.x = element_text(angle = 90, hjust = 1)) + coord_flip()
 
 ```
 
@@ -147,9 +147,7 @@ mtext("linear scale", side=4, line=2)
 ```
 
 ```{r progress2}
-
 progress(0.2, "Normalization")
-
 ```
 
 ## Normalization
@@ -157,21 +155,19 @@ progress(0.2, "Normalization")
 Figure \@ref(fig:normalized) shows the normalized values. Normalization is applied to remove systematic differences in protein abundance due to different sample concentrations, so that differentially expressed proteins can be detected. To this task the z-score of the log2 transformed intensities is computed, which in addition is multiplied by the average of the standard deviation of the log2 transformed intensities in all samples. After normalization all samples have a similar distribution.
 
 
-```{r normalized,  fig.width=7,fig.height=7,dpi=300, fig.cap="Density plot for normalized values (z-score)"}
+```{r normalized,  fig.width=8,fig.height=5,dpi=300, fig.cap="Violin plots of normalized protein intensity values (z-score)"}
 longm <- melt(grp2$getNormalized()$data)
 p <- qplot( variable , value , data=longm , geom="violin" , xlab="" , ylab="z-score")
-p + stat_summary(fun.y=median, geom='point') + theme(axis.text.x = element_text(angle = 90, hjust = 1))
+p + stat_summary(fun.y=median, geom='point') + theme(axis.text.x = element_text(angle = 90, hjust = 1)) + coord_flip()
 ```
 
 \pagebreak
 
-## Coefficients of Variations
+
+The Figure \@ref(fig:SDViolin) left panel, show the coefficient of variations for all proteins in each condition and overall computed on not normalized data. To observe differences between conditions the variation within a condition should ideally be smaller than within all conditions.
 
 
-The Figure \@ref(fig:CViolin) show the coefficient of variations for all proteins in each condition and overall. To observe differences between conditions the variation within a condition should be smaller than within all conditions.
-
-
-```{r CViolin, fig.cap="Distribution of protein CV within condition and overall"}
+```{r CViolin}
 cond1 <- grp2$getConditionData(grp2$conditions[1])
 cond2 <- grp2$getConditionData(grp2$conditions[2])
 
@@ -183,14 +179,11 @@ all <- quantable::CV(grp2$proteinIntensity,top= round(nrow(grp2$proteinIntensity
 arethereCVS <-(length(cond1) > 0 & length(cond2) > 0) & length(all) >0
 if( arethereCVS)
 {
-  
   CVs <- rbind(data.frame(condition=grp2$conditions[1], cv=cond1),
                data.frame(condition=grp2$conditions[2],cv=cond2 ),
                data.frame(condition="all", cv=all))
-  
   p <- qplot( condition , cv , data=CVs , geom="violin" , xlab="" , ylab="Coefficient of Variation (%)")
-  p + stat_summary(fun.y=median,geom='point') + theme(axis.text.x = element_text(angle = 90, hjust = 1))
-  
+  p1 <- p + stat_summary(fun.y=median,geom='point') + theme(axis.text.x = element_text(angle = 90, hjust = 1))
 }
 
 ```
@@ -203,11 +196,10 @@ if(arethereCVS){
 }
 ```
 
-\pagebreak
-
 The Figure \@ref(fig:SDViolin) shows the distributions of standard deviations for all proteins with the conditions and overall after transforming and normalization the data. To observe differences between conditions the standard deviation within a condition should be smaller than within all conditions.  
 
-```{r SDViolin, fig.cap="Distribution of protein standard deviation (after sample normalization and scaling) within conditions and overall"}
+```{r SDViolin, fig.height=3, fig.width=7, fig.cap="Left panel - Distribution of protein CV within condition and overall, Right panel - Distribution of protein standard deviation (after sample normalization and scaling) within conditions and overall"}
+
 cond1 <- grp2$getNormalizedConditionData( grp2$conditions[1] )
 cond2 <- grp2$getNormalizedConditionData( grp2$conditions[2] )
 
@@ -217,9 +209,10 @@ cond2 <- apply(cond2, 1, sd, na.rm=TRUE)
 all <- apply( grp2$getNormalized()$data, 1 , sd, na.rm=TRUE )
 SDs<-rbind(data.frame( condition=grp2$conditions[1], sd=cond1), data.frame(condition=grp2$conditions[2],sd=cond2 ), data.frame(condition="all", sd=all))
 
-p <- qplot( condition , sd , data=SDs , geom="violin" , xlab="" , ylab="sd of z-score")
-p + stat_summary(fun.y=median,geom='point') + theme(axis.text.x = element_text(angle = 90, hjust = 1))
+p2 <- qplot( condition , sd , data=SDs , geom="violin" , xlab="" , ylab="sd of z-score")
+p2 <- p2 + stat_summary(fun.y=median,geom='point') + theme(axis.text.x = element_text(angle = 90, hjust = 1))
 
+gridExtra::grid.arrange(p1,p2, nrow=1)
 ```
 
 ```{r}
@@ -232,26 +225,28 @@ progress(0.1, "CVs")
 
 \pagebreak
 
-## Heatmaps and Clustering for Samples and Proteins
+## Clustering for Samples and Proteins
 
-```{r correlation,dpi=300, fig.height=8, fig.width=8, fig.cap="Heatmap of correlations (spearman) between samples."}
+```{r correlation, dpi=300, fig.height=5, fig.width=7, fig.cap="Heatmap of correlations (spearman) between samples."}
 col <- c("red","blue")
 simpleheatmap(cor(grp2$getNormalized()$data, 
                   use="pairwise.complete.obs", 
                   method="spearman")^2,
               palette = getGreensScale(21),
-              ColSideColors = col[as.factor(grp2$getAnnotation()$Condition)], 
-              margins = c(10,3))
+              RowSideColors = col[as.factor(grp2$getAnnotation()$Condition)], 
+              margins = c(1,13), labRow =colnames(grp2$getNormalized()$data), labCol="", dendrogram="row" )
 ```
 
 In Figure \@ref(fig:correlation) and Figure \@ref(fig:heatmapData) we show how samples are clustering depending on their correlation and on the protein expression profiles.
 
 
-```{r heatmapData, fig.width=8, fig.height=10, dpi=300, fig.cap="Heatmap of normalized data." }
+```{r heatmapData, fig.width=8, fig.height=5, dpi=300, fig.cap="Heatmap of normalized data."}
 tmp <- grp2$getNormalized()$data
 stmMm <- grp2$getNormalized()$data[grp2$getNrNAs() < ncol(grp2$getNormalized()$data)/2,]
-simpleheatmap(t(scale(t(stmMm),scale = F)),ColSideColors = col[as.factor(grp2$getAnnotation()$Condition)], margins=c(10,3),
-              breaks=seq(-2.5,2.5,length=26),palette = getBlueWhiteRed(25))
+simpleheatmap((scale(t(stmMm),scale = F)),RowSideColors = col[as.factor(grp2$getAnnotation()$Condition)], margins=c(1,10),
+              breaks=seq(-2.5,2.5,length=26),
+              palette = getBlueWhiteRed(25),
+              labCol="", labRow=colnames(stmMm), dendrogram="row")
 progress(0.2, "Heatmaps")
 
 ```
@@ -273,24 +268,22 @@ res.eb <-grp2$getPValues()
 ```
 
 
-```{r densityOFFoldChanges, fig.width=10, fig.height=8, dpi=300, fig.cap = "Distribution of log2(FC). red dashed line - median fold change."}
+```{r densityOFFoldChanges, fig.width=8, fig.height=4, dpi=300, fig.cap = "Left panel : Distribution of log2(FC). red dashed line - median fold change. Right panel - Histogram of moderated p values."}
+par(mfrow=c(1,2))
 plot(density(na.omit(res.eb$effectSize)), main="")
 abline(v=0,col="green")
 abline(v=median(res.eb$effectSize),col=2,lty=2)
+hist(res.eb$p.mod, breaks=20, xlab="", main="")
+abline(h=length(res.eb$p.mod)/20,col="blue")
+
 ```
 
 
 \newpage
 
-## Adjusted moderated p-values (q-values) (limma output)
+## Adjusted moderated p-values
 
-If the groups are different we would expect more small p-values in Figure \@ref(fig:histOfpValues) than by chance (blue horizontal line). If there are only as many or less small p-values as by chance than no significant false discovery rate controlled calls (Q Values) will be made in Figure \@ref(fig:volcanoplot). 
-
-
-```{r histOfpValues, fig.width=10, fig.height=8, dpi=300, fig.cap="Histogram of moderated p values."}
-hist(res.eb$p.mod, breaks=20, xlab="", main="")
-abline(h=length(res.eb$p.mod)/20,col="blue")
-```
+If the groups are different we would expect more small p-values in Figure \@ref(fig:densityOFFoldChanges) than by chance (blue horizontal line). If there are only as many or less small p-values as by chance than no significant false discovery rate controlled calls (Q Values) will be made in Figure \@ref(fig:volcanoplot). 
 
 
 Significant calls are made with q-value smaller than `r grp2$qvalue` (false discovery rate, computed with bioconductor package qvalue) (see Figure \@ref(fig:volcanoplot))
@@ -365,9 +358,9 @@ knitr::kable(data.frame(columns=colnames(grp2$getResultTableWithPseudo())))
 
 # References
 
-If you are going to use results produced by the scripts please do cite the SRMSerivce R package by providing the following URL  www.github.com/protViz/SRMService by W.E. Wolski, J. Grossmann, C. Panse
+For questions and improvements please do contact <protinf@fgcz.uzh.ch>.
 
-For questions and improvements please do contact the authors of the package [_SRMService_](https://github.com/protViz/SRMService/graphs/contributors).
+If you are going to use results produced by the scripts please do cite the SRMSerivce R package by W.E. Wolski, J. Grossmann, C. Panse and providing the following URL: www.github.com/protViz/SRMService 
 
 This report was generated using the package [SRMService](http://github.com/protViz/SRMService) and [quantable](http://github.com/protViz/quantable). The q-values and p-values were computed using the bioconductor package and [limma](https://bioconductor.org/packages/release/bioc/html/limma.html).
 

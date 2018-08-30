@@ -424,7 +424,6 @@ missignessHistogram <- function(x, configuration, showempty = TRUE, nrfactors = 
   }
 
   factors <- head(table$factorKeys(), nrfactors)
-
   formula <- paste(table$isotopeLabel, "~", paste(factors, collapse = "+"))
   message(formula)
 
@@ -475,26 +474,26 @@ missingPerConditionCumsum <- function(x,configuration,nrfactors = 1){
 #' setNa <- function(x){ifelse(x < 100, NA, x)}
 #' sample_analysis %>% dplyr::mutate(Area = setNa(Area)) -> sample_analysis
 #' res <- missingPerCondition(sample_analysis,skylineconfig)
-configuration <- skylineconfig$clone(TRUE)
-x <- sample_analysis
-nrfactors = 1
 #' names(res)
 #' print(res$figure)
+#' configuration <- skylineconfig$clone(deep=TRUE)
+#' x <- sample_analysis
+#' nrfactors <- 1
 missingPerCondition <- function(x, configuration, nrfactors = 1){
   table <- configuration$table
   missingPrec <- getMissingStats(x, configuration, nrfactors)
   factors <- head(table$factorKeys(), nrfactors)
   hierarchyKey <- tail(configuration$table$hierarchyKeys(),1)
+  hierarchyKey <- paste0("nr_",hierarchyKey)
   xx <-missingPrec %>% group_by_at(c(table$isotopeLabel,
                                      factors,"nrNAs","nrReplicates")) %>%
-    dplyr::summarize( !!sym(paste0("nr_",hierarchyKey)) := n())
+    dplyr::summarize( !!sym(hierarchyKey) := n())
   formula <- paste(table$isotopeLabel, "~", paste(factors, collapse = "+"))
   message(formula)
 
-  p <- ggplot(xx, aes(x= nrNAs, y = nrTransitions)) + geom_bar(stat="identity")+
+  p <- ggplot(xx, aes_string(x= "nrNAs", y = hierarchyKey)) + geom_bar(stat="identity")+
     facet_grid(as.formula(formula))
-
-  xx <- xx %>% spread("nrNAs","nrTransitions")
+  xx <- xx %>% spread("nrNAs",hierarchyKey)
   return(list(data = xx ,figure = p))
 }
 
@@ -696,9 +695,33 @@ plot_stdv_vs_mean <- function(data, config){
   p <- ggplot(data, aes(x = mean, y = abs(sd))) +
     geom_point() +
     geom_smooth(method="loess") +
-    facet_wrap(config$table$factorKeys()[1]) +
+    facet_wrap(config$table$factorKeys()[1], nrow=1) +
     theme(axis.text.x = element_text(angle = 90, hjust = 1))
   return(p)
+}
+
+
+.string.to.colors = function(string, colors=NULL){
+  if (is.factor(string)){
+    string = as.character(string)
+  }
+  if (!is.null(colors)){
+    if (length(colors)!=length(unique(string))){
+      break("The number of colors must be equal to the number of unique elements.")
+    }
+    else {
+      conv = cbind(unique(string), colors)
+    }
+  } else {
+    conv = cbind(unique(string), rainbow(length(unique(string))))
+  }
+  unlist(lapply(string, FUN=function(x){conv[which(conv[,1]==x),2]}))
+}
+
+.number.to.colors = function(value, colors=c("red", "blue"), num=100){
+  cols = colorRampPalette(colors)(num)
+  cols = 	cols[findInterval(value, vec=seq(from=min(value), to=max(value), length.out=num))]
+  cols
 }
 
 
@@ -721,8 +744,8 @@ plot_heatmap_cor <- function(data, config, R2 = FALSE){
      distinct() %>% arrange(sampleName)
  stopifnot(annot$sampleName == colnames(cres))
 
- ColSideColors <- select(annot, config$table$factorKeys()[1])
- ColSideColors <- as.matrix(dplyr::mutate_all(ColSideColors, funs(network::as.color)))
+ factors <- select(annot, config$table$factorKeys())
+ ColSideColors <- as.matrix(dplyr::mutate_all(factors, funs(.string.to.colors)))
  rownames(ColSideColors) <- annot$sampleName
  heatmap3::heatmap3(cres,symm=TRUE, scale="none", ColSideColors = ColSideColors,
                     main=ifelse(R2, "R^2", "correlation"))
@@ -740,11 +763,11 @@ plot_heatmap <- function(data, config){
   res <-  toWideConfig(data, config , as.matrix = TRUE)
   annot <- select(data, c(config$table$sampleName, config$table$factorKeys())) %>%
     distinct() %>% arrange(sampleName)
-  stopifnot(annot$sampleName == colnames(cres))
+  stopifnot(annot$sampleName == colnames(res))
 
-  ColSideColors <- select(annot, config$table$factorKeys()[1])
-  ColSideColors <- as.matrix(dplyr::mutate_all(ColSideColors, funs(network::as.color)))
+  factors <- select(annot, config$table$factorKeys())
+  ColSideColors <- as.matrix(dplyr::mutate_all(factors, funs(.string.to.colors)))
   rownames(ColSideColors) <- annot$sampleName
   res <- quantable::removeNArows(res, round(ncol(res)*0.4,digits = 0))
-  heatmap3::heatmap3(res, ColSideColors = ColSideColors,labRow="")
+  heatmap3::heatmap3(res, ColSideColors = ColSideColors,labRow="",showRowDendro =FALSE)
 }
