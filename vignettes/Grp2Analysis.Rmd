@@ -17,6 +17,8 @@ header-includes: |
     \fancyhead[CO,CE]{Group Comparison}
     \fancyfoot[CO,CE]{Functional Genomics Center Zurich - 2018}
     \fancyfoot[LE,RO]{\thepage} 
+bibliography: bibliography.bib
+
 ---
 
 ```{r setup, include=FALSE}
@@ -44,14 +46,19 @@ library(quantable)
 library(ggplot2)
 library(dplyr)
 
-
 ```
 
-# Input Matrix
+# Introduction
+
+The following analysis compars protein signal intensities recorded in two groups of samples (Tables \@ref(tab:samples) and \@ref(tab:annotation)) by computing the fold change $log2(condition/reference)$, and by testing if this fold change (also later called effect size) is different from zero. Which of the two groups is used as reference is shown in the table \@ref(tab:groupingvars).
+
+
+The protein identification and quantification was performed using the _MaxQuant_ software and _Andromeda_ search engine [@Cox2008, Cox2011].  Based on protein intensities reported by MaxQuant in `proteinGroups.txt` file, we run a _moderated t-test_ [@Smyth2004] for all proteins quantified with at least `r grp2$nrPeptides` the R package _limma_ [@Ritchie2015a]. 
+
+
+## Experiment summary
 
 Experiment is called: `r grp2$projectName`
-
-## The Numbers
 
 The protein matrix is filtered like this:
 
@@ -68,28 +75,25 @@ The protein matrix is filtered like this:
 
 
 
-## The Groupings
-
-
-```{r}
+```{r samples}
 tab <- data.frame(table(grp2$getAnnotation()$Condition))
 colnames(tab) <- c("Condition","# samples")
-knitr::kable(tab)
+knitr::kable(tab, caption="Nr of samples in each condition.")
 
 ```
 
 Here the files in each group:
 
 ```{r annotation}
-tab<-grp2$getAnnotation()[,c("Condition","Raw.file")]
+tab <- grp2$getAnnotation()[,c("Condition","Raw.file")]
 rownames(tab) <- NULL
-knitr::kable(tab)
+knitr::kable(tab, caption="Condition sample mapping.")
 
 ```
 
-```{r grouping vars}
+```{r groupingvars}
 x <- data.frame(name = unlist(grp2$getConditions()))
-knitr::kable(x)
+knitr::kable(x, caption="The reference group is in the denominator of the foldchnages.")
 ```
 
 
@@ -283,10 +287,7 @@ abline(h=length(res.eb$p.mod)/20,col="blue")
 
 ## Adjusted moderated p-values
 
-If the groups are different we would expect more small p-values in Figure \@ref(fig:densityOFFoldChanges) than by chance (blue horizontal line). If there are only as many or less small p-values as by chance than no significant false discovery rate controlled calls (Q Values) will be made in Figure \@ref(fig:volcanoplot). 
-
-
-Significant calls are made with q-value smaller than `r grp2$qvalue` (false discovery rate, computed with bioconductor package qvalue) (see Figure \@ref(fig:volcanoplot))
+If the groups are different we would expect more small p-values than by chance (Figure \@ref(fig:densityOFFoldChanges) right panel blue horizontal line). If there are only as many or less small p-values as by chance than no significant false discovery rate controlled calls (Q Values) will be made in Figure \@ref(fig:volcanoplot). Significant calls are made with q-value smaller than `r grp2$qvalue` (see Figure \@ref(fig:volcanoplot)). Table \@ref(tab:nrsignificant) summarizes the number of significant calls  while \@ref(tab:top20table) lists the proteins with the smallest moderated q-values.
 
 
 ```{r volcanoplot, fig.width=10, fig.height=8, dpi=300, fig.cap="VolcanoPlot : x axis log2 fold change of normalized data, y axis -log10(Q-value)."}
@@ -296,6 +297,7 @@ p <- quantable::volcano2GB(res.eb,
                            ylab="-log10(Q Value)",
                            log2FCThresh=grp2$qfoldchange,
                            pthresh=grp2$qvalue)
+
 if(length(grp2$special)>0)
 {
   quantable::addSpecialProteins(p, res.eb, grp2$special)
@@ -305,11 +307,10 @@ if(length(grp2$special)>0)
 
 ```
 
-
 \newpage
 
 
-```{r results="markup"}
+```{r nrsignificant, results="markup"}
 tmp <- grp2$getResultTable()
 x <- data.frame(table(abs(tmp$effectSize) > grp2$qfoldchange & tmp$q.mod < grp2$qvalue))
 if(length(x$Var1) == 2){
@@ -356,13 +357,6 @@ child_docs <- system.file(file.path("ParametrizedReportsChild",child_docs),packa
 knitr::kable(data.frame(columns=colnames(grp2$getResultTableWithPseudo())))
 ```
 
-# References
-
-For questions and improvements please do contact <protinf@fgcz.uzh.ch>.
-
-If you are going to use results produced by the scripts please do cite the SRMSerivce R package by W.E. Wolski, J. Grossmann, C. Panse and providing the following URL: www.github.com/protViz/SRMService 
-
-This report was generated using the package [SRMService](http://github.com/protViz/SRMService) and [quantable](http://github.com/protViz/quantable). The q-values and p-values were computed using the bioconductor package and [limma](https://bioconductor.org/packages/release/bioc/html/limma.html).
 
 
 ## Disclaimer
@@ -370,13 +364,22 @@ This report was generated using the package [SRMService](http://github.com/protV
 This document was generated using Rmarkdown and processes text files which are generated with a label-free quantitation software such as MaxQuant or Progenesis. 
 The obtained results should be validated orthogonal as well (e.g. with Western blots). The Functional Genomics Center Zurich does not provide any kind of guarantee of the validity of these results.
 
-\newpage
-
 
 # Session Info
 
 ```{r}
 pander::pander(sessionInfo())
 ```
+
+
+# References
+
+For questions and improvements please do contact <protinf@fgcz.uzh.ch>.
+
+You can reference this analysis by providing the following URL: www.github.com/protViz/SRMService 
+
+This report was generated using the package [SRMService](http://github.com/protViz/SRMService) and [quantable](http://github.com/protViz/quantable). The q-values and p-values were computed using the bioconductor package and [limma](https://bioconductor.org/packages/release/bioc/html/limma.html).
+
+
 
 
