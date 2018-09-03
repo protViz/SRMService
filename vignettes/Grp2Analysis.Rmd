@@ -356,14 +356,13 @@ child_docs <- system.file(file.path("ParametrizedReportsChild",child_docs),packa
 ## Data interpretation
 
 For interpreting the results, made to you available in the _`r paste0("MaxQuant_report", grp2$projectName, ".csv")`_ file, the protein IDs can be either sorted by `effectSize` or `p.mod` (See Table \@ref(tab:columnlist)). Large positive or negative fold changes typically result in small p-values.
-The sorted IDs can then be subjected to over-representation analysis or gene set enrichment analysis. The web application WebGestalt (WEB-based GEne SeT AnaLysis Toolkit) <http://www.webgestalt.org> implements both of these methods for the most popular organisms [@Wang2017].
+The sorted IDs can then be subjected to over-representation analysis (ORA) or gene set enrichment analysis (GSEA). The web application WebGestalt (WEB-based GEne SeT AnaLysis Toolkit) <http://www.webgestalt.org> implements both of these methods (and many more) for the most popular organisms [@Wang2017].
 
 A further resource to analyze the results is the STRING database <https://string-db.org> [@Szklarczyk2017]. It reports known interactions for the proteins in the subset of proteins generated on a p-value or fold change threshold.
 
-For the correct interpretation of the top proteins, it is essential to specify the background proteome, the list of all proteins measured in your experiment. 
+For the correct interpretation of the top proteins, it is essential to specify the background proteome, the list of all proteins measured in your experiment (column `TopProteinName` in the results table). 
 
-The FGCZ can support you with the interpretation of your quantitative proteomics data (<protinf@fgcz.uzh.ch>)
-
+The FGCZ can support you with the interpretation of your quantitative proteomics data. You can reach the bioinformatics coach of your project at protinf@fgcz.uzh.ch
 \newpage
 
 ```{r columnlist}
