@@ -411,8 +411,7 @@ getMissingStats <- function(x, configuration, nrfactors = 1){
 missignessHistogram <- function(x, configuration, showempty = TRUE, nrfactors = 1){
   table <- configuration$table
   missingPrec <- getMissingStats(x, configuration,nrfactors)
-
-  missingPrec <- missingPrec %>% ungroup()%>% dplyr::mutate(nrNAs = as.factor(nrNAs))
+  missingPrec <- missingPrec %>% ungroup() %>% dplyr::mutate(nrNAs = as.factor(nrNAs))
   if(showempty){
     if(configuration$parameter$is_intensity_transformed)
     {
@@ -428,7 +427,7 @@ missignessHistogram <- function(x, configuration, showempty = TRUE, nrfactors = 
   message(formula)
 
   p <- ggplot(missingPrec, aes(x = meanArea, fill = nrNAs, colour = nrNAs)) +
-    geom_histogram(alpha = 0.2,position = "identity") +
+    geom_histogram(alpha = 0.2, position = "identity") +
     facet_grid(as.formula(formula)) +
     theme(axis.text.x = element_text(angle = 90, hjust = 1))
 
