@@ -119,7 +119,7 @@ The input matrix has the following structure (Figure \@ref(fig:overview)).
 
 
 
-## Distribution of Intensities
+## Missing data and intensity distribution
 
 Figure \@ref(fig:missingValuesPerProtein) A shows the number of proteins (y) axis with $0-N$ missing values (x - axis), while
 the histogram on the left (Panel B) shows the distribution of intensities of proteins with $0-N$ missing values.
