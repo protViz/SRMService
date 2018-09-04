@@ -66,6 +66,7 @@ dir.create(resultdir)
 # default settings
 Experimentname = "pXXX_compareDifferentTissues"
 nrNas = sum(!is.na(annotation$Condition)) - 3
+
 nrPeptides = 2
 reference=unique(annotation$Condition)[1]
 qvalueThreshold = 0.01
@@ -81,6 +82,7 @@ write.table(annotation, file=file.path(resultdir, "annotationused.txt"))
 # Do the analysis
 grp2 <- Grp2Analysis(annotation, Experimentname, maxNA=nrNas  , nrPeptides=nrPeptides, reference=reference)
 grp2$setMQProteinGroups(protein)
+
 grp2$setQValueThresholds(qvalue = qvalueThreshold,qfoldchange = qfoldchange)
 
 #write out results and render pdf
@@ -92,10 +94,9 @@ file.copy(file.path(packagePath,"inst/reports/Grp2Analysis_Empty.Rmd"),
           file.path(resultdir,"Grp2Analysis_Empty.Rmd" ), overwrite = TRUE)
 file.copy(file.path(packagePath,"inst/reports/Grp2Analysis_MissingInOneCondtion.Rmd"),
           file.path(resultdir,"Grp2Analysis_MissingInOneCondtion.Rmd"), overwrite = TRUE)
-
 genericQuantMatrixGRP2 <- grp2
-class(genericQuantMatrixGRP2)
 
-rmarkdown::render("inst/reports/Grp2Analysis.Rmd", params = list(grp2 = genericQuantMatrixGRP2), envir = new.env())
+## REMOVE TO RENDER
+#rmarkdown::render("vignettes/Grp2Analysis.Rmd", params = list(grp = genericQuantMatrixGRP2), envir = new.env())
 
 
