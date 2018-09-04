@@ -757,7 +757,7 @@ plot_heatmap_cor <- function(data, config, R2 = FALSE){
 #' library(tidyverse)
 #' data <- sample_analysis
 #' config <- skylineconfig$clone(deep=TRUE)
-#' plot_heatmap(data, config)
+#' #plot_heatmap(data, config)
 plot_heatmap <- function(data, config){
   res <-  toWideConfig(data, config , as.matrix = TRUE)
   annot <- select(data, c(config$table$sampleName, config$table$factorKeys())) %>%

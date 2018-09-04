@@ -129,6 +129,9 @@
 # grp2PullDownExample ---
 
 #' Grp2Analysis on pulldown data example
-#' @format reference clss
+#' @format reference class
 "grp2PullDownExample"
 
+#' Grp2Analysis on of nockout with missing data
+#' @format reference class
+"mqQuantMatrixGRP2"

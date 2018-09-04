@@ -60,7 +60,7 @@ grp2 <- Grp2Analysis(annotation, "Experimentname", maxNA=nrNas  , nrPeptides=nrP
 grp2$setMQProteinGroups(protein)
 grp2$setQValueThresholds(qvalue = qvalueThreshold,qfoldchange = qfoldchange)
 mqQuantMatrixGRP2 <- grp2
-usethis::use_data(mqQuantMatrixGRP2)
+#usethis::use_data(mqQuantMatrixGRP2)
 #readr::write_tsv(grp2$getResultTable(), path=file.path(resultdir,"pValues.csv"))
 
 ## REMOVE TO RENDER

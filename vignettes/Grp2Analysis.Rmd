@@ -6,7 +6,7 @@ output:
   pdf_document: default
   html_document: default
 params:
-  grp: !r quote(SRMService::genericQuantMatrixGRP2)
+  grp: !r quote(SRMService::mqQuantMatrixGRP2)
 vignette: >
   %\VignetteIndexEntry{FGCZ Two-Group Analysis}
   %\VignetteEngine{knitr::rmarkdown}
@@ -101,11 +101,28 @@ x <- data.frame(name = unlist(grp2$getConditions()))
 knitr::kable(x, caption="The reference group is in the denominator of the foldchnages.")
 ```
 
+<!--
+The input matrix has the following structure (Figure \@ref(fig:overview)).
 
-\pagebreak
+```{r overview, fig.width=8,fig.height=7,dpi=300,fig.cap="Heatmap for quantifyable #proteins sorted by missigness and intensity (log2). Gray - missing values"}
+#imageWithLabels(t(log2(grp2$proteinIntensity)), col.labels = NULL, #col=quantable::getBlueScale(21))
+```
+-->
 
-## The Protein Quantities
 
+
+
+
+\newpage
+
+# Quality Control
+
+
+
+## Distribution of Intensities
+
+Figure \@ref(fig:missingValuesPerProtein) A shows the number of proteins (y) axis with $0-N$ missing values (x - axis), while
+the histogram on the left (Panel B) shows the distribution of intensities of proteins with $0-N$ missing values.
 
 ```{r histmissing }
 missing <- grp2$getNrNAs()
@@ -113,24 +130,20 @@ int <- apply(grp2$proteinIntensity,1,sum, na.rm=TRUE)
 grp2$proteinIntensity <- grp2$proteinIntensity[order(missing, -int,decreasing = T),]
 ```
 
-The input matrix has the following structure (Figure \@ref(fig:overview)).
 
-```{r overview, fig.width=8,fig.height=7,dpi=300,fig.cap="Heatmap for quantifyable proteins sorted by missigness and intensity (log2). Gray - missing values"}
-imageWithLabels(t(log2(grp2$proteinIntensity)), col.labels = NULL, col=quantable::getBlueScale(21))
-```
+```{r missingValuesPerProtein, fig.cap="Panel A - # of porteins with n missing values, Panel B - intensity distribution of proteins with 1 to N missing values.", fig.height=3,fig.width=6}
+missing <- data.frame(nrNAs = as.factor(grp2$getNrNAs()))
+missing<-missing %>% group_by(nrNAs) %>% summarise(nrProteins = n())
+p1 <- ggplot(missing, aes(x = nrNAs, y=nrProteins))  + geom_bar(stat = "identity") + labs(tag="A")
+missingDF <- data.frame(nrNAs = as.factor(grp2$getNrNAs()),
+meanArea = apply(grp2$proteinIntensity,1,sum, na.rm=TRUE))
+p2<-ggplot(missingDF, aes(x = meanArea, fill = nrNAs, colour = nrNAs)) +
+    geom_histogram(alpha = 0.2, position = "identity") + scale_x_log10() + labs(tag="B")
 
+gridExtra::grid.arrange(p1,p2, nrow=1)
 
-
-```{r missingValuesPerProtein, fig.cap="# of missing values per protein", fig.height=3,fig.width=5}
-barplot(table(missing), xlab="number of missing values", ylab="number of proteins")
 progress(0.1, "Summary")
 ```
-
-\pagebreak
-
-# Quality Control
-
-## Distribution of Intensities
 
 Shown in Figure \@ref(fig:distributionRaw) are the distributions of raw log2 transformed intensity values. Ideally the violins should look very similar.
 

@@ -47,7 +47,6 @@ compute_roc <- function(data, config){
   dumm <- nested %>% dplyr::select(!!sym(config$table$hierarchyKeys()[1]),
                                    !!sym(config$table$hierarchyKeys(TRUE)[1]),
                                    rocs) %>%  unnest()
-  head(dumm)
   dumm <- dumm %>% mutate(comparison = map_chr(rocs, function(x){paste(x$levels, collapse = " ")}))
   dumm <- dumm %>% separate(comparison, into = c("response1" , "response2"), sep=" ")
   dumm <- dumm %>% mutate(auc = map_dbl(rocs, pROC::auc)) %>% arrange(desc(auc))

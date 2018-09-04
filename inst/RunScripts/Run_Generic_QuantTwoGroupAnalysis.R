@@ -95,7 +95,7 @@ file.copy(file.path(packagePath,"inst/reports/Grp2Analysis_Empty.Rmd"),
 file.copy(file.path(packagePath,"inst/reports/Grp2Analysis_MissingInOneCondtion.Rmd"),
           file.path(resultdir,"Grp2Analysis_MissingInOneCondtion.Rmd"), overwrite = TRUE)
 genericQuantMatrixGRP2 <- grp2
-
+#usethis::use_data(genericQuantMatrixGRP2)
 ## REMOVE TO RENDER
 #rmarkdown::render("vignettes/Grp2Analysis.Rmd", params = list(grp = genericQuantMatrixGRP2), envir = new.env())
 
