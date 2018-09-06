@@ -176,10 +176,9 @@ Grp2Analysis <- setRefClass("Grp2Analysis",
                                 return(.self$modelMatrix)
                               },
                               getPValues = function(){
-
-                                tmp <- eb.fit(.self$getNormalized()$data , .self$getDesignMatrix())
-                                tmp$log2FC <- tmp$effectSize
-                                return(tmp)
+                                res <- eb.fit(.self$getNormalized()$data , .self$getDesignMatrix())
+                                res <- data.frame(proteinID = rownames(res), log2FC = res$effectSize, res)
+                                return(res)
                               },
                               getFit = function(){
                                 fit <- limma::lmFit(grp2$getNormalized()$data, grp2$getDesignMatrix())
@@ -190,6 +189,7 @@ Grp2Analysis <- setRefClass("Grp2Analysis",
                                 fit <- limma::lmFit(grp2$getNormalized()$data, grp2$getDesignMatrix())
                                 fit.eb <- limma::eBayes(fit)
                                 res <- topTable(fit.eb, coef=2, number=Inf,confint = TRUE)
+                                res <- data.frame(proteinID = rownames(res), log2FC = res$logFC, res)
                                 return(res)
                               },
                               getAnnotation = function(){

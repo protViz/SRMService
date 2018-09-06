@@ -9,8 +9,8 @@ params:
   grp: !r quote(SRMService::mqQuantMatrixGRP2)
 vignette: >
   %\VignetteIndexEntry{FGCZ Two-Group Analysis}
-  %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
+  %\VignetteEngine{knitr::rmarkdown}
 header-includes: |
     \usepackage{fancyhdr}
     \pagestyle{fancy}
@@ -18,7 +18,8 @@ header-includes: |
     \fancyfoot[CO,CE]{Functional Genomics Center Zurich - 2018}
     \fancyfoot[LE,RO]{\thepage} 
 bibliography: bibliography.bib
-
+editor_options: 
+  chunk_output_type: console
 ---
 
 ```{r setup, include=FALSE}
@@ -305,9 +306,8 @@ abline(h=length(res.eb$p.mod)/20,col="blue")
 If the groups are different we would expect more small p-values than by chance (Figure \@ref(fig:densityOFFoldChanges) right panel blue horizontal line). If there are only as many or less small p-values as by chance than no significant false discovery rate controlled calls (Q Values) will be made in Figure \@ref(fig:volcanoplot). Significant calls are made with q-value smaller than `r grp2$qvalue` (see Figure \@ref(fig:volcanoplot)). Table \@ref(tab:nrsignificant) summarizes the number of significant calls  while \@ref(tab:top20table) lists the proteins with the smallest moderated q-values.
 
 
-```{r volcanoplot, fig.width=10, fig.height=8, dpi=300, fig.cap="VolcanoPlot : x axis log2 fold change of normalized data, y axis -log10(Q-value)."}
+```{r volcanoplot, fig.width=8, fig.height=6, dpi=300, fig.cap="VolcanoPlot : x axis log2 fold change of normalized data, y axis : panel A  -log10(p-value), panel B -log10(q-value)"}
 res.eb$names <- rownames(res.eb)
-
 p <- quantable::volcano2GB(res.eb,
                            ylab="-log10(Q Value)",
                            log2FCThresh=grp2$qfoldchange,
@@ -315,11 +315,22 @@ p <- quantable::volcano2GB(res.eb,
 
 if(length(grp2$special)>0)
 {
-  quantable::addSpecialProteins(p, res.eb, grp2$special)
-}else{
-  p
+  p<-quantable::addSpecialProteins(p, res.eb, grp2$special)
+}
+p<-p + labs(tag="B") +theme(legend.position="bottom")
+
+pp <- quantable::volcano2GB(res.eb,
+                            pvalue="p.mod",
+                           ylab="-log10(P Value)",
+                           log2FCThresh=grp2$qfoldchange,
+                           pthresh=grp2$qvalue)
+pp<-pp + labs(tag="A") + theme(legend.position="bottom")
+if(length(grp2$special)>0)
+{
+  pp<-quantable::addSpecialProteins(pp, res.eb, grp2$special, pvalue="p.mod")
 }
 
+gridExtra::grid.arrange(pp, p, nrow=1)
 ```
 
 \newpage
@@ -331,16 +342,26 @@ x <- data.frame(table(abs(tmp$effectSize) > grp2$qfoldchange & tmp$q.mod < grp2$
 if(length(x$Var1) == 2){
   x$Var1 <- c("Not Significant" , "Significant")
 }
-knitr::kable(x, caption = "Number of not significant and significant proteins.")
+knitr::kable(x, caption = "Number of not significant and significant proteins (by q.mod).")
 ```
 
 
 
 ```{r top20table}
-top20 <- tmp %>% dplyr::select( TopProteinName,effectSize, q.mod ) %>% arrange((q.mod) ) %>% head(20)
+tmp2 <- grp2$getModPValuesCI()
+top20 <- tmp2 %>% dplyr::select( proteinID,log2FC,CI.L,CI.R, P.Value, adj.P.Val ) %>% arrange(P.Value) %>% head(20)
 knitr::kable(top20, caption = "Top 20 proteins sorted by smallest Q Value (q.mod). The effectSize column is the log2 FC of condition - reference.")
 ```
 
+
+```{r CI, fig.cap="Confidence interfals for proteins with 20 smallest p-values (ordered by p-value)", fig.height=4, fig.width=7}
+tmp2 %>% arrange(P.Value) %>% head(20) -> top20CI
+top20CI$proteinID <- with(top20CI,reorder(proteinID,P.Value, function(x){-x}))
+ggplot(top20CI, aes(x = proteinID, y = log2FC,
+                     ymin = CI.L, ymax = CI.R)) +
+    geom_hline( yintercept = 0, color = 'red' ) +
+    geom_linerange() + geom_point() + coord_flip() + theme_minimal()
+```
 
 \newpage
 
