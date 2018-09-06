@@ -18,7 +18,6 @@
 #' @field qfoldchange foldchange threshold for q volcano plot
 #' @field reference document
 #' @field removeDates
-#'
 Grp2Analysis <- setRefClass("Grp2Analysis",
                             fields = list( proteinIntensity = "data.frame",
                                            annotation_ = "data.frame",
@@ -175,11 +174,11 @@ Grp2Analysis <- setRefClass("Grp2Analysis",
                                 }
                                 return(.self$modelMatrix)
                               },
-                              getPValues = function(){
-                                res <- eb.fit(.self$getNormalized()$data , .self$getDesignMatrix())
-                                res <- data.frame(proteinID = rownames(res), log2FC = res$effectSize, res)
-                                return(res)
-                              },
+                              #getPValues = function(){
+                              #  res <- eb.fit(.self$getNormalized()$data , .self$getDesignMatrix())
+                              #  res <- data.frame(proteinID = rownames(res), log2FC = res$effectSize, res)
+                              #  return(res)
+                              #},
                               getFit = function(){
                                 fit <- limma::lmFit(grp2$getNormalized()$data, grp2$getDesignMatrix())
                                 fit.eb <- limma::eBayes(fit)
@@ -199,8 +198,8 @@ Grp2Analysis <- setRefClass("Grp2Analysis",
                                 list(reference = .self$reference, condition = base::setdiff(.self$conditions, .self$reference) )
                               },
                               getResultTable = function(){
-                                pvalues <- .self$getPValues()
-                                pvalues <- subset(pvalues, select = c("effectSize","p.ord","p.mod","q.ord","q.mod","log2FC"))
+                                pvalues <- .self$getModPValuesCI()
+                                #pvalues <- subset(pvalues, select = c("effectSize","p.ord","p.mod","q.ord","q.mod","log2FC"))
 
                                 intensityWithNA <- merge(data.frame(nrNAs = .self$getNrNAs()),.self$proteinIntensity, by="row.names" )
                                 rownames(intensityWithNA) <- intensityWithNA$Row.names
@@ -249,8 +248,9 @@ Grp2Analysis <- setRefClass("Grp2Analysis",
                                 results[, paste("pseudo.", c2name, sep="")]<- c2
 
 
-                                results$pseudo.effectSize <- c2 - r
-                                results <- dplyr::mutate(results, pseudo.q.mod = ifelse(is.na(q.mod), 0, q.mod))
+                                results$pseudo.log2FC <- c2 - r
+                                results <- dplyr::mutate(results, pseudo.P.Value = ifelse(is.na(P.Value), 0, P.Value))
+                                results <- dplyr::mutate(results, pseudo.adj.P.Val = ifelse(is.na(adj.P.Val), 0, adj.P.Val))
 
                                 return(results)
                               },

@@ -11,13 +11,13 @@ vignette: >
   %\VignetteIndexEntry{FGCZ Two-Group Analysis}
   %\VignetteEncoding{UTF-8}
   %\VignetteEngine{knitr::rmarkdown}
-header-includes: |
-    \usepackage{fancyhdr}
-    \pagestyle{fancy}
-    \fancyhead[CO,CE]{Group Comparison}
-    \fancyfoot[CO,CE]{Functional Genomics Center Zurich - 2018}
-    \fancyfoot[LE,RO]{\thepage} 
-bibliography: bibliography.bib
+  header-includes: |
+  \usepackage{fancyhdr}
+  \pagestyle{fancy}
+  \fancyhead[CO,CE]{Group Comparison}
+  \fancyfoot[CO,CE]{Functional Genomics Center Zurich - 2018}
+  \fancyfoot[LE,RO]{\thepage} 
+  bibliography: bibliography.bib
 editor_options: 
   chunk_output_type: console
 ---
@@ -135,9 +135,9 @@ missing <- data.frame(nrNAs = as.factor(grp2$getNrNAs()))
 missing<-missing %>% group_by(nrNAs) %>% summarise(nrProteins = n())
 p1 <- ggplot(missing, aes(x = nrNAs, y=nrProteins))  + geom_bar(stat = "identity") + labs(tag="A")
 missingDF <- data.frame(nrNAs = as.factor(grp2$getNrNAs()),
-meanArea = apply(grp2$proteinIntensity,1,sum, na.rm=TRUE))
+                        meanArea = apply(grp2$proteinIntensity,1,sum, na.rm=TRUE))
 p2<-ggplot(missingDF, aes(x = meanArea, fill = nrNAs, colour = nrNAs)) +
-    geom_histogram(alpha = 0.2, position = "identity") + scale_x_log10() + labs(tag="B")
+  geom_histogram(alpha = 0.2, position = "identity") + scale_x_log10() + labs(tag="B")
 
 gridExtra::grid.arrange(p1,p2, nrow=1)
 
@@ -210,12 +210,6 @@ if( arethereCVS)
 ```
 
 
-```{r}
-if(arethereCVS){
-  cvSummary <- aggregate(cv ~ condition , data=CVs , median, na.rm=TRUE)
-  knitr::kable(cvSummary,caption = 'median of cv')
-}
-```
 
 The Figure \@ref(fig:SDViolin) shows the distributions of standard deviations for all proteins with the conditions and overall after transforming and normalization the data. To observe differences between conditions the standard deviation within a condition should be smaller than within all conditions.  
 
@@ -238,7 +232,13 @@ gridExtra::grid.arrange(p1,p2, nrow=1)
 
 ```{r}
 sdSummary <-aggregate(sd ~ condition , data=SDs , median, na.rm=TRUE)
-knitr::kable(sdSummary, caption = 'median of sd')
+
+if(arethereCVS){
+  cvSummary <- aggregate(cv ~ condition , data=CVs , median, na.rm=TRUE)
+  knitr::kable(merge(cvSummary, sdSummary), caption = 'median of cv and sd')
+}else{
+  knitr::kable(sdSummary,caption = 'median of cv')
+}
 
 progress(0.1, "CVs")
 
@@ -285,49 +285,47 @@ In the following analysis we assume that most of the proteins are not regulated 
 
 ```{r}
 fcname <- paste("log2(", grp2$getConditions()$condition, "/", grp2$getConditions()$reference, ")", sep="")
-res.eb <-grp2$getPValues()
+res.eb <-grp2$getModPValuesCI()
 ```
 
 
 ```{r densityOFFoldChanges, fig.width=8, fig.height=4, dpi=300, fig.cap = "Left panel : Distribution of log2(FC). red dashed line - median fold change. Right panel - Histogram of moderated p values."}
 par(mfrow=c(1,2))
-plot(density(na.omit(res.eb$effectSize)), main="")
+plot(density(na.omit(res.eb$log2FC)), main="")
 abline(v=0,col="green")
 abline(v=median(res.eb$effectSize),col=2,lty=2)
-hist(res.eb$p.mod, breaks=20, xlab="moderated p-Value", main="")
-abline(h=length(res.eb$p.mod)/20,col="blue")
+hist(res.eb$P.Value, breaks=20, xlab="moderated p-Value", main="")
+abline(h=length(res.eb$P.Value)/20,col="blue")
 
 ```
 
 \newpage
 
-## Adjusted moderated p-values
-
 If the groups are different we would expect more small p-values than by chance (Figure \@ref(fig:densityOFFoldChanges) right panel blue horizontal line). If there are only as many or less small p-values as by chance than no significant false discovery rate controlled calls (Q Values) will be made in Figure \@ref(fig:volcanoplot). Significant calls are made with q-value smaller than `r grp2$qvalue` (see Figure \@ref(fig:volcanoplot)). Table \@ref(tab:nrsignificant) summarizes the number of significant calls  while \@ref(tab:top20table) lists the proteins with the smallest moderated q-values.
 
 
 ```{r volcanoplot, fig.width=8, fig.height=6, dpi=300, fig.cap="VolcanoPlot : x axis log2 fold change of normalized data, y axis : panel A  -log10(p-value), panel B -log10(q-value)"}
-res.eb$names <- rownames(res.eb)
+head(res.eb)
 p <- quantable::volcano2GB(res.eb,
-                           ylab="-log10(Q Value)",
+                           pvalue="adj.P.Val",
+                           ylab="-log10(adj. P Value)",
+                           labels = "proteinID",
                            log2FCThresh=grp2$qfoldchange,
-                           pthresh=grp2$qvalue)
-
-if(length(grp2$special)>0)
-{
-  p<-quantable::addSpecialProteins(p, res.eb, grp2$special)
-}
+                           pthresh=grp2$qvalue
+)
 p<-p + labs(tag="B") +theme(legend.position="bottom")
 
 pp <- quantable::volcano2GB(res.eb,
-                            pvalue="p.mod",
-                           ylab="-log10(P Value)",
-                           log2FCThresh=grp2$qfoldchange,
-                           pthresh=grp2$qvalue)
+                            pvalue="P.Value",
+                            ylab="-log10(P Value)",
+                            labels = "proteinID",
+                            log2FCThresh=grp2$qfoldchange,
+                            pthresh=grp2$qvalue)
 pp<-pp + labs(tag="A") + theme(legend.position="bottom")
 if(length(grp2$special)>0)
 {
-  pp<-quantable::addSpecialProteins(pp, res.eb, grp2$special, pvalue="p.mod")
+  p<-quantable::addSpecialProteins(p, res.eb, grp2$special, pvalue= "adj.P.Val")
+  pp<-quantable::addSpecialProteins(pp, res.eb, grp2$special, pvalue="P.Value")
 }
 
 gridExtra::grid.arrange(pp, p, nrow=1)
@@ -338,11 +336,12 @@ gridExtra::grid.arrange(pp, p, nrow=1)
 
 ```{r nrsignificant, results="markup"}
 tmp <- grp2$getResultTable()
-x <- data.frame(table(abs(tmp$effectSize) > grp2$qfoldchange & tmp$q.mod < grp2$qvalue))
+head(tmp)
+x <- data.frame(table(abs(tmp$log2FC) > grp2$qfoldchange & tmp$adj.P.Val < grp2$qvalue))
 if(length(x$Var1) == 2){
   x$Var1 <- c("Not Significant" , "Significant")
 }
-knitr::kable(x, caption = "Number of not significant and significant proteins (by q.mod).")
+knitr::kable(x, caption = "Number of not significant and significant proteins (by adj.P.Val).")
 ```
 
 
@@ -350,7 +349,7 @@ knitr::kable(x, caption = "Number of not significant and significant proteins (b
 ```{r top20table}
 tmp2 <- grp2$getModPValuesCI()
 top20 <- tmp2 %>% dplyr::select( proteinID,log2FC,CI.L,CI.R, P.Value, adj.P.Val ) %>% arrange(P.Value) %>% head(20)
-knitr::kable(top20, caption = "Top 20 proteins sorted by smallest Q Value (q.mod). The effectSize column is the log2 FC of condition - reference.")
+knitr::kable(top20, caption = "Top 20 proteins sorted by smallest Q Value (adj.P.Val). The effectSize column is the log2 FC of condition vs reference.")
 ```
 
 
@@ -358,9 +357,9 @@ knitr::kable(top20, caption = "Top 20 proteins sorted by smallest Q Value (q.mod
 tmp2 %>% arrange(P.Value) %>% head(20) -> top20CI
 top20CI$proteinID <- with(top20CI,reorder(proteinID,P.Value, function(x){-x}))
 ggplot(top20CI, aes(x = proteinID, y = log2FC,
-                     ymin = CI.L, ymax = CI.R)) +
-    geom_hline( yintercept = 0, color = 'red' ) +
-    geom_linerange() + geom_point() + coord_flip() + theme_minimal()
+                    ymin = CI.L, ymax = CI.R)) +
+  geom_hline( yintercept = 0, color = 'red' ) +
+  geom_linerange() + geom_point() + coord_flip() + theme_minimal()
 ```
 
 \newpage
@@ -372,9 +371,9 @@ NAinfo <- c(sum(is.na(results[, grp2$getConditions()$reference])) ,
             sum(is.na(results[, grp2$getConditions()$condition])) )
 NAinfo<-data.frame(name = unlist(grp2$getConditions()), nrProteins= NAinfo)
 
-child_docs <- "Grp2Analysis_MissingInOneCondtion.Rmd_t"
+child_docs <- "Grp2Analysis_MissingInOneCondtion.Rmd"
 if(!sum(NAinfo$nrProteins > 0) > 0){
-  child_docs <- "Grp2Analysis_Empty.Rmd_t"
+  child_docs <- "Grp2Analysis_Empty.Rmd"
 }
 
 child_docs <- system.file(file.path("ParametrizedReportsChild",child_docs),package = "SRMService")
@@ -385,9 +384,9 @@ child_docs <- system.file(file.path("ParametrizedReportsChild",child_docs),packa
 ```{r includeMissingInOne, child = child_docs}
 ```
 
-## Data interpretation
+# Data interpretation
 
-For interpreting the results in the _`r paste0("MaxQuant_report", grp2$projectName, ".csv")`_ file, the protein IDs can be either sorted by `effectSize` or `p.mod` (See Table \@ref(tab:columnlist)). Large positive or negative fold changes typically result in small p-values.
+For interpreting the results in the _`r paste0("MaxQuant_report", grp2$projectName, ".csv")`_ file, the protein IDs can be either sorted by `log2FC` or `P.Value` (See Table \@ref(tab:columnlist)). Large positive or negative fold changes typically result in small p-values.
 The sorted IDs can then be subjected to over-representation analysis (ORA) or gene set enrichment analysis (GSEA). The web application WebGestalt (WEB-based GEne SeT AnaLysis Toolkit) <http://www.webgestalt.org> implements both of these methods (and many more) for the most popular organisms [@Wang2017].
 
 A further resource to analyze the results is the STRING database <https://string-db.org> [@Szklarczyk2017]. It reports known interactions for the proteins in the subset of proteins generated on a p-value or fold change threshold.
@@ -412,7 +411,8 @@ The obtained results should be validated orthogonal as well (e.g. with Western b
 For questions and improvement suggestions, please do contact <protinf@fgcz.uzh.ch>.
 
 
-# Session Info
+# Session Inforamtion
+
 
 ```{r}
 pander::pander(sessionInfo())

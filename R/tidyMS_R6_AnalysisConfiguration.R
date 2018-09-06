@@ -706,7 +706,7 @@ plot_stdv_vs_mean <- function(data, config){
   }
   if (!is.null(colors)){
     if (length(colors)!=length(unique(string))){
-      break("The number of colors must be equal to the number of unique elements.")
+      stop("The number of colors must be equal to the number of unique elements.")
     }
     else {
       conv = cbind(unique(string), colors)
