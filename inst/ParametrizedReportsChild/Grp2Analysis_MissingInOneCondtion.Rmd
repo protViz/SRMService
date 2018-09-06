@@ -25,14 +25,14 @@ ggplot(NAinfo , aes(x= name, y=nrProteins)) +
 
 ```{r IntensitiesSingle}
 tmp1 <- results %>%
-  select(TopProteinName,grp2$getConditions()$reference , grp2$getConditions()$condition,effectSize) %>%
-  dplyr::filter(is.na(effectSize)) %>%
+  select(TopProteinName,grp2$getConditions()$reference , grp2$getConditions()$condition,log2FC) %>%
+  dplyr::filter(is.na(log2FC)) %>%
   arrange( desc(!!sym(grp2$getConditions()$reference)) ,desc(!!sym(grp2$getConditions()$condition)) )
 
 ```
 
 
-```{r barplotIntensitiesSingle, fig.with=12, fig.height=8, fig.cap="Proteins having a high normalized intensity in one condition not quantified in the second condition."}
+```{r barplotIntensitiesSingle, fig.with=8, fig.height=6, fig.cap="Proteins having a high normalized intensity in one condition not quantified in the second condition."}
 
 plotBaR<-function(tmp2, name){
   if(nrow(tmp2) > 0){
@@ -50,7 +50,7 @@ tmp2C <- dplyr::filter(tmp1, !is.na(!!sym(grp2$getConditions()$condition)))
 
 if(nrow(tmp2R) >0 & nrow(tmp2C)> 0){
   par(mfrow=c(1,2))
-  par(mar=c(8,4,4,1))
+  par(mar=c(10,4,4,1))
   plotBaR(tmp2R , name= grp2$getConditions()$reference)
   plotBaR(tmp2C, name=  grp2$getConditions()$condition)
 }else if(nrow(tmp2R) >0 | nrow(tmp2C)> 0){
@@ -62,32 +62,49 @@ if(nrow(tmp2R) >0 & nrow(tmp2C)> 0){
 ```
 
 
-Furthermore, in order to integrate those proteins with proteins which do have a fold change and a q.value, we also provide and a fold change estimate and q.value for those proteins. To emphasize that these values were not obtained by means of fitting a statistical model we call the columns in the output file which do contain them `pseudo.effectSize` and `pseudo.q.mod`. The reported pseudo fold change is computed by subtracting from the quantification value the average of the 10% smallest protein averages of the other condition while the q-value for those proteins was set to 0. The Volcano plot in Figure @ref(fig:pseudoVolcanoplot) envisages all the proteins quantified including those identified only in one of the samples (green).
+Furthermore, in order to integrate those proteins with proteins which do have a fold change and a q.value, we also provide and a fold change estimate and q.value for those proteins. To emphasize that these values were not obtained by means of fitting a statistical model we call the columns in the output file which do contain them `pseudo.log2FC` and `pseudo.adj.P.Val`. The reported pseudo fold change is computed by subtracting from the quantification value the average of the 10% smallest protein averages of the other condition while the q-value for those proteins was set to 0. The Volcano plot in Figure @ref(fig:pseudoVolcanoplot) envisages all the proteins quantified including those identified only in one of the samples (green).
 
 
 
 
 ```{r pseudoVolcanoplot, fig.width=10, fig.height=8, dpi=300, fig.cap="VolcanoPlot: x axis log2 fold change including pseudo log2 foldchanges of normalized data, y axis -log10(Q-value) inluding pseudo q-values."}
 pseudoData <- grp2$getResultTableWithPseudo()
-p <- quantable::volcano2GB(pseudoData,
-                foldchange ="pseudo.effectSize",
-                pvalue = "pseudo.q.mod",
-                labels = "TopProteinName",
+colnames(pseudoData)
+
+
+p1 <- quantable::volcano2GB(pseudoData,
+                foldchange ="pseudo.log2FC",
+                pvalue = "pseudo.P.Value",
+                labels = "proteinID",
+                ylab="-log10(P Value)",
+                log2FCThresh=grp2$qfoldchange,
+                pthresh=grp2$qvalue,
+                pseudo = pseudoData$P.Value)
+
+p2 <- quantable::volcano2GB(pseudoData,
+                foldchange ="pseudo.log2FC",
+                pvalue = "pseudo.adj.P.Val",
+                labels = "proteinID",
                 ylab="-log10(Q Value)",
                 log2FCThresh=grp2$qfoldchange,
                 pthresh=grp2$qvalue,
-                pseudo = pseudoData$q.mod)
+                pseudo = pseudoData$adj.P.Val)
 
-if(length(grp2$special)>0)
+if(length( grp2$special )>0)
 {
-  quantable::addSpecialProteins(p,pseudoData,special=  grp2$special,
-                     foldchange ="pseudo.effectSize",
+  p1<-quantable::addSpecialProteins(p1,pseudoData,special=  grp2$special,
+                     foldchange ="pseudo.log2FC",
+                     pvalue = "pseudo.p.mod",
+                     labels = "TopProteinName")
+
+  p2<-quantable::addSpecialProteins(p2,pseudoData,special=  grp2$special,
+                     foldchange ="pseudo.log2FC",
                      pvalue = "pseudo.q.mod",
-                     labels = "TopProteinName"
-  )
-}else{
-  p
+                     labels = "TopProteinName")
+
 }
+
+gridExtra::grid.arrange(p1, p2, nrow=1)
 
 ```
 
