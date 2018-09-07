@@ -1,7 +1,7 @@
 Package: SRMService
 Type: Package
 Title: Performs Service SRM and LFQ analysis
-Version: 0.1.9.14
+Version: 0.1.9.15
 Author: Witold Wolski and Christian Panse and Jonas Grossmann
 Maintainer: Witold Wolski <wewolski@gmail.com>
 Description: Analysing and LFQ and SRM experiments in service mode.
@@ -39,7 +39,7 @@ LazyData: TRUE
 URL: https://github.com/protViz/SRMService
 BugReports: https://github.com/protViz/SRMService/issues
 Repository: CRAN
-RoxygenNote: 6.0.1
+RoxygenNote: 6.1.0
 Collate:
     'A_dataset_docu.R'
     'RequiredColumns.R'

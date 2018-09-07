@@ -21,7 +21,7 @@ Perform 2 group analysis with visualization
 
 \item{\code{projectName}}{name of project}
 
-\item{\code{experimentName}}{name of experiment}
+\item{\code{projectID}}{name of experiment}
 }}
 
 \section{Methods}{

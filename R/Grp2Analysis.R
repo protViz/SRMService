@@ -11,7 +11,7 @@
 #' @field maxNA maximum number of NA's
 #' @field condition summary of conditions
 #' @field projectName name of project
-#' @field experimentName name of experiment
+#' @field projectID name of experiment
 #' @field pvalue pvalue threshold
 #' @field qvalue qvalue threshold
 #' @field pfoldchange foldchange threshold for p volcano plot
@@ -26,7 +26,8 @@ Grp2Analysis <- setRefClass("Grp2Analysis",
                                            maxNA = "numeric",
                                            conditions = "character",
                                            projectName = "character",
-                                           experimentName = "character",
+                                           projectID = "character",
+                                           workunitID = "character",
                                            pvalue= "numeric",
                                            qvalue= "numeric",
                                            pfoldchange = "numeric",
@@ -43,7 +44,8 @@ Grp2Analysis <- setRefClass("Grp2Analysis",
                               initialize = function(
                                 annotation,
                                 projectName,
-                                experimentName="LFQ experiment",
+                                projectID="p1",
+                                workunitID="wu1",
                                 maxNA=3,
                                 nrPeptides = 2,
                                 reference = "Control",
@@ -56,7 +58,8 @@ Grp2Analysis <- setRefClass("Grp2Analysis",
                                   stop("wrong reference :" , reference, " in conditions: ", paste(unique(annotation$Condition), collapse=","))
                                 }
                                 .self$projectName <- projectName
-                                .self$experimentName <- experimentName
+                                .self$projectID <- projectID
+                                .self$workunitID <- workunitID
                                 stopifnot(annotationCol %in% colnames(annotation))
                                 annotation <- annotation[!is.na(annotation$Condition),]
                                 .self$annotation_ <- annotation[order(annotation$Condition),]

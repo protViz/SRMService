@@ -8,7 +8,7 @@
 #' @field nrPeptides min number of peptides per protein
 #' @field maxNA maximum number of NA's
 #' @field projectName name of project
-#' @field experimentName name of experiment
+#' @field projectID name of experiment
 #'
 QCProteinReport <- setRefClass("QCProteinReport",
                             fields = list( proteinIntensity = "data.frame",
@@ -16,7 +16,7 @@ QCProteinReport <- setRefClass("QCProteinReport",
                                            nrPeptides = "numeric",
                                            maxNA = "numeric",
                                            projectName = "character",
-                                           experimentName = "character"
+                                           projectID = "character"
                             )
                             , methods = list(
                               setProteins = function( protein ){
@@ -40,13 +40,13 @@ QCProteinReport <- setRefClass("QCProteinReport",
                               },
                               initialize = function(
                                 projectName,
-                                experimentName="LFQ experiment",
+                                projectID="p1",
                                 maxNA=3,
                                 nrPeptides = 2
 
                               ){
                                 .self$projectName <- projectName
-                                .self$experimentName <- experimentName
+                                .self$projectID <- projectID
                                 .self$nrPeptides <- nrPeptides
                                 .self$maxNA <- maxNA
                               },
