@@ -17,7 +17,7 @@
 #' @field pfoldchange foldchange threshold for p volcano plot
 #' @field qfoldchange foldchange threshold for q volcano plot
 #' @field reference document
-#' @field removeDates
+#' @field removeDates strip the date from file name.
 Grp2Analysis <- setRefClass("Grp2Analysis",
                             fields = list( proteinIntensity = "data.frame",
                                            annotation_ = "data.frame",
