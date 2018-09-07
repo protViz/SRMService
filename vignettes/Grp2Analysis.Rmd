@@ -15,7 +15,7 @@ vignette: >
   \usepackage{fancyhdr}
   \pagestyle{fancy}
   \fancyhead[CO,CE]{Group Comparison}
-  \fancyfoot[CO,CE]{Functional Genomics Center Zurich - 2018}
+  \fancyfoot[CO,CE]{\textbf{FGCZ} - www.fgcz.ch - 2018}
   \fancyfoot[LE,RO]{\thepage} 
   bibliography: bibliography.bib
 editor_options: 
@@ -305,30 +305,32 @@ If the groups are different we would expect more small p-values than by chance (
 
 
 ```{r volcanoplot, fig.width=8, fig.height=6, dpi=300, fig.cap="VolcanoPlot : x axis log2 fold change of normalized data, y axis : panel A  -log10(p-value), panel B -log10(q-value)"}
-head(res.eb)
-p <- quantable::volcano2GB(res.eb,
-                           pvalue="adj.P.Val",
-                           ylab="-log10(adj. P Value)",
-                           labels = "proteinID",
-                           log2FCThresh=grp2$qfoldchange,
-                           pthresh=grp2$qvalue
-)
-p<-p + labs(tag="B") +theme(legend.position="bottom")
 
-pp <- quantable::volcano2GB(res.eb,
+p1 <- quantable::volcano2GB(res.eb,
                             pvalue="P.Value",
                             ylab="-log10(P Value)",
                             labels = "proteinID",
                             log2FCThresh=grp2$qfoldchange,
                             pthresh=grp2$qvalue)
-pp<-pp + labs(tag="A") + theme(legend.position="bottom")
+p1<-p1 + labs(tag="A") + theme(legend.position="bottom")
+
+
+p2 <- quantable::volcano2GB(res.eb,
+                           pvalue="adj.P.Val",
+                           ylab="-log10(adj. P Value)",
+                           labels = "proteinID",
+                           log2FCThresh=grp2$qfoldchange,
+                           pthresh=grp2$qvalue)
+
+p2 <-p2 + labs(tag="B") + theme(legend.position="bottom")
+
 if(length(grp2$special)>0)
 {
-  p<-quantable::addSpecialProteins(p, res.eb, grp2$special, pvalue= "adj.P.Val")
-  pp<-quantable::addSpecialProteins(pp, res.eb, grp2$special, pvalue="P.Value")
+  p1<-quantable::addSpecialProteins(p1, res.eb, grp2$special, pvalue="P.Value")
+  p2<-quantable::addSpecialProteins(p2, res.eb, grp2$special, pvalue= "adj.P.Val")
 }
 
-gridExtra::grid.arrange(pp, p, nrow=1)
+gridExtra::grid.arrange(p1, p2, nrow=1)
 ```
 
 \newpage
@@ -336,7 +338,6 @@ gridExtra::grid.arrange(pp, p, nrow=1)
 
 ```{r nrsignificant, results="markup"}
 tmp <- grp2$getResultTable()
-head(tmp)
 x <- data.frame(table(abs(tmp$log2FC) > grp2$qfoldchange & tmp$adj.P.Val < grp2$qvalue))
 if(length(x$Var1) == 2){
   x$Var1 <- c("Not Significant" , "Significant")
