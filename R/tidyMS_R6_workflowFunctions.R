@@ -129,7 +129,7 @@ workflow_corr_filter_impute <- function(data,config, minCorrelation =0.6){
 #' tmp <-workflow_NA_preprocessing(data, config, percent=70)
 #' config$get
 #' hierarchyCounts(tmp, config)
-#' stopifnot(isFALSE(is.grouped_df(tmp)))
+#' stopifnot(FALSE==(is.grouped_df(tmp)))
 workflow_NA_preprocessing <- function(data, config, percent = 60, factor_level = 1){
   stat_input <- hierarchyCounts(data, config)
   data_NA <- removeLarge_Q_Values(data, config)

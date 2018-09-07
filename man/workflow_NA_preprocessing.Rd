@@ -20,7 +20,7 @@ tmp <-workflow_NA_preprocessing(data, config)
 tmp <-workflow_NA_preprocessing(data, config, percent=70)
 config$get
 hierarchyCounts(tmp, config)
-stopifnot(isFALSE(is.grouped_df(tmp)))
+stopifnot(FALSE==(is.grouped_df(tmp)))
 }
 \seealso{
 Other workflow functions: \code{\link{workflow_Q_NA_filtered_Hierarchy}},
