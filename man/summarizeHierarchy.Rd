@@ -12,7 +12,11 @@ Summarize peptide Counts
 \examples{
 library(SRMService)
 library(tidyverse)
+<<<<<<< HEAD
 skylineconfig <- craeteSkylineConfiguration(isotopeLabel="Isotope.Label.Type", ident_qValue="Detection.Q.Value")
+=======
+skylineconfig <- createSkylineConfiguration(isotopeLabel="Isotope.Label.Type", ident_qValue="Detection.Q.Value")
+>>>>>>> d5382ac60d502c8d041c3cc4433564e7eaa8e6f6
 skylineconfig$table$factors[["Time"]] = "Sampling.Time.Point"
 data(skylinePRMSampleData)
 

@@ -34,7 +34,7 @@ library(yaml)
 outdir <- tempdir()
 data(skylinePRMSampleData)
 
-skylineconfig <- craeteSkylineConfiguration(isotopeLabel="Isotope.Label.Type", ident_qValue="Detection.Q.Value")
+skylineconfig <- createSkylineConfiguration(isotopeLabel="Isotope.Label.Type", ident_qValue="Detection.Q.Value")
 skylineconfig$table$factors[["Time"]] = "Sampling.Time.Point"
 #usethis::use_data(skylineconfig, overwrite = TRUE)
 resData <- setup_analysis(skylinePRMSampleData, skylineconfig)
@@ -70,7 +70,7 @@ if(1){
 ```
 
 ```{r}
-resDataLog <- SRMService::transformIntensities(resData , skylineconfig, log2)
+resDataLog <- SRMService::transform_work_intensity(resData , skylineconfig, log2)
 
 figs3 <- applyToHierarchyBySample(resDataLog, skylineconfig, medpolishPly)
 figs3 <- figs3 %>% mutate(plotlog = map2(data, UQ(proteinIDsymbol) , linePlotHierarchy_configuration, skylineconfig))

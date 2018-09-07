@@ -18,7 +18,7 @@ library(glue)
 config <- spectronautDIAData250_config$clone(deep=T)
 config$parameter$min_nr_of_notNA  <- 20
 data <- spectronautDIAData250_analysis
-data <- transformIntensities(data, config, log2)
+data <- transform_work_intensity(data, config, log2)
 compute_anova(data, config, hierarchy_level= 2, factor_level=1)
 compute_anova(data, config, hierarchy_level = 1, factor_level=2)
 compute_anova(data, config, hierarchy_level= 2, factor_level=2)

@@ -47,7 +47,6 @@ compute_roc <- function(data, config){
   dumm <- nested %>% dplyr::select(!!sym(config$table$hierarchyKeys()[1]),
                                    !!sym(config$table$hierarchyKeys(TRUE)[1]),
                                    rocs) %>%  unnest()
-  head(dumm)
   dumm <- dumm %>% mutate(comparison = map_chr(rocs, function(x){paste(x$levels, collapse = " ")}))
   dumm <- dumm %>% separate(comparison, into = c("response1" , "response2"), sep=" ")
   dumm <- dumm %>% mutate(auc = map_dbl(rocs, pROC::auc)) %>% arrange(desc(auc))
@@ -68,7 +67,7 @@ compute_roc <- function(data, config){
 #' config <- spectronautDIAData250_config$clone(deep=T)
 #' config$parameter$min_nr_of_notNA  <- 20
 #' data <- spectronautDIAData250_analysis
-#' data <- transformIntensities(data, config, log2)
+#' data <- transform_work_intensity(data, config, log2)
 #' compute_anova(data, config, hierarchy_level= 2, factor_level=1)
 #' compute_anova(data, config, hierarchy_level = 1, factor_level=2)
 #' compute_anova(data, config, hierarchy_level= 2, factor_level=2)

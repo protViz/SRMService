@@ -55,7 +55,7 @@ grp2$qfoldchange = 2
 grp2$setQValueThresholds(qvalue = 0.01)
 
 grp2PullDownExample <- grp2
-usethis::use_data(grp2PullDownExample)
+usethis::use_data(grp2PullDownExample, overwrite = TRUE)
 results <- grp2$getResultTable()
 #write.table(results, file=file.path(workdir,"pValues.csv"), quote=FALSE, sep = "\t", col.names=NA)
 

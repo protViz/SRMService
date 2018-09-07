@@ -21,7 +21,7 @@
 #'
 #' @format A AnalysisConfiguration R6 class
 #' @examples
-#' skylineconfig <- craeteSkylineConfiguration(isotopeLabel="Isotope.Label.Type",
+#' skylineconfig <- createSkylineConfiguration(isotopeLabel="Isotope.Label.Type",
 #'  ident_qValue="Detection.Q.Value")
 #' skylineconfig$table$factors[["Time"]] = "Sampling.Time.Point"
 #' usethis::use_data( skylineconfig , overwrite = TRUE )
@@ -40,7 +40,7 @@
 #' @source \url{http://www.fgcz.ch/}
 #' @examples
 #'
-#' skylineconfig <- craeteSkylineConfiguration(isotopeLabel="Isotope.Label.Type",
+#' skylineconfig <- createSkylineConfiguration(isotopeLabel="Isotope.Label.Type",
 #'  ident_qValue="Detection.Q.Value")
 #' skylineconfig$table$factors[["Time"]] = "Sampling.Time.Point"
 #' data(skylinePRMSampleData)
@@ -61,11 +61,11 @@
 #'
 #' @format A AnalysisConfiguration R6 class
 #' @examples
-#' skylineconfig_HL <- craeteSkylineConfiguration(isotopeLabel="Isotope.Label",
+#' skylineconfig_HL <- createSkylineConfiguration(isotopeLabel="Isotope.Label",
 #'  ident_qValue="annotation_QValue")
 #' skylineconfig_HL$table$factors[["treatment_c"]] <- "Condition2"
 #' skylineconfig_HL$table$factors[["time_c"]] <- "time"
-#' skylineconfig_HL$parameter$workingIntensityTransform = ""
+#' skylineconfig_HL$parameter$is_intensity_transformed = FALSE
 #' usethis::use_data( skylineconfig_HL , overwrite = TRUE )
 "skylineconfig_HL"
 
@@ -75,15 +75,15 @@
 #' @source \url{http://www.fgcz.ch/}
 #' @examples
 #'
-#' skylineconfig_HL <- craeteSkylineConfiguration(isotopeLabel="Isotope.Label",
+#' skylineconfig_HL <- createSkylineConfiguration(isotopeLabel="Isotope.Label",
 #'  ident_qValue="annotation_QValue")
 #' skylineconfig_HL$table$factors[["treatment_c"]] <- "Condition2"
 #' skylineconfig_HL$table$factors[["time_c"]] <- "time"
-#' skylineconfig_HL$parameter$workingIntensityTransform = ""
+#' skylineconfig_HL$parameter$is_intensity_transformed = FALSE
 #' data(skylineSRM_HL_data)
 #' skylineSRM_HL_data$Area[skylineSRM_HL_data$Area == 0] <- NA
 #' sample_analysis_HL <- setup_analysis(skylineSRM_HL_data, skylineconfig_HL)
-#' #usethis::use_data( sample_analysis_HL , overwrite = TRUE )
+#' usethis::use_data( sample_analysis_HL , overwrite = TRUE )
 "sample_analysis_HL"
 
 #spectronautDIAData250----
@@ -129,6 +129,9 @@
 # grp2PullDownExample ---
 
 #' Grp2Analysis on pulldown data example
-#' @format reference clss
+#' @format reference class
 "grp2PullDownExample"
 
+#' Grp2Analysis on of nockout with missing data
+#' @format reference class
+"mqQuantMatrixGRP2"

@@ -37,7 +37,7 @@ Perform 2 group analysis with visualization
 
 \item{\code{reference}}{document}
 
-\item{\code{removeDates}}{}
+\item{\code{removeDates}}{strip the date from file name.}
 }}
 
 \section{Methods}{

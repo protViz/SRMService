@@ -4,7 +4,7 @@
 \alias{plot_stdv_vs_mean}
 \title{stddev vs mean}
 \usage{
-plot_stdv_vs_mean(data)
+plot_stdv_vs_mean(data, config)
 }
 \description{
 stddev vs mean
@@ -15,13 +15,13 @@ library(tidyverse)
 data <- sample_analysis
 config <- skylineconfig$clone(deep=TRUE)
 res <- summarize_cv(data, config)
-plot_stdv_vs_mean(res)
-datalog2 <- transformIntensities(data, config, transformation = log2)
+plot_stdv_vs_mean(res, config)
+datalog2 <- transform_work_intensity(data, config, transformation = log2)
 statlog2 <- summarize_cv(datalog2, config)
-plot_stdv_vs_mean(statlog2)
+plot_stdv_vs_mean(statlog2, config)
 config$table$getWorkIntensity()
 config$table$popWorkIntensity()
-datasqrt <- transformIntensities(data, config, transformation = sqrt)
+datasqrt <- transform_work_intensity(data, config, transformation = sqrt)
 ressqrt <- summarize_cv(datasqrt, config)
-plot_stdv_vs_mean(ressqrt)
+plot_stdv_vs_mean(ressqrt, config)
 }

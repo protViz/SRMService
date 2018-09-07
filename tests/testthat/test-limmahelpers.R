@@ -1,5 +1,10 @@
 context("test-limmahelpers")
 
 test_that("multiplication works", {
-  expect_equal(2 * 2, 4)
+  library(SRMService)
+  grp <- SRMService::mqQuantMatrixGRP2
+  grp <- mqQuantMatrixGRP2
+  tmp <- grp$getResultTable()
+  tmp <- grp$getResultTableWithPseudo()
+
 })

@@ -23,7 +23,7 @@ and was generate from \link{skylinePRMSampleData}
 }
 \examples{
 
-skylineconfig <- craeteSkylineConfiguration(isotopeLabel="Isotope.Label.Type",
+skylineconfig <- createSkylineConfiguration(isotopeLabel="Isotope.Label.Type",
  ident_qValue="Detection.Q.Value")
 skylineconfig$table$factors[["Time"]] = "Sampling.Time.Point"
 data(skylinePRMSampleData)

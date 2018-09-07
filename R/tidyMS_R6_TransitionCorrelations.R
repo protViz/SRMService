@@ -48,13 +48,13 @@ remove_small_intensities <- function(data, config, threshold = 1){
 #' library(tidyverse)
 #' config <- SRMService::spectronautDIAData250_config$clone(deep=TRUE)
 #' analysis <- SRMService::spectronautDIAData250_analysis
-#' x <- transformIntensities(analysis, config, transform = log2)
+#' x <- transform_work_intensity(analysis, config, transform = log2)
 #' stopifnot("log2_FG.Quantity" %in% colnames(x))
 #' config <- SRMService::spectronautDIAData250_config$clone(deep=TRUE)
 #' analysis <- SRMService::spectronautDIAData250_analysis
-#' x <- transformIntensities(analysis, config, transform = asinh)
+#' x <- transform_work_intensity(analysis, config, transform = asinh)
 #' stopifnot("asinh_FG.Quantity" %in% colnames(x))
-transformIntensities <- function(data,
+transform_work_intensity <- function(data,
                                  config,
                                  transformation,
                                  intesityNewName = NULL){
@@ -68,37 +68,48 @@ transformIntensities <- function(data,
   data <- data %>% mutate_at(config$table$getWorkIntensity(), .funs = funs(!!sym(newcol) := transformation(.)))
   config$table$setWorkIntensity(newcol)
   message("Column added : ", newcol)
-  if(grepl("log",as.character(x$transformation))){
-    config$parameter$workingIntensityTransform = "log"
-  }
+  config$parameter$is_intensity_transformed = TRUE
 
   return(data)
 }
 
 #' visualize intensity distributions
 #' @export
+#' @import ggplot2
 #' @family plotting
 #' @examples
 #' config <- skylineconfig$clone(deep=TRUE)
-#' analysis <- transformIntensities(sample_analysis, config, log2)
+#' plot_intensity_distribution_violin(sample_analysis, config)
+#' analysis <- transform_work_intensity(sample_analysis, config, log2)
 #' plot_intensity_distribution_violin(analysis, config)
 plot_intensity_distribution_violin <- function(data, config){
-  ggplot(data, aes_string(x = config$table$sampleName, y = config$table$getWorkIntensity() )) +
+  p <- ggplot(data, aes_string(x = config$table$sampleName, y = config$table$getWorkIntensity() )) +
     geom_violin() +
     theme(axis.text.x = element_text(angle=90))
+  if(!config$parameter$is_intensity_transformed){
+    p <- p + scale_y_continuous(trans='log10')
+  }
+  return(p)
 }
 
 #' visualize intensity distributions
 #' @export
+#' @import ggplot2
 #' @family plotting
 #' @rdname plot_intensity_distribution_violin
 #' @examples
+#'
 #' config <- skylineconfig$clone(deep=TRUE)
-#' analysis <- transformIntensities(sample_analysis, config, log2)
+#' plot_intensity_distribution_density(sample_analysis, config)
+#' analysis <- transform_work_intensity(sample_analysis, config, log2)
 #' plot_intensity_distribution_density(analysis, config)
 plot_intensity_distribution_density <- function(data, config){
-  ggplot(data, aes_string(x = config$table$getWorkIntensity(), colour = config$table$sampleName )) +
+  p <- ggplot(data, aes_string(x = config$table$getWorkIntensity(), colour = config$table$sampleName )) +
     geom_line(stat="density")
+  if(!config$parameter$is_intensity_transformed){
+    p <- p + scale_x_continuous(trans='log10')
+  }
+  return(p)
 }
 
 #' visualize correlation among samples
@@ -107,12 +118,31 @@ plot_intensity_distribution_density <- function(data, config){
 #' @rdname plot_sample_correlation
 #' @examples
 #' config <- skylineconfig$clone(deep=TRUE)
-#' analysis <- transformIntensities(sample_analysis, config, log2)
+#' analysis <- transform_work_intensity(sample_analysis, config, log2)
 #' plot_sample_correlation(analysis, config)
 plot_sample_correlation <- function(data, config){
   matrix <- toWideConfig(data, config, as.matrix = TRUE)
   M <- cor(matrix, use="pairwise.complete.obs")
-  corrplot::corrplot.mixed(M,upper="square", lower="pie",  diag="u", tl.pos="lt")
+  if(nrow(M)>12){
+  corrplot::corrplot.mixed(M,upper="ellipse",
+                           lower="pie",
+                           diag="u",
+                           tl.cex=.6,
+                           tl.pos="lt",
+                           tl.col="black",
+                           mar=c(2,5,5,2))
+  } else{
+    corrplot::corrplot.mixed(M,upper="ellipse",
+                             lower="number",
+                             lower.col = "black",
+                             tl.cex=.6,
+                             number.cex = .7,
+                             diag="u",
+                             tl.pos="lt",
+                             tl.col="black",
+                             mar=c(2,5,5,2))
+
+  }
   invisible(M)
 }
 
@@ -461,8 +491,8 @@ aggregateTopNIntensities <- function(data , config, func, N, hierarchy_level = 1
                       ident_qValue = min(!!sym(config$table$ident_qValue)))
 
   newconfig <- make_reduced_hierarchy_config(config,
-                                          workIntensity = newcol,
-                                          hierarchy = config$table$hierarchy[1:hierarchy_level])
+                                             workIntensity = newcol,
+                                             hierarchy = config$table$hierarchy[1:hierarchy_level])
   return(list(data = sumTopInt, newconfig = newconfig))
 }
 

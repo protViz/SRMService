@@ -15,4 +15,7 @@ sample_analysis \%>\% dplyr::mutate(Area = setNa(Area)) -> sample_analysis
 res <- missingPerCondition(sample_analysis,skylineconfig)
 names(res)
 print(res$figure)
+configuration <- skylineconfig$clone(deep=TRUE)
+x <- sample_analysis
+nrfactors <- 1
 }

@@ -12,7 +12,7 @@ Light only version.
 Summarize Protein counts
 }
 \examples{
-skylineconfig <- craeteSkylineConfiguration(isotopeLabel="Isotope.Label.Type", ident_qValue="Detection.Q.Value")
+skylineconfig <- createSkylineConfiguration(isotopeLabel="Isotope.Label.Type", ident_qValue="Detection.Q.Value")
 skylineconfig$table$factors[["Time"]] = "Sampling.Time.Point"
 data(skylinePRMSampleData)
 sample_analysis <- setup_analysis(skylinePRMSampleData, skylineconfig)

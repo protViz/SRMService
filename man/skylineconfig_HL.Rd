@@ -12,11 +12,11 @@ skylineconfig_HL
 A configuration which matches the \link{sample_analysis} data.
 }
 \examples{
-skylineconfig_HL <- craeteSkylineConfiguration(isotopeLabel="Isotope.Label",
+skylineconfig_HL <- createSkylineConfiguration(isotopeLabel="Isotope.Label",
  ident_qValue="annotation_QValue")
 skylineconfig_HL$table$factors[["treatment_c"]] <- "Condition2"
 skylineconfig_HL$table$factors[["time_c"]] <- "time"
-skylineconfig_HL$parameter$workingIntensityTransform = ""
+skylineconfig_HL$parameter$is_intensity_transformed = FALSE
 usethis::use_data( skylineconfig_HL , overwrite = TRUE )
 }
 \keyword{datasets}

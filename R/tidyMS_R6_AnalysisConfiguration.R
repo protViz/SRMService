@@ -9,7 +9,7 @@ AnalysisParameters <- R6::R6Class("AnalysisParameters",
                                     nrOfSigQvalues_Threshold = 5,
                                     qValThreshold = 0.01,
                                     minNumberOfQValues = 3,
-                                    workingIntensityTransform = "", # important for some plotting functions
+                                    is_intensity_transformed = FALSE, # important for some plotting functions
                                     min_nr_of_notNA = 1, # how many values per transition total
                                     min_nr_of_notNA_condition = 0, # how many not missing in condition
                                     min_peptides_protein = 2
@@ -140,7 +140,7 @@ setupDataFrame <- function(data, configuration ,sep="~"){
 #' @export
 #' @examples
 #'
-#' skylineconfig <- craeteSkylineConfiguration(isotopeLabel="Isotope.Label.Type", ident_qValue="Detection.Q.Value")
+#' skylineconfig <- createSkylineConfiguration(isotopeLabel="Isotope.Label.Type", ident_qValue="Detection.Q.Value")
 #' skylineconfig$table$factors[["Time"]] = "Sampling.Time.Point"
 #' data(skylinePRMSampleData)
 #'
@@ -231,7 +231,6 @@ linePlotHierarchy_default <- function(data,
     formula <- sprintf("~%s",factor)
     p <- ggplot(data, aes_string(x = sample, y = intensity, group=fragment,  color= peptide))
     p <- p +  geom_point() + geom_line()
-
   }
 
   #p <- ggplot(data, aes_string(x = sample, y = intensity, group=fragment,  color= peptide, linetype = isotopeLabel))
@@ -263,7 +262,7 @@ linePlotHierarchy_configuration <- function(res, proteinName, configuration, sep
                                    factor = names(configuration$table$factors)[1],
                                    isotopeLabel = configuration$table$isotopeLabel,
                                    separate = separate,
-                                   log_y = (configuration$parameter$workingIntensityTransform != "log")
+                                   log_y = !configuration$parameter$is_intensity_transformed
   )
   return(res)
 }
@@ -288,7 +287,7 @@ linePlotHierarchy_QuantLine <- function(p, data, aes_y,  configuration){
 #' @export
 #' @examples
 #' library(SRMService)
-#' skylineconfig <- craeteSkylineConfiguration(isotopeLabel="Isotope.Label.Type", ident_qValue="Detection.Q.Value")
+#' skylineconfig <- createSkylineConfiguration(isotopeLabel="Isotope.Label.Type", ident_qValue="Detection.Q.Value")
 #' skylineconfig$table$factors[["Time"]] = "Sampling.Time.Point"
 #' data(skylinePRMSampleData)
 #'
@@ -304,7 +303,7 @@ hierarchyCounts <- function(x, configuration){
 #' Summarize Protein counts
 #' @export
 #' @examples
-#' skylineconfig <- craeteSkylineConfiguration(isotopeLabel="Isotope.Label.Type", ident_qValue="Detection.Q.Value")
+#' skylineconfig <- createSkylineConfiguration(isotopeLabel="Isotope.Label.Type", ident_qValue="Detection.Q.Value")
 #' skylineconfig$table$factors[["Time"]] = "Sampling.Time.Point"
 #' data(skylinePRMSampleData)
 #' sample_analysis <- setup_analysis(skylinePRMSampleData, skylineconfig)
@@ -339,7 +338,7 @@ summarizeProteins <- function( x, configuration ){
 #' @examples
 #' library(SRMService)
 #' library(tidyverse)
-#' skylineconfig <- craeteSkylineConfiguration(isotopeLabel="Isotope.Label.Type", ident_qValue="Detection.Q.Value")
+#' skylineconfig <- createSkylineConfiguration(isotopeLabel="Isotope.Label.Type", ident_qValue="Detection.Q.Value")
 #' skylineconfig$table$factors[["Time"]] = "Sampling.Time.Point"
 #' data(skylinePRMSampleData)
 #'
@@ -412,10 +411,9 @@ getMissingStats <- function(x, configuration, nrfactors = 1){
 missignessHistogram <- function(x, configuration, showempty = TRUE, nrfactors = 1){
   table <- configuration$table
   missingPrec <- getMissingStats(x, configuration,nrfactors)
-
-  missingPrec <- missingPrec %>% ungroup()%>% dplyr::mutate(nrNAs = as.factor(nrNAs))
+  missingPrec <- missingPrec %>% ungroup() %>% dplyr::mutate(nrNAs = as.factor(nrNAs))
   if(showempty){
-    if(configuration$parameter$workingIntensityTransform != "log")
+    if(configuration$parameter$is_intensity_transformed)
     {
       missingPrec <- missingPrec %>% dplyr::mutate(meanArea = ifelse(is.na(meanArea),1,meanArea))
     }else{
@@ -425,16 +423,15 @@ missignessHistogram <- function(x, configuration, showempty = TRUE, nrfactors = 
   }
 
   factors <- head(table$factorKeys(), nrfactors)
-
   formula <- paste(table$isotopeLabel, "~", paste(factors, collapse = "+"))
   message(formula)
 
   p <- ggplot(missingPrec, aes(x = meanArea, fill = nrNAs, colour = nrNAs)) +
-    geom_histogram(alpha = 0.2,position = "identity") +
+    geom_histogram(alpha = 0.2, position = "identity") +
     facet_grid(as.formula(formula)) +
     theme(axis.text.x = element_text(angle = 90, hjust = 1))
 
-  if(configuration$parameter$workingIntensityTransform != "log")
+  if(!configuration$parameter$is_intensity_transformed)
   {
     p <- p + scale_x_log10()
   }
@@ -478,22 +475,24 @@ missingPerConditionCumsum <- function(x,configuration,nrfactors = 1){
 #' res <- missingPerCondition(sample_analysis,skylineconfig)
 #' names(res)
 #' print(res$figure)
+#' configuration <- skylineconfig$clone(deep=TRUE)
+#' x <- sample_analysis
+#' nrfactors <- 1
 missingPerCondition <- function(x, configuration, nrfactors = 1){
   table <- configuration$table
   missingPrec <- getMissingStats(x, configuration, nrfactors)
   factors <- head(table$factorKeys(), nrfactors)
-
+  hierarchyKey <- tail(configuration$table$hierarchyKeys(),1)
+  hierarchyKey <- paste0("nr_",hierarchyKey)
   xx <-missingPrec %>% group_by_at(c(table$isotopeLabel,
                                      factors,"nrNAs","nrReplicates")) %>%
-    dplyr::summarize(nrTransitions =n())
-
+    dplyr::summarize( !!sym(hierarchyKey) := n())
   formula <- paste(table$isotopeLabel, "~", paste(factors, collapse = "+"))
   message(formula)
 
-  p <- ggplot(xx, aes(x= nrNAs, y = nrTransitions)) + geom_bar(stat="identity")+
+  p <- ggplot(xx, aes_string(x= "nrNAs", y = hierarchyKey)) + geom_bar(stat="identity")+
     facet_grid(as.formula(formula))
-
-  xx <- xx %>% spread("nrNAs","nrTransitions")
+  xx <- xx %>% spread("nrNAs",hierarchyKey)
   return(list(data = xx ,figure = p))
 }
 
@@ -622,6 +621,18 @@ plot_stat_density <- function(data, config, stat = c("CV","mean","sd")){
     geom_line(stat="density")
   return(p)
 }
+#'plot_stat_density_median
+#'@export
+plot_stat_density_median <- function(data, config, stat = c("CV","sd")){
+  stat <- match.arg(stat)
+  data <- data %>% filter_at(stat, all_vars(!is.na(.)))
+  res <- data %>% mutate(top = ifelse(mean > median(mean, na.rm=TRUE),"top 50","bottom 50")) -> top50
+  p <- ggplot(top50, aes_string(x = stat, colour = config$table$factorKeys()[1])) +
+    geom_line(stat = "density") + facet_wrap("top")
+  return(p)
+}
+
+
 #' applys func - a funciton workin on matrix for each protein and returning a vector of the same length as the number of samples
 #' @export
 #' @examples
@@ -635,8 +646,30 @@ plot_stat_density <- function(data, config, stat = c("CV","mean","sd")){
 #' plot_stat_violin(res, config, stat="CV")
 plot_stat_violin <- function(data, config, stat = c("CV","mean","sd")){
   stat <- match.arg(stat)
-  p <- ggplot(data, aes_string(x = config$table$factorKeys(), y = stat  )) +
+  p <- ggplot(data, aes_string(x = config$table$factorKeys()[1], y = stat  )) +
     geom_violin()
+  return(p)
+}
+#' plot_stat_violin_median
+#' @export
+#'
+plot_stat_violin_median <- function(data, config , stat=c("CV","sd")){
+
+  median.quartile <- function(x){
+    out <- quantile(x, probs = c(0.25,0.5,0.75))
+    names(out) <- c("ymin","y","ymax")
+    return(out)
+  }
+  data <- data %>% filter_at(stat, all_vars(!is.na(.)))
+
+  res <- data %>%
+    mutate(top = ifelse(mean > median(mean, na.rm = TRUE),"top 50","bottom 50")) ->
+    top50
+
+  p <- ggplot(top50, aes_string(x = config$table$factorKeys()[1], y = stat)) +
+    geom_violin() +
+    stat_summary(fun.y=median.quartile,geom='point', shape=3) + stat_summary(fun.y=median,geom='point', shape=1) +
+    facet_wrap("top")
   return(p)
 }
 
@@ -648,20 +681,92 @@ plot_stat_violin <- function(data, config, stat = c("CV","mean","sd")){
 #' data <- sample_analysis
 #' config <- skylineconfig$clone(deep=TRUE)
 #' res <- summarize_cv(data, config)
-#' plot_stdv_vs_mean(res)
-#' datalog2 <- transformIntensities(data, config, transformation = log2)
+#' plot_stdv_vs_mean(res, config)
+#' datalog2 <- transform_work_intensity(data, config, transformation = log2)
 #' statlog2 <- summarize_cv(datalog2, config)
-#' plot_stdv_vs_mean(statlog2)
+#' plot_stdv_vs_mean(statlog2, config)
 #' config$table$getWorkIntensity()
 #' config$table$popWorkIntensity()
-#' datasqrt <- transformIntensities(data, config, transformation = sqrt)
+#' datasqrt <- transform_work_intensity(data, config, transformation = sqrt)
 #' ressqrt <- summarize_cv(datasqrt, config)
-#' plot_stdv_vs_mean(ressqrt)
-plot_stdv_vs_mean <- function(data){
+#' plot_stdv_vs_mean(ressqrt, config)
+plot_stdv_vs_mean <- function(data, config){
   p <- ggplot(data, aes(x = mean, y = abs(sd))) +
     geom_point() +
     geom_smooth(method="loess") +
-    facet_wrap(~Time) +
+    facet_wrap(config$table$factorKeys()[1], nrow=1) +
     theme(axis.text.x = element_text(angle = 90, hjust = 1))
   return(p)
+}
+
+
+.string.to.colors = function(string, colors=NULL){
+  if (is.factor(string)){
+    string = as.character(string)
+  }
+  if (!is.null(colors)){
+    if (length(colors)!=length(unique(string))){
+      stop("The number of colors must be equal to the number of unique elements.")
+    }
+    else {
+      conv = cbind(unique(string), colors)
+    }
+  } else {
+    conv = cbind(unique(string), rainbow(length(unique(string))))
+  }
+  unlist(lapply(string, FUN=function(x){conv[which(conv[,1]==x),2]}))
+}
+
+.number.to.colors = function(value, colors=c("red", "blue"), num=100){
+  cols = colorRampPalette(colors)(num)
+  cols = 	cols[findInterval(value, vec=seq(from=min(value), to=max(value), length.out=num))]
+  cols
+}
+
+
+#' plot correlation heatmap with annations
+#' @export
+#' @importFrom heatmap3 heatmap3
+#' @examples
+#' library(tidyverse)
+#' data <- sample_analysis
+#' config <- skylineconfig$clone(deep=TRUE)
+#' plot_heatmap_cor(data, config)
+#' plot_heatmap_cor(data, config, R2=TRUE)
+plot_heatmap_cor <- function(data, config, R2 = FALSE){
+ res <-  toWideConfig(data, config , as.matrix = TRUE)
+ cres <- cor(res,use = "pa")
+ if(R2){
+   cres <- cres^2
+ }
+ annot <- select(data, c(config$table$sampleName, config$table$factorKeys())) %>%
+     distinct() %>% arrange(sampleName)
+ stopifnot(annot$sampleName == colnames(cres))
+
+ factors <- select(annot, config$table$factorKeys())
+ ColSideColors <- as.matrix(dplyr::mutate_all(factors, funs(.string.to.colors)))
+ rownames(ColSideColors) <- annot$sampleName
+ heatmap3::heatmap3(cres,symm=TRUE, scale="none", ColSideColors = ColSideColors,
+                    main=ifelse(R2, "R^2", "correlation"))
+}
+
+#' plot heatmap with annotations
+#' @export
+#' @importFrom heatmap3 heatmap3
+#' @examples
+#' library(tidyverse)
+#' data <- sample_analysis
+#' config <- skylineconfig$clone(deep=TRUE)
+#' #plot_heatmap(data, config)
+plot_heatmap <- function(data, config){
+  res <-  toWideConfig(data, config , as.matrix = TRUE)
+  annot <- select(data, c(config$table$sampleName, config$table$factorKeys())) %>%
+    distinct() %>% arrange(sampleName)
+  stopifnot(annot$sampleName == colnames(res))
+
+  factors <- select(annot, config$table$factorKeys())
+  ColSideColors <- as.matrix(dplyr::mutate_all(factors, funs(.string.to.colors)))
+  rownames(ColSideColors) <- annot$sampleName
+  res <- quantable::removeNArows(res, round(ncol(res)*0.4,digits = 0))
+  heatmap3::heatmap3(res, ColSideColors = ColSideColors,labRow="",showRowDendro =FALSE)
 }

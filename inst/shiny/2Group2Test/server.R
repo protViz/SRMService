@@ -149,7 +149,7 @@ shinyServer(function(input, output) {
 
       tmpdir <- tempdir()
       workdir <- file.path(tmpdir, gsub(" |:","_",date()))
-      rmdfile <- file.path( path.package("SRMService") , "/reports/Grp2Analysis.Rmd" )
+      rmdfile <- file.path( path.package("SRMService") , "/docs/Grp2Analysis.Rmd" )
       if(!dir.create(workdir)){
         stopApp(7)
       }
