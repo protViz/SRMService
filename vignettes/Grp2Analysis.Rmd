@@ -380,11 +380,13 @@ if(!sum(NAinfo$nrProteins > 0) > 0){
 }
 
 child_docs <- system.file(file.path("ParametrizedReportsChild",child_docs),package = "SRMService")
+print(child_docs)
 
 ```
 
 
 ```{r includeMissingInOne, child = child_docs}
+
 ```
 
 # Data interpretation
