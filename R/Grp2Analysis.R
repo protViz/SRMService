@@ -183,12 +183,13 @@ Grp2Analysis <- setRefClass("Grp2Analysis",
                               #  return(res)
                               #},
                               getFit = function(){
-                                fit <- limma::lmFit(grp2$getNormalized()$data, grp2$getDesignMatrix())
+                                fit <- limma::lmFit(.self$getNormalized()$data, .self$getDesignMatrix())
                                 fit.eb <- limma::eBayes(fit)
                                 return(list(fit= fit, fit.eb = fit.eb))
                               },
                               getModPValuesCI = function(){
-                                fit <- limma::lmFit(grp2$getNormalized()$data, grp2$getDesignMatrix())
+                                "get Pvalues and confidence intervals"
+                                fit <- limma::lmFit(.self$getNormalized()$data, .self$getDesignMatrix())
                                 fit.eb <- limma::eBayes(fit)
                                 res <- topTable(fit.eb, coef=2, number=Inf,confint = TRUE)
                                 res <- data.frame(proteinID = rownames(res), log2FC = res$logFC, res)

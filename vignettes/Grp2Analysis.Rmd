@@ -398,7 +398,8 @@ A further resource to analyze the results is the STRING database <https://string
 
 For the correct interpretation of the top proteins, it is essential to specify the background proteome, this is the list of all proteins identified in your experiment.
 
-The FGCZ can support you upon request, with the interpretation of your quantitative proteomics data. You can reach the bioinformatics coach of your project at protinf@fgcz.uzh.ch.
+The FGCZ can support you upon request, with the interpretation of your quantitative proteomics data.
+You can reach the proteome-bioinformatics team at the fgcz at <protinf@fgcz.uzh.ch>.
 
 \newpage
 
