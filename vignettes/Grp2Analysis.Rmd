@@ -90,8 +90,7 @@ colnames(tab) <- c("Condition","# samples")
 knitr::kable(tab, caption="Nr of samples in each condition.")
 
 ```
-
-Here the files in each group:
+Table \@ref{tab:samples} shows the number of samples in each condition while Table \@ref(tab:annotation) shows the raw files assigned to the conditions. Finally, Table \@ref{tab:groupingvars} specifies which condition is used as reference (denominator in the log2 FC). 
 
 ```{r annotation}
 tab <- grp2$getAnnotation()[,c("Condition","Raw.file")]
