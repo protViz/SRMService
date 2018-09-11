@@ -39,7 +39,7 @@ LazyData: TRUE
 URL: https://github.com/protViz/SRMService
 BugReports: https://github.com/protViz/SRMService/issues
 Repository: CRAN
-RoxygenNote: 6.1.0
+RoxygenNote: 6.1.0.9000
 Collate:
     'A_dataset_docu.R'
     'RequiredColumns.R'

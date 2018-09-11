@@ -91,7 +91,6 @@ dev.off()
 ```{r}
 table <- skylineconfig$table
 protIntensity <- figs3 %>% select(names(table$hierarchy)[1], medpolishPly) %>% unnest()
-head(protIntensity)
 ```
 
 
