@@ -17,7 +17,7 @@ vignette: >
   \fancyfoot[LE,RO]{\thepage} 
   %\VignetteEngine{knitr::rmarkdown}
   header-includes: |
-  bibliography: bibliography.bib
+bibliography: bibliography.bib
 editor_options: 
   chunk_output_type: console
 ---
@@ -63,7 +63,10 @@ a _moderated t-test_ [@Smyth2004] for all proteins quantified with at least `r g
 ## Experiment summary
 
 
-This report was created from data with workunit ID `r grp2$workunitID` of project `r grp2$projectID` and is available from <https://fgcz-bfabric.uzh.ch> [@Bfabric2001]. 
+This report was created from data stored in _bfabric_ [@Trker2010] and can be downloaded from there using the workunit Id.
+
+- workunit Id : `r grp2$workunitID`
+- project Id: `r grp2$projectID`
 
 
 The protein matrix is filtered like this:
@@ -77,7 +80,7 @@ The protein matrix is filtered like this:
 
 
 - Percentage of contaminants : `r round(mean(grepl("CON__",grp2$proteinAnnotation$ProteinName)) * 100, digits=1)` %
-- Percentage of false postivies : `r round(mean(grepl("REV__",grp2$proteinAnnotation$ProteinName)) * 100, digits=1)` %
+- Percentage of false positives : `r round(mean(grepl("REV__",grp2$proteinAnnotation$ProteinName)) * 100, digits=1)` %
 
 
 
@@ -288,6 +291,7 @@ In the following analysis we assume that most of the proteins are not regulated 
 ```{r}
 fcname <- paste("log2(", grp2$getConditions()$condition, "/", grp2$getConditions()$reference, ")", sep="")
 res.eb <-grp2$getModPValuesCI()
+
 ```
 
 
@@ -399,7 +403,7 @@ A further resource to analyze the results is the STRING database <https://string
 For the correct interpretation of the top proteins, it is essential to specify the background proteome, this is the list of all proteins identified in your experiment.
 
 The FGCZ can support you upon request, with the interpretation of your quantitative proteomics data.
-You can reach the proteome-bioinformatics team at the fgcz at <protinf@fgcz.uzh.ch>.
+You can reach the proteome-bioinformatics team at <protinf@fgcz.uzh.ch>.
 
 \newpage
 
