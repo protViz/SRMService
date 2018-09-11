@@ -67,7 +67,7 @@ Furthermore, in order to integrate those proteins with proteins which do have a 
 
 
 
-```{r pseudoVolcanoplot, fig.width=10, fig.height=8, dpi=300, fig.cap="VolcanoPlot: x axis log2 fold change including pseudo log2 foldchanges of normalized data, y axis -log10(Q-value) inluding pseudo q-values."}
+```{r pseudoVolcanoplot, fig.width=8, fig.height=5, dpi=300, fig.cap="VolcanoPlot: x axis log2 fold change including pseudo log2 foldchanges of normalized data, y axis -log10(Q-value) inluding pseudo q-values."}
 pseudoData <- grp2$getResultTableWithPseudo()
 
 p1 <- quantable::volcano2GB(pseudoData,

@@ -310,7 +310,7 @@ abline(h=length(res.eb$P.Value)/20,col="blue")
 If the groups are different we would expect more small p-values than by chance (Figure \@ref(fig:densityOFFoldChanges) right panel blue horizontal line). If there are only as many or less small p-values as by chance than no significant false discovery rate controlled calls (Q Values) will be made in Figure \@ref(fig:volcanoplot). Significant calls are made with q-value smaller than `r grp2$qvalue` (see Figure \@ref(fig:volcanoplot)). Table \@ref(tab:nrsignificant) summarizes the number of significant calls  while \@ref(tab:top20table) lists the proteins with the smallest moderated q-values.
 
 
-```{r volcanoplot, fig.width=8, fig.height=6, dpi=300, fig.cap="VolcanoPlot : x axis log2 fold change of normalized data, y axis : panel A  -log10(p-value), panel B -log10(q-value)"}
+```{r volcanoplot, fig.width=8, fig.height=5, dpi=300, fig.cap="VolcanoPlot : x axis log2 fold change of normalized data, y axis : panel A  -log10(p-value), panel B -log10(q-value)"}
 
 p1 <- quantable::volcano2GB(res.eb,
                             pvalue="P.Value",
@@ -339,7 +339,8 @@ if(length(grp2$special)>0)
 gridExtra::grid.arrange(p1, p2, nrow=1)
 ```
 
-\newpage
+
+\clearpage
 
 
 ```{r nrsignificant, results="markup"}
@@ -350,7 +351,6 @@ if(length(x$Var1) == 2){
 }
 knitr::kable(x, caption = "Number of not significant and significant proteins (by adj.P.Val).")
 ```
-
 
 
 ```{r top20table}
@@ -369,7 +369,6 @@ ggplot(top20CI, aes(x = proteinID, y = log2FC,
   geom_linerange() + geom_point() + coord_flip() + theme_minimal()
 ```
 
-\newpage
 
 
 ```{r presentInOnlyOneCondition}
@@ -382,9 +381,7 @@ child_docs <- "Grp2Analysis_MissingInOneCondtion.Rmd"
 if(!sum(NAinfo$nrProteins > 0) > 0){
   child_docs <- "Grp2Analysis_Empty.Rmd"
 }
-
 child_docs <- system.file(file.path("ParametrizedReportsChild",child_docs),package = "SRMService")
-print(child_docs)
 
 ```
 
