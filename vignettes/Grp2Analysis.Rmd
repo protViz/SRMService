@@ -1,5 +1,5 @@
 ---
-title: "FGCZ Two-Group Analysis: `r params$grp$projectName` \n Statistics for a Quantitative Protein Matrix"
+title: "FGCZ Two-Group Analysis \n Statistics for a Quantitative Protein Matrix"
 author: "Functional Genomics Center Zurich"
 date: "`r format(Sys.time(), '%d %B, %Y')`"
 output:
@@ -68,6 +68,8 @@ This report was created from data stored in _bfabric_ [@Trker2010] and can be do
 - workunit Id : `r grp2$workunitID`
 - project Id: `r grp2$projectID`
 
+The projects workunit is : `r grp2$projectName` and is also available in b-fabric.
+
 
 The protein matrix is filtered like this:
 
@@ -113,13 +115,9 @@ The input matrix has the following structure (Figure \@ref(fig:overview)).
 -->
 
 
-
-
-
 \newpage
 
 # Quality Control
-
 
 
 ## Missing data and intensity distribution
@@ -380,7 +378,7 @@ child_docs <- "Grp2Analysis_MissingInOneCondtion.Rmd"
 if(!sum(NAinfo$nrProteins > 0) > 0){
   child_docs <- "Grp2Analysis_Empty.Rmd"
 }
-child_docs <- system.file(file.path("ParametrizedReportsChild",child_docs),package = "SRMService")
+child_docs <- system.file("ParametrizedReportsChild",child_docs,package = "SRMService")
 
 ```
 
@@ -392,14 +390,13 @@ child_docs <- system.file(file.path("ParametrizedReportsChild",child_docs),packa
 # Data interpretation
 
 For interpreting the results in the _`r paste0("MaxQuant_report", grp2$projectName, ".csv")`_ file, the protein IDs can be either sorted by `log2FC` or `P.Value` (See Table \@ref(tab:columnlist)). Large positive or negative fold changes typically result in small p-values.
-The sorted IDs can then be subjected to over-representation analysis (ORA) or gene set enrichment analysis (GSEA). The web application WebGestalt (WEB-based GEne SeT AnaLysis Toolkit) <http://www.webgestalt.org> implements both of these methods (and many more) for the most popular organisms [@Wang2017].
+The IDs sorted by fold change can then be subjected to over-representation analysis (ORA) or gene set enrichment analysis (GSEA). The web application WebGestalt (WEB-based GEne SeT AnaLysis Toolkit) <http://www.webgestalt.org> implements both of these methods (and many more) for the most popular organisms [@Wang2017].
 
-A further resource to analyze the results is the STRING database <https://string-db.org> [@Szklarczyk2017]. It reports known interactions for the proteins in the subset of proteins generated on a p-value or fold change threshold.
+A further resource to analyze the results is the STRING database <https://string-db.org> [@Szklarczyk2017]. It reports known interactions for the proteins in a subset of proteins which can be created based on p-value or fold change filtering.
 
-For the correct interpretation of the top proteins, it is essential to specify the background proteome, this is the list of all proteins identified in your experiment.
+For the correct interpretation of the top proteins, it is essential to specify the background proteome, this is the NOT filtered list of ALL proteins identified in your experiment.
 
-The FGCZ can support you upon request, with the interpretation of your quantitative proteomics data.
-You can reach the proteome-bioinformatics team at <protinf@fgcz.uzh.ch>.
+The FGCZ can support you upon request, with the interpretation of your quantitative proteomics data. Also further visualization of the data, more suited to you specific target audience, e.g. receiver operator curves (ROC) or MA-plots, can be generated from this data, and the FGCZ can support you generating those figures. You can reach the proteome-bioinformatics team at <protinf@fgcz.uzh.ch>.
 
 \newpage
 
@@ -413,6 +410,7 @@ knitr::kable(data.frame(columns=colnames(grp2$getResultTableWithPseudo())), capt
 
 This document was generated using Rmarkdown and processes text files which are generated with a label-free quantitation software such as MaxQuant or Progenesis. 
 The obtained results should be validated orthogonal as well (e.g. with Western blots). The Functional Genomics Center Zurich does not provide any kind of guarantee of the validity of these results.
+
 
 For questions and improvement suggestions, please do contact <protinf@fgcz.uzh.ch>.
 

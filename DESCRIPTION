@@ -26,11 +26,11 @@ Imports:
     reshape2,
     rlang,
     rmarkdown,
-    shiny,
     scales,
+    shiny,
+    tibble,
     tidyr,
     tidyverse,
-    tibble,
     tools,
     usethis,
     yaml
@@ -68,6 +68,14 @@ Collate:
     'zzz.R'
 Suggests:
     testthat,
+    ggplot2,
     knitr,
-    rmarkdown
+    readxl,
+    rmarkdown,
+    MSqRob
+Remotes:
+    protViz/quantable
+    protViz/bibliospec,
+    statOmics/MSqRob
+BiocViews:
 VignetteBuilder: knitr
