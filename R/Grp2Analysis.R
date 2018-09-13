@@ -193,6 +193,7 @@ Grp2Analysis <- setRefClass("Grp2Analysis",
                                 fit.eb <- limma::eBayes(fit)
                                 res <- topTable(fit.eb, coef=2, number=Inf,confint = TRUE)
                                 res <- data.frame(proteinID = rownames(res), log2FC = res$logFC, res)
+                                res$logFC <- NULL
                                 return(res)
                               },
                               getAnnotation = function(){

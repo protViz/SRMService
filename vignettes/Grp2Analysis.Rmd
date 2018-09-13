@@ -63,12 +63,13 @@ a _moderated t-test_ [@Smyth2004] for all proteins quantified with at least `r g
 ## Experiment summary
 
 
-This report was created from data stored in _bfabric_ [@Trker2010] and can be downloaded from there using the workunit Id.
+This report was is stored in _bfabric_ <https://fgcz-bfabric.uzh.ch> [@Trker2010] in the project `r grp2$projectID`,  
+with the workunit name :`r grp2$projectName`.
+
+This report was created from data stored in _bfabric_ and can downloaded using:
 
 - workunit Id : `r grp2$workunitID`
-- project Id: `r grp2$projectID`
-
-The projects workunit is : `r grp2$projectName` and is also available in b-fabric.
+- project Id: `r grp2$projectID`.
 
 
 The protein matrix is filtered like this:
