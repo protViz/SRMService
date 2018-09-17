@@ -1,0 +1,32 @@
+---
+title: "test"
+author: "Witold Wolski"
+date: "13 September 2018"
+output: html_document
+---
+
+```{r}
+# These examples demonstrate ways to display binned/aggregated selections
+library(plotly)
+tx <- highlight_key(txhousing, ~city)
+
+p1 <- ggplot(tx, aes(date, median, group = city)) + geom_line() + xlab(NULL)
+
+gg1 <- ggplotly(p1, tooltip = c("city", "date", "median"))
+
+p2 <- plot_ly(tx, x = ~median, color = I("black")) %>% 
+   add_histogram(histnorm = "probability density")
+
+subplot(gg1, p2, titleX = TRUE, titleY = TRUE) %>% 
+   layout(barmode = "overlay") %>%
+   highlight(dynamic = TRUE, selected = attrs_selected(opacity = 0.3))
+
+xxx<- data.frame(a = 1:4, b=3:6)
+x<- data.frame(a = 1:4, b=letters[1:4], stringsAsFactors = TRUE)
+
+plot_ly(xxx, type="table")
+
+add_trace(plot_ly(x, type="table"), type="table")
+
+plot_ly(type="table",header=list(values=names(x)), cells=list(values=unname(x)))
+```
