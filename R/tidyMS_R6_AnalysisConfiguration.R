@@ -314,7 +314,7 @@ summarizeProteins <- function( x, configuration ){
 
   precursorSum <- x %>% select(rev_hierarchy) %>% distinct() %>%
     group_by_at(rev_hierarchy[-1]) %>%
-    dplyr::summarize(nrFragments = n())
+     dplyr::summarize(nrFragments = n())
 
   peptideSum <- precursorSum %>% group_by_at(rev_hierarchy[-(1:2)]) %>%
     dplyr::summarize(nrPrecursors = n(),
