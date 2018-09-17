@@ -1,6 +1,6 @@
 context("test-limmahelpers")
 
-test_that("multiplication works", {
+test_that("checkSRMService", {
   library(SRMService)
   grp <- SRMService::mqQuantMatrixGRP2
   grp <- mqQuantMatrixGRP2

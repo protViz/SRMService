@@ -46,7 +46,6 @@ Collate:
     'eb.fit.R'
     'Grp2Analysis.R'
     'MSStatsMappings.R'
-    'MakeContrasts.R'
     'One2OneAnalysisHelpers.R'
     'PDProteins.R'
     'PrepareRmdAnalysisEnv.R'
@@ -58,12 +57,6 @@ Collate:
     'limmaHelpers.R'
     'plotNicelyTransitions.R'
     'readMaxQuant.R'
-    'tidyMS_MQProteinGroups.R'
-    'tidyMS_R6_AnalysisConfiguration.R'
-    'tidyMS_R6_ConcreteConfigurations.R'
-    'tidyMS_R6_Modelling.R'
-    'tidyMS_R6_TransitionCorrelations.R'
-    'tidyMS_R6_workflowFunctions.R'
     'transitionCorrelations.R'
     'zzz.R'
 Suggests:
@@ -71,7 +64,6 @@ Suggests:
     ggplot2,
     knitr,
     readxl,
-    rmarkdown,
     MSqRob
 Remotes:
     protViz/quantable,
