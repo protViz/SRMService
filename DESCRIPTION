@@ -77,5 +77,4 @@ Remotes:
     protViz/quantable,
     protViz/bibliospec,
     statOmics/MSqRob
-BiocViews:
 VignetteBuilder: knitr
