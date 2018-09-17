@@ -45,6 +45,8 @@ Perform 2 group analysis with visualization
 \describe{
 \item{\code{getConditionData(condition)}}{get intensities as matrix for single condition}
 
+\item{\code{getModPValuesCI()}}{get Pvalues and confidence intervals}
+
 \item{\code{getNormalized()}}{return normalized data}
 
 \item{\code{getNormalizedGrpAverages()}}{computes grp averages per protein}
