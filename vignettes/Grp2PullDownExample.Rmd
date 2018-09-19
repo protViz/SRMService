@@ -1,22 +1,27 @@
 ---
-title: "FGCZ Two-Group Analysis: `r params$grp$projectName` \n Statistics for a Quantitative Protein Matrix"
+title: "FGCZ Two-Group Analysis \n Statistics for a Quantitative Protein Matrix"
 author: "Functional Genomics Center Zurich"
 date: "`r format(Sys.time(), '%d %B, %Y')`"
 output:
-  pdf_document: default
-  html_document: default
+  pdf_document: 
+    toc: yes
+  html_document: 
+    toc: yes
+header-includes: 
+  \usepackage{fancyhdr}
+  \pagestyle{fancy}
+  \fancyhead[CO,CE]{Group Comparison}
+  \fancyfoot[CO,CE]{\textbf{FGCZ} - www.fgcz.ch - 2018}
+  \fancyfoot[LE,RO]{\thepage} 
 params:
   grp: !r quote(SRMService::grp2PullDownExample)
 vignette: >
-  %\VignetteIndexEntry{FGCZ Two-Group Analysis of Pull Down Data}
-  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteIndexEntry{FGCZ Two-Group Analysis}
   %\VignetteEncoding{UTF-8}
-header-includes: |
-    \usepackage{fancyhdr}
-    \pagestyle{fancy}
-    \fancyhead[CO,CE]{Group Comparison}
-    \fancyfoot[CO,CE]{Functional Genomics Center Zurich - 2018}
-    \fancyfoot[LE,RO]{\thepage}  
+  %\VignetteEngine{knitr::rmarkdown}
+bibliography: bibliography.bib
+editor_options: 
+  chunk_output_type: console
 ---
 
 

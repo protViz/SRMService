@@ -5,10 +5,11 @@ date: "30 January 2018"
 output: html_document
 ---
 
+\newpage
 
 ## Proteins Quantified in only one condition
 
-Some proteins were quantified only in one condition. In such a case no p-values or fold change can be computed. Nevertheless, proteins with relatively high intensity in one condition but not present in the other condition can have biological relevance. Figure @ref(fig:plotPresentInOnlyOneCondition) shows how many protein were not quantified in a condition. The Figure @ref(fig:barplotIntensitiesSingle) visualizes the most intensive proteins not quantified in the other condition.
+Some proteins were quantified only in one condition. In such a case no p-values or fold change can be computed. Nevertheless, proteins with relatively high intensity in one condition but not present in the other condition can have biological relevance. Figure \@ref(fig:plotPresentInOnlyOneCondition) shows how many protein were not quantified in a condition. The Figure \@ref(fig:barplotIntensitiesSingle) visualizes the most intensive proteins not quantified in the other condition.
 
 
 
@@ -62,7 +63,7 @@ if(nrow(tmp2R) >0 & nrow(tmp2C)> 0){
 ```
 
 
-Furthermore, in order to integrate those proteins with proteins which do have a fold change and a q.value, we also provide and a fold change estimate and q.value for those proteins. To emphasize that these values were not obtained by means of fitting a statistical model we call the columns in the output file which do contain them `pseudo.log2FC` and `pseudo.adj.P.Val`. The reported pseudo fold change is computed by subtracting from the quantification value the average of the 10% smallest protein averages of the other condition while the q-value for those proteins was set to 0. The Volcano plot in Figure @ref(fig:pseudoVolcanoplot) envisages all the proteins quantified including those identified only in one of the samples (green).
+Furthermore, to integrate those proteins with proteins which do have a fold change and a q.value, we do also provide and a fold change estimate and q.value for those proteins. To emphasize that these values were not obtained employing fitting a statistical model we call the columns in the output file  `pseudo.log2FC` and `pseudo.adj.P.Val.` Pseudo fold changes are estimated using the mean of the 10% smallest protein averages instead of the absent group average. The missing q-value is substituted by 0. The Volcano plot in Figure \@ref(fig:pseudoVolcanoplot) envisages all the proteins quantified including those identified only in one of the samples (green).
 
 
 
@@ -109,3 +110,4 @@ gridExtra::grid.arrange(p1, p2, nrow=1)
 
 ```
 
+\clearpage
