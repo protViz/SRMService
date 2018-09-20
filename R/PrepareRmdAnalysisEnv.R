@@ -35,7 +35,7 @@
 RMD_MQ_Quant_2GrpAnalysis <- function(workdir = getwd()){
   .scriptCopyHelperVec(c("/RunScripts/Run_MQ_QuantTwoGroupAnalysis.R",
                          "/doc/Grp2Analysis.Rmd",
-                         "/ParametrizedReportsChild/bibliography.bib",
+                         "/doc/bibliography.bib",
                          "/ParametrizedReportsChild/Grp2Analysis_Empty.Rmd",
                          "/ParametrizedReportsChild/Grp2Analysis_MissingInOneCondtion.Rmd"), workdir = workdir )
 }
@@ -54,7 +54,7 @@ RMD_MQ_Quant_2GrpAnalysis <- function(workdir = getwd()){
 RMD_PD_Quant_2GrpAnalysis <- function(workdir= getwd()){
   .scriptCopyHelperVec(c("/RunScripts/Run_PD_QuantTwoGroupAnalysis.R",
                          "/doc/Grp2Analysis.Rmd",
-                         "/ParametrizedReportsChild/bibliography.bib",
+                         "/doc/bibliography.bib",
                          "/ParametrizedReportsChild/Grp2Analysis_Empty.Rmd",
                          "/ParametrizedReportsChild/Grp2Analysis_MissingInOneCondtion.Rmd"), workdir = workdir )
 }
