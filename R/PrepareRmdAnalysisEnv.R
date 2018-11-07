@@ -36,8 +36,8 @@ RMD_MQ_Quant_2GrpAnalysis <- function(workdir = getwd()){
   .scriptCopyHelperVec(c("/RunScripts/Run_MQ_QuantTwoGroupAnalysis.R",
                          "/doc/Grp2Analysis.Rmd",
                          "/doc/bibliography.bib",
-                         "/ParametrizedReportsChild/Grp2Analysis_Empty.Rmd",
-                         "/ParametrizedReportsChild/Grp2Analysis_MissingInOneCondtion.Rmd"), workdir = workdir )
+                         "/doc/Grp2Analysis_Empty.Rmd_t",
+                         "/doc/Grp2Analysis_MissingInOneCondition.Rmd_t"), workdir = workdir )
 }
 
 #' copies the RMD and Run files for 2 grp analysis based on a PD (protein discoverer) in your working directory.
@@ -55,8 +55,8 @@ RMD_PD_Quant_2GrpAnalysis <- function(workdir= getwd()){
   .scriptCopyHelperVec(c("/RunScripts/Run_PD_QuantTwoGroupAnalysis.R",
                          "/doc/Grp2Analysis.Rmd",
                          "/doc/bibliography.bib",
-                         "/ParametrizedReportsChild/Grp2Analysis_Empty.Rmd",
-                         "/ParametrizedReportsChild/Grp2Analysis_MissingInOneCondtion.Rmd"), workdir = workdir )
+                         "/doc/Grp2Analysis_Empty.Rmd_t",
+                         "/doc/Grp2Analysis_MissingInOneCondtion.Rmd_t"), workdir = workdir )
 }
 #' copies the RMD and Run files for the QuantQCReport in your working directory.
 #'

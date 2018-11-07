@@ -6,6 +6,7 @@ Version: 0.1.9.21
 Authors@R: c(person("Witold", "Wolski", email = "wewolski@gmail.com", role = c("aut", "cre")),
                   person("Jonas", "Grossmann", email = "jg@fgcz.ethz.ch", role = c("aut")),
                   person("Christian", "Panse", email = "cp@fgcz.ethz.ch", role = c("aut")))
+Maintainer: Witold Wolski
 Description: Analysing and LFQ and SRM experiments in service mode.
     Data preprocessing and visualization.
 Imports:
