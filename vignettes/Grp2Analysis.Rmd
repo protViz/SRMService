@@ -378,13 +378,13 @@ NAinfo<-data.frame(name = unlist(grp2$getConditions()), nrProteins= NAinfo)
 ```
 
 ```{r referencingChildDocument}
-child_docs <- "Grp2Analysis_MissingInOneCondtion.Rmd"
+child_docs <- "Grp2Analysis_MissingInOneCondition.Rmd_t"
 if(!sum(NAinfo$nrProteins > 0) > 0){
-  child_docs <- "Grp2Analysis_Empty.Rmd"
+  child_docs <- "Grp2Analysis_Empty.Rmd_t"
 }
-child_docs <- system.file("ParametrizedReportsChild",child_docs,package = "SRMService")
 
 ```
+
 
 
 ```{r includeMissingInOne, child = child_docs}
