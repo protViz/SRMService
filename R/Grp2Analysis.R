@@ -274,6 +274,23 @@ Grp2Analysis <- setRefClass("Grp2Analysis",
                                 grpAverage<-cbind(grpAverage1,grpAverage2)
                                 colnames(grpAverage) <- .self$getConditions()
                                 return(grpAverage)
+                              },
+                              getResultTableWithPseudoAndClustering = function(){
+                                "calls getResultTableWithPseudo() and adds clusterID column"
+
+                                # Run getResultTableWithPseudo()
+                                tmpdata <- .self$getResultTableWithPseudo()
+
+                                # Retrieve normalized data for clustering
+                                tmpdata1 <- .self$getNormalized()$data
+
+                                # Clustering using quantable::simpleheatmap3()
+                                clustering <- quantable::simpleheatmap3(t(tmpdata1), margins=c(1,10), breaks = seq(-2.5,2.5, length=26), labCol = rownames(tmpdata1), labRow = colnames(tmpdata1), plot = F, nrOfClusters = 5)
+                                colnames(clustering) = c("TopProteinName", "ClusterID")
+
+                                # Merging ResultTable with ClusterID data.frame
+                                results <- dplyr::inner_join(tmpdata, clustering, by = tmpdata$TopProteinName)
+                                return(results)
                               }
                             )
 )
