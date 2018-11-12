@@ -353,7 +353,7 @@ knitr::kable(x, caption = "Number of not significant and significant proteins (b
 
 
 ```{r top20table}
-tmp2 <- grp2$getResultTableWithPseudoAndClustering()
+tmp2 <- grp2$getResultTableWithPseudoAndClustering(nrOfClustersRow = 2, nrOfClustersCol = 5)
 top20 <- tmp2 %>% dplyr::select( proteinID,log2FC,CI.L,CI.R, P.Value, adj.P.Val, ClusterID ) %>% arrange(P.Value) %>% head(20)
 knitr::kable(top20, caption = "Top 20 proteins sorted by smallest Q Value (adj.P.Val). The effectSize column is the log2 FC of condition vs reference.")
 ```
