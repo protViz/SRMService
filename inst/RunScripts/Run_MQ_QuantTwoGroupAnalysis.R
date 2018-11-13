@@ -40,7 +40,6 @@ dir.create(resultdir)
 
 #fix(annotation)
 
-
 Experimentname = ""
 nrNas = sum(!is.na(annotation$Condition)) - 1
 nrNas = 5
