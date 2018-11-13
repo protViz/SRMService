@@ -87,7 +87,6 @@ The protein matrix is filtered with the following thresholds:
 - Percentage of false positives : `r round(mean(grepl("REV__",grp2$proteinAnnotation$ProteinName)) * 100, digits=1)` %
 
 
-
 ```{r samples}
 tab <- data.frame(table(grp2$getAnnotation()$Condition))
 colnames(tab) <- c("Condition","# samples")

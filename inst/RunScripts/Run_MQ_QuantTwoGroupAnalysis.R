@@ -49,7 +49,6 @@ reference=unique(annotation$Condition)[1]
 reference="WT"
 qvalueThreshold = 0.05
 qfoldchange =1
-
 write.table(annotation, file=file.path(resultdir, "annotationused.txt"))
 
 ####### END of user configuration ##
@@ -66,5 +65,6 @@ usethis::use_data(mqQuantMatrixGRP2, overwrite = TRUE)
 #readr::write_tsv(grp2$getResultTable(), path=file.path(resultdir,"pValues.csv"))
 
 ## REMOVE TO RENDER
-rmarkdown::render("vignettes/Grp2AnalysisHeatmap3.Rmd",bookdown::pdf_document2(), params=list(grp = SRMService::mqQuantMatrixGRP2))
+rmarkdown::render("vignettes/Grp2AnalysisHeatmap3.Rmd",bookdown::pdf_document2(), params=list(grp = grp2))
+rmarkdown::render("vignettes/Grp2Analysis.Rmd",bookdown::pdf_document2(), params=list(grp = grp2))
 
