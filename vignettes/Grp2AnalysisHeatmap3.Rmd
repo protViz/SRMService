@@ -270,12 +270,15 @@ In Figure \@ref(fig:correlation) and Figure \@ref(fig:heatmapData) we show how s
 ```{r heatmapData, fig.width=8, fig.height=5, dpi=300, fig.cap="Heatmap of normalized data."}
 tmp <- grp2$getNormalized()$data
 stmMm <- grp2$getNormalized()$data[grp2$getNrNAs() < ncol(grp2$getNormalized()$data)/2,]
-tmp1 <- simpleheatmap3((scale(t(stmMm),scale = F)),RowSideColors = col[as.factor(grp2$getAnnotation()$Condition)], margins=c(1,10),
-              breaks=seq(-2.5,2.5,length=26),
-              palette = getBlueWhiteRed(25),
-              labCol="", labRow=colnames(stmMm), showColDendro=FALSE)
+tmp1 <- simpleheatmap3((scale(t(stmMm),scale = F)),
+                       RowSideColors = col[as.factor(grp2$getAnnotation()$Condition)],
+                       margins=c(1,10),
+                       breaks=seq(-2.5,2.5,length=26),
+                       palette = getBlueWhiteRed(25),
+                       labCol="",
+                       labRow=colnames(stmMm),
+                       showColDendro=FALSE)
 progress(0.2, "Heatmaps")
-
 ```
 
 \pagebreak
@@ -378,11 +381,10 @@ NAinfo<-data.frame(name = unlist(grp2$getConditions()), nrProteins= NAinfo)
 ```
 
 ```{r referencingChildDocument}
-child_docs <- "Grp2Analysis_MissingInOneCondtion.Rmd"
+child_docs <- "Grp2Analysis_MissingInOneCondition.Rmd_t"
 if(!sum(NAinfo$nrProteins > 0) > 0){
-  child_docs <- "Grp2Analysis_Empty.Rmd"
+  child_docs <- "Grp2Analysis_Empty.Rmd_t"
 }
-child_docs <- system.file("ParametrizedReportsChild",child_docs,package = "SRMService")
 
 ```
 

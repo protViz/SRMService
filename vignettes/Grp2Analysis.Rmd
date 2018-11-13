@@ -382,13 +382,11 @@ child_docs <- "Grp2Analysis_MissingInOneCondition.Rmd_t"
 if(!sum(NAinfo$nrProteins > 0) > 0){
   child_docs <- "Grp2Analysis_Empty.Rmd_t"
 }
-
 ```
 
 
 
 ```{r includeMissingInOne, child = child_docs}
-
 ```
 
 # Data Interpretation
