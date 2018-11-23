@@ -261,7 +261,7 @@ tmp <- simpleheatmap3(cor(grp2$getNormalized()$data,
                   method="spearman")^2,
               palette = getGreensScale(21),
               RowSideColors = col[as.factor(grp2$getAnnotation()$Condition)], 
-              margins = c(1,13), labRow =colnames(grp2$getNormalized()$data), labCol="", showColDendro=FALSE )
+              margins = c(1,13), labRow =colnames(grp2$getNormalized()$data), labCol="", showColDendro=FALSE, suppressColSideCols = TRUE )
 ```
 
 In Figure \@ref(fig:correlation) and Figure \@ref(fig:heatmapData) we show how samples are clustering depending on their correlation as well as the protein expression profiles. Side colors on the left side of the heatmaps indicate the groupings.
@@ -270,27 +270,14 @@ In Figure \@ref(fig:correlation) and Figure \@ref(fig:heatmapData) we show how s
 ```{r heatmapData, fig.width=8, fig.height=5, dpi=300, fig.cap="Heatmap of normalized data."}
 tmp <- grp2$getNormalized()$data
 stmMm <- grp2$getNormalized()$data[grp2$getNrNAs() < ncol(grp2$getNormalized()$data)/2,]
-nrofclusts <- 5
-tmp1 <- simpleheatmap3((scale(t(stmMm),scale = F)),
-                       RowSideColors = col[as.factor(grp2$getAnnotation()$Condition)],
-                       margins=c(1,10),
-                       breaks=seq(-2.5,2.5,length=26),
-                       palette = getBlueWhiteRed(25),
-                       labCol="",
-                       labRow=colnames(stmMm),
-                       showColDendro=FALSE, plot = FALSE, nrOfClustersCol = nrofclusts)
-colcolors <- rainbow(nrofclusts, start = 0.3, end = 0.9)
 tmp2 <- simpleheatmap3((scale(t(stmMm),scale = F)),
                        RowSideColors = col[as.factor(grp2$getAnnotation()$Condition)],
-                       ColSideColors = colcolors[tmp1$Col$clusterID],
                        margins=c(1,10),
                        breaks=seq(-2.5,2.5,length=26),
                        palette = getBlueWhiteRed(25),
                        labCol="",
                        labRow=colnames(stmMm),
-                       showColDendro=FALSE,
-                       RowSideLabs="",
-                       ColSideLabs="")
+                       showColDendro=TRUE)
 progress(0.2, "Heatmaps")
 ```
 
