@@ -277,7 +277,7 @@ tmp2 <- simpleheatmap3((scale(t(stmMm),scale = F)),
                        palette = getBlueWhiteRed(25),
                        labCol="",
                        labRow=colnames(stmMm),
-                       showColDendro=TRUE)
+                       showColDendro = FALSE )
 progress(0.2, "Heatmaps")
 ```
 
