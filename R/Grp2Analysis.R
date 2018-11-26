@@ -283,7 +283,7 @@ Grp2Analysis <- setRefClass("Grp2Analysis",
 
                                 # Retrieve normalized data for clustering
                                 tmpdata1 <- .self$getNormalized()$data
-                                tmpdata1 <- tmpdata1[.self$getNrNAs() < ncol(tmpdata1)/2,]
+
                                 # Clustering using quantable::simpleheatmap3()
                                 clustering <- quantable::simpleheatmap3(t(tmpdata1), margins=c(1,10),
                                                                         breaks = seq(-2.5,2.5, length=26),

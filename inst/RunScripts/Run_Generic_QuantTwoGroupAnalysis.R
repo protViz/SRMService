@@ -99,4 +99,4 @@ genericQuantMatrixGRP2 <- grp2
 ## REMOVE TO RENDER
 #rmarkdown::render("vignettes/Grp2Analysis.Rmd", params = list(grp = genericQuantMatrixGRP2), envir = new.env())
 
-
+rmarkdown::render("vignettes/Grp2AnalysisHeatmap3.Rmd",bookdown::pdf_document2(), params=list(grp = grp2))
