@@ -65,10 +65,13 @@ getPVals <- function(lmfitebayes, var = "ProteinID"){
 #' @return tibble with pValues and fold changes
 #' @export
 #' @examples
+#'
 #' \dontrun{
+#' if(FALSE){
 #' cont <- limma::makeContrasts(contrasts = contrasts, levels =  levels)
 #' fit <- lmFit(intmat , designMatrix)
 #' res <- contrasts.fit.NA(fit,cont)
+#' }
 #' }
 contrasts.fit.NA <- function(fit, cont){
   resl <- NULL
