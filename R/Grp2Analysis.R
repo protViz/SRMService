@@ -37,7 +37,8 @@ Grp2Analysis <- setRefClass("Grp2Analysis",
                                            normalizationMethod = "character",
                                            housekeeper = "character",
                                            special = "character",
-                                           modelMatrix = "matrix"
+                                           modelMatrix = "matrix",
+                                           numberOfProteinClusters = "numeric"
                             )
                             , methods = list(
 
@@ -52,7 +53,8 @@ Grp2Analysis <- setRefClass("Grp2Analysis",
                                 annotationCol = annotationColumns,
                                 removeDates = TRUE,
                                 housekeeper = "",
-                                normalizationMethod = "robustscale"
+                                normalizationMethod = "robustscale",
+                                numberOfProteinClusters = 5
                               ){
                                 if(!reference %in% unique(annotation$Condition)){
                                   stop("wrong reference :" , reference, " in conditions: ", paste(unique(annotation$Condition), collapse=","))
@@ -70,6 +72,7 @@ Grp2Analysis <- setRefClass("Grp2Analysis",
                                 .self$removeDates <- removeDates
                                 .self$housekeeper <- housekeeper
                                 .self$normalizationMethod <- normalizationMethod
+                                .self$numberOfProteinClusters <- numberOfProteinClusters
                                 setQValueThresholds()
                                 setPValueThresholds()
                               },
@@ -275,7 +278,7 @@ Grp2Analysis <- setRefClass("Grp2Analysis",
                                 colnames(grpAverage) <- .self$getConditions()
                                 return(grpAverage)
                               },
-                              getResultTableWithPseudoAndClustering = function(nrOfClustersRow, nrOfClustersCol){
+                              getResultTableWithPseudoAndClustering = function(){
                                 "calls getResultTableWithPseudo() and adds clusterID column"
 
                                 # Run getResultTableWithPseudo()
@@ -285,18 +288,20 @@ Grp2Analysis <- setRefClass("Grp2Analysis",
                                 tmpdata1 <- .self$getNormalized()$data
 
                                 # Clustering using quantable::simpleheatmap3()
-                                clustering <- quantable::simpleheatmap3(t(tmpdata1), margins=c(1,10),
-                                                                        breaks = seq(-2.5,2.5, length=26),
-                                                                        labCol = rownames(tmpdata1),
-                                                                        labRow = colnames(tmpdata1),
-                                                                        plot = F, nrOfClustersRow = nrOfClustersRow,
-                                                                        nrOfClustersCol = nrOfClustersCol)
-                                col_clustering <- clustering$Col
-                                colnames(col_clustering) = c("TopProteinName", "ClusterID")
+                                clustering <- quantable::simpleheatmap3(tmpdata1,
+                                                                        labCol = colnames(tmpdata1),
+                                                                        labRow = rownames(tmpdata1),
+                                                                        plot = FALSE,
+                                                                        nrOfClustersRow = .self$numberOfProteinClusters)
+                                row_clustering <- clustering$Row
+                                colnames(row_clustering) = c("TopProteinName", "ClusterID")
 
                                 # Merging ResultTable with ClusterID data.frame
-                                results <- dplyr::full_join(tmpdata, col_clustering, by = "TopProteinName")
+                                results <- dplyr::full_join(tmpdata, row_clustering, by = "TopProteinName")
                                 return(results)
+                              },
+                              getNumberOfClusters = function(){
+                                .self$numberOfProteinClusters
                               }
                             )
 )

@@ -276,6 +276,7 @@ tmp2 <- simpleheatmap3((scale(t(stmMm),scale = F)),
                        breaks=seq(-2.5,2.5,length=26),
                        palette = getBlueWhiteRed(25),
                        labCol="",
+                       nrOfClustersCol = grp2$getNumberOfClusters(),
                        labRow=colnames(stmMm),
                        showColDendro = FALSE )
 progress(0.2, "Heatmaps")
@@ -339,6 +340,7 @@ if(length(grp2$special)>0)
 }
 
 gridExtra::grid.arrange(p1, p2, nrow=1)
+
 ```
 
 
@@ -356,7 +358,7 @@ knitr::kable(x, caption = "Number of not significant and significant proteins (b
 
 
 ```{r top20table}
-tmp2 <- grp2$getResultTableWithPseudoAndClustering(nrOfClustersRow = 2, nrOfClustersCol = 5)
+tmp2 <- grp2$getResultTableWithPseudoAndClustering()
 top20 <- tmp2 %>% dplyr::select( proteinID,log2FC,CI.L,CI.R, P.Value, adj.P.Val, ClusterID ) %>% arrange(P.Value) %>% head(20)
 knitr::kable(top20, caption = "Top 20 proteins sorted by smallest Q Value (adj.P.Val). The effectSize column is the log2 FC of condition vs reference.")
 ```
@@ -378,6 +380,7 @@ results <- grp2$getResultTable()
 NAinfo <- c(sum(is.na(results[, grp2$getConditions()$reference])) , 
             sum(is.na(results[, grp2$getConditions()$condition])) )
 NAinfo<-data.frame(name = unlist(grp2$getConditions()), nrProteins= NAinfo)
+
 ```
 
 ```{r referencingChildDocument}

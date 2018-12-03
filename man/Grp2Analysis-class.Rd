@@ -55,7 +55,7 @@ Perform 2 group analysis with visualization
 
 \item{\code{getResultTableWithPseudo()}}{add pseudo p-values and pseudo fold changes}
 
-\item{\code{getResultTableWithPseudoAndClustering(nrOfClustersRow, nrOfClustersCol)}}{calls getResultTableWithPseudo() and adds clusterID column}
+\item{\code{getResultTableWithPseudoAndClustering()}}{calls getResultTableWithPseudo() and adds clusterID column}
 
 \item{\code{setMQProteinGroups(MQProteinGroups)}}{set MQ protein groups table}
 

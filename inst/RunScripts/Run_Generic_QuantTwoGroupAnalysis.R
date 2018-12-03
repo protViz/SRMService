@@ -80,23 +80,25 @@ write.table(annotation, file=file.path(resultdir, "annotationused.txt"))
 # important structure for protein matrix
 
 # Do the analysis
-grp2 <- Grp2Analysis(annotation, Experimentname, maxNA=nrNas  , nrPeptides=nrPeptides, reference=reference)
+grp2 <- Grp2Analysis(annotation,
+                     Experimentname,
+                     maxNA=nrNas,
+                     nrPeptides=nrPeptides,
+                     reference=reference,
+                     numberOfProteinClusters = 20
+                     )
 grp2$setMQProteinGroups(protein)
 
 grp2$setQValueThresholds(qvalue = qvalueThreshold,qfoldchange = qfoldchange)
 
 #write out results and render pdf
-readr::write_tsv(x = grp2$getResultTable(), path = file.path(resultdir,"pValues.csv"))
+#readr::write_tsv(x = grp2$getResultTable(), path = file.path(resultdir,"pValues.csv"))
 
-dstMarkdown <- file.path(resultdir,"Grp2Analysis.Rmd")
-file.copy(file.path(packagePath,"inst/reports/Grp2Analysis.Rmd"), dstMarkdown, overwrite = TRUE)
-file.copy(file.path(packagePath,"inst/reports/Grp2Analysis_Empty.Rmd"),
-          file.path(resultdir,"Grp2Analysis_Empty.Rmd" ), overwrite = TRUE)
-file.copy(file.path(packagePath,"inst/reports/Grp2Analysis_MissingInOneCondtion.Rmd"),
-          file.path(resultdir,"Grp2Analysis_MissingInOneCondtion.Rmd"), overwrite = TRUE)
 genericQuantMatrixGRP2 <- grp2
-#usethis::use_data(genericQuantMatrixGRP2)
+
+usethis::use_data(genericQuantMatrixGRP2, overwrite = TRUE)
+
 ## REMOVE TO RENDER
 #rmarkdown::render("vignettes/Grp2Analysis.Rmd", params = list(grp = genericQuantMatrixGRP2), envir = new.env())
 
-rmarkdown::render("vignettes/Grp2AnalysisHeatmap3.Rmd",bookdown::pdf_document2(), params=list(grp = grp2))
+# rmarkdown::render("vignettes/Grp2AnalysisHeatmap3.Rmd",bookdown::pdf_document2(), params=list(grp = grp2))

@@ -53,7 +53,12 @@ write.table(annotation, file=file.path(resultdir, "annotationused.txt"))
 ####### END of user configuration ##
 
 # source("R/Grp2Analysis.R")
-grp2 <- Grp2Analysis(annotation, "Experimentname", maxNA=nrNas  , nrPeptides=nrPeptides, reference=reference)
+grp2 <- Grp2Analysis(annotation, "Experimentname",
+                     maxNA=nrNas,
+                     nrPeptides=nrPeptides,
+                     reference=reference,
+                     numberOfProteinClusters = 20
+                     )
 
 grp2$setMQProteinGroups(protein)
 grp2$setQValueThresholds(qvalue = qvalueThreshold,qfoldchange = qfoldchange)
