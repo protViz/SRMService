@@ -12,8 +12,28 @@ library(quantable)
 ### Protein groups file
 packagedir <- path.package("SRMService")
 
-proteinGroupsFile <-
-  file.path(packagedir, "/samples/proteinGroups/proteinGroupsYeast.txt")
+file = "yeast"
+
+if(file == "yeast") {
+  proteinGroupsFile <-
+    file.path(packagedir, "/samples/proteinGroups/proteinGroupsYeast.txt")
+  organism <- "scerevisiae"
+  Experimentname <- "yeast_example"
+  indx <- 4
+} else if(file == "mouse") {
+  proteinGroupsFile <-
+    file.path(packagedir, "/samples/proteinGroups/proteinGroups.txt")
+  organism <- "mmusculus"
+  Experimentname <- "mouse_example"
+  indx <- 3
+} else if(file == "pullDown") {
+  proteinGroupsFile <-
+    file.path(packagedir, "/samples/proteinGroups/proteinGroupsPullDown.txt")
+  organism <- "hsapiens"
+  Experimentname <- "pullDown_example"
+  indx <- 4
+}
+
 
 ###
 
@@ -28,7 +48,8 @@ barplot(tmp[(length(tmp) - 5):length(tmp)], ylim = c(0, length(protein$Peptides)
 rawF <-
   gsub("Intensity\\.", "", grep("Intensity\\.", colnames(protein), value =
                                   T))
-condition <- quantable::split2table(rawF)[, 4]
+condition <- quantable::split2table(rawF)[, indx]
+
 annotation <- data.frame(
   Raw.file = rawF,
   Condition = condition,
@@ -43,14 +64,14 @@ annotation <- data.frame(
 resultdir <- "output"
 dir.create(resultdir)
 
-organism = "scerevisiae"
-Experimentname = ""
+
 nrNas = 5
 nrPeptides = 2
 reference = unique(annotation$Condition)[1]
 qvalueThreshold = 0.05
 qfoldchange = 1
 numberOfProteinClusters = 3
+enrichDatabase = "pathway_KEGG"
 write.table(annotation, file = file.path(resultdir, "annotationused.txt"))
 
 
@@ -59,7 +80,7 @@ write.table(annotation, file = file.path(resultdir, "annotationused.txt"))
 # source("R/Grp2Analysis.R")
 grp2 <- Grp2Analysis(
   annotation,
-  "Experimentname",
+  Experimentname,
   maxNA = nrNas,
   nrPeptides = nrPeptides,
   reference = reference,
@@ -81,7 +102,7 @@ ref_protein_list <- data.frame(IDs = row.names(tmp)) %>%
   separate(col = IDs,
            sep = "\\|",
            into = as.character(1:3)) %>%
-  filter(`1` == "sp") %>%
+  filter(`1` == "sp" | `1` == ">sp") %>%
   select(`2`)
 
 write_tsv(ref_protein_list, "output/referencelist.txt", col_names = F)
@@ -94,7 +115,7 @@ clusterIDs <- clustering %>%
   separate(col = colID,
            sep = "\\|",
            into = as.character(1:3)) %>%
-  filter(`1` == "sp") %>%
+  filter(`1` == "sp" | `1` == ">sp") %>%
   select(clusterID, `2`) %>%
   ungroup()
 
@@ -107,13 +128,11 @@ write_interesting_geneFile <- function(ID, df, output.dir) {
       path = paste(output.dir, "/protein_cluster_", ID, ".txt", sep = ""),
       col_names = F
     )
-  return(paste(
-    "protein_cluster_",
-    ID,
-    ".txt was written to ",
-    output.dir,
-    sep = ""
-  ))
+  return(paste("protein_cluster_",
+               ID,
+               ".txt was written to ",
+               output.dir,
+               sep = ""))
 }
 
 sapply(
@@ -127,7 +146,7 @@ output <-
   WebGestaltR_batch(
     enrichMethod = "ORA",
     organism = organism,
-    enrichDatabase = "pathway_KEGG",
+    enrichDatabase = enrichDatabase,
     interestGeneFolder = "output/ORA_inputFiles",
     referenceGeneFile = "output/referencelist.txt",
     is.output = FALSE,
@@ -137,12 +156,12 @@ output <-
   )
 
 aggregate_list <- function(ll) {
-  if (is.null(ll$enrichResult))
+  if (is.null(ll$enrichResult) || grepl("ERROR", ll$enrichResult))
     return(NULL)
   else {
     tmp <- as.data.frame(ll$enrichResult)
     tmp %>%
-      mutate(file.origin = tools::file_path_sans_ext(basename(ll$filename)))
+      mutate(file.origin = parse_number(tools::file_path_sans_ext(basename(ll$filename))))
   }
 }
 
@@ -152,7 +171,7 @@ aggregated_results <- lapply(output, aggregate_list) %>%
 # #REMOVE to render
 rmarkdown::render(
   "vignettes/WebGestaltR_Grp2Analysis.Rmd",
-  bookdown::html_document2(),
+  bookdown::html_document2(number_sections = FALSE),
   params = list(grp = mqQuantMatrixGRP2),
   clean = TRUE
 )
