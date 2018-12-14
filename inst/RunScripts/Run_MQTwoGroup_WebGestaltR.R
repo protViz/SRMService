@@ -70,7 +70,7 @@ nrPeptides = 2
 reference = unique(annotation$Condition)[1]
 qvalueThreshold = 0.05
 qfoldchange = 1
-numberOfProteinClusters = 3
+numberOfProteinClusters = 2
 enrichDatabase = "pathway_KEGG"
 write.table(annotation, file = file.path(resultdir, "annotationused.txt"))
 
@@ -96,7 +96,7 @@ usethis::use_data(mqQuantMatrixGRP2, overwrite = TRUE)
 
 dir.create("output/ORA_inputFiles/")
 
-tmp <- grp2$getNormalized()$data
+tmp <- grp2$getNormalized()$data[grp2$getNrNAs() < ncol(grp2$getNormalized()$data)/3,]
 
 ref_protein_list <- data.frame(IDs = row.names(tmp)) %>%
   separate(col = IDs,
@@ -108,7 +108,7 @@ ref_protein_list <- data.frame(IDs = row.names(tmp)) %>%
 write_tsv(ref_protein_list, "output/referencelist.txt", col_names = F)
 
 clustering <-
-  simpleheatmap3(t(tmp), labCol = row.names(tmp), plot = FALSE)$Col
+  simpleheatmap3(t(tmp), labCol = row.names(tmp), plot = FALSE, nrOfClustersCol = grp2$getNumberOfClusters())$Col
 
 clusterIDs <- clustering %>%
   group_by(clusterID) %>%
@@ -168,7 +168,7 @@ aggregate_list <- function(ll) {
 aggregated_results <- lapply(output, aggregate_list) %>%
   do.call(rbind, .)
 
-# #REMOVE to render
+#REMOVE to render
 rmarkdown::render(
   "vignettes/WebGestaltR_Grp2Analysis.Rmd",
   bookdown::html_document2(number_sections = FALSE),
