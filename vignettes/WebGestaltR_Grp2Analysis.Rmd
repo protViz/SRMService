@@ -129,13 +129,14 @@ for (i in unique(X$file.origin)) {
   
   X %>% 
     filter(file.origin == i) %>%
+    select(-file.origin) %>% 
     knitr::kable(
       x = .,
       align = "c",
-      caption = paste0("Results for cluster ", i, "."),
+      caption = paste0("Pathways enriched in protein cluster ", i, "."),
       digits = 4,
       escape = TRUE,
-      col.names = c("Gene Set", "*P* Value", "*Q* Value", "Protein Cluster")
+      col.names = c("Gene Set", "*P* Value", "*Q* Value")
     ) %>% print
   
   cat("\n")
