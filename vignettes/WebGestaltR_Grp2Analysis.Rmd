@@ -1,20 +1,20 @@
 ---
 title: "FGCZ Over-Representation Analysis (ORA)"
-subtitle: "Using the `WebGestaltR` package"
 author: "Functional Genomics Center Zurich"
 date: "`r format(Sys.time(), '%d %B, %Y')`"
 output:
-  html_document: 
-    number_sections: false
-params:
-  grp: !r quote(SRMService::mqQuantMatrixGRP2)
-vignette: >
-  %\VignetteIndexEntry{FGCZ WebGestaltR}
-  %\VignetteEncoding{UTF-8}
-  %\VignetteEngine{knitr::rmarkdown}
-bibliography: bibliography.bib
-editor_options: 
+  html_document:
+    number_sections: no
+editor_options:
   chunk_output_type: console
+params:
+  config: !r quote(SRMService::webGestaltExample)
+subtitle: Using the `WebGestaltR` package
+bibliography: bibliography.bib
+vignette: >
+  %\VignetteIndexEntry{FGCZ Two-Group Analysis} 
+  %\VignetteEncoding{UTF-8} 
+  %\VignetteEngine{knitr::rmarkdown}
 ---
 
 ```{r setup, include=FALSE}
@@ -30,7 +30,7 @@ if(!exists("progress")){
   }
 }
 
-grp2 <- eval(params$grp)
+WebGestaltRinput <- eval(params$config)
 
 library(tidyverse)
 library(knitr)
@@ -53,37 +53,23 @@ Table \@ref(tab:summary) summarises the results by indicating protein clusters, 
 
 ## Experiment summary
 
+The quantitative protein matrix contained the following number of proteins:
 
-This report was is stored in the LIMS system _bfabric_ <https://fgcz-bfabric.uzh.ch> [@Trker2010] in the project `r grp2$projectID`, with the workunit name : `r grp2$projectName`.
-
-This report was created from data stored in _bfabric_ and can be downloaded using:
-
-- workunit Id : `r grp2$workunitID`
-- project Id: `r grp2$projectID`.
-
-
-The protein matrix is filtered with the following thresholds:
-
-- Minimum number of peptides / protein: `r grp2$nrPeptides`
-- Maximum of missing values per protein : `r grp2$maxNA`
-
-
-- The total number of proteins in this experiment is: `r nrow(grp2$proteinIntensity)` 
-- Total number without decoys sequences is `r nrow(grp2$proteinIntensity) -  sum(grepl("REV__",grp2$proteinAnnotation$ProteinName))` 
-
-
-- Percentage of contaminants : `r round(mean(grepl("CON__",grp2$proteinAnnotation$ProteinName)) * 100, digits=1)` %
-- Percentage of false positives : `r round(mean(grepl("REV__",grp2$proteinAnnotation$ProteinName)) * 100, digits=1)` %
+- Allowed number of `NA`: `r WebGestaltRinput$nrNas`
+- Standard error threshold: `r WebGestaltRinput$se_threshold`
+- Before filtering: `r nrow(WebGestaltRinput$normalisedData_unfiltered)`
+- After filtering for `NA` and standard errors: `r nrow(WebGestaltRinput$normalisedData_filtered)`
 
 ORA was performed with the following parameters:
 
-- Organism: `r organism`
-- Database: `r enrichDatabase`
-- Number of protein clusters submitted to ORA: `r grp2$getNumberOfClusters()`
+- Organism: `r WebGestaltRinput$organism`
+- Database: `r WebGestaltRinput$enrichDatabase`
+- Number of protein clusters submitted to ORA: `r WebGestaltRinput$numberOfProteinClusters`
+- Clustering method: `r WebGestaltRinput$method`
 
 ```{r summary}
-sig = unlist(lapply(output, function(ll) ifelse(is.null(ll$enrichResult), 0, nrow(ll$enrichResult))))
-clusterIDs %>% 
+sig = unlist(lapply(WebGestaltRinput$webgestaltList, function(ll) ifelse(is.null(ll$enrichResult), 0, nrow(ll$enrichResult))))
+WebGestaltRinput$clusterIDs %>% 
   group_by(clusterID) %>% 
   count %>% 
   ungroup %>% 
@@ -101,19 +87,17 @@ clusterIDs %>%
 
 ## Protein clustering
 
-```{r heatmapData, fig.width=8, fig.height=5, dpi=300, fig.cap="Heatmap of normalized data.", fig.align='center'}
-tmp <- grp2$getNormalized()$data
-stmMm <- grp2$getNormalized()$data[grp2$getNrNAs() < ncol(grp2$getNormalized()$data)/3,]
-col = c("blue", "red")
+```{r heatmapData, fig.width=8, fig.height=5, dpi=300, fig.cap="Heatmap of normalized data after filtering for observed number of NAs and a standard error threshold.", fig.align='center'}
+stmMm <- WebGestaltRinput$normalisedData_filtered
 tmp2 <- simpleheatmap3((scale(t(stmMm),scale = F)),
-                       RowSideColors = col[as.factor(grp2$getAnnotation()$Condition)],
                        margins=c(1,10),
                        breaks=seq(-2.5,2.5,length=26),
                        palette = getBlueWhiteRed(25),
                        labCol="",
-                       nrOfClustersCol = grp2$getNumberOfClusters(),
+                       nrOfClustersCol = WebGestaltRinput$numberOfProteinClusters,
                        labRow=colnames(stmMm),
-                       showColDendro = FALSE)
+                       showColDendro = FALSE,
+                       method = WebGestaltRinput$method)
 progress(0.2, "Heatmaps")
 ```
 
@@ -122,7 +106,7 @@ progress(0.2, "Heatmaps")
 Note that the geneset column directly refers the reader to the corresponding pathway webpage. If no data is available on a cluster no significantly enriched pathway could be reported.
 
 ```{r results, results='asis'}
-X <- aggregated_results %>%
+X <- WebGestaltRinput$webgestaltResults %>%
   mutate(geneset = pander::pandoc.link.return(link, text = geneset)) %>%
   select(geneset, PValue, FDR, file.origin)
 
@@ -143,8 +127,6 @@ for (i in unique(X$file.origin)) {
   
   cat("\n")
 }
-
-  
 ```
 
 \pagebreak
