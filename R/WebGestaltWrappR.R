@@ -16,7 +16,8 @@ webGestaltWrapper <- function(grp2, enrichDatabase, organism, se_threshold, work
 
   # Reference list ----------------------------------------------------------
 
-  write_tsv(data.frame(rownames(quant_data)), file.path(work_dir, "referencelist.txt"), col_names = F)
+  reference_list <- data.frame(rownames(quant_data))
+  write_tsv(reference_list, file.path(work_dir, "referencelist.txt"), col_names = F)
 
 
   # Protein cluster lists ---------------------------------------------------
@@ -43,8 +44,8 @@ webGestaltWrapper <- function(grp2, enrichDatabase, organism, se_threshold, work
       interestGeneFolder = "output/ORA_inputFiles",
       referenceGeneFile = "output/referencelist.txt",
       is.output = FALSE,
-      interestGeneType = "uniprot_swissprot",
-      referenceGeneType =  "uniprot_swissprot",
+      interestGeneType = "uniprotswissprot",
+      referenceGeneType =  "uniprotswissprot",
       outputDirectory = "output/"
     )
 
@@ -63,7 +64,8 @@ webGestaltWrapper <- function(grp2, enrichDatabase, organism, se_threshold, work
       webgestaltList = output,
       clusterIDs = clustering,
       nrNas = nrNas,
-      method = method
+      method = method,
+      reference_list = reference_list
     )
     return(config)
 }

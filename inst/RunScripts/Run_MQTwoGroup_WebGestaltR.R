@@ -86,7 +86,7 @@ webGestaltExample <-
     grp2 = grp2,
     enrichDatabase = enrichDatabase,
     organism = organism,
-    se_threshold = 1,
+    se_threshold = 1.5,
     nrNas = 5,
     method = "complete"
   )
