@@ -3,6 +3,7 @@ doc
 .Rproj.user/
 .Rproj.user
 .Rhistory
+.DS_Store
 inst/**/*.pdf
 inst/**/*.html
 inst/**/*.log
@@ -14,4 +15,3 @@ inst/samples/maxquant_txt/MSQC1/*.aux
 inst/samples/maxquant_txt/MSQC1/*.Rnw
 inst/samples/maxquant_txt/MSQC1/Sweave.sty
 inst/samples/maxquant_txt/MSQC1/appliedScaleFactors_Median.txt
-
