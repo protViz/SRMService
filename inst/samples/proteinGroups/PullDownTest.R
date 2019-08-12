@@ -49,7 +49,12 @@ reference = "pegfp_wo" # unique(annotation$Condition)[3]
 
 
 ####### END of user configuration ##
-grp2 <- Grp2Analysis(annotation, "Experimentname", maxNA=nrNas  , nrPeptides=nrPeptides, reference=reference)
+grp2 <- Grp2Analysis(annotation, "Experimentname",
+                     maxNA=nrNas,
+                     nrPeptides=nrPeptides,
+                     reference=reference,
+                     numberOfProteinClusters = 20
+                     )
 grp2$setMQProteinGroups(protein)
 grp2$qfoldchange = 2
 grp2$setQValueThresholds(qvalue = 0.01)
@@ -65,4 +70,4 @@ usethis::use_data(grp2PullDownExample, overwrite = TRUE)
 results <- grp2$getResultTable()
 #write.table(results, file=file.path(workdir,"pValues.csv"), quote=FALSE, sep = "\t", col.names=NA)
 
-rmarkdown::render("Grp2Analysis.Rmd", bookdown::pdf_document2())
+#rmarkdown::render("Grp2Analysis.Rmd", bookdown::pdf_document2())

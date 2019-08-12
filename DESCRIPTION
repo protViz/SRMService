@@ -2,7 +2,7 @@ Package: SRMService
 Type: Package
 Title: Report Quantitative Mass Spectrometry Data
 Date: 2018-09-10
-Version: 0.1.9.22
+Version: 0.1.9.23
 Authors@R: c(person("Witold", "Wolski", email = "wewolski@gmail.com", role = c("aut", "cre")),
                   person("Jonas", "Grossmann", email = "jg@fgcz.ethz.ch", role = c("aut")),
                   person("Christian", "Panse", email = "cp@fgcz.ethz.ch", role = c("aut")))
@@ -43,7 +43,7 @@ LazyData: TRUE
 URL: https://github.com/protViz/SRMService
 BugReports: https://github.com/protViz/SRMService/issues
 Repository: CRAN
-RoxygenNote: 6.1.0.9000
+RoxygenNote: 6.1.1
 Collate:
     'A_dataset_docu.R'
     'RequiredColumns.R'

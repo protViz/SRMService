@@ -87,6 +87,7 @@ The protein matrix is filtered with the following thresholds:
 - Percentage of false positives : `r round(mean(grepl("REV__",grp2$proteinAnnotation$ProteinName)) * 100, digits=1)` %
 
 
+
 ```{r samples}
 tab <- data.frame(table(grp2$getAnnotation()$Condition))
 colnames(tab) <- c("Condition","# samples")
@@ -94,7 +95,7 @@ knitr::kable(tab, caption="Nr of samples in each condition.")
 
 ```
 
-Table \@ref(tab:samples) shows the number of samples in each condition while Table \@ref(tab:annotation) shows the raw files assigned to the conditions. Finally, Table \@ref(tab:groupingvars) specifies which condition is used as reference (denominator in the log2 FC). 
+Table \@ref{tab:samples} shows the number of samples in each condition while Table \@ref(tab:annotation) shows the raw files assigned to the conditions. Finally, Table \@ref{tab:groupingvars} specifies which condition is used as reference (denominator in the log2 FC). 
 
 
 ```{r annotation}
@@ -255,12 +256,12 @@ progress(0.1, "CVs")
 
 ```{r correlation, dpi=300, fig.height=5, fig.width=7, fig.cap="Heatmap of correlations (spearman) between samples."}
 col <- c("red","blue")
-simpleheatmap(cor(grp2$getNormalized()$data, 
+tmp <- simpleheatmap3(cor(grp2$getNormalized()$data, 
                   use="pairwise.complete.obs", 
                   method="spearman")^2,
               palette = getGreensScale(21),
               RowSideColors = col[as.factor(grp2$getAnnotation()$Condition)], 
-              margins = c(1,13), labRow =colnames(grp2$getNormalized()$data), labCol="", dendrogram="row" )
+              margins = c(1,13), labRow =colnames(grp2$getNormalized()$data), labCol="", showColDendro=FALSE )
 ```
 
 In Figure \@ref(fig:correlation) and Figure \@ref(fig:heatmapData) we show how samples are clustering depending on their correlation as well as the protein expression profiles. Side colors on the left side of the heatmaps indicate the groupings.
@@ -269,12 +270,15 @@ In Figure \@ref(fig:correlation) and Figure \@ref(fig:heatmapData) we show how s
 ```{r heatmapData, fig.width=8, fig.height=5, dpi=300, fig.cap="Heatmap of normalized data."}
 tmp <- grp2$getNormalized()$data
 stmMm <- grp2$getNormalized()$data[grp2$getNrNAs() < ncol(grp2$getNormalized()$data)/2,]
-simpleheatmap((scale(t(stmMm),scale = F)),RowSideColors = col[as.factor(grp2$getAnnotation()$Condition)], margins=c(1,10),
-              breaks=seq(-2.5,2.5,length=26),
-              palette = getBlueWhiteRed(25),
-              labCol="", labRow=colnames(stmMm), dendrogram="row")
+tmp1 <- simpleheatmap3((scale(t(stmMm),scale = F)),
+                       RowSideColors = col[as.factor(grp2$getAnnotation()$Condition)],
+                       margins=c(1,10),
+                       breaks=seq(-2.5,2.5,length=26),
+                       palette = getBlueWhiteRed(25),
+                       labCol="",
+                       labRow=colnames(stmMm),
+                       showColDendro=FALSE)
 progress(0.2, "Heatmaps")
-
 ```
 
 \pagebreak
@@ -352,8 +356,8 @@ knitr::kable(x, caption = "Number of not significant and significant proteins (b
 
 
 ```{r top20table}
-tmp2 <- grp2$getModPValuesCI()
-top20 <- tmp2 %>% dplyr::select( proteinID,log2FC,CI.L,CI.R, P.Value, adj.P.Val ) %>% arrange(P.Value) %>% head(20)
+tmp2 <- grp2$getResultTableWithPseudoAndClustering(nrOfClustersRow = 2, nrOfClustersCol = 5)
+top20 <- tmp2 %>% dplyr::select( proteinID,log2FC,CI.L,CI.R, P.Value, adj.P.Val, ClusterID ) %>% arrange(P.Value) %>% head(20)
 knitr::kable(top20, caption = "Top 20 proteins sorted by smallest Q Value (adj.P.Val). The effectSize column is the log2 FC of condition vs reference.")
 ```
 
@@ -381,11 +385,12 @@ child_docs <- "Grp2Analysis_MissingInOneCondition.Rmd_t"
 if(!sum(NAinfo$nrProteins > 0) > 0){
   child_docs <- "Grp2Analysis_Empty.Rmd_t"
 }
+
 ```
 
 
-
 ```{r includeMissingInOne, child = child_docs}
+
 ```
 
 # Data Interpretation
@@ -406,7 +411,7 @@ The FGCZ can support you, with the interpretation of your quantitative proteomic
 \newpage
 
 ```{r columnlist}
-knitr::kable(data.frame(columns=colnames(grp2$getResultTableWithPseudo())), caption="List of column names in result .csv table.")
+knitr::kable(data.frame(columns=colnames(grp2$getResultTable())), caption="List of column names in result .csv table.")
 ```
 
 

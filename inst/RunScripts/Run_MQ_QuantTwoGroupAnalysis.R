@@ -40,7 +40,6 @@ dir.create(resultdir)
 
 #fix(annotation)
 
-
 Experimentname = ""
 nrNas = sum(!is.na(annotation$Condition)) - 1
 nrNas = 5
@@ -49,13 +48,17 @@ reference=unique(annotation$Condition)[1]
 reference="WT"
 qvalueThreshold = 0.05
 qfoldchange =1
-
 write.table(annotation, file=file.path(resultdir, "annotationused.txt"))
 
 ####### END of user configuration ##
 
-
-grp2 <- Grp2Analysis(annotation, "Experimentname", maxNA=nrNas  , nrPeptides=nrPeptides, reference=reference)
+# source("R/Grp2Analysis.R")
+grp2 <- Grp2Analysis(annotation, "Experimentname",
+                     maxNA=nrNas,
+                     nrPeptides=nrPeptides,
+                     reference=reference,
+                     numberOfProteinClusters = 20
+                     )
 
 grp2$setMQProteinGroups(protein)
 grp2$setQValueThresholds(qvalue = qvalueThreshold,qfoldchange = qfoldchange)
@@ -66,5 +69,6 @@ usethis::use_data(mqQuantMatrixGRP2, overwrite = TRUE)
 #readr::write_tsv(grp2$getResultTable(), path=file.path(resultdir,"pValues.csv"))
 
 ## REMOVE TO RENDER
-rmarkdown::render("Grp2Analysis.Rmd",bookdown::pdf_document2())
+# rmarkdown::render("vignettes/Grp2AnalysisHeatmap3.Rmd",bookdown::pdf_document2(), params=list(grp = grp2))
+# rmarkdown::render("vignettes/Grp2Analysis.Rmd",bookdown::pdf_document2(), params=list(grp = grp2))
 

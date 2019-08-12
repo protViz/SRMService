@@ -18,9 +18,12 @@ tibble with pValues and fold changes
 version of limma::contrast.fit which is able to handle NA's in one of the conditions.
 }
 \examples{
+
 \dontrun{
+if(FALSE){
 cont <- limma::makeContrasts(contrasts = contrasts, levels =  levels)
 fit <- lmFit(intmat , designMatrix)
 res <- contrasts.fit.NA(fit,cont)
+}
 }
 }
