@@ -60,11 +60,14 @@ grp2 <- Grp2Analysis(annotation, "Experimentname",
                      numberOfProteinClusters = 20
                      )
 
+grp2$getDesignMatrix()
+
 grp2$setMQProteinGroups(protein)
 grp2$setQValueThresholds(qvalue = qvalueThreshold,qfoldchange = qfoldchange)
 mqQuantMatrixGRP2 <- grp2
 
 head(mqQuantMatrixGRP2$getModPValuesCI())
+
 usethis::use_data(mqQuantMatrixGRP2, overwrite = TRUE)
 #readr::write_tsv(grp2$getResultTable(), path=file.path(resultdir,"pValues.csv"))
 

@@ -168,14 +168,16 @@ Grp2Analysis <- setRefClass("Grp2Analysis",
                                 fileID <- as.character(subset(.self$annotation_, Condition == condition)$Raw.file)
                                 normalized[, fileID]
                               },
+                              resetModelMatrix = function(){
+                                .self$modelMatrix <- matrix(ncol=0, nrow=0)
+                              },
                               setModelMatrix = function(modelMatrix){
                                 .self$modelMatrix <- modelMatrix
                               },
                               getDesignMatrix = function(){
                                 if(isTRUE(all.equal(dim(.self$modelMatrix), c(0,0)))){
                                   # hack for putting reference into denomintor.
-                                  design <- gsub(reference, paste("A_", reference, sep=""),
-                                                 .self$annotation_$Condition)
+                                  design <- forcats::fct_relevel(.self$annotation_$Condition, .self$reference)
                                   .self$modelMatrix <- model.matrix(~design)
                                 }
                                 return(.self$modelMatrix)

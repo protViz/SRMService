@@ -11,11 +11,11 @@ Author: Witold Wolski
 Description: Analysing and LFQ and SRM experiments in service mode.
     Data preprocessing and visualization.
 Imports:
-    bibliospec,
     bookdown,
     conflicted,
     corrplot,
     dplyr,
+    forcats,
     glue,
     gridExtra,
     heatmap3,

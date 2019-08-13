@@ -16,7 +16,7 @@ header-includes:
 params:
   grp: !r quote(SRMService::grp2PullDownExample)
 vignette: >
-  %\VignetteIndexEntry{FGCZ Two-Group Analysis}
+  %\VignetteIndexEntry{FGCZ Two-Group Analysis - pull down example}
   %\VignetteEncoding{UTF-8}
   %\VignetteEngine{knitr::rmarkdown}
 bibliography: bibliography.bib
