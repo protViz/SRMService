@@ -151,3 +151,27 @@ RMD_SRM_QC_Normalization <- function(workdir = getwd()){
                          "/RunScripts/RUN_SRMPeptideProteinQC.R"), workdir = workdir)
 }
 
+#' Copies the Rnw file and Run R file for Phospho-Service Analysis into your working directory.
+#'
+#' Please see the Run_PhosphoServiceAnalysis.R file in your working directory,
+#' for more details
+#'
+#' @export
+#' @param workdir specify working directory
+#'
+RMD_PhosphoService_FullAnalysis <- function(workdir = getwd(), minimal = TRUE){
+  if(!minimal){
+    .scriptCopyHelperVec(c("/RunScripts/Run_PhosphoService_FullAnalysis.R",
+                           "/reports/fgcz_phosphoPeptides_OverviewReport.Rmd",
+                           "/reports/Grp2Analysis_MissingInOneCondition.Rmd_t.Rmd",
+                           "/reports/Grp2Analysis_NewVersion_phosphopeptide_2019_wMissing.Rmd",
+                           "/vignettes/bibliography.bib"), workdir = workdir)
+  }else{
+    .scriptCopyHelperVec(c("/reports/fgcz_phosphoPeptides_OverviewReport.Rmd",
+                           "/reports/Grp2Analysis_MissingInOneCondition.Rmd_t.Rmd",
+                           "/reports/Grp2Analysis_NewVersion_phosphopeptide_2019_wMissing.Rmd",
+                           "/vignettes/bibliography.bib"), workdir = workdir)
+
+  }
+}
+
