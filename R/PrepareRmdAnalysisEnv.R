@@ -159,18 +159,20 @@ RMD_SRM_QC_Normalization <- function(workdir = getwd()){
 #' @export
 #' @param workdir specify working directory
 #'
-RMD_PhosphoService_FullAnalysis <- function(workdir = getwd(), minimal = TRUE){
+RMD_PhosphoService_FullAnalysis <- function(workdir = getwd(), minimal = FALSE){
   if(!minimal){
     .scriptCopyHelperVec(c("/RunScripts/Run_PhosphoService_FullAnalysis.R",
                            "/reports/fgcz_phosphoPeptides_OverviewReport.Rmd",
                            "/reports/Grp2Analysis_MissingInOneCondition.Rmd_t.Rmd",
+                           "/reports/Grp2Analysis_Empty.Rmd_t.Rmd",
                            "/reports/Grp2Analysis_NewVersion_phosphopeptide_2019_wMissing.Rmd",
-                           "/vignettes/bibliography.bib"), workdir = workdir)
+                           "/reports/bibliography.bib"), workdir = workdir)
   }else{
     .scriptCopyHelperVec(c("/reports/fgcz_phosphoPeptides_OverviewReport.Rmd",
                            "/reports/Grp2Analysis_MissingInOneCondition.Rmd_t.Rmd",
+                           "/reports/Grp2Analysis_Empty.Rmd_t.Rmd",
                            "/reports/Grp2Analysis_NewVersion_phosphopeptide_2019_wMissing.Rmd",
-                           "/vignettes/bibliography.bib"), workdir = workdir)
+                           "/reports/bibliography.bib"), workdir = workdir)
 
   }
 }
