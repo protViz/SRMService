@@ -41,7 +41,7 @@ Experiment is called: `r projectName`
 #knitr::kable(top20, caption = "Top 20 proteins sorted by smallest Q Value (q.mod). The effectSize column is the log2 FC of condition - reference.")
 
 myAttributes <- c("InputFile","Localization Probability", "psmFDR", "minimum non-NAs")
-myValues <- c(myPhosphoSTY, LocProbThreshold, "0.01", maxNAsForComparison)
+myValues <- c(myPhosphoSTY, LocProbThreshold, "0.01", min_nonNAinTotal)
 myNumTab <- cbind(myAttributes, myValues)
 knitr::kable(myNumTab, caption="Overview table with selected thresholds")
 
@@ -182,20 +182,20 @@ axis(side = 1, at = c(1,2,3), labels = c("S", "T", "Y"))
 
 
 
-```{r LogoAll, fig.width=8,fig.height=4,dpi=300,fig.cap="Sequence logo for ALL singly phosphorylated peptides"}
-ggseqlogo(as.vector(myMat_good_singlyPhos$SeqWindow[bool_ProperLength]), seq_type='aa') + ggtitle("All phospho peptides (singly phos, localization probability OK)")
+```{r LogoAll, fig.width=8,fig.height=4,dpi=300, fig.cap="Sequence logo for ALL singly phosphorylated peptides"}
+try(ggseqlogo(as.vector(myMat_good_singlyPhos$SeqWindow[bool_ProperLength]), seq_type='aa') + ggtitle("All phospho peptides (singly phos, localization probability OK)"))
 ```
 
-```{r Logo_S, fig.width=8,fig.height=4,dpi=300,fig.cap="Sequence logo for singly phosphorylated Serines"}
-try(ggseqlogo(aln_S, seq_type='aa') +  ggtitle("All Serine phospho peptides"))
+```{r LogoSer, fig.width=8,fig.height=4,dpi=300, fig.cap="Sequence logo for singly phosphorylated Serines"}
+if (length(aln_S) > 0) try(ggseqlogo(aln_S, seq_type='aa') +  ggtitle("All Serine phospho peptides"))
 ```
 
-```{r Logo_T, fig.width=8,fig.height=4,dpi=300,fig.cap="Sequence logo for singly phosphorylated Serines"}
-try(ggseqlogo(aln_T, seq_type='aa') +  ggtitle("All Threonine phospho peptides"))
+```{r LogoThr, fig.width=8,fig.height=4,dpi=300, fig.cap="Sequence logo for singly phosphorylated Threonines"}
+if (length(aln_T) > 0) try(ggseqlogo(aln_T, seq_type='aa') +  ggtitle("All Threonine phospho peptides"))
 ```
 
-```{r Logo_Y, fig.width=8,fig.height=4,dpi=300,fig.cap="Sequence logo for singly phosphorylated Serines"}
-try(ggseqlogo(aln_Y, seq_type='aa') +  ggtitle("All Tyrosine phospho peptides"))
+```{r LogoTyr, fig.width=8,fig.height=4,dpi=300, fig.cap="Sequence logo for singly phosphorylated Tyrosines"}
+if (length(aln_Y) > 0) try(ggseqlogo(aln_Y, seq_type='aa') +  ggtitle("All Tyrosine phospho peptides"))
 ```
 
 \pagebreak
