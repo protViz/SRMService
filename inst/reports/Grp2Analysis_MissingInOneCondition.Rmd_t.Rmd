@@ -1,0 +1,108 @@
+---
+title: "Missing In one Condition"
+author: "Witold Wolski"
+date: "30 January 2018"
+output: html_document
+---
+
+
+## Proteins Quantified in only one condition
+
+Some proteins were quantified only in one condition. In such a case no p-values or fold change can be computed. Nevertheless, proteins with relatively high intensity in one condition but not present in the other condition can have biological relevance. Figure \@ref(fig:plotPresentInOnlyOneCondition) shows how many protein were not quantified in a condition. The Figure \@ref(fig:barplotIntensitiesSingle) visualizes the most intensive proteins not quantified in the other condition.
+
+
+
+```{r plotPresentInOnlyOneCondition, fig.cap="Nr of NAs in conditions."}
+library(ggplot2)
+ggplot(NAinfo , aes(x= name, y=nrProteins)) +
+  geom_bar(stat="identity") +
+  geom_text(aes(label=nrProteins), vjust=1.6, color="white", size=3.5) +
+  theme_minimal()
+
+```
+
+
+
+```{r IntensitiesSingle}
+tmp1 <- results %>%
+  select(TopProteinName,grp2$getConditions()$reference , grp2$getConditions()$condition,log2FC) %>%
+  filter(is.na(log2FC)) %>%
+  arrange( desc(!!sym(grp2$getConditions()$reference)) ,desc(!!sym(grp2$getConditions()$condition)) ) 
+
+```
+
+
+```{r barplotIntensitiesSingle, fig.with=12, fig.height=8, fig.cap="Proteins having a high normalized intensity in one condition not quantified in the second condition."}
+
+par(mfrow=c(1,2))
+par(mar=c(8,4,4,1))
+
+tmp2 <- filter(tmp1, !is.na(!!sym(grp2$getConditions()$reference)))
+tmp3 <- tmp2 %>%
+  select(TopProteinName, grp2$getConditions()$reference)
+x <- setNames(tmp3[,2],tmp3[,1])[1:min(20,nrow(tmp3))]
+barplot(x, las = 2, ylab="Normalized intensity", main= grp2$getConditions()$reference,cex.names=0.7, border="lightblue")
+
+tmp2 <- filter(tmp1, !is.na(!!sym(grp2$getConditions()$condition)))
+tmp3 <- tmp2 %>%
+  select(TopProteinName, grp2$getConditions()$condition)
+x <- setNames(tmp3[,2],tmp3[,1])[1:min(20,nrow(tmp3))]
+barplot(x, las = 2, ylab="Normalized intensity", main= grp2$getConditions()$condition,cex.names=0.7, border="lightblue")
+
+```
+
+
+Furthermore, in order to integrate those proteins with proteins which do have a fold change and a q.value, we also provide and a fold change estimate and q.value for those proteins. To emphasize that these values were not obtained by means of fitting a statistical model we call the columns in the output file which do contain them `pseudo.log2FC` and `pseudo.q.mod`. The reported pseudo fold change is computed by subtracting from the quantification value the average of the 10% smallest protein averages of the other condition while the q-value for those proteins was set to 0. The Volcano plot in Figure \@ref(fig:pseudoVolcanoplot) envisages all the proteins quantified including those identified only in one of the samples (green). 
+
+
+
+
+```{r pseudoVolcanoplot, fig.width=10, fig.height=8, dpi=300, fig.cap="VolcanoPlot: x axis log2 fold change including pseudo log2 foldchanges of normalized data, y axis -log10(Q-value) inluding pseudo q-values."}
+pseudoData <- grp2$getResultTableWithPseudo()
+# 
+# quantable::volcano2GB(pseudoData$pseudo.log2FC,
+#                      pseudoData$adj.P.Val,
+#                      pseudoData$TopProteinName,
+#                      ylab="-log10(Q Value)",
+#                      log2FCThresh = grp2$qfoldchange,
+#                      pthresh = grp2$qvalue,
+#                      pseudo = pseudoData$adj.P.Val)
+p1 <- quantable::volcano2GB(pseudoData,
+                foldchange ="pseudo.log2FC",
+                pvalue = "pseudo.P.Value",
+                labels = "proteinID",
+                ylab="-log10(P Value)",
+                log2FCThresh=grp2$qfoldchange,
+                pthresh=grp2$qvalue,
+                pseudo = pseudoData$P.Value)
+p1<-p1 + labs(tag="A") + theme(legend.position="bottom")
+
+
+p2 <- quantable::volcano2GB(pseudoData,
+                foldchange ="pseudo.log2FC",
+                pvalue = "pseudo.adj.P.Val",
+                labels = "proteinID",
+                ylab="-log10(Q Value)",
+                log2FCThresh=grp2$qfoldchange,
+                pthresh=grp2$qvalue,
+                pseudo = pseudoData$adj.P.Val)
+p2<-p2 + labs(tag="B") + theme(legend.position="bottom")
+
+if(length( grp2$special )>0)
+{
+  p1<-quantable::addSpecialProteins(p1,pseudoData,special=  grp2$special,
+                     foldchange ="pseudo.log2FC",
+                     pvalue = "pseudo.p.mod",
+                     labels = "TopProteinName")
+
+  p2<-quantable::addSpecialProteins(p2,pseudoData,special=  grp2$special,
+                     foldchange ="pseudo.log2FC",
+                     pvalue = "pseudo.q.mod",
+                     labels = "TopProteinName")
+
+}
+
+gridExtra::grid.arrange(p1, p2, nrow=1)
+
+```
+

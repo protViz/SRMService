@@ -325,14 +325,14 @@ if(length(grp2$special)>0)
 ```{r volcanoplotpValues, fig.width=10, fig.height=8, dpi=300, fig.cap= "p-value VolcanoPlot: x axis log2 fold change of normalized data, y axis -log10(p-values)."}
 res.eb$names <- rownames(res.eb)
 
-p <- quantable::volcano2GB(res.eb, pvalue = "adj.P.Val", foldchange = "log2FC",
+p <- quantable::volcano2GB(res.eb, pvalue = "P.Value", foldchange = "log2FC",
                            ylab="-log10(p-value)",
                            log2FCThresh=grp2$qfoldchange,
                            pthresh=grp2$qvalue)
 
 if(length(grp2$special)>0)
 {
-  quantable::addSpecialProteins(p, res.eb, grp2$special,  pvalue = "adj.P.Val")
+  quantable::addSpecialProteins(p, res.eb, grp2$special,  pvalue = "P.Value")
 }else{
   p
 }
@@ -362,20 +362,23 @@ knitr::kable(top20, "latex", caption = "Top 20 phospho peptides sorted by smalle
 
 \newpage
 
-
 ```{r presentInOnlyOneCondition}
 results <- grp2$getResultTable()
 NAinfo <- c(sum(is.na(results[, grp2$getConditions()$reference])) , 
             sum(is.na(results[, grp2$getConditions()$condition])) )
 NAinfo<-data.frame(name = unlist(grp2$getConditions()), nrProteins= NAinfo)
+```
 
-child_docs <- "Grp2Analysis_MissingInOneCondtion.Rmd_t"
+```{r referencingChildDocument}
+child_docs <- "Grp2Analysis_MissingInOneCondition.Rmd_t.Rmd"
 if(!sum(NAinfo$nrProteins > 0) > 0){
-  child_docs <- "Grp2Analysis_Empty.Rmd_t"
+ child_docs <- "Grp2Analysis_Empty.Rmd_t.Rmd"
 }
+```
 
-child_docs <- system.file(file.path("ParametrizedReportsChild",child_docs),package = "SRMService")
 
+
+```{r includeMissingInOne, child = child_docs}
 ```
 
 
