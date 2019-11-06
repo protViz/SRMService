@@ -52,6 +52,7 @@ Collate:
     'MSStatsMappings.R'
     'One2OneAnalysisHelpers.R'
     'PDProteins.R'
+    'PhosphoService_HelperFunctions_v4_2019.R'
     'PrepareRmdAnalysisEnv.R'
     'QCReport.R'
     'R6_ProteinTable.R'
