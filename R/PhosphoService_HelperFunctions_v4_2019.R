@@ -61,7 +61,7 @@ prepareSmallerMatrixFromPhospohSTY <- function(phosphoSTYtableFromMQ, Localizati
   int_names <- colnames(startMat)[grep(pattern = "Intensity", x = colnames(startMat))]
   RawFilenameVector <- vector()
   for (i in 1:length(int_names)) {
-    RawFilenameVector[i] <- str_split(string = int_names[i], pattern = "___")[[1]][1]
+    RawFilenameVector[i] <- stringr::str_split(string = int_names[i], pattern = "___")[[1]][1]
   }
 
   # the first element is "Intensity" from all rawFiles -> start from 2:x
@@ -211,7 +211,7 @@ get2GroupAnalysisFromExistingAnnotationFileNoRender <- function(proteinMat, path
     if(str_count(string = POI_tablePeptide$PositionsINproteins[i] , pattern = ";") == 0) {
       Phos_PositionsInProteins[i] <- POI_tablePeptide$PositionsINproteins[i]
     } else {
-      Phos_PositionsInProteins[i] <- as.numeric(str_split(string = POI_tablePeptide$PositionsINproteins[i],
+      Phos_PositionsInProteins[i] <- as.numeric(stringr::str_split(string = POI_tablePeptide$PositionsINproteins[i],
                                                           pattern = ";")[[1]][1])
     }
   }
@@ -309,7 +309,7 @@ get2GroupAnalysisFromExistingAnnotationFileNoRender <- function(proteinMat, path
     if(str_count(string = POI_tablePeptide$PositionsINproteins[i] , pattern = ";") == 0) {
       Phos_PositionsInProteins[i] <- POI_tablePeptide$PositionsINproteins[i]
     } else {
-      Phos_PositionsInProteins[i] <- as.numeric(str_split(string = POI_tablePeptide$PositionsINproteins[i],
+      Phos_PositionsInProteins[i] <- as.numeric(stringr::str_split(string = POI_tablePeptide$PositionsINproteins[i],
                                                           pattern = ";")[[1]][1])
     }
   }
@@ -394,6 +394,8 @@ get2GroupAnalysisFromExistingAnnotationFileNoRender <- function(proteinMat, path
 #' @param myGoodMatrix the quant matrix prepared with the prepareSmallerMatrixFromPhospohSTY function (note, intensities are log2 in the input and linear in the output)
 #' @return data.frame with less columns and rows
 #' @export
+#' @examples
+#' prepareGenericIntensityMatrixFromGoodMatrixForTesting(SRMService::myMat_good)
 #'
 prepareGenericIntensityMatrixFromGoodMatrixForTesting <- function(myGoodMatrix) {
   fakeNrPeptides <- rep(3, nrow(myGoodMatrix))
@@ -459,7 +461,7 @@ getCandidatesFromMergedMatrix <- function(mergedResultMatrix, my_pModThreshold, 
 #' @param geneNamesInsteadOfAccessions boolean to inidicate parsing uniprot accession or gene names sp|accession|gene_name
 #' @param isUniprotDB boolean to indicate if identifier is of type uniprot
 #' @export
-#' @importFrom stringr str_split
+#' @importFrom stringr stringr::str_split
 #'
 generateTxtFilesForDownstreamAnalysisAndReturnCandidateMatrix_2019 <- function(comparisonName="TestComparison",
                                                                           mergedResultMatrix,
@@ -474,11 +476,11 @@ generateTxtFilesForDownstreamAnalysisAndReturnCandidateMatrix_2019 <- function(c
 
   #BG
   if (isUniprotDB == TRUE) {
-    all_accessions <- sort(unlist(lapply(str_split(string  = mergedResultMatrix$Protein, pattern  = "\\|"),FUN = "[",2)))
-    all_geneNames <- sort(unlist(lapply(str_split(string  = mergedResultMatrix$Protein, pattern  = "\\|"),FUN = "[",3)))
+    all_accessions <- sort(unlist(lapply(stringr::str_split(string  = mergedResultMatrix$Protein, pattern  = "\\|"),FUN = "[",2)))
+    all_geneNames <- sort(unlist(lapply(stringr::str_split(string  = mergedResultMatrix$Protein, pattern  = "\\|"),FUN = "[",3)))
   } else {
-    all_accessions <- sort(unlist(lapply(str_split(string  = mergedResultMatrix$Protein, pattern  = "\\|"),FUN = "[",1)))
-    all_geneNames <- sort(unlist(lapply(str_split(string  = mergedResultMatrix$Protein, pattern  = "\\|"),FUN = "[",1)))
+    all_accessions <- sort(unlist(lapply(stringr::str_split(string  = mergedResultMatrix$Protein, pattern  = "\\|"),FUN = "[",1)))
+    all_geneNames <- sort(unlist(lapply(stringr::str_split(string  = mergedResultMatrix$Protein, pattern  = "\\|"),FUN = "[",1)))
   }
   # prepare for outputfiles
   unique_all_accessionsWithCounts <- rle(all_accessions)
@@ -506,11 +508,11 @@ generateTxtFilesForDownstreamAnalysisAndReturnCandidateMatrix_2019 <- function(c
 
   #FG
   if (isUniprotDB == TRUE) {
-    sig_accessions <- rle(sort(unlist(lapply(str_split(string  = myCandidates$Protein, pattern  = "\\|"),FUN = "[",2))))
-    sig_geneNames <- rle(sort(unlist(lapply(str_split(string  = myCandidates$Protein, pattern  = "\\|"),FUN = "[",3))))
+    sig_accessions <- rle(sort(unlist(lapply(stringr::str_split(string  = myCandidates$Protein, pattern  = "\\|"),FUN = "[",2))))
+    sig_geneNames <- rle(sort(unlist(lapply(stringr::str_split(string  = myCandidates$Protein, pattern  = "\\|"),FUN = "[",3))))
   } else {
-    sig_accessions <- rle(sort(unlist(lapply(str_split(string  = myCandidates$Protein, pattern  = "\\|"),FUN = "[",1))))
-    sig_geneNames <- rle(sort(unlist(lapply(str_split(string  = myCandidates$Protein, pattern  = "\\|"),FUN = "[",1))))
+    sig_accessions <- rle(sort(unlist(lapply(stringr::str_split(string  = myCandidates$Protein, pattern  = "\\|"),FUN = "[",1))))
+    sig_geneNames <- rle(sort(unlist(lapply(stringr::str_split(string  = myCandidates$Protein, pattern  = "\\|"),FUN = "[",1))))
   }
 
 

@@ -15,3 +15,7 @@ data.frame with less columns and rows
 \description{
 prepare generic intensityMatrix from the subsetted and handled matrix before
 }
+\examples{
+prepareGenericIntensityMatrixFromGoodMatrixForTesting(SRMService::myMat_good)
+
+}
