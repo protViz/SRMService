@@ -642,6 +642,7 @@ generateNtoCProteinPDFsWithPhosphoPeptides_2019 <- function(globalNphosphoCombin
 #' @param myLogoPlotTitle Title for the plot
 #' @export
 #' @importFrom ggseqlogo ggseqlogo
+#' @importFrom ggplot2 ggtitle
 #'
 doSequenceLogoPlotsFromCandidateMatrixForSinglePhosPeptides <- function(merged_phosphoPeptideResultMatrix,
                                                                         phosAcceptorAA = "S",

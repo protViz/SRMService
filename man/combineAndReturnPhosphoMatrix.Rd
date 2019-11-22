@@ -18,3 +18,7 @@ merged result lists with doublications on protein side (y)
 \description{
 Simply merge phosphoAnalysis with total proteinAnalysis
 }
+\examples{
+combineAndReturnPhosphoMatrix(mergedResultMatrix = SRMService::res__merge_allPhosPep, globalProteinQuantResults = SRMService::quantResTotalProt)
+
+}
