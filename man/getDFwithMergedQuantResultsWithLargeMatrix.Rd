@@ -18,3 +18,7 @@ merged data frame
 \description{
 merge statistics from 2grp with the additional information from the phosphoSTY file into one
 }
+\examples{
+getDFwithMergedQuantResultsWithLargeMatrix(theGoodMatrix = SRMService::myMat_good, phosPepsQuantResults = SRMService::quantResPhosphoPep)
+
+}

@@ -417,6 +417,8 @@ prepareGenericIntensityMatrixFromGoodMatrixForTesting <- function(myGoodMatrix) 
 #' @param phosPepsQuantResults the table from the 2grp analysis with the statistics
 #' @return merged data frame
 #' @export
+#' @examples
+#' getDFwithMergedQuantResultsWithLargeMatrix(theGoodMatrix = SRMService::myMat_good, phosPepsQuantResults = SRMService::quantResPhosphoPep)
 #'
 getDFwithMergedQuantResultsWithLargeMatrix <- function(theGoodMatrix, phosPepsQuantResults) {
   # Prepare the Matrix for more
