@@ -553,12 +553,13 @@ generateTxtFilesForDownstreamAnalysisAndReturnCandidateMatrix_2019 <- function(c
 
 
 
-
 #' Simply merge phosphoAnalysis with total proteinAnalysis
 #' @param mergedResultMatrix result matrix with statistics from 2grp analysis and more information from PhosphoSTY
 #' @param globalProteinQuantResults result matrix with statistics from 2grp analysis for total protein
 #' @return merged result lists with doublications on protein side (y)
 #' @export
+#' @examples
+#' combineAndReturnPhosphoMatrix(mergedResultMatrix = SRMService::res__merge_allPhosPep, globalProteinQuantResults = SRMService::quantResTotalProt)
 #'
 combineAndReturnPhosphoMatrix <- function(mergedResultMatrix, globalProteinQuantResults){
   combinedNmergedResultMatrix <- merge(x = mergedResultMatrix, y = globalProteinQuantResults, by.x = "Protein",
