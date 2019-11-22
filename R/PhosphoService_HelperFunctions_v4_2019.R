@@ -405,7 +405,9 @@ prepareGenericIntensityMatrixFromGoodMatrixForTesting <- function(myGoodMatrix) 
   relevant_intMatNonLog2 <- 2^relevant_intMat
   MatrixForQuantTesting <- data.frame(myProteinNames, relevant_intMatNonLog2,fakeNrPeptides, fakeFastaHeader)
   newHeaders <- c("Majority.protein.IDs", colnames(relevant_intMatNonLog2), "Peptides","Fasta.headers")
+  # 2019-11-22: important fix to see Majority... as character and not as factors
   colnames(MatrixForQuantTesting) <- newHeaders
+  MatrixForQuantTesting$Majority.protein.IDs <- as.character(MatrixForQuantTesting$Majority.protein.IDs)
   return(MatrixForQuantTesting)
 }
 
@@ -461,7 +463,7 @@ getCandidatesFromMergedMatrix <- function(mergedResultMatrix, my_pModThreshold, 
 #' @param geneNamesInsteadOfAccessions boolean to inidicate parsing uniprot accession or gene names sp|accession|gene_name
 #' @param isUniprotDB boolean to indicate if identifier is of type uniprot
 #' @export
-#' @importFrom stringr stringr::str_split
+#' @importFrom stringr str_split
 #'
 generateTxtFilesForDownstreamAnalysisAndReturnCandidateMatrix_2019 <- function(comparisonName="TestComparison",
                                                                           mergedResultMatrix,
