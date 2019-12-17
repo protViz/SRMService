@@ -26,6 +26,9 @@ library(knitr)
 library(limma)
 ```
 
+# Introduction
+
+This report is thought to give an overview about the settings, parameters and numbers of identified peptides and proteins. It is tailored towards providing a phospho-peptide overview and is oriented on the paper of Sharma et. al [@Sharma2014kg].  
 
 
 # Input Matrix
@@ -33,7 +36,6 @@ library(limma)
 Experiment is called: `r projectName`
 
 ## The Numbers
-
 
 ```{r ThresholdTable}
 
