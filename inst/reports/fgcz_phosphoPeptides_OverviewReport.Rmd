@@ -2,6 +2,16 @@
 title: "FGCZ Phospho Proteomics Report: `r fgczProject`"
 author: "Functional Genomics Center Zurich"
 date: "`r format(Sys.time(), '%d %B, %Y')`"
+vignette: >
+  %\VignetteIndexEntry{FGCZ Two-Group Analysis}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+header-includes: |
+    \usepackage{fancyhdr}
+    \pagestyle{fancy}
+    \fancyfoot[CO,CE]{Functional Genomics Center Zurich - 2018}
+    \fancyfoot[LE,RO]{\thepage} 
+bibliography: bibliography.bib
 ---
 
 ```{r setup, include=FALSE}
@@ -264,17 +274,19 @@ knitr::kable(myTableWithNumPhosphoPepsPerQuantile)
 
 \pagebreak
 
-# References
-
-This report was generated using the package [SRMService](http://github.com/protViz/SRMService) and [quantable](http://github.com/protViz/quantable). The q-values and p-values were computed using the bioconductor package [limma](https://bioconductor.org/packages/release/bioc/html/limma.html) and [qvalue](https://bioconductor.org/packages/release/bioc/html/qvalue.html).
-
-For questions and improvements please do contact the authors of the package [_SRMService_](https://github.com/protViz/SRMService/graphs/contributors).
-
-
 # Disclaimer and Acknowledgements
 
 This document was generated using Rmarkdown and processes text files which are generated with a label-free quantitation software such as MaxQuant or Progenesis. 
 The obtained results should be validated orthogonally as well (e.g. with Western blots). The Functional Genomics Center Zurich does not provide any kind of guarantee of the validity of these results.
+
+This report was generated using the package [@SRMService2018] integrating the limma R-package [@Ritchie2015a].
+The report is along the lines of the Sharma and Matthias Mann publication [@Sharma:2014kg].
+
+(http://github.com/protViz/SRMService) and [quantable](http://github.com/protViz/quantable). The p-values were computed using the bioconductor package [limma](https://bioconductor.org/packages/release/bioc/html/limma.html).
+
+For questions and improvements please do contact the authors of the package [_SRMService_](https://github.com/protViz/SRMService/graphs/contributors).
+
+
 
 \newpage
 
@@ -285,4 +297,6 @@ The obtained results should be validated orthogonally as well (e.g. with Western
 pander::pander(sessionInfo())
 ```
 
+
+# References
 
