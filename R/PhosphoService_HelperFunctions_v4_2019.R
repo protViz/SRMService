@@ -655,7 +655,7 @@ doSequenceLogoPlotsFromCandidateMatrixForSinglePhosPeptides <- function(merged_p
     nchar(as.vector(merged_phosphoPeptideResultMatrix$SeqWindow)) == ProperLength
 
   betterTitle <- paste(myLogoPlotTitle, " -> from: ",sum(bool_ForPlotting), " sequences", sep="")
-  ggseqlogo(as.vector(merged_phosphoPeptideResultMatrix$SeqWindow[bool_ForPlotting]), seq_type='aa' ) +
-    ggtitle(betterTitle)
+  ggseqlogo::ggseqlogo(as.vector(merged_phosphoPeptideResultMatrix$SeqWindow[bool_ForPlotting]), seq_type='aa' ) +
+    ggplot2::ggtitle(betterTitle)
 }
 
