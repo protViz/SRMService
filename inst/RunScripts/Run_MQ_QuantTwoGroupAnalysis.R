@@ -11,6 +11,7 @@ library(SRMService)
 ### Protein groups file
 packagedir <- path.package("SRMService")
 
+####! set the path to the proteinGroups.txt file.
 proteinGroupsFile <- file.path(packagedir, "samples/proteinGroups/proteinGroups.txt")
 
 ###
@@ -21,9 +22,14 @@ colnames(protein) <- make.names(colnames(protein))
 tmp <- cumsum(rev(table(protein$Peptides)))
 barplot(tmp[(length(tmp)-5):length(tmp)],ylim=c(0, length(protein$Peptides)),xlab='nr of proteins with at least # peptides')
 
-
+##
 rawF <- gsub("Intensity\\.", "", grep("Intensity\\.",colnames(protein),value=T) )
+
 condition <- quantable::split2table(rawF)[,3]
+
+# Raw.file <- c("23bb","23bcd","23ddd","","","")
+# condition <- c("baseline","baseline","w1","w1")
+
 annotation <- data.frame(Raw.file = rawF,
                          Condition = condition,
                          BioReplicate = paste("X",1:length(condition),sep=""),
