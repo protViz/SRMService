@@ -307,7 +307,7 @@ get2GroupAnalysisFromExistingAnnotationFileNoRender <- function(proteinMat, path
   Phos_PositionsInProteins <- vector(length=nrow(POI_tablePeptide))
   for (i in 1:nrow(POI_tablePeptide)) {
     if(str_count(string = POI_tablePeptide$PositionsINproteins[i] , pattern = ";") == 0) {
-      Phos_PositionsInProteins[i] <- POI_tablePeptide$PositionsINproteins[i]
+      Phos_PositionsInProteins[i] <- as.numeric(POI_tablePeptide$PositionsINproteins[i])
     } else {
       Phos_PositionsInProteins[i] <- as.numeric(stringr::str_split(string = POI_tablePeptide$PositionsINproteins[i],
                                                           pattern = ";")[[1]][1])
