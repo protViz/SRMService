@@ -21,7 +21,6 @@ Imports:
     heatmap3,
     limma,
     methods,
-    missForest,
     pander,
     plyr,
     purrr,
@@ -38,6 +37,8 @@ Imports:
     tools,
     usethis,
     yaml
+Suggests:
+   missForest
 License: GPL
 LazyData: TRUE
 URL: https://github.com/protViz/SRMService
