@@ -5,6 +5,24 @@ For more information about this project please visit the wproject wiki
 
 
 ## Install
+For Debian 10
+You will need to have installed:
+
+```
+sudo apt-get install libssl-dev
+sudo apt-get install pandoc
+sudo apt-get isntall pandoc-citeproc
+```
+
+
+```{r}
+install.packages(c("bookdown", "conflicted", "corrplot", "dplyr", "forcats", "gridExtra", "heatmap3", "limma", "missForest", "pander", "plyr", "purrr", "quantable", "R6", "reshape2", "rlang", "rmarkdown", "scales", "shiny", "tibble", "tidyr", "tidyverse", "usethis"))
+install.packages(c("tidyverse","usethis"))
+
+install.packages("BiocManager")
+BiocManager::install("limma")
+```
+
 
 ```{r}
 library(devtools)
@@ -13,7 +31,9 @@ install_github(c('protViz/SRMService'))
 ```
 
 
-## Deployment on server
+## Deployment on shiny-server
+
+
 
 
 ```{r}
