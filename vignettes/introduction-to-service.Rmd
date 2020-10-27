@@ -19,7 +19,6 @@ knitr::opts_chunk$set(
 
 
 ```{r eval=FALSE}
-rm(list=ls())
 data("sample_analysis")
 data("skylineconfig")
 pp<-path.package("SRMService")

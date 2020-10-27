@@ -4,14 +4,16 @@
 # www.github.com/protViz/SRMService
 # by W.E. Wolski, J. Grossmann, C. Panse
 #
-rm(list=ls())
 library(limma)
 library(SRMService)
 
 ### Protein groups file
 packagePath <- path.package("SRMService")
 packagePath <- "."
-proteinGroupsFile <- file.path(packagePath,"/inst/samples/genericQuantMatrix","Generic_QuantMatrix.txt")
+proteinGroupsFile <-
+  file.path(packagePath,
+            "/inst/samples/genericQuantMatrix",
+            "Generic_QuantMatrix.txt")
 
 # read in protein groups file
 protein <- readr::read_tsv(proteinGroupsFile)
@@ -29,35 +31,46 @@ colnames(protein) <- make.names(colnames(protein))
 originalHeaders <- colnames(protein)
 fakeNrPeptides <- rep(3, nrow(protein))
 fakeFastaHeader <- rep("No_Description", nrow(protein))
-protein <- cbind(protein,fakeNrPeptides, fakeFastaHeader)
+protein <- cbind(protein, fakeNrPeptides, fakeFastaHeader)
 
 
 # for project p2482 put the sample annotations from metainfo
-newHeaders <- c("Majority.protein.IDs", paste("Intensity.",originalHeaders[2:length(originalHeaders)], sep=""), "Peptides","Fasta.headers")
+newHeaders <-
+  c(
+    "Majority.protein.IDs",
+    paste("Intensity.", originalHeaders[2:length(originalHeaders)], sep = ""),
+    "Peptides",
+    "Fasta.headers"
+  )
 colnames(protein) <- newHeaders
 
 
 
 
 # all raw files in protein groups (select here for proper 2grp)
-rawF <- gsub("Intensity\\.", "", grep("Intensity\\.",colnames(protein),value=T) )
+rawF <-
+  gsub("Intensity\\.", "", grep("Intensity\\.", colnames(protein), value =
+                                  T))
 
 # how to parse condition from the filenames (separator in fn _ )
-condition <- quantable::split2table(rawF)[,3]
+condition <- quantable::split2table(rawF)[, 3]
 #
-annotation <- data.frame(Raw.file = rawF,
-                         Condition = condition,
-                         BioReplicate = paste("X",1:length(condition),sep=""),
-                         Run = 1:length(condition),
-                         IsotopeLabelType = rep("L",length(condition)),
-                         stringsAsFactors = F)
+annotation <- data.frame(
+  Raw.file = rawF,
+  Condition = condition,
+  BioReplicate = paste("X", 1:length(condition), sep =
+                         ""),
+  Run = 1:length(condition),
+  IsotopeLabelType = rep("L", length(condition)),
+  stringsAsFactors = F
+)
 
 
 ###################################
 ### Configuration section
 
 tmpdir <- tempdir()
-resultdir <- file.path(tmpdir,"GenericTwoGroup")
+resultdir <- file.path(tmpdir, "GenericTwoGroup")
 dir.create(resultdir)
 
 # calls up data editor
@@ -68,11 +81,11 @@ Experimentname = "pXXX_compareDifferentTissues"
 nrNas = sum(!is.na(annotation$Condition)) - 3
 
 nrPeptides = 2
-reference=unique(annotation$Condition)[1]
+reference = unique(annotation$Condition)[1]
 qvalueThreshold = 0.01
-qfoldchange =1
+qfoldchange = 1
 
-write.table(annotation, file=file.path(resultdir, "annotationused.txt"))
+write.table(annotation, file = file.path(resultdir, "annotationused.txt"))
 
 ####### END of user configuration ##
 
@@ -80,16 +93,17 @@ write.table(annotation, file=file.path(resultdir, "annotationused.txt"))
 # important structure for protein matrix
 
 # Do the analysis
-grp2 <- Grp2Analysis(annotation,
-                     Experimentname,
-                     maxNA=nrNas,
-                     nrPeptides=nrPeptides,
-                     reference=reference,
-                     numberOfProteinClusters = 20
-                     )
+grp2 <- Grp2Analysis(
+  annotation,
+  Experimentname,
+  maxNA = nrNas,
+  nrPeptides = nrPeptides,
+  reference = reference,
+  numberOfProteinClusters = 20
+)
 grp2$setMQProteinGroups(protein)
 
-grp2$setQValueThresholds(qvalue = qvalueThreshold,qfoldchange = qfoldchange)
+grp2$setQValueThresholds(qvalue = qvalueThreshold, qfoldchange = qfoldchange)
 
 #write out results and render pdf
 #readr::write_tsv(x = grp2$getResultTable(), path = file.path(resultdir,"pValues.csv"))

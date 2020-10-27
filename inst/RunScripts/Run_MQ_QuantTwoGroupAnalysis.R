@@ -4,14 +4,15 @@
 # www.github.com/protViz/SRMService
 # by W.E. Wolski, J. Grossmann, C. Panse
 #
-rm(list=ls())
 library(limma)
 library(SRMService)
 
 ### Protein groups file
 packagedir <- path.package("SRMService")
 
-proteinGroupsFile <- file.path(packagedir, "samples/proteinGroups/proteinGroups.txt")
+####! set the path to the proteinGroups.txt file.
+proteinGroupsFile <-
+  file.path(packagedir, "samples/proteinGroups/proteinGroups.txt")
 
 ###
 
@@ -19,17 +20,28 @@ proteinGroupsFile <- file.path(packagedir, "samples/proteinGroups/proteinGroups.
 protein <- readr::read_tsv(proteinGroupsFile)
 colnames(protein) <- make.names(colnames(protein))
 tmp <- cumsum(rev(table(protein$Peptides)))
-barplot(tmp[(length(tmp)-5):length(tmp)],ylim=c(0, length(protein$Peptides)),xlab='nr of proteins with at least # peptides')
+barplot(tmp[(length(tmp) - 5):length(tmp)], ylim = c(0, length(protein$Peptides)), xlab =
+          'nr of proteins with at least # peptides')
 
+##
+rawF <-
+  gsub("Intensity\\.", "", grep("Intensity\\.", colnames(protein), value =
+                                  T))
 
-rawF <- gsub("Intensity\\.", "", grep("Intensity\\.",colnames(protein),value=T) )
-condition <- quantable::split2table(rawF)[,3]
-annotation <- data.frame(Raw.file = rawF,
-                         Condition = condition,
-                         BioReplicate = paste("X",1:length(condition),sep=""),
-                         Run = 1:length(condition),
-                         IsotopeLabelType = rep("L",length(condition)),
-                         stringsAsFactors = F)
+condition <- quantable::split2table(rawF)[, 3]
+
+# Raw.file <- c("23bb","23bcd","23ddd","","","")
+# condition <- c("baseline","baseline","w1","w1")
+
+annotation <- data.frame(
+  Raw.file = rawF,
+  Condition = condition,
+  BioReplicate = paste("X", 1:length(condition), sep =
+                         ""),
+  Run = 1:length(condition),
+  IsotopeLabelType = rep("L", length(condition)),
+  stringsAsFactors = F
+)
 
 
 
@@ -44,26 +56,28 @@ Experimentname = ""
 nrNas = sum(!is.na(annotation$Condition)) - 1
 nrNas = 5
 nrPeptides = 2
-reference=unique(annotation$Condition)[1]
-reference="WT"
+reference = unique(annotation$Condition)[1]
+reference = "WT"
 qvalueThreshold = 0.05
-qfoldchange =1
-write.table(annotation, file=file.path(resultdir, "annotationused.txt"))
+qfoldchange = 1
+write.table(annotation, file = file.path(resultdir, "annotationused.txt"))
 
 ####### END of user configuration ##
 
 # source("R/Grp2Analysis.R")
-grp2 <- Grp2Analysis(annotation, "Experimentname",
-                     maxNA=nrNas,
-                     nrPeptides=nrPeptides,
-                     reference=reference,
-                     numberOfProteinClusters = 20
-                     )
+grp2 <- Grp2Analysis(
+  annotation,
+  "Experimentname",
+  maxNA = nrNas,
+  nrPeptides = nrPeptides,
+  reference = reference,
+  numberOfProteinClusters = 20
+)
 
 grp2$getDesignMatrix()
 
 grp2$setMQProteinGroups(protein)
-grp2$setQValueThresholds(qvalue = qvalueThreshold,qfoldchange = qfoldchange)
+grp2$setQValueThresholds(qvalue = qvalueThreshold, qfoldchange = qfoldchange)
 mqQuantMatrixGRP2 <- grp2
 
 head(mqQuantMatrixGRP2$getModPValuesCI())
@@ -74,4 +88,3 @@ usethis::use_data(mqQuantMatrixGRP2, overwrite = TRUE)
 ## REMOVE TO RENDER
 # rmarkdown::render("vignettes/Grp2AnalysisHeatmap3.Rmd",bookdown::pdf_document2(), params=list(grp = grp2))
 # rmarkdown::render("vignettes/Grp2Analysis.Rmd",bookdown::pdf_document2(), params=list(grp = grp2))
-
