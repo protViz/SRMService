@@ -4,7 +4,9 @@
 \name{grp2PullDownExample}
 \alias{grp2PullDownExample}
 \title{Grp2Analysis on pulldown data example}
-\format{reference class}
+\format{
+reference class
+}
 \usage{
 grp2PullDownExample
 }

@@ -4,7 +4,9 @@
 \name{genericQuantMatrixGRP2}
 \alias{genericQuantMatrixGRP2}
 \title{Grp2Analysis reference class for running 2 grp analysis}
-\format{reference class}
+\format{
+reference class
+}
 \usage{
 genericQuantMatrixGRP2
 }

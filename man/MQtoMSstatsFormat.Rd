@@ -4,9 +4,15 @@
 \alias{MQtoMSstatsFormat}
 \title{MaxQtoMSstatsFormat}
 \usage{
-MQtoMSstatsFormat(evidence, annotation, proteinGroups,
-  useUniquePeptide = TRUE, summaryforMultipleRows = max,
-  fewMeasurements = "remove", removeMpeptides = TRUE)
+MQtoMSstatsFormat(
+  evidence,
+  annotation,
+  proteinGroups,
+  useUniquePeptide = TRUE,
+  summaryforMultipleRows = max,
+  fewMeasurements = "remove",
+  removeMpeptides = TRUE
+)
 }
 \arguments{
 \item{evidence}{MQ evidence.txt read using read.csv(sep=\"\\t\")}

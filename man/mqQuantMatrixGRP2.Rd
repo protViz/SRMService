@@ -4,7 +4,9 @@
 \name{mqQuantMatrixGRP2}
 \alias{mqQuantMatrixGRP2}
 \title{Grp2Analysis on of nockout with missing data}
-\format{reference class}
+\format{
+reference class
+}
 \usage{
 mqQuantMatrixGRP2
 }

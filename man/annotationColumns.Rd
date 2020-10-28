@@ -4,7 +4,9 @@
 \name{annotationColumns}
 \alias{annotationColumns}
 \title{Annotation Columns}
-\format{An object of class \code{character} of length 5.}
+\format{
+An object of class \code{character} of length 5.
+}
 \usage{
 annotationColumns
 }

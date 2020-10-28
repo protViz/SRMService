@@ -4,11 +4,9 @@
 \name{Annotation}
 \alias{Annotation}
 \title{Condition Map}
-\format{An object of class \code{R6ClassGenerator} of length 24.}
-\usage{
-Annotation
-}
 \description{
+Condition Map
+
 Condition Map
 }
 \examples{
@@ -29,4 +27,117 @@ cm$sampleID
 cm$get_sample_id()
 cm$annotation
 }
-\keyword{datasets}
+\section{Methods}{
+\subsection{Public methods}{
+\itemize{
+\item \href{#method-new}{\code{Annotation$new()}}
+\item \href{#method-exists}{\code{Annotation$exists()}}
+\item \href{#method-levels}{\code{Annotation$levels()}}
+\item \href{#method-get}{\code{Annotation$get()}}
+\item \href{#method-get_factors}{\code{Annotation$get_factors()}}
+\item \href{#method-get_sample_id}{\code{Annotation$get_sample_id()}}
+\item \href{#method-as_numeric}{\code{Annotation$as_numeric()}}
+\item \href{#method-get_color}{\code{Annotation$get_color()}}
+\item \href{#method-clone}{\code{Annotation$clone()}}
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-new"></a>}}
+\if{latex}{\out{\hypertarget{method-new}{}}}
+\subsection{Method \code{new()}}{
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{Annotation$new(
+  annotation,
+  experimentID,
+  fixed = NULL,
+  random = NULL,
+  sampleID = "Raw.file"
+)}\if{html}{\out{</div>}}
+}
+
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-exists"></a>}}
+\if{latex}{\out{\hypertarget{method-exists}{}}}
+\subsection{Method \code{exists()}}{
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{Annotation$exists(colname)}\if{html}{\out{</div>}}
+}
+
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-levels"></a>}}
+\if{latex}{\out{\hypertarget{method-levels}{}}}
+\subsection{Method \code{levels()}}{
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{Annotation$levels(colname)}\if{html}{\out{</div>}}
+}
+
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-get"></a>}}
+\if{latex}{\out{\hypertarget{method-get}{}}}
+\subsection{Method \code{get()}}{
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{Annotation$get(colname)}\if{html}{\out{</div>}}
+}
+
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-get_factors"></a>}}
+\if{latex}{\out{\hypertarget{method-get_factors}{}}}
+\subsection{Method \code{get_factors()}}{
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{Annotation$get_factors()}\if{html}{\out{</div>}}
+}
+
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-get_sample_id"></a>}}
+\if{latex}{\out{\hypertarget{method-get_sample_id}{}}}
+\subsection{Method \code{get_sample_id()}}{
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{Annotation$get_sample_id()}\if{html}{\out{</div>}}
+}
+
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-as_numeric"></a>}}
+\if{latex}{\out{\hypertarget{method-as_numeric}{}}}
+\subsection{Method \code{as_numeric()}}{
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{Annotation$as_numeric(colname)}\if{html}{\out{</div>}}
+}
+
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-get_color"></a>}}
+\if{latex}{\out{\hypertarget{method-get_color}{}}}
+\subsection{Method \code{get_color()}}{
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{Annotation$get_color(
+  colname,
+  pal_function = dichromat_pal,
+  pal_name = "BrowntoBlue.10"
+)}\if{html}{\out{</div>}}
+}
+
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-clone"></a>}}
+\if{latex}{\out{\hypertarget{method-clone}{}}}
+\subsection{Method \code{clone()}}{
+The objects of this class are cloneable with this method.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{Annotation$clone(deep = FALSE)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{deep}}{Whether to make a deep clone.}
+}
+\if{html}{\out{</div>}}
+}
+}
+}
