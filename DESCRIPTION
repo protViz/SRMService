@@ -2,7 +2,7 @@ Package: SRMService
 Type: Package
 Title: Report Quantitative Mass Spectrometry Data
 Date: 2018-09-10
-Version: 0.1.9.24
+Version: 0.1.10.1
 Authors@R: c(person("Witold", "Wolski", email = "wewolski@gmail.com", role = c("aut", "cre")),
                   person("Jonas", "Grossmann", email = "jg@fgcz.ethz.ch", role = c("aut")),
                   person("Christian", "Panse", email = "cp@fgcz.ethz.ch", role = c("aut")))
@@ -21,6 +21,7 @@ Imports:
     heatmap3,
     limma,
     methods,
+    missForest,
     pander,
     plyr,
     purrr,
@@ -38,7 +39,6 @@ Imports:
     usethis,
     yaml
 Suggests:
-    missForest,
     testthat,
     ggplot2,
     knitr,
