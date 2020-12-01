@@ -2,7 +2,8 @@
 # 2019-01-09: Refactoring and better coding style to get it accepted in SRMService ;)
 # 2019-09-03: Commiting PhosphoService functions into github
 # 2020-09-11: Adapting PhosphoService to make it compatible with TMT
-# 2020-12-01: change required for Rv4 (modAA as factor only done once)
+# 2020-12-01: change required for Rv4 (modAA as factor only done once), missing libs added in markdownreports
+
 
 #' prepare smaller data.frame from original MaxQuant PhosphoSTYSite file and reduce to columns that are useful and filter with Localizations probability
 #' @param phosphoSTYSitetableFromMQ original MaxQuant Phospho_STY_file
