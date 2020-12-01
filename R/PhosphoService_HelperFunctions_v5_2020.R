@@ -335,7 +335,10 @@ get2GroupAnalysisFromExistingAnnotationFileNoRender <- function(proteinMat, path
   points(maxX+protNCoffset,0, pch="C")
   # plot all peptides
   for (i in 1:length(POI_tablePeptide$PositionsINproteins)) {
+    # make all modAAs factors
+    POI_tablePeptide$modAA <- as.factor(POI_tablePeptide$modAA)
     # check if one sider !!
+    # print(i)
     if (is.na(POI_tablePeptide$log2FC[i])) {
       segments(as.numeric(as.character(POI_tablePeptide$PositionsINproteins[i]))*scaleX, 0,
                as.numeric(as.character(POI_tablePeptide$PositionsINproteins[i]))*scaleX,
@@ -344,46 +347,46 @@ get2GroupAnalysisFromExistingAnnotationFileNoRender <- function(proteinMat, path
       if(POI_tablePeptide$pseudoLog2FC[i] > 0) points(as.numeric(as.character(POI_tablePeptide$PositionsINproteins[i])) *
                                                         scaleX, POI_tablePeptide$pseudoLog2FC[i]+pepSigStarOffset,
                                                       pch="x", cex=pepSigStarSize,
-                                                      col=as.numeric(as.factor(POI_tablePeptide$modAA[i])))
+                                                      col=as.numeric(POI_tablePeptide$modAA[i]))
 
       if(POI_tablePeptide$pseudoLog2FC[i] < 0) points(as.numeric(as.character(POI_tablePeptide$PositionsINproteins[i])) *
                                                         scaleX, POI_tablePeptide$pseudoLog2FC[i]-pepSigStarOffset,
                                                       pch="x", cex=pepSigStarSize,
-                                                      col=as.numeric(as.factor(POI_tablePeptide$modAA[i])))
+                                                      col=as.numeric(POI_tablePeptide$modAA[i]))
 
     } else {
       # no one sider peptide
       segments(as.numeric(as.character(POI_tablePeptide$PositionsINproteins[i]))*scaleX, 0,
                as.numeric(as.character(POI_tablePeptide$PositionsINproteins[i]))*scaleX, POI_tablePeptide$log2FC[i],
-               col=as.numeric(as.factor(POI_tablePeptide$modAA[i])), lwd=1)
+               col=as.numeric(POI_tablePeptide$modAA[i]), lwd=1)
 
       if (POI_tablePeptide$adj.P.Val[i] <= qModThreshold) {
         if(POI_tablePeptide$log2FC[i] > 0) points(as.numeric(as.character(POI_tablePeptide$PositionsINproteins[i])) *
                                                     scaleX, POI_tablePeptide$log2FC[i]+pepSigStarOffset, pch="*",
                                                   cex=pepSigStarSize,
-                                                  col=as.numeric(as.factor(POI_tablePeptide$modAA[i])))
+                                                  col=as.numeric(POI_tablePeptide$modAA[i]))
 
         if(POI_tablePeptide$log2FC[i] < 0) points(as.numeric(as.character(POI_tablePeptide$PositionsINproteins[i])) *
                                                     scaleX, POI_tablePeptide$log2FC[i]-pepSigStarOffset, pch="*",
                                                   cex=pepSigStarSize,
-                                                  col=as.numeric(as.factor(POI_tablePeptide$modAA[i])))
+                                                  col=as.numeric(POI_tablePeptide$modAA[i]))
 
       } else if (POI_tablePeptide$P.Value[i] < pModThreshold) {
         if(POI_tablePeptide$log2FC[i] > 0) points(as.numeric(as.character(POI_tablePeptide$PositionsINproteins[i])) *
                                                     scaleX, POI_tablePeptide$log2FC[i]+pepSigStarOffset, pch="+",
                                                   cex=pepSigStarSize,
-                                                  col=as.numeric(as.factor(POI_tablePeptide$modAA[i])))
+                                                  col=as.numeric(POI_tablePeptide$modAA[i]))
 
         if(POI_tablePeptide$log2FC[i] < 0) points(as.numeric(as.character(POI_tablePeptide$PositionsINproteins[i])) *
                                                     scaleX, POI_tablePeptide$log2FC[i]-pepSigStarOffset, pch="+",
                                                   cex=pepSigStarSize,
-                                                  col=as.numeric(as.factor(POI_tablePeptide$modAA[i])))
+                                                  col=as.numeric(POI_tablePeptide$modAA[i]))
       }
     }
   }
   legend("bottomright", legend = unique(POI_tablePeptide$modAA),
-         col=unique(as.numeric(as.factor(POI_tablePeptide$modAA))),
-         text.col = unique(as.numeric(as.factor(POI_tablePeptide$modAA))), lwd=1)
+         col=unique(as.numeric(POI_tablePeptide$modAA)),
+         text.col = unique(as.numeric(POI_tablePeptide$modAA)), lwd=1)
   legend("topright", legend = c("PseudoFoldChange", "Significant q-Value", "Significant p-Value"),
          col = c("Orange", "black", "black"), pch=c("x","*", "+"), cex = 0.7)
   abline(h=greyLineLog2Threshold, col="grey", lty=2)
