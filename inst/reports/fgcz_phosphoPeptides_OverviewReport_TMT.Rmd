@@ -1,0 +1,306 @@
+---
+title: "FGCZ Phospho Proteomics Report: `r fgczProject`"
+author: "Functional Genomics Center Zurich"
+date: "`r format(Sys.time(), '%d %B, %Y')`"
+vignette: >
+  %\VignetteIndexEntry{FGCZ Two-Group Analysis}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+header-includes: |
+    \usepackage{fancyhdr}
+    \pagestyle{fancy}
+    \fancyfoot[CO,CE]{Functional Genomics Center Zurich - 2018}
+    \fancyfoot[LE,RO]{\thepage} 
+bibliography: bibliography.bib
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(
+  echo = FALSE,
+  message = FALSE,
+  warning = FALSE
+)
+
+if(!exists("progress")){
+  progress <- function(howmuch, detail){
+    invisible(NULL)
+  }
+}
+
+```
+
+
+
+```{r Loadingpackages}
+library(knitr)
+library(limma)
+```
+
+# Introduction
+
+This report is thought to give an overview about the settings, parameters and numbers of identified peptides and proteins. It is tailored towards providing a phospho-peptide overview and is oriented on the paper of Sharma et. al [@Sharma:2014kg].  
+
+
+# Input Matrix
+
+Experiment is called: `r projectName`
+
+## The Numbers
+
+```{r ThresholdTable}
+
+#top20 <- tmp %>% dplyr::select( TopProteinName,effectSize, q.mod ) %>% arrange((q.mod) ) %>% head(20)
+#knitr::kable(top20, caption = "Top 20 proteins sorted by smallest Q Value (q.mod). The effectSize column is the log2 FC of condition - reference.")
+
+myAttributes <- c("InputFile","Localization Probability", "psmFDR", "minimum non-NAs")
+myValues <- c(myPhosphoSTY, LocProbThreshold, "0.01", min_nonNAinTotal)
+myNumTab <- cbind(myAttributes, myValues)
+knitr::kable(myNumTab, caption="Overview table with selected thresholds")
+
+```
+
+
+```{r TheNumbersTable}
+
+numRuns <- ncol(myMat_good[,grep(pattern = "intensity", x = colnames(myMat_good))])
+
+# number of different unique phos peps
+uniquNakedPeps <- unique(myMat_good$nakedSequence)
+totalNumberUniquePeps <- length(uniquNakedPeps)
+
+# corresponding to number of proteins phosphorylated
+phosphoProts <- unique(myMat_good$Protein)
+totalNumberPhosphoProts <- length(phosphoProts)
+
+myAttributes <- c("Number of LC-MS experiments", "Total number of unique phospho peptides", "Total number of phospho proteins")
+myValues <- c(numRuns, totalNumberUniquePeps, totalNumberPhosphoProts)
+myNumTab <- cbind(myAttributes, myValues)
+knitr::kable(myNumTab, caption="Overview: Number of phospho peptides and proteins")
+
+```
+
+
+
+```{r PhosphoPepsPerProtein, include=FALSE}
+
+# how many phosphoPeps per protein
+AnyPepsPerProtein <- rle(as.vector(myMat_good$Protein))
+uniquePepsPerProt <- rle(unique(paste(myMat_good$Protein,"-", myMat_good$nakedSequence, sep="")))
+
+allPhosphoProts <- vector(length=length(uniquePepsPerProt$values))
+for (i in 1:length(uniquePepsPerProt$values)) {
+  allPhosphoProts[i] <- str_split(string = uniquePepsPerProt$values[i], pattern = "-")[[1]][1]
+}
+
+PepsPerProt <- rle(allPhosphoProts)
+
+myTablePepsPerProt <- table(PepsPerProt$lengths)
+#knitr::kable(myTablePepsPerProt[1:5], caption = "Number of peptides per protein")
+#myTablePepsPerProt[1:10]
+# the highest number of phospho peps per protein
+maxPepsPerProt <- as.numeric(names(table(PepsPerProt$lengths))[length(names(table(PepsPerProt$lengths)))])
+protWithMaxPhosphoPeps <-PepsPerProt$values[which(PepsPerProt$lengths == maxPepsPerProt)]
+
+```
+
+Often phospho proteins have multiple phospho peptides that can be identified. 
+In this experiment there is one protein with `r maxPepsPerProt` identified phospho peptides. This is protein: `r protWithMaxPhosphoPeps`.
+A more comprehensive overview is shown in Figure \@ref(fig:PepsPerProtPlot).
+
+```{r PepsPerProtPlot, fig.width=10,fig.height=4,dpi=300,fig.cap="Shown is an overview how many phospho peptides are found per protein"}
+plot(myTablePepsPerProt, main="Number of phospho peptides per protein")
+```
+
+
+
+```{r AcceptorResidueOverview, fig.width=8,fig.height=5,dpi=300,fig.cap="Multiply phosphorylated peptides"}
+barplot(table(myMat_good$modAA), main="Number of phosphorylated residues for different acceptor sites in Total", ylab="Identified Phosphopeptides")
+```
+
+
+
+```{r Multiplicity, fig.width=8,fig.height=5,dpi=300,fig.cap="Multiply phosphorylated peptides"}
+#plot(table(myMat_good$multiplicity)[order(table(myMat_good$multiplicity),decreasing = TRUE)], main="Fraction of multiply phosphorylated peptides", ylab="Total number of phospho peptides")
+myMultiplicityTable <- table(myMat_good$multiplicity)[order(table(myMat_good$multiplicity),decreasing = TRUE)]
+plot(myMultiplicityTable, main="Fraction of multiply phosphorylated peptides", ylab="Total number of phospho peptides")
+#plot(as.numeric(table(myMat_good$multiplicity)), main="Fraction of multiply phosphorylated peptides", ylab="Total number of phospho peptides", type="h")
+```
+
+
+```{r AcceptorResidues}
+knitr::kable(table(myMat_good$modAA), caption="Overview number for different acceptor residues")
+```
+
+
+\pagebreak
+
+# Focus on singly phosphorylated peptides
+
+For most of the data analysis the "singly charged peptides" are of most relevance. Here we focus mainly on these.
+
+```{r multiplicityAsTable}
+#knitr::kable(table(myMat_good$multiplicity)[order(table(myMat_good$multiplicity),decreasing = TRUE)], main="Fraction of multiply phosphorylated peptides", ylab="Total number of phospho peptides")
+knitr::kable(table(myMat_good$multiplicity))
+```
+
+
+```{r singlyPhosAcceptors}
+myMat_good_singlyPhos <- myMat_good[myMat_good$multiplicity == "single",]
+knitr::kable(table(myMat_good_singlyPhos$modAA))
+
+```
+
+
+```{r splitSinglyIntoSTY}
+
+# S / T / Y
+myMat_good_singlyPhos_S <- myMat_good_singlyPhos[myMat_good_singlyPhos$modAA == "S",]
+#myMat_good_singlyPhos_S <- myMat_good_singlyPhos[myMat_good_singlyPhos$modAA == "M",]
+myMat_good_singlyPhos_T <- myMat_good_singlyPhos[myMat_good_singlyPhos$modAA == "T",]
+myMat_good_singlyPhos_Y <- myMat_good_singlyPhos[myMat_good_singlyPhos$modAA == "Y",]
+
+# unambigous peptide sequences
+# Example alignment
+ProperLength <- median(nchar(as.vector(myMat_good_singlyPhos_S$SeqWindow)))
+bool_ProperLength <-  nchar(as.vector(myMat_good_singlyPhos$SeqWindow)) == ProperLength
+
+# aligned sequences .. singly charged .. 
+bool_ProperLength_s <- nchar(as.vector(myMat_good_singlyPhos_S$SeqWindow)) == ProperLength
+aln_S <- as.vector(myMat_good_singlyPhos_S$SeqWindow[bool_ProperLength_s])
+
+# T
+bool_ProperLength_T <- nchar(as.vector(myMat_good_singlyPhos_T$SeqWindow)) == ProperLength
+aln_T <- as.vector(myMat_good_singlyPhos_T$SeqWindow[bool_ProperLength_T])
+
+
+# Generate the logo in the file mylogo.pdf
+# Y
+bool_ProperLength_Y <- nchar(as.vector(myMat_good_singlyPhos_Y$SeqWindow)) == ProperLength
+aln_Y <- as.vector(myMat_good_singlyPhos_Y$SeqWindow[bool_ProperLength_Y])
+
+# motifs for singly and different residues
+overallUnambigousgSinglyPhos <- sum(bool_ProperLength)
+overallUnambigousgSinglyPhos_S <- sum(bool_ProperLength_s)
+overallUnambigousgSinglyPhos_T <- sum(bool_ProperLength_T)
+overallUnambigousgSinglyPhos_Y <- sum(bool_ProperLength_Y)
+
+```
+
+
+```{r STYvolumes, fig.width=8,fig.height=3,dpi=300,fig.cap="Overview abundances for individual phospho peptides"}
+# volumes for different acceptor residues
+boxplot(rowMeans(myMat_good_singlyPhos_S[,grep(pattern = "intensity", x = colnames(myMat_good_singlyPhos_S))], na.rm = TRUE), rowMeans(myMat_good_singlyPhos_T[,grep(pattern = "intensity", x = colnames(myMat_good_singlyPhos_T))], na.rm = TRUE), rowMeans(myMat_good_singlyPhos_Y[,grep(pattern = "intensity", x = colnames(myMat_good_singlyPhos_Y))], na.rm = TRUE), main="Log2 Intensities for Phosphopeptides (S/T/Y) ")
+#boxplot(rowMeans(myMat_good_singlyPhos_S[,grep(pattern = "intensity", x = colnames(myMat_good_singlyPhos_S))], na.rm = TRUE), main="Log2 Intensities for Phosphopeptides (S/T/Y) ")
+
+axis(side = 1, at = c(1,2,3), labels = c("S", "T", "Y"))
+#axis(side = 1, at = c(1), labels = c("M"))
+```
+
+
+
+```{r LogoAll, fig.width=8,fig.height=4,dpi=300, fig.cap="Sequence logo for ALL singly phosphorylated peptides"}
+try(ggseqlogo(as.vector(myMat_good_singlyPhos$SeqWindow[bool_ProperLength]), seq_type='aa') + ggtitle("All phospho peptides (singly phos, localization probability OK)"))
+```
+
+```{r LogoSer, fig.width=8,fig.height=4,dpi=300, fig.cap="Sequence logo for singly phosphorylated Serines"}
+if (length(aln_S) > 0) try(ggseqlogo(aln_S, seq_type='aa') +  ggtitle("All Serine phospho peptides"))
+```
+
+```{r LogoThr, fig.width=8,fig.height=4,dpi=300, fig.cap="Sequence logo for singly phosphorylated Threonines"}
+if (length(aln_T) > 0) try(ggseqlogo(aln_T, seq_type='aa') +  ggtitle("All Threonine phospho peptides"))
+```
+
+```{r LogoTyr, fig.width=8,fig.height=4,dpi=300, fig.cap="Sequence logo for singly phosphorylated Tyrosines"}
+if (length(aln_Y) > 0) try(ggseqlogo(aln_Y, seq_type='aa') +  ggtitle("All Tyrosine phospho peptides"))
+```
+
+\pagebreak
+
+# Abundance for phosphorylated peptides
+
+```{r CumSumPhosphoPeptides, fig.width=8,fig.height=4,dpi=300,fig.cap="Cumulative phosphopeptide intensity"}
+
+# split "volumes" for STY
+intMat_good <- myMat_good[,grep(pattern = "intensity", x = colnames(myMat_good))]
+NonLogMat <- 2^intMat_good
+allSamplesSummed <- as.numeric(rowSums(NonLogMat, na.rm = TRUE))
+FullSum <- sum(as.numeric(rowSums(NonLogMat, na.rm = TRUE)))
+
+# quantile cake and numbering groups
+#myOrderPhosphoPeps <- order(allSamplesSummed, decreasing = TRUE)
+mySortedPhosphoPeptideVolumes <- sort(allSamplesSummed, decreasing = TRUE)
+
+
+myVolumeSplit <- 5
+myColors <- rainbow(myVolumeSplit)
+myIdXforVolumeSplit <- vector(length=myVolumeSplit)
+myLengthsOfMembersForVolumeSplit <- vector(length=myVolumeSplit)
+VolumeJunk <- floor(FullSum/myVolumeSplit)
+myColorVector <- vector(length=length(mySortedPhosphoPeptideVolumes))
+
+my_cumSum <- 0
+myQ <- 1
+for (i in 1:length(mySortedPhosphoPeptideVolumes)) {
+  my_cumSum <- my_cumSum + mySortedPhosphoPeptideVolumes[i]
+  myColorVector[i] <- myColors[myQ]
+  if (my_cumSum > VolumeJunk) {
+    #print(paste("for myQ:", myQ," --> we are at: ", i, sep=""))
+    myLengthsOfMembersForVolumeSplit[myQ] <- 
+    myIdXforVolumeSplit[myQ] <- i
+    my_cumSum <- 0
+    myQ <- myQ + 1
+  }
+  if (i == length(mySortedPhosphoPeptideVolumes)) {
+    #print(paste("for myQ:", myQ," --> we are at: ", i, sep="")) 
+    myIdXforVolumeSplit[myQ] <- i
+  }
+}
+
+plot(cumsum(sort(allSamplesSummed, decreasing = TRUE)), col=myColorVector)
+
+```
+
+```{r QuantilePieChart, fig.width=8,fig.height=4,dpi=300,fig.cap="Pie chart for counts of equal cumulative phospho peptide intensities"}
+myCakeWithCuts <- rle(myColorVector)
+pie(myCakeWithCuts$lengths, col = myCakeWithCuts$values)
+```
+
+```{r QuantileTable}
+VolumeQuantiles <- 1:length(myCakeWithCuts$lengths)
+myTableWithNumPhosphoPepsPerQuantile <- cbind(VolumeQuantiles, myCakeWithCuts$lengths)
+barplot(myCakeWithCuts$lengths, names.arg = paste("Q_", VolumeQuantiles, sep=""))
+knitr::kable(myTableWithNumPhosphoPepsPerQuantile)
+```
+
+
+
+
+
+\pagebreak
+
+# Disclaimer and Acknowledgements
+
+This document was generated using Rmarkdown and processes text files which are generated with a label-free quantitation software such as MaxQuant or Progenesis. 
+The obtained results should be validated orthogonally as well (e.g. with Western blots). The Functional Genomics Center Zurich does not provide any kind of guarantee of the validity of these results.
+
+This report was generated using the package [@SRMService2018] integrating the limma R-package [@Ritchie2015a].
+The report is along the lines of the Sharma and Matthias Mann publication [@Sharma:2014kg].
+
+(http://github.com/protViz/SRMService) and [quantable](http://github.com/protViz/quantable). The p-values were computed using the bioconductor package [limma](https://bioconductor.org/packages/release/bioc/html/limma.html).
+
+For questions and improvements please do contact the authors of the package [_SRMService_](https://github.com/protViz/SRMService/graphs/contributors).
+
+
+
+\newpage
+
+# Session Info
+
+
+```{r}
+pander::pander(sessionInfo())
+```
+
+
+# References
+
