@@ -568,7 +568,7 @@ heatmap.2(as.matrix(cor(asinh(qc_normalized_intensities))),margin=c(15,10),trace
 
 
 
-<<pairs, echo=FALSE, fig=TRUE, width=16, height=16, include=FALSE>>=
+<<pairs, echo=FALSE, fig=TRUE, width=16, height=16, include=FALSE, error=TRUE>>=
 panel.cor <- function(x, y, digits = 2, prefix = "", cex.cor, ...)
 {
   usr <- par("usr"); on.exit(par(usr))
@@ -580,12 +580,16 @@ panel.cor <- function(x, y, digits = 2, prefix = "", cex.cor, ...)
   text(0.5, 0.5, txt, cex = cex.cor * r)
 }
 
+if (ncol(qc_normalized_intensities) < 64){
 pairs(asinh(qc_normalized_intensities),
   main = "Pairwise Intensities vs Intensities Correlation",
   pch = '.',
   col = rgb(0.1,0.1,0.7,
     alpha = 0.4),
   lower.panel = panel.cor)
+}else{
+	plot(0,0); text(0,0, "too many dimensions for pairs plot.")
+}
 @
 
 \begin{figure}[!htb]
