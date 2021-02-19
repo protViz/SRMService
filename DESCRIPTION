@@ -11,6 +11,7 @@ Author: Witold Wolski
 Description: Analysing and LFQ and SRM experiments in service mode.
     Data preprocessing and visualization.
 Imports:
+    affy,
     bookdown,
     conflicted,
     corrplot,

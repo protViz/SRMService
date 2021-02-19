@@ -9,9 +9,10 @@ For Debian 10
 You will need to have installed:
 
 ```
-sudo apt-get install libssl-dev
-sudo apt-get install pandoc
-sudo apt-get isntall pandoc-citeproc
+sudo apt-get install libssl-dev pandoc pandoc-citeproc
+
+# LaTeX
+sudo apt-get install texlive-fonts-recommended texlive-latex-recommended texlive-latex-extra texlive-latex-base
 ```
 
 
