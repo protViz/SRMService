@@ -184,16 +184,12 @@ Do2grpTtestOnMatrixAndBHcorrReturnAllInternalTrafo = function(ProtQuantMatrix_rn
 Do2grpTtestRobustOnMatrixAndBHcorrWithThresholdAndFoldChangeAndReturnOnlySignificantsInternalTrafo = function(ProtQuantMatrix_rn, SignificanceThreshold=0.01, LinFoldChangeThreshold=2, bool_TrafoHere=TRUE){
   FoldChangeThreshold <- abs(log(LinFoldChangeThreshold,2))
   reps <- ncol(ProtQuantMatrix_rn)/2
-  grp_1 <- ProtQuantMatrix_rn[,1:reps]
-  grp_2 <- ProtQuantMatrix_rn[,(reps+1):ncol(ProtQuantMatrix_rn)]
+  grp_1 <- ProtQuantMatrix_rn[,1:reps, drop=FALSE]
+  grp_2 <- ProtQuantMatrix_rn[,(reps+1):ncol(ProtQuantMatrix_rn), drop=FALSE]
 
   #mean vectors
-  grp1_means <- vector()
-  grp2_means <- vector()
-  for (i in 1:nrow(ProtQuantMatrix_rn)) {
-    grp1_means[i] <- rowMeans(grp_1[i,], na.rm=TRUE)
-    grp2_means[i] <- rowMeans(grp_2[i,], na.rm=TRUE)
-  }
+  grp1_means <- rowMeans(grp_1, na.rm=TRUE)
+  grp2_means <- rowMeans(grp_2, na.rm=TRUE)
   #ttest
   pValueVector <- vector()
   if (bool_TrafoHere == TRUE) {
