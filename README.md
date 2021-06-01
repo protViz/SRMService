@@ -27,7 +27,7 @@ BiocManager::install("limma")
 
 ```{r}
 library(devtools)
-install_github(c('protViz/SRMService'))
+devtools::install_github(c('protViz/SRMService'))
 
 ```
 
