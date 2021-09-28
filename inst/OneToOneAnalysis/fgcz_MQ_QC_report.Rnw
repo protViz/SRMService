@@ -250,7 +250,9 @@ The result of the QC experiment is the following:
 \subsection{Input: List of analysed samples}
 Find below the list of acquired raw-files and their names in an abbreviated form.
 <<filenameOverViewTable, echo=FALSE, results=tex>>=
-NumFiles <- (nrow(mq_summary)) / 2
+# 2021-09-28 (jg) the summary txt has changed and the experiment numbers are NOT reported anymore therefore the table is as long as files there are
+# NumFiles <- (nrow(mq_summary)) / 2
+NumFiles <- (nrow(mq_summary))
 files <- mq_summary[2:NumFiles,1]
 #myFileIndex <- 1:(NumFiles-1)
 betterNames <- gsub(pattern = "^[[:digit:]]+_", replacement = "", gsub(pattern = "Intensity.", replacement = "", files))
