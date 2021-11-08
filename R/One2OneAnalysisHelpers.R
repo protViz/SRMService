@@ -20,11 +20,11 @@ fgcz_render_One2OneReport <- function(maxquanttxtdirectory = '.', reportFileBase
   orderID <<- "xxxx"
 
   message("Reading in txt tables from maxquant ...")
-  mq_msms <<- read.table(mq_msms_filename, header = TRUE, sep ="\t")
-  mq_summary <<- read.table(mq_summary_filename, header = FALSE, sep ="\t")
-  mq_evidence <<- read.table(mq_evidence_filename, header = TRUE, sep ="\t")
+  mq_msms <<- read.table(mq_msms_filename, header = TRUE, sep ="\t", stringsAsFactors = TRUE)
+  mq_summary <<- read.table(mq_summary_filename, header = FALSE, sep ="\t", stringsAsFactors = TRUE)
+  mq_evidence <<- read.table(mq_evidence_filename, header = TRUE, sep ="\t", stringsAsFactors = TRUE)
   mq_proteinGroups <<- read.csv(mq_proteinGroups_filename, sep ="\t", stringsAsFactors = FALSE, header = TRUE)
-  mq_parameters <<- read.table(mq_parameters_filename, header = TRUE, sep = "\t")
+  mq_parameters <<- read.table(mq_parameters_filename, header = TRUE, sep = "\t", stringsAsFactors = TRUE)
   mq_peptides <<- read.csv(mq_peptides_filename, sep ="\t", stringsAsFactors = FALSE, header = TRUE)
 
   message("Preprocessing ...")
@@ -59,9 +59,9 @@ fgcz_render_One2OneReport <- function(maxquanttxtdirectory = '.', reportFileBase
    projectID <<- "xxxx"
    orderID <<- "xxxx"
 
-   msms_d <<- read.table(msmsName, header = T, sep="\t")
-   summ <<- read.table(summary, header = F, sep="\t")
-   evi_d <<- read.table(evidence, header = T, sep="\t")
+   msms_d <<- read.table(msmsName, header = T, sep="\t", stringsAsFactors = TRUE)
+   summ <<- read.table(summary, header = F, sep="\t", stringsAsFactors = TRUE)
+   evi_d <<- read.table(evidence, header = T, sep="\t", stringsAsFactors = TRUE)
 
    Fulldat <<- read.csv(proteinGroups, sep="\t", stringsAsFactors = FALSE, header = TRUE)
 
@@ -74,7 +74,6 @@ fgcz_render_One2OneReport <- function(maxquanttxtdirectory = '.', reportFileBase
    params <<- read.table(parameters, header = TRUE, sep = "\t")
 
    # peptides
-   #pepts <<- read.table(peptides, header = TRUE, sep = "\t")
    pepts <<- read.csv(peptides, sep="\t", stringsAsFactors = FALSE, header = TRUE)
 
    # this is for witold to be replaced
@@ -185,16 +184,12 @@ Do2grpTtestOnMatrixAndBHcorrReturnAllInternalTrafo = function(ProtQuantMatrix_rn
 Do2grpTtestRobustOnMatrixAndBHcorrWithThresholdAndFoldChangeAndReturnOnlySignificantsInternalTrafo = function(ProtQuantMatrix_rn, SignificanceThreshold=0.01, LinFoldChangeThreshold=2, bool_TrafoHere=TRUE){
   FoldChangeThreshold <- abs(log(LinFoldChangeThreshold,2))
   reps <- ncol(ProtQuantMatrix_rn)/2
-  grp_1 <- ProtQuantMatrix_rn[,1:reps]
-  grp_2 <- ProtQuantMatrix_rn[,(reps+1):ncol(ProtQuantMatrix_rn)]
+  grp_1 <- ProtQuantMatrix_rn[,1:reps, drop=FALSE]
+  grp_2 <- ProtQuantMatrix_rn[,(reps+1):ncol(ProtQuantMatrix_rn), drop=FALSE]
 
   #mean vectors
-  grp1_means <- vector()
-  grp2_means <- vector()
-  for (i in 1:nrow(ProtQuantMatrix_rn)) {
-    grp1_means[i] <- rowMeans(grp_1[i,], na.rm=TRUE)
-    grp2_means[i] <- rowMeans(grp_2[i,], na.rm=TRUE)
-  }
+  grp1_means <- rowMeans(grp_1, na.rm=TRUE)
+  grp2_means <- rowMeans(grp_2, na.rm=TRUE)
   #ttest
   pValueVector <- vector()
   if (bool_TrafoHere == TRUE) {
@@ -277,7 +272,7 @@ NormalizeWithMedianPQMatrix = function(ProtQuantMatrix_rn){
   write.table(ScaleFactorsMed, "appliedScaleFactors_Median.txt",row.names=TRUE,col.names=FALSE)
   nPQmatrix <- ProtQuantMatrix_rn
   for (i in 1:ncol(ProtQuantMatrix_rn)) {
-    nPQmatrix[,i]<-ProtQuantMatrix_rn[,i]*ScaleFactorsMed[i]
+    nPQmatrix[,i] <- ProtQuantMatrix_rn[,i]*ScaleFactorsMed[i]
   }
   return(nPQmatrix)
 }

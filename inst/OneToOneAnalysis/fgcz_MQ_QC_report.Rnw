@@ -1,4 +1,4 @@
-%% cd MQ_txt_directory && R -e "library(SRMService); SRMService::fgcz_render_One2OneReport()" 
+%% cd MQ_txt_directory && R -e "library(SRMService); SRMService::fgcz_render_One2OneReport()"
 \pdfminorversion=4
 %\documentclass[a4paper]{article}
 \documentclass[a4paper,DIV19]{scrartcl}
@@ -26,7 +26,7 @@ library(yaml);
 @
 
 <<loadYAML, echo=FALSE, result=HIDE>>=
-idx <- grep("WU.*yaml", lf<-list.files("../")); 
+idx <- grep("WU.*yaml", lf<-list.files("../"));
 Y <- yaml.load_file(file.path("..", lf[idx[1]]))
 txt <- Y$application$input[[1]][[1]]
 projectID <<- regmatches(txt,regexpr("p[0-9]+",txt))
@@ -61,7 +61,7 @@ Briefly: four samples, consisting of two biochemical replicates from your sample
 
 \section{Summary Overview}
 \vspace{0.5cm}
-Based on some hard criteria reported in Table 1, we evaluate if the results of the QC experiment are within normal ranges and if the QC step should be considered successful or not. This allows assessing the reproducibility of the workflow both at FGCZ and customer's side. 
+Based on some hard criteria reported in Table 1, we evaluate if the results of the QC experiment are within normal ranges and if the QC step should be considered successful or not. This allows assessing the reproducibility of the workflow both at FGCZ and customer's side.
 The criteria include: (a) fold change (the QC analysis consists of biochemical replicates and we do not expect more changes than a 5% of false positives); (b) R-squared correlation (a value higher than 0.9 is expected); (c) Scaling factor (the expected normalization factor should be lower than 3); (d) information on percentage of fully tryptic and unmodified peptides (the most important peptides for quantification); (e) percentage of proteins identified with only 1 peptide (quantification will be performed only on proteins with more than 2 peptides).
 \vspace{1cm}
 
@@ -129,11 +129,11 @@ if(FALSE){
 # TODO(jg): refactor function to not output the file
 qc_normalized_intensities <- SRMService:::NormalizeWithMedianPQMatrix(qc_intensities)
 sf <- "appliedScaleFactors_Median.txt"
-scaleF <- read.table(sf, sep=" ", header=F)
+scaleF <- read.table(sf, sep=" ", header=F, stringsAsFactors = TRUE)
 
 
 # TODO(cp): rename the shit
-
+debug( SRMService:::Do2grpTtestRobustOnMatrixAndBHcorrWithThresholdAndFoldChangeAndReturnOnlySignificantsInternalTrafo)
 qc_list_of_significants <- SRMService:::Do2grpTtestRobustOnMatrixAndBHcorrWithThresholdAndFoldChangeAndReturnOnlySignificantsInternalTrafo(ProtQuantMatrix = qc_normalized_intensities,
     SignificanceThreshold = sigThr,
     LinFoldChangeThreshold = FCth,
@@ -248,7 +248,7 @@ The result of the QC experiment is the following:
 \section{Overview of the data input and output Overview}
 
 \subsection{Input: List of analysed samples}
-Find below the list of acquired raw-files and their names in an abbreviated form. 
+Find below the list of acquired raw-files and their names in an abbreviated form.
 <<filenameOverViewTable, echo=FALSE, results=tex>>=
 NumFiles <- (nrow(mq_summary)) / 2
 files <- mq_summary[2:NumFiles,1]
@@ -568,7 +568,7 @@ heatmap.2(as.matrix(cor(asinh(qc_normalized_intensities))),margin=c(15,10),trace
 
 
 
-<<pairs, echo=FALSE, fig=TRUE, width=16, height=16, include=FALSE>>=
+<<pairs, echo=FALSE, fig=TRUE, width=16, height=16, include=FALSE, error=TRUE>>=
 panel.cor <- function(x, y, digits = 2, prefix = "", cex.cor, ...)
 {
   usr <- par("usr"); on.exit(par(usr))
@@ -580,19 +580,23 @@ panel.cor <- function(x, y, digits = 2, prefix = "", cex.cor, ...)
   text(0.5, 0.5, txt, cex = cex.cor * r)
 }
 
+if (ncol(qc_normalized_intensities) < 64){
 pairs(asinh(qc_normalized_intensities),
   main = "Pairwise Intensities vs Intensities Correlation",
   pch = '.',
   col = rgb(0.1,0.1,0.7,
     alpha = 0.4),
   lower.panel = panel.cor)
+}else{
+	plot(0,0); text(0,0, "too many dimensions for pairs plot.")
+}
 @
 
 \begin{figure}[!htb]
 
 \includegraphics[width=1.0\textwidth, keepaspectratio]{fgcz_MQ_QC_report-pairs}
 
-\caption{The {\emph scatterplot matrix} shows the linear correlation of the logarithmically transformed signals among multiple samples. 
+\caption{The {\emph scatterplot matrix} shows the linear correlation of the logarithmically transformed signals among multiple samples.
 The lower panels display the correlation between the corresponding samples.}
 
 \label{fig:pairPlot}

@@ -5,15 +5,36 @@ For more information about this project please visit the wproject wiki
 
 
 ## Install
+For Debian 10
+You will need to have installed:
+
+```
+sudo apt-get install libssl-dev pandoc pandoc-citeproc
+
+# LaTeX
+sudo apt-get install texlive-fonts-recommended texlive-latex-recommended texlive-latex-extra texlive-latex-base
+```
+
+
+```{r}
+install.packages(c("bookdown", "conflicted", "corrplot", "dplyr", "forcats", "gridExtra", "heatmap3", "limma", "missForest", "pander", "plyr", "purrr", "quantable", "R6", "reshape2", "rlang", "rmarkdown", "scales", "shiny", "tibble", "tidyr", "tidyverse", "usethis"))
+install.packages(c("tidyverse","usethis"))
+
+install.packages("BiocManager")
+BiocManager::install("limma")
+```
+
 
 ```{r}
 library(devtools)
-install_github(c('protViz/SRMService'))
+devtools::install_github(c('protViz/SRMService'))
 
 ```
 
 
-## Deployment on server
+## Deployment on shiny-server
+
+
 
 
 ```{r}

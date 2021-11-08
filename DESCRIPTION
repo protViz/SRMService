@@ -2,7 +2,7 @@ Package: SRMService
 Type: Package
 Title: Report Quantitative Mass Spectrometry Data
 Date: 2018-09-10
-Version: 0.1.9.23
+Version: 0.1.10.1
 Authors@R: c(person("Witold", "Wolski", email = "wewolski@gmail.com", role = c("aut", "cre")),
                   person("Jonas", "Grossmann", email = "jg@fgcz.ethz.ch", role = c("aut")),
                   person("Christian", "Panse", email = "cp@fgcz.ethz.ch", role = c("aut")))
@@ -11,6 +11,7 @@ Author: Witold Wolski
 Description: Analysing and LFQ and SRM experiments in service mode.
     Data preprocessing and visualization.
 Imports:
+    affy,
     bookdown,
     conflicted,
     corrplot,
@@ -38,13 +39,27 @@ Imports:
     tools,
     usethis,
     yaml
+Suggests:
+    testthat,
+    ggplot2,
+    knitr,
+    readxl,
+    MSqRob
+Remotes:
+    protViz/quantable,
+    statOmics/MSqRob
 License: GPL
 LazyData: TRUE
 URL: https://github.com/protViz/SRMService
 BugReports: https://github.com/protViz/SRMService/issues
 Repository: CRAN
 RoxygenNote: 7.1.1
+<<<<<<< HEAD
 Collate:
+=======
+VignetteBuilder: knitr
+Collate: 
+>>>>>>> origin/master
     'A_dataset_docu.R'
     'RequiredColumns.R'
     'eb.fit.R'
@@ -63,14 +78,5 @@ Collate:
     'readMaxQuant.R'
     'transitionCorrelations.R'
     'zzz.R'
-Suggests:
-    testthat,
-    ggplot2,
-    knitr,
-    readxl,
-    MSqRob
-Remotes:
-    protViz/quantable,
-    protViz/bibliospec,
-    statOmics/MSqRob
-VignetteBuilder: knitr
+Depends: 
+    R (>= 2.10)

@@ -5,3 +5,5 @@
 ^.*\.bat$
 .gitignore
 .git
+vignettes/Empty.Rmd
+vignettes/Grp2Analysis_MissingInOneCondition.Rmd
