@@ -4,8 +4,10 @@
 \alias{fgcz_render_One2OneReport}
 \title{perform rendering}
 \usage{
-fgcz_render_One2OneReport(maxquanttxtdirectory = ".",
-  reportFileBaseName = "fgcz_MQ_QC_report")
+fgcz_render_One2OneReport(
+  maxquanttxtdirectory = ".",
+  reportFileBaseName = "fgcz_MQ_QC_report"
+)
 }
 \description{
 perform rendering

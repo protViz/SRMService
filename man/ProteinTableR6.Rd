@@ -4,21 +4,11 @@
 \name{ProteinTableR6}
 \alias{ProteinTableR6}
 \title{Protein Table}
-\format{An object of class \code{R6ClassGenerator} of length 24.}
-\usage{
-ProteinTableR6
-}
 \description{
 Protein Table
+
+Protein Table
 }
-\section{Fields}{
-
-\describe{
-\item{\code{data}}{data.frame with colnames sample ID rownames proteinID}
-
-\item{\code{experimentID}}{name of the experiment}
-}}
-
 \examples{
 library(SRMService)
 x <- data.frame(Raw.file = c("A","B","C"),"MeasurementOrder" = c(1,2,3) , Gender = c("F","F","M"))
@@ -32,4 +22,117 @@ pt$get_data_long()
 pt$get_data_wide()
 pt$get_all_long()
 }
-\keyword{datasets}
+\section{Public fields}{
+\if{html}{\out{<div class="r6-fields">}}
+\describe{
+\item{\code{data}}{data.frame with colnames sample ID rownames proteinID}
+
+\item{\code{experimentID}}{name of the experiment}
+}
+\if{html}{\out{</div>}}
+}
+\section{Active bindings}{
+\if{html}{\out{<div class="r6-active-bindings">}}
+\describe{
+\item{\code{experimentID}}{name of the experiment}
+}
+\if{html}{\out{</div>}}
+}
+\section{Methods}{
+\subsection{Public methods}{
+\itemize{
+\item \href{#method-new}{\code{ProteinTableR6$new()}}
+\item \href{#method-set_data_wide}{\code{ProteinTableR6$set_data_wide()}}
+\item \href{#method-get_protein_id}{\code{ProteinTableR6$get_protein_id()}}
+\item \href{#method-get_data_long}{\code{ProteinTableR6$get_data_long()}}
+\item \href{#method-get_all_long}{\code{ProteinTableR6$get_all_long()}}
+\item \href{#method-get_data_wide}{\code{ProteinTableR6$get_data_wide()}}
+\item \href{#method-get_annotation}{\code{ProteinTableR6$get_annotation()}}
+\item \href{#method-clone}{\code{ProteinTableR6$clone()}}
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-new"></a>}}
+\if{latex}{\out{\hypertarget{method-new}{}}}
+\subsection{Method \code{new()}}{
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{ProteinTableR6$new(
+  annotation,
+  proteinID = "proteinID",
+  required = c("NrPeptides", "Fasta.Headers")
+)}\if{html}{\out{</div>}}
+}
+
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-set_data_wide"></a>}}
+\if{latex}{\out{\hypertarget{method-set_data_wide}{}}}
+\subsection{Method \code{set_data_wide()}}{
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{ProteinTableR6$set_data_wide(data)}\if{html}{\out{</div>}}
+}
+
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-get_protein_id"></a>}}
+\if{latex}{\out{\hypertarget{method-get_protein_id}{}}}
+\subsection{Method \code{get_protein_id()}}{
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{ProteinTableR6$get_protein_id()}\if{html}{\out{</div>}}
+}
+
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-get_data_long"></a>}}
+\if{latex}{\out{\hypertarget{method-get_data_long}{}}}
+\subsection{Method \code{get_data_long()}}{
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{ProteinTableR6$get_data_long()}\if{html}{\out{</div>}}
+}
+
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-get_all_long"></a>}}
+\if{latex}{\out{\hypertarget{method-get_all_long}{}}}
+\subsection{Method \code{get_all_long()}}{
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{ProteinTableR6$get_all_long()}\if{html}{\out{</div>}}
+}
+
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-get_data_wide"></a>}}
+\if{latex}{\out{\hypertarget{method-get_data_wide}{}}}
+\subsection{Method \code{get_data_wide()}}{
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{ProteinTableR6$get_data_wide()}\if{html}{\out{</div>}}
+}
+
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-get_annotation"></a>}}
+\if{latex}{\out{\hypertarget{method-get_annotation}{}}}
+\subsection{Method \code{get_annotation()}}{
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{ProteinTableR6$get_annotation()}\if{html}{\out{</div>}}
+}
+
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-clone"></a>}}
+\if{latex}{\out{\hypertarget{method-clone}{}}}
+\subsection{Method \code{clone()}}{
+The objects of this class are cloneable with this method.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{ProteinTableR6$clone(deep = FALSE)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{deep}}{Whether to make a deep clone.}
+}
+\if{html}{\out{</div>}}
+}
+}
+}

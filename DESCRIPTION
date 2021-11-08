@@ -43,7 +43,7 @@ LazyData: TRUE
 URL: https://github.com/protViz/SRMService
 BugReports: https://github.com/protViz/SRMService/issues
 Repository: CRAN
-RoxygenNote: 6.1.1
+RoxygenNote: 7.1.2
 Collate:
     'A_dataset_docu.R'
     'RequiredColumns.R'
@@ -53,6 +53,7 @@ Collate:
     'One2OneAnalysisHelpers.R'
     'PDProteins.R'
     'PhosphoService_HelperFunctions_v4_2019.R'
+    'PhosphoService_HelperFunctions_v5_2020.R'
     'PrepareRmdAnalysisEnv.R'
     'QCReport.R'
     'R6_ProteinTable.R'
