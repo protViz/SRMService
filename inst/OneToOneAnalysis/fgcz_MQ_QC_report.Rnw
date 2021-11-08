@@ -165,7 +165,7 @@ qc_summary_table[3,5] <- OkOrNot
 # Therefore /2 is removed
 # NumFiles <- (nrow(mq_summary)) / 2
 NumFiles <- (nrow(mq_summary))
-mqPeptideSequencesIdentified <- mq_summary[2:NumRows,34]
+mqPeptideSequencesIdentified <- mq_summary[2:NumFiles,34]
 percDiffOfPepSeqsID <- 100 - round(100*min(as.numeric(as.character(mqPeptideSequencesIdentified)))/max(as.numeric(as.character(mqPeptideSequencesIdentified))),2)
 qc_summary_table[6,4] <-  paste(percDiffOfPepSeqsID,"%",sep="")
 if(percDiffOfPepSeqsID > minVarOfID) OkOrNot <- "NOT OK" else OkOrNot <- "OK"
@@ -191,6 +191,60 @@ qc_summary_table[7,5] <- OkOrNot
 # qc_summary_table[8,5] <- OkOrNot
 
 #max % on missed cleaves
+qc_missedCleave_table <- table(mq_msms$Missed.cleavages, mq_msms$Raw.file)
+
+assignedPepsPerRaw <- vector()
+for (i in 1:ncol(qc_missedCleave_table)) {
+  assignedPepsPerRaw[i] <- sum(qc_missedCleave_table[,i])
+}
+assignedZeroMCperRaw <- qc_missedCleave_table[1,]
+percMCZero <- round(100*assignedZeroMCperRaw/assignedPepsPerRaw,2)
+(minPercMCZero <- min(percMCZero))
+qc_summary_table[4,4] <- paste(round(minPercMCZero,2),"%",sep="")
+if(minPercMCZero > minMissedCleaveage) OkOrNot <- "OK" else OkOrNot <- "NOT OK"
+(qc_summary_table[4,5] <- OkOrNot)
+
+#max % on var mods
+#histogram(~ mq_msms$Modifications|mq_msms$Raw.file, main="VarMods per RawFile",  scales = list(x = list(rot = 90, cex=0.8)), par.strip.text = list(cex = 1.2), xlab="Variable modifications")
+varModTable <- table(mq_msms$Modifications, mq_msms$Raw.file)
+#CRITICAL:: if one changes varMods for searching.. eventually "unmodified" is not last element anymore (alphabetically order, therefore pretty unlikely.. there is only V,W,X,Y,Z left )
+unmodifiedRow <- nrow(varModTable)
+unmodifiedPerRawFile <- varModTable[unmodifiedRow,]
+assignmentsPerRawFile <- vector()
+for (i in 1:ncol(varModTable)) {
+  assignmentsPerRawFile[i] <- sum(varModTable[,i])
+}
+percUnmodifiedPerRawFile <- round(100*unmodifiedPerRawFile/assignmentsPerRawFile,2)
+qc_summary_table[5,4] <- paste(min(percUnmodifiedPerRawFile),"%",sep="")
+if(min(percUnmodifiedPerRawFile) > minUnmodPeptides) OkOrNot <- "OK" else OkOrNot <- "NOT OK"
+(qc_summary_table[5,5] <- OkOrNot)
+
+#Baustelle figure out which one is the OK -> build it up different
+# jonas (20150601): solved by looking how many TRUE FALSE (at least one TRUE) # crashes if NOT a single OK -> also this is fixed (with quite a hack)
+#Table contains 40 cells.. check which ones are OK but then look for FALSE <= 35
+acceptableNotOKsInTable <- 40 - overall_minimumOKs
+if (table(qc_summary_table=="OK")[1] <= acceptableNotOKsInTable) QC_yn <- "QC passed" else QC_yn <- "QC failed"
+(QC_yn <- "QC passed")
+@
+
+
+<<printQCTable, echo=FALSE, results=tex>>=
+print(xtable(qc_summary_table,
+      caption = "Quality Control Summary. (1) Fold change threshold: 1.5 (calculated at a pValue threshold of 0.05). (2) single hit proteins are proteins identified with only one peptide. This percentage can vary extensively and is sample dependent. Quantification is generally performed with at least 2 peptides; hence this value shows the percentage of peptides that may be lost during quantitation)"),
+      include.rownames = FALSE,
+      scalebox= "0.8"
+      )
+@
+
+
+\vspace{1cm}
+The result of the QC experiment is the following:
+
+\vspace{1cm}
+\begin{center}
+{\LARGE  \textbf{\Sexpr{QC_yn}}}
+\end{center}
+\pagebreak
 
 
 
@@ -262,7 +316,7 @@ Information on the LC MS/MS data acquired for each sample:
 \item number of peptide sequences identified.
 \end{itemize}
 
-The precentage of assigned spectra varies according to the type and amount of sample analysed. In the case of complex samples, the percentage of assigned spectra can reach 50%, but a low value should not be associated with a low quality of the QC. The values should be similar in all samples.
+The percentage of assigned spectra varies according to the type and amount of sample analysed. In the case of complex samples, the percentage of assigned spectra can reach 50%, but a low value should not be associated with a low quality of the QC. The values should be similar in all samples.
 Data are extracted from file \texttt{Summary.txt}.
 
 <<generateIdentTable, echo=FALSE>>=
