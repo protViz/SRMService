@@ -59,6 +59,165 @@ Briefly: four samples, consisting of two biochemical replicates from your sample
 
 \pagebreak
 
+\section{Summary Overview}
+\vspace{0.5cm}
+Based on some hard criteria reported in Table 1, we evaluate if the results of the QC experiment are within normal ranges and if the QC step should be considered successful or not. This allows assessing the reproducibility of the workflow both at FGCZ and customer's side.
+The criteria include: (a) fold change (the QC analysis consists of biochemical replicates and we do not expect more changes than a 5% of false positives); (b) R-squared correlation (a value higher than 0.9 is expected); (c) Scaling factor (the expected normalization factor should be lower than 3); (d) information on percentage of fully tryptic and unmodified peptides (the most important peptides for quantification); (e) percentage of proteins identified with only 1 peptide (quantification will be performed only on proteins with more than 2 peptides).
+\vspace{1cm}
+
+<<GenerateSummaryTableAndGetQCpassedOrNot, echo=FALSE, results=hide>>=
+# BUILD UP SUMMARY TABLE WITH STATIC INFORMATION
+qc_summary_table <- matrix(nrow=0, ncol = 5)
+colnames(qc_summary_table) <-  c("Criteria", "Reference","Threshold", "Value", "Flag")
+
+diffExpGenes <- c("Max % of regulated proteins (1): ","n/a", "5%", "NA", "NA")
+minRsquare <- c("Min R-square for correlation: ","Fig. 15", "0.9", "NA", "NA")
+maxScaleFactor <- c("Max scaling factor: ","Fig. 14", "3", "NA", "NA")
+varianceMSMS <- c("Difference of identified peptides in biochemical reps: ","Table 2", "30%", "NA", "NA")
+percSingleProteinHits <- c("Max % of single hit proteins (in full exp) (2): ","n/a", "50%", "NA", "NA")
+#percSingleProteinHitsInQuant <- c("% of single hit proteins in LFQ (2): ","n/a", "0%", "NA", "NA")
+missedCleavage <- c("Min % of fully tryptic: ","Fig. 7", "50%", "NA", "NA")
+unmodifiedPerc <- c("Min % of unmodified peptides: ","Fig. 8", "80%", "NA", "NA")
+
+
+qc_summary_table <- rbind(qc_summary_table, diffExpGenes, minRsquare, maxScaleFactor,
+                          missedCleavage, unmodifiedPerc, varianceMSMS, percSingleProteinHits)
+
+overall_minimumOKs <- 5
+#FillDefault Thresholds
+fixDiffExpTreshold <- 5
+minRsquare <- 0.9
+minScaleFactor <- 3
+minVarOfID <- 30
+minSingleProteinHits <- 30
+minQuantSingleProteinHits <- 0
+minMissedCleaveage <- 50
+minUnmodPeptides <- 80
+
+
+qc_summary_table[1,3] <- paste(fixDiffExpTreshold,"%",sep="")
+qc_summary_table[2,3] <- minRsquare
+qc_summary_table[3,3] <- minScaleFactor
+qc_summary_table[4,3] <- paste(minMissedCleaveage,"%",sep="")
+qc_summary_table[5,3] <- paste(minUnmodPeptides,"%",sep="")
+qc_summary_table[6,3] <- paste(minVarOfID,"%",sep="")
+qc_summary_table[7,3] <- paste(minSingleProteinHits,"%",sep="")
+#qc_summary_table[8,3] <- paste(minQuantSingleProteinHits,"%",sep="")
+
+#Parse and run for Values
+#Differentially Expressed Genes < 0.05
+# FoldChangeTh
+FCth <- 1.5
+sigThr <- 0.05
+
+# apply quant filter
+bool_moreThanOnePeptide <- mq_proteinGroups$Razor...unique.peptides > 1
+qc_intensities <- mq_proteinGroups_intensities[bool_moreThanOnePeptide,]
+
+
+
+if(FALSE){
+  message("impute all rows containing values with 0 ...")
+  qc_intensities <- SRMService:::ImputeValuesInProtMatrixForRowsWithZeros(qc_intensities)
+}else {
+  message("remove all rows containing values with 0.")
+  qc_intensities[qc_intensities == 0] <- NA
+  qc_intensities <- na.omit(qc_intensities)
+}
+
+
+# TODO(jg): refactor function to not output the file
+qc_normalized_intensities <- SRMService:::NormalizeWithMedianPQMatrix(qc_intensities)
+sf <- "appliedScaleFactors_Median.txt"
+scaleF <- read.table(sf, sep=" ", header=F, stringsAsFactors = TRUE)
+
+
+# TODO(cp): rename the shit
+debug( SRMService:::Do2grpTtestRobustOnMatrixAndBHcorrWithThresholdAndFoldChangeAndReturnOnlySignificantsInternalTrafo)
+qc_list_of_significants <- SRMService:::Do2grpTtestRobustOnMatrixAndBHcorrWithThresholdAndFoldChangeAndReturnOnlySignificantsInternalTrafo(ProtQuantMatrix = qc_normalized_intensities,
+    SignificanceThreshold = sigThr,
+    LinFoldChangeThreshold = FCth,
+    bool_TrafoHere = TRUE)
+
+(percDiffExp <- round(100 * nrow(qc_list_of_significants) / nrow(qc_normalized_intensities), 2))
+qc_summary_table[1,4] <- percDiffExp
+
+OkOrNot <- "NA"
+if(percDiffExp > fixDiffExpTreshold) OkOrNot <- "NOT OK" else OkOrNot <- "OK"
+qc_summary_table[1,5] <- OkOrNot
+
+#min R-Square
+ProtcorrMatrix <- cor(as.matrix(qc_normalized_intensities))
+rsqMin <- min(ProtcorrMatrix)
+qc_summary_table[2,4] <- paste(round(rsqMin,4),sep="")
+if(rsqMin > minRsquare) OkOrNot <- "OK" else OkOrNot <- "NOT OK"
+qc_summary_table[2,5] <- OkOrNot
+
+#ScalingFactor
+mxScF <- max(scaleF[,2])
+qc_summary_table[3,4] <- round(mxScF,2)
+if(mxScF > minScaleFactor) OkOrNot <- "NOT OK" else OkOrNot <- "OK"
+qc_summary_table[3,5] <- OkOrNot
+
+
+#maxVar of Identifed sequences
+# 2021-09-28 (jg) the summary txt has changed and the experiment numbers are NOT reported anymore therefore the table is as long as files there are
+# Therefore /2 is removed
+# NumFiles <- (nrow(mq_summary)) / 2
+NumFiles <- (nrow(mq_summary))
+mqPeptideSequencesIdentified <- mq_summary[2:NumRows,34]
+percDiffOfPepSeqsID <- 100 - round(100*min(as.numeric(as.character(mqPeptideSequencesIdentified)))/max(as.numeric(as.character(mqPeptideSequencesIdentified))),2)
+qc_summary_table[6,4] <-  paste(percDiffOfPepSeqsID,"%",sep="")
+if(percDiffOfPepSeqsID > minVarOfID) OkOrNot <- "NOT OK" else OkOrNot <- "OK"
+qc_summary_table[6,5] <- OkOrNot
+
+
+
+#max % on singleHitProteins
+totProteins <- nrow(mq_proteinGroups)
+min2peps <- sum(mq_proteinGroups$Razor...unique.peptides > 1)
+percMin2Peps <- 100 * (totProteins - min2peps) / totProteins
+qc_summary_table[7,4] <- paste(round(percMin2Peps,2),"%",sep="")
+if(percMin2Peps < minSingleProteinHits) OkOrNot <- "OK" else OkOrNot <- "Problematic"
+qc_summary_table[7,5] <- OkOrNot
+
+
+#max % on QUANT:singleHitProteins
+# totQuantProteins <- nrow(quantDat)
+# totSingleHitQuant <- sum(Fulldat[bool_moreThanOnePeptide,]$Razor...unique.peptides == 1)
+# percQuantSingleHits <- round(100*totSingleHitQuant/totQuantProteins, 2)
+# qc_summary_table[8,4] <- paste(percQuantSingleHits,"%",sep="")
+# if(percQuantSingleHits == minQuantSingleProteinHits) OkOrNot <- "OK" else OkOrNot <- "NOT OK"
+# qc_summary_table[8,5] <- OkOrNot
+
+#max % on missed cleaves
+
+
+
+\section{Overview of the data input and output Overview}
+
+\subsection{Input: List of analysed samples}
+Find below the list of acquired raw-files and their names in an abbreviated form.
+<<filenameOverViewTable, echo=FALSE, results=tex>>=
+# 2021-09-28 (jg) the summary txt has changed and the experiment numbers are NOT reported anymore therefore the table is as long as files there are
+# Therefore /2 is removed
+# NumFiles <- (nrow(mq_summary)) / 2
+NumFiles <- (nrow(mq_summary))
+files <- mq_summary[2:NumFiles,1]
+#myFileIndex <- 1:(NumFiles-1)
+betterNames <- gsub(pattern = "^[[:digit:]]+_", replacement = "", gsub(pattern = "Intensity.", replacement = "", files))
+evenBetterNames <- gsub(pattern = "^[[:digit:]]+_", replacement = "", gsub(pattern = "^[[:digit:]]+_", replacement = "", betterNames))
+myFileTable <- as.matrix(cbind(as.character(files), evenBetterNames))
+colnames(myFileTable) <- c("original RawFileNames", "Short Names")
+print(xtable(myFileTable, caption="List of acquired raw-files"),
+  size="\\normalsize",
+  include.colnames = TRUE,
+  scalebox= "0.8")
+@
+
+
+\pagebreak
+
 \subsection{Parameters}
 
 
