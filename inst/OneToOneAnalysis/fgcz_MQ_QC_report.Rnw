@@ -59,11 +59,11 @@ Briefly: four samples, consisting of two biochemical replicates from your sample
 
 \pagebreak
 
-\section{Summary Overview}
-\vspace{0.5cm}
-Based on some hard criteria reported in Table 1, we evaluate if the results of the QC experiment are within normal ranges and if the QC step should be considered successful or not. This allows assessing the reproducibility of the workflow both at FGCZ and customer's side.
-The criteria include: (a) fold change (the QC analysis consists of biochemical replicates and we do not expect more changes than a 5% of false positives); (b) R-squared correlation (a value higher than 0.9 is expected); (c) Scaling factor (the expected normalization factor should be lower than 3); (d) information on percentage of fully tryptic and unmodified peptides (the most important peptides for quantification); (e) percentage of proteins identified with only 1 peptide (quantification will be performed only on proteins with more than 2 peptides).
-\vspace{1cm}
+% \section{Summary Overview}
+% \vspace{0.5cm}
+% Based on some hard criteria reported in Table 1, we evaluate if the results of the QC experiment are within normal ranges and if the QC step should be considered successful or not. This allows assessing the reproducibility of the workflow both at FGCZ and customer's side.
+% The criteria include: (a) fold change (the QC analysis consists of biochemical replicates and we do not expect more changes than a 5% of false positives); (b) R-squared correlation (a value higher than 0.9 is expected); (c) Scaling factor (the expected normalization factor should be lower than 3); (d) information on percentage of fully tryptic and unmodified peptides (the most important peptides for quantification); (e) percentage of proteins identified with only 1 peptide (quantification will be performed only on proteins with more than 2 peptides).
+% \vspace{1cm}
 
 <<GenerateSummaryTableAndGetQCpassedOrNot, echo=FALSE, results=hide>>=
 # BUILD UP SUMMARY TABLE WITH STATIC INFORMATION
@@ -229,23 +229,23 @@ if (table(qc_summary_table=="OK")[1] <= acceptableNotOKsInTable) QC_yn <- "QC pa
 
 
 <<printQCTable, echo=FALSE, results=tex>>=
-print(xtable(qc_summary_table,
-      caption = "Quality Control Summary. (1) Fold change threshold: 1.5 (calculated at a pValue threshold of 0.05). (2) single hit proteins are proteins identified with only one peptide. This percentage can vary extensively and is sample dependent. Quantification is generally performed with at least 2 peptides; hence this value shows the percentage of peptides that may be lost during quantitation)"),
-      include.rownames = FALSE,
-      scalebox= "0.8"
-      )
+# print(xtable(qc_summary_table,
+#       caption = "Quality Control Summary. (1) Fold change threshold: 1.5 (calculated at a pValue threshold of 0.05). (2) single hit proteins are proteins identified with only one peptide. This percentage can vary extensively and is sample dependent. Quantification is generally performed with at least 2 peptides; hence this value shows the percentage of peptides that may be lost during quantitation)"),
+#       include.rownames = FALSE,
+#       scalebox= "0.8"
+#       )
 @
 
 
-\vspace{1cm}
-The result of the QC experiment is the following:
-
-\vspace{1cm}
-\begin{center}
-{\LARGE  \textbf{\Sexpr{QC_yn}}}
-\end{center}
-\pagebreak
-
+% \vspace{1cm}
+% The result of the QC experiment is the following:
+%
+% \vspace{1cm}
+% \begin{center}
+% {\LARGE  \textbf{\Sexpr{QC_yn}}}
+% \end{center}
+% \pagebreak
+%
 
 
 \section{Overview of the data input and output Overview}
