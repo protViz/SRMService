@@ -161,7 +161,10 @@ qc_summary_table[3,5] <- OkOrNot
 
 
 #maxVar of Identifed sequences
-NumRows <- nrow(mq_summary) / 2
+# 2021-09-28 (jg) the summary txt has changed and the experiment numbers are NOT reported anymore therefore the table is as long as files there are
+# Therefore /2 is removed
+# NumFiles <- (nrow(mq_summary)) / 2
+NumFiles <- (nrow(mq_summary))
 mqPeptideSequencesIdentified <- mq_summary[2:NumRows,34]
 percDiffOfPepSeqsID <- 100 - round(100*min(as.numeric(as.character(mqPeptideSequencesIdentified)))/max(as.numeric(as.character(mqPeptideSequencesIdentified))),2)
 qc_summary_table[6,4] <-  paste(percDiffOfPepSeqsID,"%",sep="")
@@ -317,7 +320,11 @@ The precentage of assigned spectra varies according to the type and amount of sa
 Data are extracted from file \texttt{Summary.txt}.
 
 <<generateIdentTable, echo=FALSE>>=
-NumRows <- nrow(mq_summary)/2
+# 2021-11-08: (jg) the summary txt has changed and the experiment numbers are NOT reported anymore therefore the table is as long as files there are
+# Therefore /2 is removed
+# NumFiles <- (nrow(mq_summary)) / 2
+# NumRows <- nrow(mq_summary)/2
+NumRows <- nrow(mq_summary)
 # select here what we should from the summary table.. it is too big and too complicated as is
 # betterheader <- c("Raw file (short)", "MS_1", "MS/MS", "MS/MS identified", "Peptides identified")
 # we only want: names (1), num MS1 (19), num MS2 (20), MSMS identified (30), peptides ident (34)
