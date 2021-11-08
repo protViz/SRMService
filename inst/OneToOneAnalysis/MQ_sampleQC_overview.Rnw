@@ -146,7 +146,9 @@ myTable[3,5] <- OkOrNot
 
 
 #maxVar of Identifed sequences
-NumRows <- nrow(summ)/2
+# 2021-11-08: fix for changed structure in Summary.txt in new MQ version (not /2 anymore)
+# NumRows <- nrow(summ)/2
+NumRows <- nrow(summ)
 mqPeptideSequencesIdentified <- summ[2:NumRows,32]
 percDiffOfPepSeqsID <- 100 - round(100*min(as.numeric(as.character(mqPeptideSequencesIdentified)))/max(as.numeric(as.character(mqPeptideSequencesIdentified))),2)
 myTable[6,4] <-  paste(percDiffOfPepSeqsID,"%",sep="")
@@ -232,7 +234,9 @@ The QC result is the following:
 Here the list of acquired raw-files:
 <<echo=FALSE, results=tex>>=
 library(xtable)
-NumFiles <- (nrow(summ))/2
+# 2021-11-08: fix for changed structure in Summary.txt in new MQ version (not /2 anymore)
+# NumFiles <- (nrow(summ))/2
+NumFiles <- (nrow(summ))
 files <- summ[2:NumFiles,1]
 #myFileIndex <- 1:(NumFiles-1)
 betterNames <- gsub(pattern = "^[[:digit:]]+_", replacement = "", gsub(pattern = "Intensity.", replacement = "", files))
@@ -293,7 +297,9 @@ Information on the LC MS/MS data acquired for each sample:\\
 Data are extracted from file "Summary.txt"
 
 <<echo=FALSE>>=
-NumRows <- nrow(summ)/2
+# 2021-11-08: fix for changed structure in Summary.txt in new MQ version (not /2 anymore)
+# NumRows <- nrow(summ)/2
+NumRows <- nrow(summ)
 tt <- cbind(as.character(summ[1:NumRows,1]),as.character(summ[1:NumRows,17]),as.character(summ[1:NumRows,19]),as.character(summ[1:NumRows,24]),as.character(summ[1:NumRows,32]))
 
 header <- tt[1,]
